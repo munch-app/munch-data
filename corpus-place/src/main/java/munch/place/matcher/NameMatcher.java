@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,70 +24,57 @@ public final class NameMatcher {
     private static final StringSimilarity similarity = new NormalizedLevenshtein();
     private static final double threshold = 0.939;
 
+    private final NameCleanser nameCleanser;
+
+    @Inject
+    public NameMatcher(NameCleanser nameCleanser) {
+        this.nameCleanser = nameCleanser;
+    }
+
     /**
      * @param insides data already inside
      * @param outside data outside coming in
      * @return true is outside data belongs with inside
      */
     public boolean match(List<CorpusData> insides, CorpusData outside) {
-        // TODO Clean Name
-        // TODO Location in Name
-        // TODO Actual Matching
-        return true;
+        List<String> outsideNames = collectNames(outside);
+
+        for (CorpusData inside : insides) {
+            if (match(collectNames(inside), outsideNames)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<String> collectNames(CorpusData data) {
+        return PlaceKey.name.getAll(data).stream()
+                .map(field -> nameCleanser.clean(field.getValue()))
+                .collect(Collectors.toList());
     }
 
     /**
-     * Match both postal and name
-     *
-     * @param data catalyst link with corpus data
-     * @return true = same name
-     */
-    public boolean match(CorpusData data) {
-        Optional<CorpusData.Field> field = PlaceKey.name.get(data);
-        return field.filter(f -> match(f.getValue())).isPresent();
-    }
-
-    /**
-     * @param name name of place to match
+     * @param lefts  multiple name
+     * @param rights multiple name
      * @return true if matched
      */
-    protected boolean match(String name) {
-        String cleaned = clean(name);
-        return names.stream().anyMatch(saved -> match(saved, cleaned));
+    private boolean match(List<String> lefts, List<String> rights) {
+        for (String left : lefts) {
+            for (String right : rights) {
+                if (match(left, right)) return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * @param saved trimmed lower case
-     * @param name  lower case name
-     * @return true = potentially equal place name
+     * @param left  trimmed lower case
+     * @param right lower case right
+     * @return true = potentially equal place right
      */
-    protected boolean match(String saved, String name) {
-        double score = similarity.similarity(name, saved);
-        logger.trace("{} and {} scored: {}", name, saved, score);
+    private boolean match(String left, String right) {
+        double score = similarity.similarity(left, right);
+        logger.trace("left: {} and right: {} scored: {}", left, right, score);
         return score > threshold;
-    }
-
-    /**
-     * 1. lowercase it
-     * 2. remove .,'"`
-     * 3. replace - to space
-     * 4. remove pte.? ltd.?
-     *
-     * @param text string to clean
-     * @return cleaned string
-     */
-    protected String clean(String text) {
-
-        return text.toLowerCase()
-                // Divider Words
-                .replaceAll("-|–|—|[_:;@|/\\\\~]", " ")
-                // Only Compare AlphaNumeric
-                .replaceAll("[`!#$%^&*()+=\\[\\]{}\">.<,?]", "")
-                // Remove PTE LTD
-                .replaceAll("pte ?ltd", "")
-                // Trim all the 1 spacing
-                .replaceAll(" {2,}", " ")
-                // Trim starts and end
-                .trim();
     }
 }
