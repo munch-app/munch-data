@@ -1,6 +1,8 @@
 dependencies {
-    compile project(':data-structure')
+    compile project(':data-client')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+
+    compile group: 'info.debatty', name: 'java-string-similarity', version: '0.23'
 }
 
-mainClassName = 'munch.search.SearchModule'
+mainClassName = 'munch.place.PlaceModule'
