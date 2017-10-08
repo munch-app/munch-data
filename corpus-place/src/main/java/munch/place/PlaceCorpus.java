@@ -27,7 +27,7 @@ public class PlaceCorpus extends AbstractEngine<CorpusData> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofMillis(20);
+        return Duration.ofMinutes(30);
     }
 
     @Override

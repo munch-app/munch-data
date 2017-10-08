@@ -44,7 +44,7 @@ public final class ElasticClient {
                 .put("size", size);
         ObjectNode contexts = completion.putObject("contexts");
 
-        // Context: LatLng/
+        // Context: LatLng
         if (StringUtils.isNotBlank(latLng)) {
             String[] lls = latLng.split(",");
 

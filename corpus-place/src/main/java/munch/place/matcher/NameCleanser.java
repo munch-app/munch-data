@@ -1,6 +1,6 @@
 package munch.place.matcher;
 
-import java.util.List;
+import javax.inject.Singleton;
 
 /**
  * Created By: Fuxing Loh
@@ -8,36 +8,25 @@ import java.util.List;
  * Time: 9:07 PM
  * Project: munch-data
  */
+@Singleton
 public final class NameCleanser {
 
     public String clean(String name) {
-        // TODO Clean Name Sheet
-        // TODO Location in Name Sheet
-
-        return box(name)
-                .removeLocation(null)
-                .removePostfix(null)
+        // Fix Location in name?
+        return new BoxedString(name)
+                .removePostfix()
                 .finish();
     }
 
-    public BoxedString box(String name) {
-        return new BoxedString(name);
-    }
-
-    public class BoxedString {
+    private class BoxedString {
         private String text;
 
         public BoxedString(String text) {
             this.text = text.toLowerCase();
         }
 
-        public BoxedString removeLocation(List<String> texts) {
-            // TODO location name
-            return this;
-        }
-
-        public BoxedString removePostfix(List<String> texts) {
-            // TODO postfix
+        public BoxedString removePostfix() {
+            this.text = text.replaceAll("pte\\.? ?ltd\\.?", "");
             return this;
         }
 

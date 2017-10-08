@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
+import munch.place.elastic.ElasticModule;
 
 /**
  * Created By: Fuxing Loh
@@ -17,6 +18,7 @@ public class PlaceModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        install(new ElasticModule());
         install(new CorpusModule());
         install(new DataModule());
     }

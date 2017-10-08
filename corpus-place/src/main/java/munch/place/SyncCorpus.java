@@ -5,13 +5,18 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.engine.AbstractEngine;
+import corpus.field.PlaceKey;
+import munch.place.elastic.ElasticClient;
+import munch.place.elastic.PartialPlace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,10 +30,12 @@ public class SyncCorpus extends AbstractEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(SyncCorpus.class);
 
     private final Set<String> corpusNames;
+    private final ElasticClient elasticClient;
 
     @Inject
-    public SyncCorpus(Config config) {
+    public SyncCorpus(Config config, ElasticClient elasticClient) {
         super(logger);
+        this.elasticClient = elasticClient;
 
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();
         builder.addAll(config.getStringList("place.seeds"));
@@ -55,10 +62,33 @@ public class SyncCorpus extends AbstractEngine<CorpusData> {
 
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
-        // TODO: Put into service-place-search
+        PartialPlace partial = createPartial(data);
+        if (partial == null) return;
 
+        // TODO: Don't put if already merged?
+
+        elasticClient.put(cycleNo, partial);
         if (processed % 100 == 0) {
-            sleep(Duration.ofSeconds(5));
+            sleep(Duration.ofSeconds(6));
         }
+    }
+
+    @Override
+    protected void deleteCycle(long cycleNo) {
+        elasticClient.delete(cycleNo);
+    }
+
+    @Nullable
+    private static PartialPlace createPartial(CorpusData data) {
+        List<String> name = PlaceKey.name.getAllValue(data);
+        List<String> postal = PlaceKey.Location.postal.getAllValue(data);
+        if (name.isEmpty() || postal.isEmpty()) return null;
+
+        PartialPlace partial = new PartialPlace();
+        partial.setCorpusName(data.getCorpusName());
+        partial.setCorpusKey(data.getCorpusKey());
+        partial.setName(name);
+        partial.setPostal(postal);
+        return partial;
     }
 }
