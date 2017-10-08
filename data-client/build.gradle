@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':data-structure')
+    compile group: 'munch.restful', name: 'restful-client', version: restfulVersion
+    compile group: 'com.google.inject.extensions', name: 'guice-multibindings', version: '4.1.0'
+}

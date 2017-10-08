@@ -1,9 +1,20 @@
 rootProject.name = 'munch-data'
 
-include 'client'
-include 'structure'
-include 'corpus-place'
+// DynamoDB + Elasticsearch for Place, Location & Tag
+include 'data-client'
 
+// Corpus Sg.Munch.Place
+include 'corpus-place'
+include 'service-name-comparator'
+
+// Corpus Sg.Munch.Location
+// include 'corpus-location'
+
+// Corpus Sg.Munch.Tag
+// include 'corpus-tag'
+
+// TODO: REMOVE
+include 'data-structure'
 include 'service-data'
 include 'service-search'
 

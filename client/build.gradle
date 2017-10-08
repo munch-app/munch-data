@@ -1,3 +1,0 @@
-dependencies {
-    compile group: 'munch.restful', name: 'restful-server', version: restfulVersion
-}

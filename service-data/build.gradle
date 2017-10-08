@@ -1,7 +1,7 @@
 ext.hibernateVersion = '5.0.11.Final'
 
 dependencies {
-    compile project(':structure')
+    compile project(':data-structure')
     compile group: 'munch.restful', name: 'restful-server', version: restfulVersion
 
     // Injection

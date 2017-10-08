@@ -1,6 +1,5 @@
 dependencies {
-    compile project(':structure')
-
+    compile project(':data-structure')
     compile group: 'munch.restful', name: 'restful-server', version: restfulVersion
     compile group: 'catalyst', name: 'corpus-utils', version: ccVersion
 

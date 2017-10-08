@@ -1,6 +1,5 @@
 dependencies {
-    compile project(':structure')
-
+    compile project(':data-structure')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
 }
 
