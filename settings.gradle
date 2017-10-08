@@ -5,7 +5,8 @@ include 'data-client'
 
 // Corpus Sg.Munch.Place
 include 'corpus-place'
-include 'service-name-comparator'
+include 'service-place-search'
+include 'service-place-comparator'
 
 // Corpus Sg.Munch.Location
 // include 'corpus-location'
