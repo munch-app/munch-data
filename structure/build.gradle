@@ -1,0 +1,4 @@
+dependencies {
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.7'
+    compile group: 'com.google.inject', name: 'guice', version: '4.1.0'
+}

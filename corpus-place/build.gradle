@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':structure')
+
+    compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+}
+
+mainClassName = 'munch.search.SearchModule'

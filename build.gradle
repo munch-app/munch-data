@@ -1,0 +1,116 @@
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: "com.jfrog.artifactory"
+    apply plugin: 'maven-publish'
+
+    group 'munch.data'
+    version '1.0.0-SNAPSHOT'
+    ext.restfulVersion = '1.0.0'
+    ext.ccVersion = '2.0.0-SNAPSHOT'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    compileJava.options.encoding = 'UTF-8'
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives sourcesJar
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact(sourcesJar) {
+                    classifier = 'sources'
+                }
+            }
+        }
+    }
+
+    configurations.all { resolutionStrategy.cacheChangingModulesFor 0, 'seconds' }
+
+    dependencies {
+        testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.0.0'
+        testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
+
+        compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.1u2'
+    }
+}
+
+configure(subprojects.findAll { it.name.matches("(corpus|service)-(.+)") }) {
+    apply plugin: 'application'
+    apply plugin: 'com.bmuschko.docker-java-application'
+
+    ext.dockerTag = rootProject.name + '/' + project.name + ':latest'
+    ext.dockerHost = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/' + dockerTag
+
+    dockerDistTar {
+        runCommand('apk add --update bash && rm -rf /var/cache/apk/*')
+    }
+
+    docker {
+        javaApplication {
+            baseImage = 'openjdk:8-jdk-alpine'
+            maintainer = 'Fuxing'
+            ports = [8000]
+            tag = dockerTag
+        }
+    }
+
+    task publishDocker {
+        dependsOn 'clean'
+        dependsOn 'dockerBuildImage'
+        tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
+
+        doLast {
+            exec { commandLine "docker", "tag", dockerTag, dockerHost }
+            exec { commandLine "docker", "push", dockerHost}
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        maven {
+            url 'http://artifactory.fxloh.com/artifactory/munch-repos'
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
+        }
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.12'
+    }
+}
+
+// https://www.jfrog.com/confluence/display/RTF/Gradle+Artifactory+Plugin
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            repoKey = "munch-${project.version.endsWith('-SNAPSHOT') ? 'snapshot' : 'release'}"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+        defaults {
+            publications('mavenJava')
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'munch-repos'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+}

@@ -1,0 +1,9 @@
+rootProject.name = 'munch-data'
+
+include 'client'
+include 'structure'
+include 'corpus-place'
+
+include 'service-data'
+include 'service-search'
+
