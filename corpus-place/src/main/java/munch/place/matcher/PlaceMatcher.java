@@ -24,7 +24,6 @@ public final class PlaceMatcher {
         this.nameMatcher = nameMatcher;
     }
 
-
     /**
      * @param insides data already inside
      * @param outside data outside coming in

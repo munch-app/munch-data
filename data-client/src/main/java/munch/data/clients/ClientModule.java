@@ -27,6 +27,6 @@ public class ClientModule extends AbstractModule {
     @Inject
     void waitFor(Config config) {
         WaitFor.host(config.getString("services.data.url"), Duration.ofSeconds(180));
-        WaitFor.host(config.getString("services.search.url"), Duration.ofSeconds(180));
+        WaitFor.host(config.getString("services.elastic.url"), Duration.ofSeconds(180));
     }
 }

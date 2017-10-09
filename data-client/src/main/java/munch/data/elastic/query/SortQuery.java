@@ -1,10 +1,10 @@
-package munch.search.place;
+package munch.data.elastic.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import munch.data.SearchQuery;
+import munch.data.structure.SearchQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public final class SortQuery {
 
             default:
             case SearchQuery.Sort.TYPE_MUNCH_RANK:
-                sortArray.add(sortField("ranking", "desc"));
+                sortArray.add(sortField("munchRank", "desc"));
                 break;
         }
 

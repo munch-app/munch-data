@@ -11,9 +11,3 @@ include 'corpus-place'
 
 // Corpus Sg.Munch.Tag
 // include 'corpus-tag'
-
-// TODO: REMOVE
-include 'data-structure'
-include 'service-data'
-include 'service-search'
-

@@ -1,10 +1,8 @@
 package munch.place;
 
 import catalyst.utils.iterators.NestedIterator;
-import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.Config;
 import corpus.data.CorpusData;
-import corpus.engine.AbstractEngine;
+import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
 import munch.place.elastic.ElasticClient;
 import munch.place.elastic.PartialPlace;
@@ -13,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
@@ -26,21 +25,17 @@ import java.util.Set;
  * Project: munch-data
  */
 @Singleton
-public class SyncCorpus extends AbstractEngine<CorpusData> {
+public class SyncCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(SyncCorpus.class);
 
-    private final Set<String> corpusNames;
+    private final Set<String> treeNames;
     private final ElasticClient elasticClient;
 
     @Inject
-    public SyncCorpus(Config config, ElasticClient elasticClient) {
+    public SyncCorpus(@Named("place.trees") Set<String> treeNames, ElasticClient elasticClient) {
         super(logger);
+        this.treeNames = treeNames;
         this.elasticClient = elasticClient;
-
-        ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-        builder.addAll(config.getStringList("place.seeds"));
-        builder.addAll(config.getStringList("place.trees"));
-        this.corpusNames = builder.build();
     }
 
     @Override
@@ -55,7 +50,7 @@ public class SyncCorpus extends AbstractEngine<CorpusData> {
 
     @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
-        return new NestedIterator<>(corpusNames.iterator(),
+        return new NestedIterator<>(treeNames.iterator(),
                 corpusName -> corpusClient.list(corpusName)
         );
     }
@@ -64,8 +59,6 @@ public class SyncCorpus extends AbstractEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData data, long processed) {
         PartialPlace partial = createPartial(data);
         if (partial == null) return;
-
-        // TODO: Don't put if already merged?
 
         elasticClient.put(cycleNo, partial);
         if (processed % 100 == 0) {

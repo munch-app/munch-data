@@ -1,0 +1,104 @@
+package munch.place;
+
+import corpus.data.CatalystClient;
+import corpus.data.CorpusClient;
+import corpus.data.CorpusData;
+import corpus.field.PlaceKey;
+import munch.place.elastic.ElasticClient;
+import munch.place.matcher.PlaceMatcher;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Created by: Fuxing
+ * Date: 9/10/2017
+ * Time: 6:19 PM
+ * Project: munch-data
+ */
+public final class Amalgamate {
+
+    private final CorpusClient corpusClient;
+    private final CatalystClient catalystClient;
+    private final ElasticClient elasticClient;
+
+    private final Set<String> treeNames;
+    private final PlaceMatcher placeMatcher;
+
+    @Inject
+    public Amalgamate(CorpusClient corpusClient, CatalystClient catalystClient, ElasticClient elasticClient,
+                      @Named("place.trees") Set<String> treeNames, PlaceMatcher placeMatcher) {
+        this.corpusClient = corpusClient;
+        this.catalystClient = catalystClient;
+        this.elasticClient = elasticClient;
+        this.treeNames = treeNames;
+        this.placeMatcher = placeMatcher;
+    }
+
+    public boolean maintain(CorpusData placeData) {
+        if (validate(placeData)) {
+            add(placeData);
+            return true;
+        } else {
+            corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
+            return false;
+        }
+    }
+
+    /**
+     * @param placeData Sg.Munch.Place
+     * @return true if still exist
+     */
+    private boolean validate(CorpusData placeData) {
+        List<CorpusData> treeList = collectTree(placeData.getCatalystId());
+        if (treeList.isEmpty()) return false;
+
+        for (CorpusData outside : treeList) {
+            List<CorpusData> insides = new ArrayList<>(treeList);
+            insides.remove(outside);
+
+            if (!placeMatcher.match(insides, outside)) {
+                // Remove if don't match anymore
+                treeList.remove(outside);
+                corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), null);
+            }
+        }
+
+        // If none left
+        return !treeList.isEmpty();
+    }
+
+    /**
+     * @param placeData find more data to add
+     */
+    private void add(CorpusData placeData) {
+        // Existing insides
+        List<CorpusData> insides = collectTree(placeData.getCatalystId());
+        long localCount = catalystClient.countCorpus(placeData.getCatalystId());
+        String postal = PlaceKey.Location.postal.get(placeData)
+                .map(CorpusData.Field::getValue)
+                .orElseThrow(NullPointerException::new);
+
+        elasticClient.search(postal).forEachRemaining(result -> {
+            CorpusData outside = corpusClient.get(result.getCorpusName(), result.getCorpusKey());
+            if (outside == null) return;
+            if (!placeMatcher.match(insides, outside)) return;
+            if (localCount < catalystClient.countCorpus(outside.getCatalystId())) return;
+
+            corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), placeData.getCatalystId());
+        });
+    }
+
+    private List<CorpusData> collectTree(String catalystId) {
+        List<CorpusData> treeList = new ArrayList<>();
+        catalystClient.listCorpus(catalystId).forEachRemaining(data -> {
+            if (treeNames.contains(data.getCorpusName())) {
+                treeList.add(data);
+            }
+        });
+        return treeList;
+    }
+}

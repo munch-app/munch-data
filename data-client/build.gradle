@@ -1,5 +1,9 @@
 dependencies {
-    compile project(':data-structure')
     compile group: 'munch.restful', name: 'restful-client', version: restfulVersion
     compile group: 'com.google.inject.extensions', name: 'guice-multibindings', version: '4.1.0'
+
+    // Elastic
+    compile group: 'io.searchbox', name: 'jest', version: '5.3.2'
+    compile group: 'vc.inreach.aws', name: 'aws-signing-request-interceptor', version: '0.0.16'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.11.179'
 }
