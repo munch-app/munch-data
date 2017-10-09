@@ -1,4 +1,4 @@
-package munch.place.elastic;
+package munch.data.place.elastic;
 
 import java.util.List;
 

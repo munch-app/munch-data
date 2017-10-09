@@ -1,11 +1,11 @@
-package munch.place;
+package munch.data.place;
 
 import corpus.data.CatalystClient;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
-import munch.place.elastic.ElasticClient;
-import munch.place.matcher.PlaceMatcher;
+import munch.data.place.elastic.ElasticClient;
+import munch.data.place.matcher.PlaceMatcher;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,7 +30,7 @@ public final class Amalgamate {
 
     @Inject
     public Amalgamate(CorpusClient corpusClient, CatalystClient catalystClient, ElasticClient elasticClient,
-                      @Named("place.trees") Set<String> treeNames, PlaceMatcher placeMatcher) {
+                      @Named("data.place.trees") Set<String> treeNames, PlaceMatcher placeMatcher) {
         this.corpusClient = corpusClient;
         this.catalystClient = catalystClient;
         this.elasticClient = elasticClient;

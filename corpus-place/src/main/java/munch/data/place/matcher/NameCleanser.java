@@ -1,4 +1,4 @@
-package munch.place.matcher;
+package munch.data.place.matcher;
 
 import javax.inject.Singleton;
 

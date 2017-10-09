@@ -1,4 +1,4 @@
-package munch.place.matcher;
+package munch.data.place.matcher;
 
 import corpus.data.CorpusData;
 

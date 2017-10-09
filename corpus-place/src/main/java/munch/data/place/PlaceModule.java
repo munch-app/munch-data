@@ -1,4 +1,4 @@
-package munch.place;
+package munch.data.place;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -9,7 +9,7 @@ import com.typesafe.config.Config;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
-import munch.place.elastic.ElasticModule;
+import munch.data.place.elastic.ElasticModule;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -49,7 +49,7 @@ public class PlaceModule extends AbstractModule {
 
         // Start the following corpus
         EngineGroup.start(
-                injector.getInstance(SyncCorpus.class),
+                injector.getInstance(ElasticCorpus.class),
                 injector.getInstance(SeedCorpus.class),
                 injector.getInstance(TreeCorpus.class)
         );

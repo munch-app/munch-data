@@ -1,11 +1,11 @@
-package munch.place;
+package munch.data.place;
 
 import catalyst.utils.iterators.NestedIterator;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
-import munch.place.elastic.ElasticClient;
-import munch.place.elastic.PartialPlace;
+import munch.data.place.elastic.ElasticClient;
+import munch.data.place.elastic.PartialPlace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +25,14 @@ import java.util.Set;
  * Project: munch-data
  */
 @Singleton
-public class SyncCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(SyncCorpus.class);
+public class ElasticCorpus extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticCorpus.class);
 
     private final Set<String> treeNames;
     private final ElasticClient elasticClient;
 
     @Inject
-    public SyncCorpus(@Named("place.trees") Set<String> treeNames, ElasticClient elasticClient) {
+    public ElasticCorpus(@Named("place.trees") Set<String> treeNames, ElasticClient elasticClient) {
         super(logger);
         this.treeNames = treeNames;
         this.elasticClient = elasticClient;
@@ -40,7 +40,7 @@ public class SyncCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofMinutes(30);
+        return Duration.ofMinutes(60);
     }
 
     @Override

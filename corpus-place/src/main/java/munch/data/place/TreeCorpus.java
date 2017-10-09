@@ -1,8 +1,9 @@
-package munch.place;
+package munch.data.place;
 
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.exception.NotFoundException;
+import munch.data.clients.PlaceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +23,13 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TreeCorpus.class);
 
     private final Amalgamate amalgamate;
+    private final PlaceClient placeClient;
 
     @Inject
-    public TreeCorpus(Amalgamate amalgamate) {
+    public TreeCorpus(Amalgamate amalgamate, PlaceClient placeClient) {
         super(logger);
         this.amalgamate = amalgamate;
+        this.placeClient = placeClient;
     }
 
     @Override
@@ -64,7 +67,7 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
                 // TODO Update Sg.Munch.Place
                 // TODO Client.Put if hash change
             } else {
-                // TODO Client.Remove
+                placeClient.delete(placeData.getCorpusKey());
             }
 
             // Sleep for 1 second every 5 processed

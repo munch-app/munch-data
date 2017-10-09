@@ -1,4 +1,4 @@
-package munch.place.elastic;
+package munch.data.place.elastic;
 
 import catalyst.utils.iterators.PaginationIterator;
 import com.fasterxml.jackson.databind.JsonNode;

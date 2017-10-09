@@ -1,4 +1,4 @@
-package munch.place;
+package munch.data.place;
 
 import catalyst.utils.iterators.NestedIterator;
 import corpus.data.CorpusData;

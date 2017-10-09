@@ -1,4 +1,4 @@
-package munch.place.elastic;
+package munch.data.place.elastic;
 
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
