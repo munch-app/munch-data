@@ -6,10 +6,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Delete;
+import io.searchbox.core.DocumentResult;
+import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import munch.data.structure.Location;
 import munch.data.structure.Place;
 import munch.data.structure.Tag;
+
+import java.io.IOException;
 
 /**
  * Created By: Fuxing Loh
@@ -41,10 +45,10 @@ public final class ElasticIndex {
     /**
      * Index a place by putting it into elastic search
      *
-     * @param place   place to index
+     * @param place place to index
      * @throws Exception any exception
      */
-    public void put(Place place) throws Exception {
+    public void put(Place place) throws IOException {
         ObjectNode node = marshaller.serialize(place);
         String json = mapper.writeValueAsString(node);
 
@@ -62,7 +66,7 @@ public final class ElasticIndex {
      * @param location location to index
      * @throws Exception any exception
      */
-    public void put(Location location) throws Exception {
+    public void put(Location location) throws IOException {
         ObjectNode node = marshaller.serialize(location);
         String json = mapper.writeValueAsString(node);
 
@@ -76,10 +80,10 @@ public final class ElasticIndex {
     /**
      * Index a tag by putting it into elastic search
      *
-     * @param tag     tag to index
+     * @param tag tag to index
      * @throws Exception any exception
      */
-    public void put(Tag tag) throws Exception {
+    public void put(Tag tag) throws IOException {
         ObjectNode node = marshaller.serialize(tag);
         String json = mapper.writeValueAsString(node);
 
@@ -90,12 +94,18 @@ public final class ElasticIndex {
                 .build());
     }
 
+    public <T> T get(String type, String key) throws IOException {
+        DocumentResult result = client.execute(new Get.Builder("munch", key)
+                .type(type).build());
+        return marshaller.deserialize(mapper.readTree(result.getJsonString()));
+    }
+
     /**
      * @param type data type to delete before
      * @param key  key of data type
      * @throws Exception exception for deletion
      */
-    public void delete(String type, String key) throws Exception {
+    public void delete(String type, String key) throws IOException {
         client.execute(new Delete.Builder(key)
                 .index("munch")
                 .type(type)

@@ -38,7 +38,7 @@ public final class ElasticClient {
      * @param size   size of suggestion of place
      * @return options array nodes containing the results
      */
-    public JsonNode suggest(String type, String query, @Nullable String latLng, int size) throws IOException {
+    public JsonNode suggest(@Nullable String type, String query, @Nullable String latLng, int size) throws IOException {
         ObjectNode completion = mapper.createObjectNode()
                 .put("field", "suggest")
                 .put("size", size);
@@ -61,7 +61,7 @@ public final class ElasticClient {
         ObjectNode root = mapper.createObjectNode();
         root.putObject("suggest")
                 .putObject("suggestions")
-                .put("prefix", query)
+                .put("prefix", StringUtils.lowerCase(query))
                 .set("completion", completion);
 
         // Query, parse and return options array node

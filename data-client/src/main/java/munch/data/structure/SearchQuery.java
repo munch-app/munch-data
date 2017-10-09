@@ -271,7 +271,7 @@ public final class SearchQuery {
         public static final String TYPE_PRICE_LOWEST = "price_lowest";
         public static final String TYPE_PRICE_HIGHEST = "price_highest";
         public static final String TYPE_DISTANCE_NEAREST = "distance_nearest";
-        public static final String TYPE_RATING_HIGHEST = "rating_highest";
+//        public static final String TYPE_RATING_HIGHEST = "rating_highest";
 
         private String type;
 

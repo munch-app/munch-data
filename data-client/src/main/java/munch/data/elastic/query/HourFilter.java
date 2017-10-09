@@ -17,13 +17,13 @@ import java.util.List;
 public final class HourFilter {
     private static final Logger logger = LoggerFactory.getLogger(HourFilter.class);
 
-    public static void filter(SearchQuery query, List<Object> places) {
+    public static void filter(SearchQuery query, List<?> places) {
         if (query.getFilter() == null) return;
         if (query.getFilter().getHour() == null) return;
         filter(query.getFilter().getHour(), places);
     }
 
-    private static void filter(SearchQuery.Filter.Hour hourFilter, List<Object> places) {
+    private static void filter(SearchQuery.Filter.Hour hourFilter, List<?> places) {
         if (StringUtils.isAnyBlank(hourFilter.getDay(), hourFilter.getTime())) return;
 
         places.removeIf(object -> {

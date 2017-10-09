@@ -105,7 +105,7 @@ public final class ElasticMapping {
      */
     public void createIndex() throws IOException {
         logger.info("Creating index");
-        URL url = Resources.getResource("index.json");
+        URL url = Resources.getResource("elastic-index.json");
         String json = Resources.toString(url, Charset.forName("UTF-8"));
         JestResult result = client.execute(new CreateIndex.Builder("munch").settings(json).build());
         logger.info("Created index result: {}", result.getJsonString());

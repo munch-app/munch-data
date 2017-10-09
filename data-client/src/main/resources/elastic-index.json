@@ -49,7 +49,7 @@
     },
     "place": {
       "properties": {
-        "munchRank": {
+        "ranking": {
           "type": "double"
         },
         "images": {

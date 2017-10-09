@@ -55,10 +55,6 @@ public final class SortQuery {
                     sortArray.add(sortDistance(query.getLatLng()));
                 }
                 break;
-            case SearchQuery.Sort.TYPE_RATING_HIGHEST:
-                // TODO Type Rating in Future
-                break;
-
             default:
             case SearchQuery.Sort.TYPE_MUNCH_RANK:
                 sortArray.add(sortField("munchRank", "desc"));

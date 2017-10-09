@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by: Fuxing
@@ -455,7 +456,7 @@ public class Place implements SearchResult {
      */
     public static final class Image {
         private String source;
-        private ImageMeta imageMeta;
+        private Map<String, String> images;
 
         public String getSource() {
             return source;
@@ -465,12 +466,17 @@ public class Place implements SearchResult {
             this.source = source;
         }
 
-        public ImageMeta getImageMeta() {
-            return imageMeta;
+        /**
+         * different types of images
+         *
+         * @return type->url
+         */
+        public Map<String, String> getImages() {
+            return images;
         }
 
-        public void setImageMeta(ImageMeta imageMeta) {
-            this.imageMeta = imageMeta;
+        public void setImages(Map<String, String> images) {
+            this.images = images;
         }
     }
 }

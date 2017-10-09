@@ -56,7 +56,6 @@ public final class SortQuery {
                 }
                 break;
             case SearchQuery.Sort.TYPE_RATING_HIGHEST:
-                // TODO Type Rating in Future
                 break;
 
             default:
