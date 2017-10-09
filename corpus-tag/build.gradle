@@ -1,0 +1,6 @@
+dependencies {
+    compile project(':data-client')
+    compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+}
+
+mainClassName = 'munch.data.tag.TagModule'

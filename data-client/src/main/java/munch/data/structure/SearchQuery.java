@@ -82,7 +82,7 @@ public final class SearchQuery {
      * Location is Polygon, latLng is user location
      * <p>
      * location.name = for display
-     * location.center = currently provide no functions
+     * location.latLng = currently provide no functions
      * location.points = polygon points
      * <p>
      * For ad-hoc location, should be generated here as well

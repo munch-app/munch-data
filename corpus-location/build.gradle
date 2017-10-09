@@ -1,0 +1,8 @@
+dependencies {
+    compile project(':data-client')
+    compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+
+    compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+}
+
+mainClassName = 'munch.data.location.LocationModule'

@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -68,10 +67,8 @@ public class SeedCorpus extends CatalystEngine<CorpusData> {
         if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
 
         // Put created Sg.Munch.Place
-        CorpusData placeData = new CorpusData();
+        CorpusData placeData = new CorpusData(corpusName, cycleNo);
         placeData.setCatalystId(seedData.getCatalystId());
-        placeData.setCycleNo(cycleNo);
-        placeData.setFields(Collections.emptyList());
         corpusClient.put(corpusName, seedData.getCatalystId(), placeData);
 
         // TODO Update Sg.Munch.Place

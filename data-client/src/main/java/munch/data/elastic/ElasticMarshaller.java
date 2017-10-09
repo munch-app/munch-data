@@ -75,7 +75,7 @@ public final class ElasticMarshaller {
                 //now at /location/
                 .put("city", location.getCity())
                 .put("country", location.getCountry())
-                .put("latLng", location.getCenter())
+                .put("latLng", location.getLatLng())
                 //now at /location/polygon/
                 .putObject("polygon")
                 .put("type", "polygon")
@@ -162,7 +162,7 @@ public final class ElasticMarshaller {
 
         location.setCity(node.at("/location/city").asText());
         location.setCountry(node.at("/location/country").asText());
-        location.setCenter(node.at("/location/latLng").asText());
+        location.setLatLng(node.at("/location/latLng").asText());
 
         // points: { "type": "polygon", "coordinates": [[[lng, lat]]]}
         List<String> points = new ArrayList<>();

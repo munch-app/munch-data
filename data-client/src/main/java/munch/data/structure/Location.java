@@ -23,7 +23,7 @@ public final class Location implements SearchResult {
     private String city;
     private String country;
 
-    private String center;
+    private String latLng;
     private List<String> points;
 
     private Date updatedDate;
@@ -69,12 +69,12 @@ public final class Location implements SearchResult {
         this.name = name;
     }
 
-    public String getCenter() {
-        return center;
+    public String getLatLng() {
+        return latLng;
     }
 
-    public void setCenter(String center) {
-        this.center = center;
+    public void setLatLng(String latLng) {
+        this.latLng = latLng;
     }
 
     public Date getUpdatedDate() {
