@@ -1,8 +1,10 @@
 package munch.data.clients;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import munch.data.structure.SearchQuery;
+import munch.data.elastic.ElasticClient;
+import munch.data.elastic.ElasticMarshaller;
 import munch.data.structure.SearchResult;
 
 import javax.annotation.Nullable;
@@ -15,20 +17,15 @@ import java.util.List;
  * Project: munch-core
  */
 @Singleton
-public class SearchClient {
+public class SearchClient extends AbstractClient {
+
+    private final ElasticClient client;
+    private final ElasticMarshaller marshaller;
 
     @Inject
-    public SearchClient() {
-
-    }
-
-    /**
-     * @param query query object
-     * @return List of SearchResult
-     * @see SearchQuery
-     */
-    public List<SearchResult> search(SearchQuery query) {
-        return null;
+    public SearchClient(ElasticClient client, ElasticMarshaller marshaller) {
+        this.client = client;
+        this.marshaller = marshaller;
     }
 
     /**
@@ -39,6 +36,7 @@ public class SearchClient {
      * @return List of SearchResult
      */
     public List<SearchResult> suggest(String text, @Nullable String latLng, int size) {
-        return null;
+        JsonNode results = client.suggest(null, text, latLng, size);
+        return marshaller.deserializeList(results);
     }
 }

@@ -13,7 +13,7 @@ import javax.inject.Singleton;
  * Project: munch-data
  */
 @Singleton
-public class TagClient {
+public class TagClient extends AbstractClient {
     private final ElasticIndex elasticIndex;
 
     @Inject

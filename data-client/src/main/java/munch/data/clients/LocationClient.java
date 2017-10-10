@@ -17,7 +17,7 @@ import java.util.List;
  * Project: munch-data
  */
 @Singleton
-public class LocationClient {
+public class LocationClient extends AbstractClient {
     private final ElasticIndex elasticIndex;
     private final ElasticClient elasticClient;
     private final ElasticMarshaller marshaller;

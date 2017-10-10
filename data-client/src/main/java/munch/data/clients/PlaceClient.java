@@ -1,5 +1,8 @@
 package munch.data.clients;
 
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
@@ -9,6 +12,7 @@ import munch.data.elastic.query.HourFilter;
 import munch.data.elastic.query.SortQuery;
 import munch.data.structure.Place;
 import munch.data.structure.SearchQuery;
+import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.ValidationException;
 
 import javax.inject.Inject;
@@ -22,14 +26,18 @@ import java.util.List;
  * Project: munch-data
  */
 @Singleton
-public class PlaceClient {
+public class PlaceClient extends AbstractClient {
+    public static final String DYNAMO_TABLE_NAME = "munch-data.Place";
+
     private final ElasticIndex elasticIndex;
     private final SearchClient searchClient;
+    private final Table placeTable;
 
     @Inject
-    public PlaceClient(ElasticIndex elasticIndex, SearchClient searchClient) {
+    public PlaceClient(ElasticIndex elasticIndex, SearchClient searchClient, DynamoDB dynamoDB) {
         this.elasticIndex = elasticIndex;
         this.searchClient = searchClient;
+        this.placeTable = dynamoDB.getTable(DYNAMO_TABLE_NAME);
     }
 
     /**
@@ -41,18 +49,39 @@ public class PlaceClient {
         return searchClient.search(query);
     }
 
-    // TODO DynamoDB Get/Put/Delete
-    public Place get(String id) {
-        return null;
+    /**
+     * @param id id of place
+     * @return Place from dynamo
+     * @throws JsonException parsing error
+     */
+    public Place get(String id) throws JsonException {
+        Item item = placeTable.getItem("_id", id);
+        String json = item.getJSON("_data");
+        return fromJson(json, Place.class);
     }
 
-
-    public void put(Place place) {
+    /**
+     * Put place to dynamo first then elastic
+     *
+     * @param place put place to dynamo and elastic
+     * @throws JsonException parsing error
+     */
+    public void put(Place place) throws JsonException {
+        Item item = new Item()
+                .withString("_id", place.getId())
+                .withJSON("_data", toJson(place));
+        placeTable.putItem(item);
         elasticIndex.put(place);
     }
 
+    /**
+     * Delete place from elastic first then dynamo
+     *
+     * @param id id of place to delete
+     */
     public void delete(String id) {
         elasticIndex.delete("Place", id);
+        placeTable.deleteItem("_id", id);
     }
 
     @Singleton

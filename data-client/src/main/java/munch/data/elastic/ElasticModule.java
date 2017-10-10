@@ -1,6 +1,6 @@
 package munch.data.elastic;
 
-import com.amazonaws.auth.ContainerCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
@@ -43,7 +43,7 @@ public final class ElasticModule extends AbstractModule {
     JestClientFactory provideJestFactory(Config config) {
         if (!config.getBoolean("services.elastic.aws.signing")) return new JestClientFactory();
 
-        AWSSigner awsSigner = new AWSSigner(new ContainerCredentialsProvider(),
+        AWSSigner awsSigner = new AWSSigner(new DefaultAWSCredentialsProviderChain(),
                 config.getString("services.elastic.aws.region"), "es",
                 () -> LocalDateTime.now(ZoneOffset.UTC)
         );
