@@ -29,7 +29,7 @@ public class Place implements SearchResult {
     private Location location;
 
     // Many
-    private List<String> tags;
+    private List<String> tags; // TODO: Implicit & Explicit
     private List<Hour> hours;
     private List<Image> images;
 

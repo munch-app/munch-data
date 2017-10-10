@@ -7,3 +7,7 @@ include 'corpus-location'
 include 'corpus-place'
 include 'corpus-tag'
 
+// PlaceLocation
+// PlaceRanking
+// PlaceImages
+// PlaceTags

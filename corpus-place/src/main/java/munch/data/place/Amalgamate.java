@@ -6,6 +6,8 @@ import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import munch.data.place.elastic.ElasticClient;
 import munch.data.place.matcher.PlaceMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -20,6 +22,7 @@ import java.util.Set;
  * Project: munch-data
  */
 public final class Amalgamate {
+    private static final Logger logger = LoggerFactory.getLogger(Amalgamate.class);
 
     private final CorpusClient corpusClient;
     private final CatalystClient catalystClient;
@@ -30,7 +33,7 @@ public final class Amalgamate {
 
     @Inject
     public Amalgamate(CorpusClient corpusClient, CatalystClient catalystClient, ElasticClient elasticClient,
-                      @Named("data.place.trees") Set<String> treeNames, PlaceMatcher placeMatcher) {
+                      @Named("place.trees") Set<String> treeNames, PlaceMatcher placeMatcher) {
         this.corpusClient = corpusClient;
         this.catalystClient = catalystClient;
         this.elasticClient = elasticClient;
@@ -38,6 +41,10 @@ public final class Amalgamate {
         this.placeMatcher = placeMatcher;
     }
 
+    /**
+     * @param placeData Sg.Munch.Place
+     * @return true if still exist, else deleted
+     */
     public boolean maintain(CorpusData placeData) {
         if (validate(placeData)) {
             add(placeData);
@@ -89,6 +96,8 @@ public final class Amalgamate {
             if (localCount < catalystClient.countCorpus(outside.getCatalystId())) return;
 
             corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), placeData.getCatalystId());
+            logger.info("Patched corpusName: {}, corpusKey: {} to catalystId: {}",
+                    outside.getCorpusName(), outside.getCorpusKey(), placeData.getCatalystId());
         });
     }
 
