@@ -1,0 +1,9 @@
+dependencies {
+    compile group: 'catalyst', name: 'google-sheets-utils', version: ccVersion
+    compile group: 'catalyst', name: 'catalyst-framework', version: ccVersion
+
+    compile group: 'fr.dudie', name: 'nominatim-api', version: '3.3'
+    compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+}
+
+mainClassName = 'munch.catalyst.LocationModule'

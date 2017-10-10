@@ -1,0 +1,6 @@
+dependencies {
+    compile project(':google-sheets-utils')
+    compile group: 'catalyst', name: 'catalyst-framework', version: ccVersion
+}
+
+mainClassName = 'munch.catalyst.ImageCuratorModule'
