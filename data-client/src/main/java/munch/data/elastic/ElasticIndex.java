@@ -9,6 +9,7 @@ import io.searchbox.core.Delete;
 import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
+import munch.data.exceptions.ElasticException;
 import munch.data.structure.Location;
 import munch.data.structure.Place;
 import munch.data.structure.Tag;
@@ -48,15 +49,19 @@ public final class ElasticIndex {
      * @param place place to index
      * @throws Exception any exception
      */
-    public void put(Place place) throws IOException {
-        ObjectNode node = marshaller.serialize(place);
-        String json = mapper.writeValueAsString(node);
+    public void put(Place place) {
+        try {
+            ObjectNode node = marshaller.serialize(place);
+            String json = mapper.writeValueAsString(node);
 
-        client.execute(new Index.Builder(json)
-                .index("munch")
-                .type("place")
-                .id(place.getId())
-                .build());
+            client.execute(new Index.Builder(json)
+                    .index("munch")
+                    .type("place")
+                    .id(place.getId())
+                    .build());
+        } catch (IOException e) {
+            throw new ElasticException(e);
+        }
     }
 
     /**
@@ -66,15 +71,19 @@ public final class ElasticIndex {
      * @param location location to index
      * @throws Exception any exception
      */
-    public void put(Location location) throws IOException {
-        ObjectNode node = marshaller.serialize(location);
-        String json = mapper.writeValueAsString(node);
+    public void put(Location location) {
+        try {
+            ObjectNode node = marshaller.serialize(location);
+            String json = mapper.writeValueAsString(node);
 
-        client.execute(new Index.Builder(json)
-                .index("munch")
-                .type("location")
-                .id(location.getId())
-                .build());
+            client.execute(new Index.Builder(json)
+                    .index("munch")
+                    .type("location")
+                    .id(location.getId())
+                    .build());
+        } catch (IOException e) {
+            throw new ElasticException(e);
+        }
     }
 
     /**
@@ -83,21 +92,29 @@ public final class ElasticIndex {
      * @param tag tag to index
      * @throws Exception any exception
      */
-    public void put(Tag tag) throws IOException {
-        ObjectNode node = marshaller.serialize(tag);
-        String json = mapper.writeValueAsString(node);
+    public void put(Tag tag) {
+        try {
+            ObjectNode node = marshaller.serialize(tag);
+            String json = mapper.writeValueAsString(node);
 
-        client.execute(new Index.Builder(json)
-                .index("munch")
-                .type("tag")
-                .id(tag.getId())
-                .build());
+            client.execute(new Index.Builder(json)
+                    .index("munch")
+                    .type("tag")
+                    .id(tag.getId())
+                    .build());
+        } catch (IOException e) {
+            throw new ElasticException(e);
+        }
     }
 
-    public <T> T get(String type, String key) throws IOException {
-        DocumentResult result = client.execute(new Get.Builder("munch", key)
-                .type(type).build());
-        return marshaller.deserialize(mapper.readTree(result.getJsonString()));
+    public <T> T get(String type, String key) {
+        try {
+            DocumentResult result = client.execute(new Get.Builder("munch", key)
+                    .type(type).build());
+            return marshaller.deserialize(mapper.readTree(result.getJsonString()));
+        } catch (IOException e) {
+            throw new ElasticException(e);
+        }
     }
 
     /**
@@ -105,10 +122,14 @@ public final class ElasticIndex {
      * @param key  key of data type
      * @throws Exception exception for deletion
      */
-    public void delete(String type, String key) throws IOException {
-        client.execute(new Delete.Builder(key)
-                .index("munch")
-                .type(type)
-                .build());
+    public void delete(String type, String key) {
+        try {
+            client.execute(new Delete.Builder(key)
+                    .index("munch")
+                    .type(type)
+                    .build());
+        } catch (IOException e) {
+            throw new ElasticException(e);
+        }
     }
 }

@@ -13,7 +13,6 @@ import munch.restful.core.exception.ValidationException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ public class PlaceClient {
      * @return List of Place result
      * @see SearchQuery
      */
-    public List<Place> search(SearchQuery query) throws IOException {
+    public List<Place> search(SearchQuery query) {
         return searchClient.search(query);
     }
 
@@ -48,11 +47,11 @@ public class PlaceClient {
     }
 
 
-    public void put(Place place) throws IOException {
+    public void put(Place place) {
         elasticIndex.put(place);
     }
 
-    public void delete(String id) throws IOException {
+    public void delete(String id) {
         elasticIndex.delete("Place", id);
     }
 
@@ -71,7 +70,7 @@ public class PlaceClient {
             this.marshaller = marshaller;
         }
 
-        private List<Place> search(SearchQuery query) throws IOException {
+        private List<Place> search(SearchQuery query) {
             validate(query);
 
             // Filter hours

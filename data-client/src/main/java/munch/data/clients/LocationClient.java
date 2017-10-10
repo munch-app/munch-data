@@ -8,7 +8,6 @@ import munch.data.structure.Location;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -35,21 +34,21 @@ public class LocationClient {
      * @param size size of location to suggest
      * @return list of Location
      */
-    public List<Location> suggest(String text, int size) throws IOException {
+    public List<Location> suggest(String text, int size) {
         JsonNode results = elasticClient.suggest("Location", text, null, size);
         return marshaller.deserializeList(results);
     }
 
-    public Location get(String id) throws IOException {
+    public Location get(String id) {
         return elasticIndex.get("Location", id);
     }
 
 
-    public void put(Location location) throws IOException {
+    public void put(Location location) {
         elasticIndex.put(location);
     }
 
-    public void delete(String id) throws IOException {
+    public void delete(String id) {
         elasticIndex.delete("Location", id);
     }
 }

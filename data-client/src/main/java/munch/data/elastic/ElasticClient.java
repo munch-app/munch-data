@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
+import munch.data.exceptions.ElasticException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -38,7 +39,7 @@ public final class ElasticClient {
      * @param size   size of suggestion of place
      * @return options array nodes containing the results
      */
-    public JsonNode suggest(@Nullable String type, String query, @Nullable String latLng, int size) throws IOException {
+    public JsonNode suggest(@Nullable String type, String query, @Nullable String latLng, int size) {
         ObjectNode completion = mapper.createObjectNode()
                 .put("field", "suggest")
                 .put("size", size);
@@ -80,7 +81,7 @@ public final class ElasticClient {
      * @return JsonNode
      * @throws IOException exception
      */
-    public JsonNode postBoolSearch(String type, int from, int size, JsonNode boolQuery) throws IOException {
+    public JsonNode postBoolSearch(String type, int from, int size, JsonNode boolQuery) {
         return postBoolSearch(type, from, size, boolQuery, null);
     }
 
@@ -93,7 +94,7 @@ public final class ElasticClient {
      * @return JsonNode
      * @throws IOException exception
      */
-    public JsonNode postBoolSearch(String type, int from, int size, JsonNode boolQuery, @Nullable JsonNode sort) throws IOException {
+    public JsonNode postBoolSearch(String type, int from, int size, JsonNode boolQuery, @Nullable JsonNode sort) {
         ObjectNode root = mapper.createObjectNode();
         root.put("from", from);
         root.put("size", size);
@@ -108,12 +109,16 @@ public final class ElasticClient {
      * @param node search node
      * @return root node
      */
-    public JsonNode postSearch(String type, JsonNode node) throws IOException {
-        Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node))
-                .addIndex("munch");
-        if (type != null) builder.addType(type);
+    public JsonNode postSearch(String type, JsonNode node) {
+        try {
+            Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node))
+                    .addIndex("munch");
+            if (type != null) builder.addType(type);
 
-        return mapper.readTree(client.execute(builder.build())
-                .getJsonString());
+            return mapper.readTree(client.execute(builder.build())
+                    .getJsonString());
+        } catch (IOException e) {
+            throw new ElasticException(e);
+        }
     }
 }

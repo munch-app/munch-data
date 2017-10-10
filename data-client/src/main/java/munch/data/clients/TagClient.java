@@ -5,7 +5,6 @@ import munch.data.structure.Tag;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 
 /**
  * Created by: Fuxing
@@ -22,16 +21,16 @@ public class TagClient {
         this.elasticIndex = elasticIndex;
     }
 
-    public Tag get(String id) throws IOException {
+    public Tag get(String id)  {
         return elasticIndex.get("tag", id);
     }
 
 
-    public void put(Tag tag) throws IOException {
+    public void put(Tag tag) {
         elasticIndex.put(tag);
     }
 
-    public void delete(String id) throws IOException {
+    public void delete(String id){
         elasticIndex.delete("Tag", id);
     }
 }
