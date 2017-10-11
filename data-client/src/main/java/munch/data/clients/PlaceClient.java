@@ -56,7 +56,7 @@ public class PlaceClient extends AbstractClient {
      */
     public Place get(String id) throws JsonException {
         Item item = placeTable.getItem("_id", id);
-        String json = item.getJSON("_data");
+        String json = item.getJSON("_source");
         return fromJson(json, Place.class);
     }
 
@@ -69,7 +69,7 @@ public class PlaceClient extends AbstractClient {
     public void put(Place place) throws JsonException {
         Item item = new Item()
                 .withString("_id", place.getId())
-                .withJSON("_data", toJson(place));
+                .withJSON("_source", toJson(place));
         placeTable.putItem(item);
         elasticIndex.put(place);
     }
