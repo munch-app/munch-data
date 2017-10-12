@@ -15,9 +15,11 @@ import munch.data.structure.SearchQuery;
 import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.ValidationException;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -54,8 +56,13 @@ public class PlaceClient extends AbstractClient {
      * @return Place from dynamo
      * @throws JsonException parsing error
      */
+    @Nullable
     public Place get(String id) throws JsonException {
+        Objects.requireNonNull(id);
+
         Item item = placeTable.getItem("_id", id);
+        if (item == null) return null;
+
         String json = item.getJSON("_source");
         return fromJson(json, Place.class);
     }
@@ -67,6 +74,8 @@ public class PlaceClient extends AbstractClient {
      * @throws JsonException parsing error
      */
     public void put(Place place) throws JsonException {
+        Objects.requireNonNull(place.getId());
+
         Item item = new Item()
                 .withString("_id", place.getId())
                 .withJSON("_source", toJson(place));
@@ -80,6 +89,8 @@ public class PlaceClient extends AbstractClient {
      * @param id id of place to delete
      */
     public void delete(String id) {
+        Objects.requireNonNull(id);
+
         elasticIndex.delete("Place", id);
         placeTable.deleteItem("_id", id);
     }
