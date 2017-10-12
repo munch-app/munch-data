@@ -6,12 +6,10 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.model.*;
-import com.amazonaws.services.dynamodbv2.util.TableUtils;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
+import munch.data.clients.PlaceCardClient;
 import munch.data.clients.PlaceClient;
 
 import javax.inject.Inject;
@@ -34,21 +32,9 @@ public final class DynamoModule extends AbstractModule {
         // Is in production mode, don't need setup table
         if (!config.hasPath("services.dynamodb.url")) return;
 
-        CreateTableRequest request = new CreateTableRequest();
-        request.setProvisionedThroughput(new ProvisionedThroughput(5L, 5L));
-        request.setTableName(PlaceClient.DYNAMO_TABLE_NAME);
-
-        request.setAttributeDefinitions(ImmutableList.of(
-                new AttributeDefinition("_id", ScalarAttributeType.S))
-        );
-
-        request.setKeySchema(ImmutableList.of(
-                new KeySchemaElement("_id", KeyType.HASH))
-        );
-
-        // Create table if not already exists & wait
-        TableUtils.createTableIfNotExists(dynamoDB, request);
-        TableUtils.waitUntilActive(dynamoDB, PlaceClient.DYNAMO_TABLE_NAME);
+        CreateTableUtils utils = new CreateTableUtils(dynamoDB);
+        utils.createTable(PlaceClient.DYNAMO_TABLE_NAME, "_id");
+        utils.createTable(PlaceCardClient.DYNAMO_TABLE_NAME, "_placeId", "_cardName");
     }
 
     @Provides
