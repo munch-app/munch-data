@@ -10,3 +10,9 @@ dependencies {
     // DynamoDB
     compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.210'
 }
+
+task publishLib {
+    dependsOn 'build'
+    dependsOn 'artifactoryPublish'
+    tasks.findByName('artifactoryPublish').mustRunAfter 'build'
+}
