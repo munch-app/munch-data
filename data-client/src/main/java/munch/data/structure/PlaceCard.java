@@ -1,6 +1,5 @@
 package munch.data.structure;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -35,27 +34,7 @@ public interface PlaceCard<T> {
      * @return id of the card
      */
     @JsonProperty("_cardId")
-    default String getCardId() {
-        return getCardName() + "_" + getCardVersion();
-    }
-
-    /**
-     * Name format:
-     * E.g. vendor_FacebookReview
-     *
-     * @return type_name type_name
-     */
-    @JsonIgnore
-    String getCardName();
-
-    /**
-     * Version format:
-     * E.g. ddmmyyyy
-     *
-     * @return version ddmmyyyy
-     */
-    @JsonIgnore
-    String getCardVersion();
+    String getCardId();
 
     /**
      * @return data

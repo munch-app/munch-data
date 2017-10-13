@@ -40,31 +40,29 @@ public class PlaceCardClient extends AbstractClient {
         // Collect results
         List<PlaceDynamicCard> cards = new ArrayList<>();
         for (Item item : collection) {
-            String cardName = item.getString("_cardName");
-            String cardVersion = item.getString("_cardVersion");
+            String cardId = item.getString("_cardId");
             JsonNode data = fromJson(item.getJSON("_data"), JsonNode.class);
-            cards.add(new DefaultCard(cardName, cardVersion, data));
+            cards.add(new DefaultCard(cardId, data));
         }
         return cards;
     }
 
     /**
-     * @param placeId  placeId
-     * @param cardName cardName
+     * @param placeId placeId
+     * @param cardId  card id
      * @return get DynamicCard with placeId and cardName
      */
     @Nullable
-    public PlaceDynamicCard get(String placeId, String cardName) {
+    public PlaceDynamicCard get(String placeId, String cardId) {
         Objects.requireNonNull(placeId);
-        Objects.requireNonNull(cardName);
+        Objects.requireNonNull(cardId);
 
         Item item = cardTable.getItem("_placeId", placeId,
-                "_cardName", cardName);
+                "_cardId", cardId);
         if (item == null) return null;
 
-        String cardVersion = item.getString("_cardVersion");
         JsonNode data = fromJson(item.getJSON("_data"), JsonNode.class);
-        return new DefaultCard(cardName, cardVersion, data);
+        return new DefaultCard(cardId, data);
     }
 
     /**
@@ -73,51 +71,42 @@ public class PlaceCardClient extends AbstractClient {
      */
     public void put(String placeId, PlaceDynamicCard card) {
         Objects.requireNonNull(placeId);
-        Objects.requireNonNull(card.getCardName());
-        Objects.requireNonNull(card.getCardVersion());
+        Objects.requireNonNull(card.getCardId());
         Objects.requireNonNull(card.getData());
 
         cardTable.putItem(new Item()
                 .with("_placeId", placeId)
-                .with("_cardName", card.getCardName())
-                .with("_cardVersion", card.getCardVersion())
+                .with("_cardId", card.getCardId())
                 .withJSON("_data", toJson(card.getData())));
     }
 
     /**
-     * @param placeId  place id where the card belongs to
-     * @param cardName name of the card
+     * @param placeId place id where the card belongs to
+     * @param cardId  card id
      */
-    public void delete(String placeId, String cardName) {
+    public void delete(String placeId, String cardId) {
         Objects.requireNonNull(placeId);
-        Objects.requireNonNull(cardName);
+        Objects.requireNonNull(cardId);
 
         cardTable.deleteItem("_placeId", placeId,
-                "_cardName", cardName);
+                "cardId", cardId);
     }
 
     /**
      * DefaultCard for static creation of cardName, cardVersion and data
      */
     private static class DefaultCard extends PlaceDynamicCard {
-        private final String cardName;
-        private final String cardVersion;
+        private final String cardId;
         private final JsonNode data;
 
-        private DefaultCard(String cardName, String cardVersion, JsonNode data) {
-            this.cardName = cardName;
-            this.cardVersion = cardVersion;
+        private DefaultCard(String cardId, JsonNode data) {
+            this.cardId = cardId;
             this.data = data;
         }
 
         @Override
-        public String getCardName() {
-            return cardName;
-        }
-
-        @Override
-        public String getCardVersion() {
-            return cardVersion;
+        public String getCardId() {
+            return cardId;
         }
 
         @Override
