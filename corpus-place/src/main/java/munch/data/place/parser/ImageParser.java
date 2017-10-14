@@ -26,7 +26,7 @@ public final class ImageParser extends AbstractParser {
      * @return List of Place.Image can be empty
      */
     public List<Place.Image> parse(List<CorpusData> list) {
-        return filter(list, PlaceKey.image).stream()
+        return collect(list, PlaceKey.image).stream()
                 .map(field -> {
                     Map<String, String> images = ImageCachedKey.getImages(field);
                     String source = ImageCachedKey.getSource(field, null);

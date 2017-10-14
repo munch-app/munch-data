@@ -22,7 +22,13 @@ public abstract class AbstractParser {
         return fieldCollector.collectMax();
     }
 
-    protected List<CorpusData.Field> filter(List<CorpusData> list, AbstractKey... keys) {
+    protected List<String> collectValue(List<CorpusData> list, AbstractKey... keys) {
+        FieldCollector fieldCollector = new FieldCollector(keys);
+        fieldCollector.addAll(list);
+        return fieldCollector.collect();
+    }
+
+    protected List<CorpusData.Field> collect(List<CorpusData> list, AbstractKey... keys) {
         FieldCollector fieldCollector = new FieldCollector(keys);
         fieldCollector.addAll(list);
         return fieldCollector.collectField();

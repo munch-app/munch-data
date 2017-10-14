@@ -22,7 +22,7 @@ public final class PriceParser extends AbstractParser {
 
     @Nullable
     public Place.Price parse(List<CorpusData> list) {
-        List<CorpusData.Field> fields = filter(list, PlaceKey.price);
+        List<CorpusData.Field> fields = collect(list, PlaceKey.price);
         List<Double> prices = fields.stream()
                 .map(PriceParser::clean)
                 .filter(Objects::nonNull)

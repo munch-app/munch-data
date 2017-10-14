@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -383,24 +382,26 @@ public class Place implements SearchResult {
      * <p>
      * Explicits are visible tags
      * Implicits are invisible tags
+     * <p>
+     * List is used instead to maintain order
      */
     public static final class Tag {
-        private Set<String> explicits;
-        private Set<String> implicits;
+        private List<String> explicits;
+        private List<String> implicits;
 
-        public Set<String> getExplicits() {
+        public List<String> getExplicits() {
             return explicits;
         }
 
-        public void setExplicits(Set<String> explicits) {
+        public void setExplicits(List<String> explicits) {
             this.explicits = explicits;
         }
 
-        public Set<String> getImplicits() {
+        public List<String> getImplicits() {
             return implicits;
         }
 
-        public void setImplicits(Set<String> implicits) {
+        public void setImplicits(List<String> implicits) {
             this.implicits = implicits;
         }
 
