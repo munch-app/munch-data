@@ -1,19 +1,19 @@
-package munch.catalyst.train;
+package munch.data.place.parser.location;
 
 import catalyst.utils.LatLngUtils;
-import com.typesafe.config.Config;
-import munch.corpus.docs.GoogleSheet;
-import munch.corpus.docs.GoogleSheetIterator;
-import munch.corpus.docs.SheetNotFound;
+import corpus.data.CorpusClient;
+import corpus.field.FieldUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by: Fuxing
@@ -26,49 +26,16 @@ import java.util.List;
 public final class TrainDatabase {
     private static final Logger logger = LoggerFactory.getLogger(TrainDatabase.class);
 
-    private final String docId;
-    private final String indexId;
-
+    private final CorpusClient corpusClient;
     private List<TrainStation> stations = new ArrayList<>();
 
     @Inject
-    public TrainDatabase(Config config) {
-        this.docId = config.getString("train.sheet.docId");
-        this.indexId = config.getString("train.sheet.indexId");
-    }
+    public TrainDatabase(CorpusClient corpusClient) {
+        this.corpusClient = corpusClient;
+        sync();
 
-    public void sync() throws IOException, SheetNotFound {
-        GoogleSheet googleSheet = new GoogleSheet(docId, indexId);
-        GoogleSheetIterator iterator = new GoogleSheetIterator(googleSheet);
-
-        List<TrainStation> stations = new ArrayList<>();
-        while (iterator.hasNext()) {
-            TrainStation station = parseStation(iterator);
-            if (station != null) stations.add(station);
-        }
-
-        this.stations = stations;
-    }
-
-    private static TrainStation parseStation(GoogleSheetIterator iterator) {
-        iterator.next();
-
-        String name = iterator.get("NAME");
-        String latLngString = iterator.get("LAT_LNG");
-        if (StringUtils.isAnyBlank(name, latLngString)) return null;
-
-        try {
-            LatLngUtils.LatLng latLng = LatLngUtils.parse(latLngString);
-
-            TrainStation station = new TrainStation();
-            station.setName(name);
-            station.setLat(latLng.getLat());
-            station.setLng(latLng.getLng());
-            return station;
-        } catch (LatLngUtils.ParseException e) {
-            logger.info("Failed to parse latLng", e);
-            return null;
-        }
+        ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+        exec.scheduleAtFixedRate(this::sync, 24, 24, TimeUnit.HOURS);
     }
 
     /**
@@ -94,6 +61,30 @@ public final class TrainDatabase {
     public TrainStation findNearest(String latLng) throws LatLngUtils.ParseException {
         LatLngUtils.LatLng parsed = LatLngUtils.parse(latLng);
         return findNearest(parsed.getLat(), parsed.getLng());
+    }
+
+    private void sync() {
+        List<TrainStation> stations = new ArrayList<>();
+        corpusClient.list("Sg.MunchSheet.MRTStation").forEachRemaining(data -> {
+            String name = FieldUtils.getValue(data, "MRTLocation.name");
+            String latLngString = FieldUtils.getValue(data, "MRTLocation.latLng");
+            if (StringUtils.isAnyBlank(name, latLngString)) return;
+
+            try {
+                LatLngUtils.LatLng latLng = LatLngUtils.parse(latLngString);
+                if (latLng == null) return;
+
+                TrainStation station = new TrainStation();
+                station.setName(name);
+                station.setLat(latLng.getLat());
+                station.setLng(latLng.getLng());
+                stations.add(station);
+            } catch (LatLngUtils.ParseException e) {
+                logger.info("Failed to parse latLng", e);
+            }
+        });
+
+        this.stations = stations;
     }
 
     public static double distance(double lat, double lng, TrainStation station) {

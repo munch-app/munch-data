@@ -7,6 +7,10 @@ dependencies {
 
     // Search
     compile group: 'io.searchbox', name: 'jest', version: '5.3.2'
+
+    // Parsers
+    compile group: 'fr.dudie', name: 'nominatim-api', version: '3.3'
+    compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
 }
 
 mainClassName = 'munch.data.place.PlaceModule'

@@ -1,4 +1,4 @@
-package munch.catalyst.train;
+package munch.data.place.parser.location;
 
 /**
  * Created by: Fuxing

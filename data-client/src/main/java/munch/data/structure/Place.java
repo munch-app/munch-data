@@ -323,6 +323,10 @@ public class Place implements SearchResult {
             this.latLng = latLng;
         }
 
+        public void setLatLng(double lat, double lng) {
+            setLatLng(lat + "," + lng);
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;

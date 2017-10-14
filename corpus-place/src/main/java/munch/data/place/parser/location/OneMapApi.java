@@ -1,4 +1,4 @@
-package munch.catalyst.geocode;
+package munch.data.place.parser.location;
 
 import catalyst.utils.LatLngUtils;
 import catalyst.utils.exception.ExceptionRetriable;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import munch.restful.client.ExceptionParsers;
+import munch.restful.client.ExceptionParser;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.OfflineException;
 import munch.restful.core.exception.TimeoutException;
@@ -50,7 +50,7 @@ public final class OneMapApi {
 
             return null;
         } catch (Exception exception) {
-            ExceptionParsers.parse(exception);
+            ExceptionParser.parse(exception);
             throw new RuntimeException(exception);
         }
     }

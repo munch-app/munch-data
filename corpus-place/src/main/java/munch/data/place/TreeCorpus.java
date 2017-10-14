@@ -102,7 +102,10 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
         if (place.equals(existing)) return;
 
         // Put to corpus client
+        // CACHED FEEDBACK LOOP, Parser will read from here also
         placeData.put(PlaceKey.name, place.getName());
+        placeData.put(PlaceKey.Location.postal, place.getLocation().getPostal());
+        placeData.put(PlaceKey.Location.latLng, place.getLocation().getLatLng());
         corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
 
         // Put to place client

@@ -1,4 +1,4 @@
-package munch.catalyst.street;
+package munch.data.place.parser.location;
 
 import catalyst.utils.exception.Retriable;
 import catalyst.utils.exception.SleepRetriable;

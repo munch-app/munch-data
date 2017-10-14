@@ -1,9 +1,9 @@
-package munch.catalyst.tag;
+package munch.data.place.parser.location;
 
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import corpus.data.DataClient;
+import corpus.data.CorpusClient;
 import corpus.field.PlaceKey;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -27,31 +30,32 @@ import java.util.stream.Collectors;
 public final class LocationDatabase {
     private static final Logger logger = LoggerFactory.getLogger(LocationDatabase.class);
 
-    private final DataClient dataClient;
+    private final CorpusClient corpusClient;
     private final GeometryFactory geometryFactory = new GeometryFactory();
     private final WKTReader reader = new WKTReader();
 
-    private List<LocationPolygon> polygons = Collections.emptyList();
+    private List<LocationPolygon> locations = Collections.emptyList();
 
     @Inject
-    public LocationDatabase(DataClient dataClient) {
-        this.dataClient = dataClient;
+    public LocationDatabase(CorpusClient corpusClient) {
+        this.corpusClient = corpusClient;
+        sync();
+
+        ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+        exec.scheduleAtFixedRate(this::sync, 24, 24, TimeUnit.HOURS);
     }
 
-    public void sync() {
-        List<LocationPolygon> polygons = new ArrayList<>();
-        dataClient.getBefore("Sg.Munch.LocationPolygon", Long.MAX_VALUE).forEachRemaining(data -> {
-            String name = PlaceKey.name.getValue(data);
-            String polygon = PlaceKey.Location.polygon.getValue(data);
-            if (StringUtils.isAnyBlank(name, polygon)) return;
-
-            try {
-                polygons.add(new LocationPolygon(name, parsePolygon(polygon)));
-            } catch (ParseException e) {
-                logger.info("Unable to parse polygon", e);
-            }
-        });
-        this.polygons = polygons;
+    /**
+     * @param lat latitude of place
+     * @param lng longitude of place
+     * @return location tags of place
+     */
+    public Set<String> findTags(double lat, double lng) {
+        Point point = geometryFactory.createPoint(new Coordinate(lng, lat));
+        return locations.stream()
+                .filter(polygon -> polygon.intersects(point))
+                .map(LocationPolygon::getName)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -65,17 +69,20 @@ public final class LocationDatabase {
         throw new ParseException("Not polygon");
     }
 
-    /**
-     * @param lat latitude of place
-     * @param lng longitude of place
-     * @return location tags of place
-     */
-    public Set<String> findTags(double lat, double lng) {
-        Point point = geometryFactory.createPoint(new Coordinate(lng, lat));
-        return polygons.stream()
-                .filter(polygon -> polygon.intersects(point))
-                .map(LocationPolygon::getName)
-                .collect(Collectors.toSet());
+    private void sync() {
+        List<LocationPolygon> locations = new ArrayList<>();
+        corpusClient.list("Sg.MunchSheet.LocationPolygon").forEachRemaining(data -> {
+            String name = PlaceKey.name.getValue(data);
+            String polygon = PlaceKey.Location.polygon.getValue(data);
+            if (StringUtils.isAnyBlank(name, polygon)) return;
+
+            try {
+                locations.add(new LocationPolygon(name, parsePolygon(polygon)));
+            } catch (ParseException e) {
+                logger.info("Unable to parse polygon", e);
+            }
+        });
+        this.locations = locations;
     }
 
     private static class LocationPolygon {
