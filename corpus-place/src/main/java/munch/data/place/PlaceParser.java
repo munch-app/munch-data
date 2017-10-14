@@ -1,11 +1,13 @@
 package munch.data.place;
 
 import corpus.data.CorpusData;
+import corpus.field.PlaceKey;
 import munch.data.place.parser.*;
 import munch.data.structure.Place;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +18,11 @@ import java.util.List;
  */
 @Singleton
 public final class PlaceParser extends AbstractParser {
+    private static final String[] PRIORITY_CORPUSES = new String[]{
+            "Sg.MunchSheet.FranchisePlace",
+            "Sg.MunchSheet.PlaceInfo",
+    };
+
     private final PriceParser priceParser;
     private final LocationParser locationParser;
     private final TagParser tagParser;
@@ -36,8 +43,12 @@ public final class PlaceParser extends AbstractParser {
 
     public Place parse(List<CorpusData> list) {
         Place place = new Place();
+        place.setId(list.get(0).getCatalystId());
 
-        // TODO values with overrides
+        place.setName(collectMax(list, PRIORITY_CORPUSES, PlaceKey.name));
+        place.setPhone(collectMax(list, PRIORITY_CORPUSES, PlaceKey.phone));
+        place.setWebsite(collectMax(list, PRIORITY_CORPUSES, PlaceKey.website));
+        place.setDescription(collectMax(list, PRIORITY_CORPUSES, PlaceKey.description));
 
         // Nested Parsers
         place.setPrice(priceParser.parse(list));
@@ -46,7 +57,17 @@ public final class PlaceParser extends AbstractParser {
 
         place.setHours(hourParser.parse(list));
         place.setImages(imageParser.parse(list));
+
         place.setRanking(rankingParser.parse(list));
+        place.setCreatedDate(findCreatedDate(list));
+        place.setUpdatedDate(new Date());
         return place;
+    }
+
+    private Date findCreatedDate(List<CorpusData> list) {
+        return list.stream()
+                .map(CorpusData::getCreatedDate)
+                .min(Date::compareTo)
+                .orElseThrow(NullPointerException::new);
     }
 }
