@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Dynamic Place Card Client
@@ -20,6 +21,9 @@ import java.util.Objects;
  */
 public class PlaceCardClient extends AbstractClient {
     public static final String DYNAMO_TABLE_NAME = "munch-data.PlaceCard";
+    private static final String _placeId = "_placeId";
+    private static final String _cardId = "_cardId";
+    private static final String _data = "_data";
 
     private final Table cardTable;
 
@@ -35,13 +39,13 @@ public class PlaceCardClient extends AbstractClient {
     public List<PlaceDynamicCard> list(String placeId) {
         Objects.requireNonNull(placeId);
 
-        ItemCollection<QueryOutcome> collection = cardTable.query("_placeId", placeId);
+        ItemCollection<QueryOutcome> collection = cardTable.query(_placeId, placeId);
 
         // Collect results
         List<PlaceDynamicCard> cards = new ArrayList<>();
         for (Item item : collection) {
-            String cardId = item.getString("_cardId");
-            JsonNode data = fromJson(item.getJSON("_data"), JsonNode.class);
+            String cardId = item.getString(_cardId);
+            JsonNode data = fromJson(item.getJSON(_data), JsonNode.class);
             cards.add(new DefaultCard(cardId, data));
         }
         return cards;
@@ -57,11 +61,10 @@ public class PlaceCardClient extends AbstractClient {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(cardId);
 
-        Item item = cardTable.getItem("_placeId", placeId,
-                "_cardId", cardId);
+        Item item = cardTable.getItem(_placeId, placeId, _cardId, cardId);
         if (item == null) return null;
 
-        JsonNode data = fromJson(item.getJSON("_data"), JsonNode.class);
+        JsonNode data = fromJson(item.getJSON(_data), JsonNode.class);
         return new DefaultCard(cardId, data);
     }
 
@@ -75,9 +78,29 @@ public class PlaceCardClient extends AbstractClient {
         Objects.requireNonNull(card.getData());
 
         cardTable.putItem(new Item()
-                .with("_placeId", placeId)
-                .with("_cardId", card.getCardId())
-                .withJSON("_data", toJson(card.getData())));
+                .with(_placeId, placeId)
+                .with(_cardId, card.getCardId())
+                .withJSON(_data, toJson(card.getData())));
+    }
+
+    /**
+     * @param placeId   place id where the card belongs to
+     * @param card      card to put
+     * @param predicate predicate to check if to put, true = delete
+     */
+    public void putIf(String placeId, PlaceDynamicCard card, Function<PlaceDynamicCard, Boolean> predicate) {
+        Objects.requireNonNull(placeId);
+        Objects.requireNonNull(card.getCardId());
+        Objects.requireNonNull(card.getData());
+        Objects.requireNonNull(predicate);
+
+        PlaceDynamicCard existing = get(placeId, card.getCardId());
+        if (predicate.apply(existing)) {
+            cardTable.putItem(new Item()
+                    .with(_placeId, placeId)
+                    .with(_cardId, card.getCardId())
+                    .withJSON(_data, toJson(card.getData())));
+        }
     }
 
     /**
@@ -88,8 +111,23 @@ public class PlaceCardClient extends AbstractClient {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(cardId);
 
-        cardTable.deleteItem("_placeId", placeId,
-                "cardId", cardId);
+        cardTable.deleteItem(_placeId, placeId, _cardId, cardId);
+    }
+
+    /**
+     * @param placeId   place id where the card belongs to
+     * @param cardId    card id
+     * @param predicate predicate to check if to delete, true = delete
+     */
+    public void deleteIf(String placeId, String cardId, Function<PlaceDynamicCard, Boolean> predicate) {
+        Objects.requireNonNull(placeId);
+        Objects.requireNonNull(cardId);
+        Objects.requireNonNull(predicate);
+
+        PlaceDynamicCard existing = get(placeId, cardId);
+        if (predicate.apply(existing)) {
+            cardTable.deleteItem(_placeId, placeId, _cardId, cardId);
+        }
     }
 
     /**
