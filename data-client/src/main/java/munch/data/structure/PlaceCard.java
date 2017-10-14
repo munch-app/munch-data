@@ -23,10 +23,10 @@ public interface PlaceCard<T> {
 
     /**
      * Id format:
-     * type_Name_version(ddmmyyyy)
-     * E.g. basic_Banner_06092017
-     * E.g. vendor_FacebookReview_01052017
-     * E.g. vendor_InstagramMedia_01012016
+     * type_Name_version(yyyymmdd)
+     * E.g. basic_Banner_20170609
+     * E.g. vendor_FacebookReview_20171205
+     * E.g. vendor_InstagramMedia_20160101
      * <p>
      * Version of the card is usually a result of data structure update
      * Rarely it can be based on incremental design changes as well
