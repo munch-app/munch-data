@@ -3,14 +3,19 @@ package munch.data.place;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.exception.NotFoundException;
+import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
+import munch.data.structure.Place;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Created By: Fuxing Loh
@@ -24,12 +29,14 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
 
     private final Amalgamate amalgamate;
     private final PlaceClient placeClient;
+    private final PlaceParser placeParser;
 
     @Inject
-    public TreeCorpus(Amalgamate amalgamate, PlaceClient placeClient) {
+    public TreeCorpus(Amalgamate amalgamate, PlaceClient placeClient, PlaceParser placeParser) {
         super(logger);
         this.amalgamate = amalgamate;
         this.placeClient = placeClient;
+        this.placeParser = placeParser;
     }
 
     @Override
@@ -64,8 +71,9 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData placeData, long processed) {
         try {
             if (amalgamate.maintain(placeData)) {
-                // TODO Update Sg.Munch.Place
-                // TODO Client.Put if hash change
+                List<CorpusData> list = new ArrayList<>();
+                catalystClient.listCorpus(placeData.getCatalystId()).forEachRemaining(list::add);
+                put(placeData, placeParser.parse(list));
             } else {
                 placeClient.delete(placeData.getCorpusKey());
             }
@@ -77,5 +85,27 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);
         }
+    }
+
+    /**
+     * Data put only if actually changed
+     *
+     * @param placeData place data of the actual card
+     * @param place     non null place
+     */
+    public void put(CorpusData placeData, Place place) {
+        String placeId = placeData.getCatalystId();
+        Objects.requireNonNull(placeId);
+        Place existing = placeClient.get(placeId);
+
+        // Put if data is changed only
+        if (place.equals(existing)) return;
+
+        // Put to corpus client
+        placeData.put(PlaceKey.name, place.getName());
+        corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
+
+        // Put to place client
+        placeClient.put(place);
     }
 }

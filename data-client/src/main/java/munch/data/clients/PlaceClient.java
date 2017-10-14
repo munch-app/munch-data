@@ -75,6 +75,7 @@ public class PlaceClient extends AbstractClient {
      */
     public void put(Place place) throws JsonException {
         Objects.requireNonNull(place.getId());
+        Objects.requireNonNull(place.getName());
 
         Item item = new Item()
                 .withString("_id", place.getId())

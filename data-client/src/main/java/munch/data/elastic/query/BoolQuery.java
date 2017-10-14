@@ -58,8 +58,9 @@ public final class BoolQuery {
         ObjectNode multiMatch = root.putObject("multi_match");
         multiMatch.put("query", query);
         multiMatch.putArray("fields")
-                .add("name^2")
-                .add("tags");
+                .add("name^3")
+                .add("tag.explicits^2")
+                .add("tag.implicits");
         return root;
     }
 
@@ -77,7 +78,7 @@ public final class BoolQuery {
 
         // Must not filters
         for (String tag : filter.getTag().getNegatives()) {
-            notArray.add(filterTerm("tags", tag.toLowerCase()));
+            notArray.add(filterTerm("tag.explicits", tag.toLowerCase()));
         }
         return notArray;
     }
@@ -101,7 +102,7 @@ public final class BoolQuery {
         // Filter to positive tags
         if (filter.getTag() != null && filter.getTag().getPositives() != null) {
             for (String tag : filter.getTag().getPositives()) {
-                filterArray.add(filterTerm("tags", tag.toLowerCase()));
+                filterArray.add(filterTerm("tag.explicits", tag.toLowerCase()));
             }
         }
 

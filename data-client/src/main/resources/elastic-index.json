@@ -58,7 +58,10 @@
         "hours": {
           "enabled": false
         },
-        "tags": {
+        "tag.explicits": {
+          "type": "keyword"
+        },
+        "tag.implicits": {
           "type": "keyword"
         }
       }

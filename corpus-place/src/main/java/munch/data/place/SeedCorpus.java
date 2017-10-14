@@ -69,8 +69,6 @@ public class SeedCorpus extends CatalystEngine<CorpusData> {
         // Put created Sg.Munch.Place
         CorpusData placeData = new CorpusData(corpusName, cycleNo);
         placeData.setCatalystId(seedData.getCatalystId());
-        // TODO Update Sg.Munch.Place
-
         corpusClient.put(corpusName, seedData.getCatalystId(), placeData);
         logger.info("Seeded corpusName: {}, corpusKey: {} to catalystId: {}",
                 seedData.getCorpusName(), seedData.getCorpusKey(), placeData.getCatalystId());
