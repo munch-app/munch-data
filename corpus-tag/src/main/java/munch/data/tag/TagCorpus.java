@@ -52,9 +52,11 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
         CorpusData placeTag = getPlaceTag(data);
 
         if (placeTag != null) {
-            // To put if changed
-            if (!TagKey.updatedDate.equal(data, placeTag.getUpdatedDate())) {
+            CorpusData.Field updatedDate = TagKey.updatedDate.getOrThrow(data);
+            if (!TagKey.updatedDate.equal(updatedDate, placeTag.getUpdatedDate())) {
+                updatedDate.setValue(Long.toString(placeTag.getUpdatedDate().getTime()));
                 tagClient.put(createTag(placeTag));
+                corpusClient.put(corpusName, data.getCorpusKey(), data);
                 counter.increment("Updated");
             }
         } else {

@@ -59,8 +59,11 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
 
         if (locationPolygon != null) {
             // To put if changed
-            if (!LocationKey.updatedDate.equal(data, locationPolygon.getUpdatedDate())) {
+            CorpusData.Field updatedDate = LocationKey.updatedDate.getOrThrow(data);
+            if (!LocationKey.updatedDate.equal(updatedDate, locationPolygon.getUpdatedDate())) {
+                updatedDate.setValue(Long.toString(locationPolygon.getUpdatedDate().getTime()));
                 locationClient.put(createLocation(locationPolygon));
+                corpusClient.put(corpusName, data.getCorpusKey(), data);
                 counter.increment("Updated");
             }
         } else {
