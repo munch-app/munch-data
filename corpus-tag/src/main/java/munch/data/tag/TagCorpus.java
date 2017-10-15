@@ -49,24 +49,35 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
-        List<CorpusData> dataList = catalystClient.listCorpus(data.getCatalystId(),
-                "Sg.MunchSheet.PlaceTag", 1, null, null);
-        if (!dataList.isEmpty()) {
+        CorpusData placeTag = getPlaceTag(data);
+
+        if (placeTag != null) {
             // To put if changed
-            CorpusData placeTag = dataList.get(0);
-            if (TagKey.updatedDate.equal(data, placeTag.getUpdatedDate())) {
+            if (!TagKey.updatedDate.equal(data, placeTag.getUpdatedDate())) {
                 tagClient.put(createTag(placeTag));
+                counter.increment("Updated");
             }
         } else {
             // To delete
             tagClient.delete(data.getCorpusKey());
             corpusClient.delete(corpusName, data.getCorpusKey());
+            counter.increment("Deleted");
         }
 
         // Sleep for 1 second every 5 processed
-        if (processed % 5 == 0) {
-            sleep(1000);
-        }
+        if (processed % 5 == 0) sleep(1000);
+    }
+
+    /**
+     * @param data local persisted tracker
+     * @return actual linked data
+     */
+    private CorpusData getPlaceTag(CorpusData data) {
+        List<CorpusData> dataList = catalystClient.listCorpus(data.getCatalystId(),
+                "Sg.MunchSheet.PlaceTag", 1, null, null);
+
+        if (dataList.isEmpty()) return null;
+        return dataList.get(0);
     }
 
     private Tag createTag(CorpusData data) {

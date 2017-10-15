@@ -41,10 +41,10 @@ public final class ElasticModule extends AbstractModule {
     @Provides
     @Singleton
     JestClientFactory provideJestFactory(Config config) {
-        if (!config.getBoolean("services.elastic.aws.signing")) return new JestClientFactory();
+        if (!config.getBoolean("services.munch-data.elastic.aws.signing")) return new JestClientFactory();
 
         AWSSigner awsSigner = new AWSSigner(new DefaultAWSCredentialsProviderChain(),
-                config.getString("services.elastic.aws.region"), "es",
+                config.getString("services.munch-data.elastic.aws.region"), "es",
                 () -> LocalDateTime.now(ZoneOffset.UTC)
         );
         AWSSigningRequestInterceptor requestInterceptor = new AWSSigningRequestInterceptor(awsSigner);
@@ -74,7 +74,7 @@ public final class ElasticModule extends AbstractModule {
     @Provides
     @Singleton
     JestClient provideClient(Config config, JestClientFactory factory) throws InterruptedException {
-        String url = config.getString("services.elastic.url");
+        String url = config.getString("services.munch-data.elastic.url");
         WaitFor.host(url, Duration.ofSeconds(180));
 
         factory.setHttpClientConfig(new HttpClientConfig.Builder(url)

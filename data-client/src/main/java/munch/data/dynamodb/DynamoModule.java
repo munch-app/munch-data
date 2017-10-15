@@ -30,7 +30,7 @@ public final class DynamoModule extends AbstractModule {
     @Inject
     void setupTable(Config config, AmazonDynamoDB dynamoDB) throws InterruptedException {
         // Is in production mode, don't need setup table
-        if (!config.hasPath("services.dynamodb.url")) return;
+        if (!config.hasPath("services.munch-data.dynamodb.url")) return;
 
         CreateTableUtils utils = new CreateTableUtils(dynamoDB);
         utils.createTable(PlaceClient.DYNAMO_TABLE_NAME, "_id");
@@ -46,14 +46,14 @@ public final class DynamoModule extends AbstractModule {
     @Provides
     @Singleton
     AmazonDynamoDB provideClient(Config config) {
-        String region = config.getString("services.dynamodb.aws.region");
+        String region = config.getString("services.munch-data.dynamodb.aws.region");
 
         AmazonDynamoDBClientBuilder builder = AmazonDynamoDBClient.builder();
         builder.withCredentials(new DefaultAWSCredentialsProviderChain());
 
         // Endpoint If Exist (Dev Mode)
-        if (config.hasPath("services.dynamodb.url")) {
-            String endpoint = config.getString("services.dynamodb.url");
+        if (config.hasPath("services.munch-data.dynamodb.url")) {
+            String endpoint = config.getString("services.munch-data.dynamodb.url");
             builder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region));
         } else {
             builder.withRegion(region);

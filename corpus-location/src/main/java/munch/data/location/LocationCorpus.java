@@ -55,24 +55,36 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
-        List<CorpusData> dataList = catalystClient.listCorpus(data.getCatalystId(),
-                "Sg.MunchSheet.LocationPolygon", 1, null, null);
-        if (!dataList.isEmpty()) {
+        CorpusData locationPolygon = getLocationPolygon(data);
+
+        if (locationPolygon != null) {
             // To put if changed
-            CorpusData locationPolygon = dataList.get(0);
-            if (LocationKey.updatedDate.equal(data, locationPolygon.getUpdatedDate())) {
+            if (!LocationKey.updatedDate.equal(data, locationPolygon.getUpdatedDate())) {
                 locationClient.put(createLocation(locationPolygon));
+                counter.increment("Updated");
             }
         } else {
             // To delete
             locationClient.delete(data.getCorpusKey());
             corpusClient.delete(corpusName, data.getCorpusKey());
+            counter.increment("Deleted");
         }
 
         // Sleep for 1 second every 5 processed
-        if (processed % 5 == 0) {
-            sleep(1000);
-        }
+        if (processed % 5 == 0) sleep(1000);
+
+    }
+
+    /**
+     * @param data local persisted tracker
+     * @return actual linked data
+     */
+    private CorpusData getLocationPolygon(CorpusData data) {
+        List<CorpusData> dataList = catalystClient.listCorpus(data.getCatalystId(),
+                "Sg.MunchSheet.LocationPolygon", 1, null, null);
+
+        if (dataList.isEmpty()) return null;
+        return dataList.get(0);
     }
 
     private Location createLocation(CorpusData data) {
