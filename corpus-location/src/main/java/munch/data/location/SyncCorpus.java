@@ -46,9 +46,10 @@ public class SyncCorpus extends CatalystEngine<CorpusData> {
         if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
 
         // Put created Sg.Munch.Location
-        CorpusData data = new CorpusData(corpusName, cycleNo);
+        CorpusData data = new CorpusData(cycleNo);
         data.setCatalystId(seedData.getCatalystId());
         data.put(LocationKey.updatedDate, "0");
         corpusClient.put(corpusName, seedData.getCorpusKey(), data);
+        counter.increment("Seeded");
     }
 }
