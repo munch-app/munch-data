@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
+import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
 import munch.data.place.parser.location.StreetNameModule;
 
@@ -29,6 +30,8 @@ public class PlaceModule extends AbstractModule {
         install(new ElasticModule());
         install(new CorpusModule());
         install(new DataModule());
+        install(new DynamoModule());
+        install(new munch.data.elastic.ElasticModule());
 
         install(new StreetNameModule());
     }

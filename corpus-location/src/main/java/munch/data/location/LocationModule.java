@@ -6,6 +6,8 @@ import com.google.inject.Injector;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
+import munch.data.dynamodb.DynamoModule;
+import munch.data.elastic.ElasticModule;
 
 /**
  * Created by: Fuxing
@@ -19,6 +21,8 @@ public class LocationModule extends AbstractModule{
     protected void configure() {
         install(new CorpusModule());
         install(new DataModule());
+        install(new DynamoModule());
+        install(new ElasticModule());
     }
 
     public static void main(String[] args) throws InterruptedException {
