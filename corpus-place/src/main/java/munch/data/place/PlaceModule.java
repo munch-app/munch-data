@@ -1,5 +1,6 @@
 package munch.data.place;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -15,6 +16,7 @@ import munch.data.place.parser.location.StreetNameModule;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -48,6 +50,13 @@ public class PlaceModule extends AbstractModule {
     @Named("place.trees")
     Set<String> provideTreeNames(Config config) {
         return ImmutableSet.copyOf(config.getStringList("place.trees"));
+    }
+
+    @Provides
+    @Singleton
+    @Named("place.priority")
+    List<String> providePriorityNames(Config config) {
+        return ImmutableList.copyOf(config.getStringList("place.priority"));
     }
 
     public static void main(String[] args) throws InterruptedException {
