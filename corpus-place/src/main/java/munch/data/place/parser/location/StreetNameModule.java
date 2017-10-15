@@ -30,8 +30,8 @@ public class StreetNameModule extends AbstractModule {
     @Provides
     NominatimClient provideClient(Config config) throws UnirestException {
         HttpClient httpClient = HttpClientBuilder.create().build();
-        String url = config.getString("nominatim.url");
-        String email = config.getString("nominatim.email");
+        String url = config.getString("services.nominatim.url");
+        String email = config.getString("services.nominatim.email");
 
         waitForNomination(url);
         return new JsonNominatimClient(url, httpClient, email);

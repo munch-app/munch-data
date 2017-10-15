@@ -1,16 +1,24 @@
 package munch.data.place.elastic;
 
+import com.google.common.io.Resources;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
+import io.searchbox.client.JestResult;
 import io.searchbox.client.config.HttpClientConfig;
+import io.searchbox.indices.CreateIndex;
 import munch.restful.WaitFor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.time.Duration;
 
 /**
@@ -20,6 +28,7 @@ import java.time.Duration;
  * Project: munch-data
  */
 public final class ElasticModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticModule.class);
 
     @Override
     protected void configure() {
@@ -27,14 +36,15 @@ public final class ElasticModule extends AbstractModule {
     }
 
     @Inject
-    void configureMapping(ElasticMapping mapping) throws IOException {
-        mapping.tryCreate();
-    }
+    void configureMapping(@Named("munch.data.place.jest") JestClient client) throws IOException, InterruptedException {
+        Thread.sleep(1500);
 
-    @Provides
-    @Singleton
-    JestClientFactory provideJestFactory() {
-        return new JestClientFactory();
+        logger.info("Creating index");
+        URL url = Resources.getResource("search-index.json");
+        String json = Resources.toString(url, Charset.forName("UTF-8"));
+        JestResult result = client.execute(new CreateIndex.Builder("corpus").settings(json).build());
+        logger.info("Created index result: {}", result.getJsonString());
+        Thread.sleep(3000);
     }
 
     /**
@@ -45,10 +55,12 @@ public final class ElasticModule extends AbstractModule {
      */
     @Provides
     @Singleton
-    JestClient provideClient(Config config, JestClientFactory factory) throws InterruptedException {
+    @Named("munch.data.place.jest")
+    JestClient provideClient(Config config) throws InterruptedException {
         String url = config.getString("services.elastic.url");
         WaitFor.host(url, Duration.ofSeconds(180));
 
+        JestClientFactory factory = new JestClientFactory();
         factory.setHttpClientConfig(new HttpClientConfig.Builder(url)
                 .multiThreaded(true)
                 .defaultMaxTotalConnectionPerRoute(5)

@@ -11,6 +11,7 @@ import io.searchbox.core.Search;
 import munch.restful.core.JsonUtils;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class ElasticClient {
     private final ObjectMapper mapper = JsonUtils.objectMapper;
 
     @Inject
-    public ElasticClient(JestClient client) {
+    public ElasticClient(@Named("munch.data.place.jest") JestClient client) {
         this.client = client;
     }
 

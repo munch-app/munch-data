@@ -39,6 +39,7 @@ public final class LocationParser extends AbstractParser {
         double lng = latLng.getLng();
 
         Place.Location location = new Place.Location();
+        // TODO Needs to be smarter
         location.setStreet(streetNameClient.getStreet(lat, lng));
         location.setAddress(collectMax(list, PlaceKey.Location.address));
         location.setUnitNumber(collectMax(list, PlaceKey.Location.unitNumber));
