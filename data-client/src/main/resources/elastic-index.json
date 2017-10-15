@@ -29,14 +29,14 @@
         }
       }
     },
-    "tag": {
+    "Tag": {
       "properties": {
         "name": {
           "type": "text"
         }
       }
     },
-    "location": {
+    "Location": {
       "properties": {
         "location.polygon": {
           "type": "geo_shape",
@@ -47,7 +47,7 @@
         }
       }
     },
-    "place": {
+    "Place": {
       "properties": {
         "ranking": {
           "type": "double"

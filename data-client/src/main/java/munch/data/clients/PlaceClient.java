@@ -117,7 +117,7 @@ public class PlaceClient extends AbstractClient {
             // Filter hours
             JsonNode boolNode = this.boolQuery.make(query);
             JsonNode sortNode = this.sortQuery.make(query);
-            JsonNode result = client.postBoolSearch("place", query.getFrom(), query.getSize(), boolNode, sortNode);
+            JsonNode result = client.postBoolSearch("Place", query.getFrom(), query.getSize(), boolNode, sortNode);
             JsonNode hits = result.path("hits");
 
             List<Place> places = marshaller.deserializeList(hits.path("hits"));

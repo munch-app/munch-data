@@ -22,7 +22,7 @@ public class TagClient extends AbstractClient {
     }
 
     public Tag get(String id)  {
-        return elasticIndex.get("tag", id);
+        return elasticIndex.get("Tag", id);
     }
 
 

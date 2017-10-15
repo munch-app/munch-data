@@ -47,16 +47,16 @@ public final class ElasticIndex {
      * Index a place by putting it into elastic search
      *
      * @param place place to index
-     * @throws Exception any exception
+     * @throws ElasticException wrapped exception
      */
-    public void put(Place place) {
+    public void put(Place place) throws ElasticException {
         try {
             ObjectNode node = marshaller.serialize(place);
             String json = mapper.writeValueAsString(node);
 
             client.execute(new Index.Builder(json)
                     .index("munch")
-                    .type("place")
+                    .type("Place")
                     .id(place.getId())
                     .build());
         } catch (IOException e) {
@@ -69,16 +69,16 @@ public final class ElasticIndex {
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html
      *
      * @param location location to index
-     * @throws Exception any exception
+     * @throws ElasticException wrapped exception
      */
-    public void put(Location location) {
+    public void put(Location location) throws ElasticException {
         try {
             ObjectNode node = marshaller.serialize(location);
             String json = mapper.writeValueAsString(node);
 
             client.execute(new Index.Builder(json)
                     .index("munch")
-                    .type("location")
+                    .type("Location")
                     .id(location.getId())
                     .build());
         } catch (IOException e) {
@@ -90,16 +90,16 @@ public final class ElasticIndex {
      * Index a tag by putting it into elastic search
      *
      * @param tag tag to index
-     * @throws Exception any exception
+     * @throws ElasticException wrapped exception
      */
-    public void put(Tag tag) {
+    public void put(Tag tag) throws ElasticException {
         try {
             ObjectNode node = marshaller.serialize(tag);
             String json = mapper.writeValueAsString(node);
 
             client.execute(new Index.Builder(json)
                     .index("munch")
-                    .type("tag")
+                    .type("Tag")
                     .id(tag.getId())
                     .build());
         } catch (IOException e) {
@@ -120,7 +120,7 @@ public final class ElasticIndex {
     /**
      * @param type data type to delete before
      * @param key  key of data type
-     * @throws Exception exception for deletion
+     * @throws ElasticException wrapped exception
      */
     public void delete(String type, String key) {
         try {

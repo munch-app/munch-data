@@ -73,8 +73,7 @@ public class SeedCorpus extends CatalystEngine<CorpusData> {
         logger.info("Seeded corpusName: {}, corpusKey: {} to catalystId: {}",
                 seedData.getCorpusName(), seedData.getCorpusKey(), placeData.getCatalystId());
         counter.increment("Seeded");
-        if (processed % 100 == 0) {
-            sleep(Duration.ofSeconds(6));
-        }
+
+        if (processed % 100 == 0) sleep(Duration.ofSeconds(6));
     }
 }

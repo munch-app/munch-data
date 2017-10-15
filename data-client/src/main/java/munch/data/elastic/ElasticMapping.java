@@ -74,9 +74,9 @@ public final class ElasticMapping {
         JsonNode mappings = node.path("munch").path("mappings");
 
         // Validate has these types
-        if (!mappings.path("place").has("properties")) return false;
-        if (!mappings.path("tag").has("properties")) return false;
-        return mappings.path("location").has("properties");
+        if (!mappings.path("Place").has("properties")) return false;
+        if (!mappings.path("Tag").has("properties")) return false;
+        return mappings.path("Location").has("properties");
     }
 
     /**

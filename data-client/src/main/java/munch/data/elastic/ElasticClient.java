@@ -8,7 +8,6 @@ import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
 import munch.data.exceptions.ElasticException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -56,7 +55,7 @@ public final class ElasticClient {
 
         // Context: Type
         if (type != null) {
-            contexts.set("dataType", mapper.createArrayNode().add(WordUtils.capitalize(type)));
+            contexts.set("dataType", mapper.createArrayNode().add(type));
         }
 
         ObjectNode root = mapper.createObjectNode();
