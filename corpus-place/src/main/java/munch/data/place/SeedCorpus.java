@@ -21,20 +21,22 @@ import java.util.Set;
  * Project: munch-data
  */
 @Singleton
-public class SeedCorpus extends CatalystEngine<CorpusData> {
+public final class SeedCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(SeedCorpus.class);
 
     private final Set<String> seedNames;
+    private final Amalgamate amalgamate;
 
     @Inject
-    public SeedCorpus(@Named("place.seeds") Set<String> seedNames) {
+    public SeedCorpus(@Named("place.seeds") Set<String> seedNames, Amalgamate amalgamate) {
         super(logger);
         this.seedNames = seedNames;
+        this.amalgamate = amalgamate;
     }
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofMinutes(15);
+        return Duration.ofMinutes(60);
     }
 
     @Override
@@ -64,26 +66,31 @@ public class SeedCorpus extends CatalystEngine<CorpusData> {
      */
     @Override
     protected void process(long cycleNo, CorpusData seedData, long processed) {
+        // Check CorpusData is valid
+        if (!amalgamate.isValid(seedData)) return;
         // If Sg.Munch.Place already exist, can skip, can never have more then 1 because key is catalystId
         if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
 
-        // Put created Sg.Munch.Place
-        CorpusData placeData = createPlaceData(seedData);
-        corpusClient.put(corpusName, seedData.getCatalystId(), placeData);
-        logger.info("Seeded corpusName: {}, corpusKey: {} to catalystId: {}",
-                seedData.getCorpusName(), seedData.getCorpusKey(), placeData.getCatalystId());
-        counter.increment("Seeded");
-
-        if (processed % 100 == 0) sleep(Duration.ofSeconds(6));
+        putPlaceData(seedData);
+        if (processed % 100 == 0) sleep(Duration.ofSeconds(8));
     }
 
-    private CorpusData createPlaceData(CorpusData seedData) {
+    /**
+     * Put created Sg.Munch.Place
+     *
+     * @param seedData seed data to copy from
+     */
+    private void putPlaceData(CorpusData seedData) {
         CorpusData placeData = new CorpusData(corpusName, System.currentTimeMillis());
         placeData.setCatalystId(seedData.getCatalystId());
 
         placeData.put(PlaceKey.name, PlaceKey.name.getValue(seedData));
         placeData.put(PlaceKey.Location.postal, PlaceKey.Location.postal.getValue(seedData));
         placeData.put(PlaceKey.Location.latLng, PlaceKey.Location.latLng.getValue(seedData));
-        return placeData;
+
+        corpusClient.put(corpusName, seedData.getCatalystId(), placeData);
+        logger.info("Seeded corpusName: {}, corpusKey: {} to catalystId: {}",
+                seedData.getCorpusName(), seedData.getCorpusKey(), placeData.getCatalystId());
+        counter.increment("Seeded");
     }
 }

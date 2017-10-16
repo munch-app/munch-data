@@ -24,7 +24,7 @@ import java.util.Objects;
  * Project: munch-data
  */
 @Singleton
-public class TreeCorpus extends CatalystEngine<CorpusData> {
+public final class TreeCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TreeCorpus.class);
 
     private final Amalgamate amalgamate;
@@ -80,22 +80,15 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
                     deleteIf(placeData.getCorpusKey());
                 } else {
                     putIf(place);
-
-                    // Put to corpus client
-                    // CACHED FEEDBACK LOOP, Parser will read from here also
-                    placeData.replace(PlaceKey.name, place.getName());
-                    placeData.replace(PlaceKey.Location.postal, place.getLocation().getPostal());
-                    placeData.replace(PlaceKey.Location.latLng, place.getLocation().getLatLng());
-                    corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
+                    putPlaceData(placeData, place);
                 }
             } else {
                 deleteIf(placeData.getCorpusKey());
+                corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
-            // Sleep for 1 second every 5 processed
-            if (processed % 5 == 0) {
-                sleep(1000);
-            }
+            // Sleep for 1.5 second every 5 processed
+            if (processed % 6 == 0) sleep(1500);
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);
         }
@@ -124,5 +117,14 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
         if (existing != null) {
             placeClient.delete(placeId);
         }
+    }
+
+    private void putPlaceData(CorpusData placeData, Place place) {
+        // Put to corpus client
+        // CACHED FEEDBACK LOOP, Parser will read from here also
+        placeData.replace(PlaceKey.name, place.getName());
+        placeData.replace(PlaceKey.Location.postal, place.getLocation().getPostal());
+        placeData.replace(PlaceKey.Location.latLng, place.getLocation().getLatLng());
+        corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
     }
 }

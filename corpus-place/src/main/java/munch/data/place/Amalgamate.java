@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -22,6 +23,7 @@ import java.util.Set;
  * Time: 6:19 PM
  * Project: munch-data
  */
+@Singleton
 public final class Amalgamate {
     private static final Logger logger = LoggerFactory.getLogger(Amalgamate.class);
 
@@ -51,7 +53,6 @@ public final class Amalgamate {
             add(placeData);
             return true;
         } else {
-            corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             return false;
         }
     }
@@ -70,19 +71,30 @@ public final class Amalgamate {
             List<CorpusData> insides = new ArrayList<>(treeList);
             insides.remove(outside);
 
-            // If treeList has only one item, most certainly it is the seeded item
-            if (treeList.size() <= 1) return true;
-            if (!placeMatcher.match(insides, outside)) {
-                // Remove if don't match anymore
-                listIterator.remove();
-                logger.info("Removed corpusName: {}, corpusKey: {}, from catalystId: {}",
-                        outside.getCorpusName(), outside.getCorpusKey(), outside.getCatalystId());
-                corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), null);
-            }
+            // If successfully validated, can skip it
+            if (validate(insides, outside)) continue;
+
+            // Remove if don't match anymore
+            listIterator.remove();
+            logger.info("Removed corpusName: {}, corpusKey: {}, from catalystId: {}",
+                    outside.getCorpusName(), outside.getCorpusKey(), outside.getCatalystId());
+            corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), null);
         }
 
         // If none left
-        return !treeList.isEmpty();
+        return treeList.size() > 0;
+    }
+
+    /**
+     * @param insides insides
+     * @param outside outside, exiting
+     * @return true = can stay inside, false = must exit
+     */
+    private boolean validate(List<CorpusData> insides, CorpusData outside) {
+        if (!isValid(outside)) return false;
+        if (insides.size() == 0) return true;
+        if (!placeMatcher.match(insides, outside)) return false;
+        return true;
     }
 
     /**
@@ -92,16 +104,16 @@ public final class Amalgamate {
         // Existing insides
         List<CorpusData> insides = collectTree(placeData.getCatalystId());
         long localCount = catalystClient.countCorpus(placeData.getCatalystId());
-        String postal = PlaceKey.Location.postal.get(placeData)
-                .map(CorpusData.Field::getValue)
-                .orElseThrow(NullPointerException::new);
+        String postal = PlaceKey.Location.postal.getValueOrThrow(placeData);
 
         elasticClient.search(postal).forEachRemaining(result -> {
             CorpusData outside = corpusClient.get(result.getCorpusName(), result.getCorpusKey());
-            if (outside == null) return;
+            if (!isValid(outside)) return;
             if (!placeMatcher.match(insides, outside)) return;
+            // if local count is smaller, don't transfer
             if (localCount < catalystClient.countCorpus(outside.getCatalystId())) return;
 
+            // Move Data Over
             corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), placeData.getCatalystId());
             logger.info("Patched corpusName: {}, corpusKey: {} to catalystId: {}",
                     outside.getCorpusName(), outside.getCorpusKey(), placeData.getCatalystId());
@@ -116,5 +128,16 @@ public final class Amalgamate {
             }
         });
         return treeList;
+    }
+
+    /**
+     * @param data data to check
+     * @return whether data is valid
+     */
+    public boolean isValid(CorpusData data) {
+        if (data == null) return false;
+        if (!PlaceKey.name.has(data)) return false;
+        if (!PlaceKey.Location.postal.has(data)) return false;
+        return true;
     }
 }
