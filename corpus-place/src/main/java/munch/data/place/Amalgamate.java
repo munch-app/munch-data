@@ -92,7 +92,7 @@ public final class Amalgamate {
      */
     private boolean validate(List<CorpusData> insides, CorpusData outside) {
         if (!isValid(outside)) return false;
-        if (insides.size() == 0) return true;
+        if (insides.isEmpty()) return true;
         if (!placeMatcher.match(insides, outside)) return false;
         return true;
     }
