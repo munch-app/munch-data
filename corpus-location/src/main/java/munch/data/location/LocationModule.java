@@ -33,5 +33,6 @@ public class LocationModule extends AbstractModule{
                 injector.getInstance(SyncCorpus.class),
                 injector.getInstance(LocationCorpus.class)
         );
+        System.exit(0);
     }
 }

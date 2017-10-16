@@ -68,5 +68,6 @@ public class PlaceModule extends AbstractModule {
                 injector.getInstance(SeedCorpus.class),
                 injector.getInstance(TreeCorpus.class)
         );
+        System.exit(0);
     }
 }

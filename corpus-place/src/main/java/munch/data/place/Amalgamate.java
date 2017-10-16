@@ -63,8 +63,6 @@ public final class Amalgamate {
     private boolean validate(CorpusData placeData) {
         List<CorpusData> treeList = collectTree(placeData.getCatalystId());
         if (treeList.isEmpty()) return false;
-        // If treeList has only one item, most certainly it is the seeded item
-        if (treeList.size() == 1) return true;
 
         ListIterator<CorpusData> listIterator = treeList.listIterator();
         while (listIterator.hasNext()) {
@@ -72,9 +70,13 @@ public final class Amalgamate {
             List<CorpusData> insides = new ArrayList<>(treeList);
             insides.remove(outside);
 
+            // If treeList has only one item, most certainly it is the seeded item
+            if (treeList.size() <= 1) return true;
             if (!placeMatcher.match(insides, outside)) {
                 // Remove if don't match anymore
                 listIterator.remove();
+                logger.info("Removed corpusName: {}, corpusKey: {}, from catalystId: {}",
+                        outside.getCorpusName(), outside.getCorpusKey(), outside.getCatalystId());
                 corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), null);
             }
         }
@@ -90,6 +92,8 @@ public final class Amalgamate {
         // Existing insides
         List<CorpusData> insides = collectTree(placeData.getCatalystId());
         long localCount = catalystClient.countCorpus(placeData.getCatalystId());
+
+        // TODO Postal not found
         String postal = PlaceKey.Location.postal.get(placeData)
                 .map(CorpusData.Field::getValue)
                 .orElseThrow(NullPointerException::new);

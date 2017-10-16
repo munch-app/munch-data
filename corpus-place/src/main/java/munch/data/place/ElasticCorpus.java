@@ -61,9 +61,7 @@ public class ElasticCorpus extends CatalystEngine<CorpusData> {
         if (partial == null) return;
 
         elasticClient.put(cycleNo, partial);
-        if (processed % 100 == 0) {
-            sleep(Duration.ofSeconds(6));
-        }
+        if (processed % 100 == 0) sleep(Duration.ofSeconds(6));
     }
 
     @Override
