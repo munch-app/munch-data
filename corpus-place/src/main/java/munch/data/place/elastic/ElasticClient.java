@@ -82,8 +82,9 @@ public class ElasticClient {
         root.put("from", from)
                 .put("size", size)
                 .putObject("query")
-                .putObject("must")
-                .putObject("match")
+                .putObject("bool")
+                .putObject("filter")
+                .putObject("term")
                 .put("postal", postal);
 
         try {

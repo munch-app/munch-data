@@ -6,6 +6,7 @@ import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
 import munch.data.structure.Place;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +82,7 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
                 } else {
                     putIf(place);
                     putPlaceData(placeData, place);
+                    count(place);
                 }
             } else {
                 deleteIf(placeData.getCorpusKey());
@@ -92,6 +94,15 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);
         }
+    }
+
+    private void count(Place place) {
+        counter.increment("Put");
+
+        if (!place.getImages().isEmpty()) counter.increment("Counts.Images");
+        if (!place.getHours().isEmpty()) counter.increment("Counts.Hours");
+        if (StringUtils.isNotBlank(place.getPhone())) counter.increment("Counts.Phone");
+        if (StringUtils.isNotBlank(place.getWebsite())) counter.increment("Counts.Website");
     }
 
     /**
