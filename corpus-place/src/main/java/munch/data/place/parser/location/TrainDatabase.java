@@ -65,7 +65,7 @@ public final class TrainDatabase {
 
     private void sync() {
         List<TrainStation> stations = new ArrayList<>();
-        corpusClient.list("Sg.MunchSheet.MRTStation").forEachRemaining(data -> {
+        corpusClient.list("Sg.MunchSheet.MRTLocation").forEachRemaining(data -> {
             String name = FieldUtils.getValue(data, "MRTLocation.name");
             String latLngString = FieldUtils.getValue(data, "MRTLocation.latLng");
             if (StringUtils.isAnyBlank(name, latLngString)) return;
