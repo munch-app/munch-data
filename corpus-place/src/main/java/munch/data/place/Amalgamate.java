@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -62,14 +63,18 @@ public final class Amalgamate {
     private boolean validate(CorpusData placeData) {
         List<CorpusData> treeList = collectTree(placeData.getCatalystId());
         if (treeList.isEmpty()) return false;
+        // If treeList has only one item, most certainly it is the seeded item
+        if (treeList.size() == 1) return true;
 
-        for (CorpusData outside : treeList) {
+        ListIterator<CorpusData> listIterator = treeList.listIterator();
+        while (listIterator.hasNext()) {
+            CorpusData outside = listIterator.next();
             List<CorpusData> insides = new ArrayList<>(treeList);
             insides.remove(outside);
 
             if (!placeMatcher.match(insides, outside)) {
                 // Remove if don't match anymore
-                treeList.remove(outside);
+                listIterator.remove();
                 corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), null);
             }
         }
