@@ -9,6 +9,7 @@ import munch.data.place.parser.location.TrainDatabase;
 import munch.data.structure.Place;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
@@ -34,13 +35,16 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     }
 
     @Override
-    public Place.Location parse(Place place,List<CorpusData> list) {
+    @Nullable
+    public Place.Location parse(Place place, List<CorpusData> list) {
         LatLngUtils.LatLng latLng = parseLatLng(list);
+        if (latLng == null) return null;
+
         double lat = latLng.getLat();
         double lng = latLng.getLng();
 
         Place.Location location = new Place.Location();
-        // TODO Needs to be smarter
+        // Might Need to be smarter
         location.setStreet(streetNameClient.getStreet(lat, lng));
         location.setAddress(collectMax(list, PlaceKey.Location.address));
         location.setUnitNumber(collectMax(list, PlaceKey.Location.unitNumber));

@@ -1,9 +1,26 @@
 version: '2'
 
 services:
-  dynamodb:
+  corpus-elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.0
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      bootstrap.memory_lock: "true"
+      xpack.security.enabled: "false"
+      xpack.monitoring.enabled: "false"
+      xpack.graph.enabled: "false"
+      xpack.watcher.enabled: "false"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    ports:
+      - 9201:9200
+
+  data-dynamodb:
     image: peopleperhour/dynamodb
-  munch-es:
+  data-elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.5.0
     environment:
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"

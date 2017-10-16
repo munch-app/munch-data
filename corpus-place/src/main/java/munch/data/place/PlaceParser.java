@@ -45,9 +45,10 @@ public final class PlaceParser extends AbstractParser<Place> {
 
     /**
      * @param list list of CorpusData to use
-     * @return Parsed Place, non-null
+     * @return Parsed Place, null if parsing failed
      */
     @Override
+    @Nullable
     public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
 
@@ -59,6 +60,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         // Nested Parsers, TagParse needs location parser to parse first
         place.setPrice(priceParser.parse(place, list));
         place.setLocation(locationParser.parse(place, list));
+        if (place.getLocation() == null) return null;
         place.setTag(tagParser.parse(place, list));
 
         place.setHours(hourParser.parse(place, list));

@@ -73,9 +73,23 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
             if (amalgamate.maintain(placeData)) {
                 List<CorpusData> list = new ArrayList<>();
                 catalystClient.listCorpus(placeData.getCatalystId()).forEachRemaining(list::add);
-                put(placeData, placeParser.parse(new Place(), list));
+
+                Place place = placeParser.parse(new Place(), list);
+                // Null = parsing failed
+                if (place == null) {
+                    deleteIf(placeData.getCorpusKey());
+                } else {
+                    putIf(place);
+
+                    // Put to corpus client
+                    // CACHED FEEDBACK LOOP, Parser will read from here also
+                    placeData.replace(PlaceKey.name, place.getName());
+                    placeData.replace(PlaceKey.Location.postal, place.getLocation().getPostal());
+                    placeData.replace(PlaceKey.Location.latLng, place.getLocation().getLatLng());
+                    corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
+                }
             } else {
-                placeClient.delete(placeData.getCorpusKey());
+                deleteIf(placeData.getCorpusKey());
             }
 
             // Sleep for 1 second every 5 processed
@@ -90,25 +104,25 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
     /**
      * Data put only if actually changed
      *
-     * @param placeData place data of the actual card
-     * @param place     non null place
+     * @param place non null place
      */
-    public void put(CorpusData placeData, Place place) {
-        String placeId = placeData.getCatalystId();
-        Objects.requireNonNull(placeId);
-        Place existing = placeClient.get(placeId);
+    private void putIf(Place place) {
+        Objects.requireNonNull(place.getId());
 
         // Put if data is changed only
-        if (place.equals(existing)) return;
+        Place existing = placeClient.get(place.getId());
+        if (!place.equals(existing)) {
+            placeClient.put(place);
+        }
+    }
 
-        // Put to corpus client
-        // CACHED FEEDBACK LOOP, Parser will read from here also
-        placeData.replace(PlaceKey.name, place.getName());
-        placeData.replace(PlaceKey.Location.postal, place.getLocation().getPostal());
-        placeData.replace(PlaceKey.Location.latLng, place.getLocation().getLatLng());
-        corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
+    private void deleteIf(String placeId) {
+        Objects.requireNonNull(placeId);
 
-        // Put to place client
-        placeClient.put(place);
+        // Delete if exist only
+        Place existing = placeClient.get(placeId);
+        if (existing != null) {
+            placeClient.delete(placeId);
+        }
     }
 }
