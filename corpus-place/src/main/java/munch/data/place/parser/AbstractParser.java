@@ -3,6 +3,7 @@ package munch.data.place.parser;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
 import corpus.utils.FieldCollector;
+import munch.data.structure.Place;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -13,7 +14,14 @@ import java.util.List;
  * Time: 11:56 PM
  * Project: munch-data
  */
-public abstract class AbstractParser {
+public abstract class AbstractParser<T> {
+
+    /**
+     * @param place read-only place data
+     * @param list  list of corpus data to parse from
+     * @return parsed data
+     */
+    public abstract T parse(Place place, List<CorpusData> list);
 
     @Nullable
     protected String collectMax(List<CorpusData> list, AbstractKey... keys) {

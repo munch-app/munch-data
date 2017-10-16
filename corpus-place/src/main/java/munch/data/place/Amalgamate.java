@@ -92,8 +92,6 @@ public final class Amalgamate {
         // Existing insides
         List<CorpusData> insides = collectTree(placeData.getCatalystId());
         long localCount = catalystClient.countCorpus(placeData.getCatalystId());
-
-        // TODO Postal not found
         String postal = PlaceKey.Location.postal.get(placeData)
                 .map(CorpusData.Field::getValue)
                 .orElseThrow(NullPointerException::new);

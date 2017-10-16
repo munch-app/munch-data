@@ -49,6 +49,7 @@ public class SyncCorpus extends CatalystEngine<CorpusData> {
         CorpusData data = new CorpusData(cycleNo);
         data.setCatalystId(seedData.getCatalystId());
         data.put(TagKey.updatedDate, "0");
+
         corpusClient.put(corpusName, seedData.getCorpusKey(), data);
         counter.increment("Seeded");
     }

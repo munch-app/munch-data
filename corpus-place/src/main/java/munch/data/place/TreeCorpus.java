@@ -73,7 +73,7 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
             if (amalgamate.maintain(placeData)) {
                 List<CorpusData> list = new ArrayList<>();
                 catalystClient.listCorpus(placeData.getCatalystId()).forEachRemaining(list::add);
-                put(placeData, placeParser.parse(list));
+                put(placeData, placeParser.parse(new Place(), list));
             } else {
                 placeClient.delete(placeData.getCorpusKey());
             }
@@ -103,9 +103,9 @@ public class TreeCorpus extends CatalystEngine<CorpusData> {
 
         // Put to corpus client
         // CACHED FEEDBACK LOOP, Parser will read from here also
-        placeData.put(PlaceKey.name, place.getName());
-        placeData.put(PlaceKey.Location.postal, place.getLocation().getPostal());
-        placeData.put(PlaceKey.Location.latLng, place.getLocation().getLatLng());
+        placeData.replace(PlaceKey.name, place.getName());
+        placeData.replace(PlaceKey.Location.postal, place.getLocation().getPostal());
+        placeData.replace(PlaceKey.Location.latLng, place.getLocation().getLatLng());
         corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
 
         // Put to place client

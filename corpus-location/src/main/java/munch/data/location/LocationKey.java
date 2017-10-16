@@ -20,12 +20,8 @@ public class LocationKey extends AbstractKey {
         super("Sg.Munch.Location." + key, multi);
     }
 
-    public boolean equal(CorpusData.Field field, Date date) {
+    public boolean equal(CorpusData data, Date date) {
         String right = Long.toString(date.getTime());
-        return StringUtils.equals(field.getValue(), right);
-    }
-
-    public CorpusData.Field getOrThrow(CorpusData data) {
-        return get(data).orElseThrow(NullPointerException::new);
+        return StringUtils.equals(getValueOrThrow(data), right);
     }
 }

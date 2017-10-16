@@ -18,14 +18,15 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class ImageParser extends AbstractParser {
+public final class ImageParser extends AbstractParser<List<Place.Image>> {
     private static final int MAX_SIZE = 10;
 
     /**
      * @param list list of corpus
      * @return List of Place.Image can be empty
      */
-    public List<Place.Image> parse(List<CorpusData> list) {
+    @Override
+    public List<Place.Image> parse(Place place, List<CorpusData> list) {
         return collect(list, PlaceKey.image).stream()
                 .map(field -> {
                     Map<String, String> images = ImageCachedKey.getImages(field);

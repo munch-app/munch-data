@@ -3,6 +3,7 @@ package munch.data.place;
 import catalyst.utils.iterators.NestedIterator;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
+import corpus.field.PlaceKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,13 +68,22 @@ public class SeedCorpus extends CatalystEngine<CorpusData> {
         if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
 
         // Put created Sg.Munch.Place
-        CorpusData placeData = new CorpusData(corpusName, cycleNo);
-        placeData.setCatalystId(seedData.getCatalystId());
+        CorpusData placeData = createPlaceData(seedData);
         corpusClient.put(corpusName, seedData.getCatalystId(), placeData);
         logger.info("Seeded corpusName: {}, corpusKey: {} to catalystId: {}",
                 seedData.getCorpusName(), seedData.getCorpusKey(), placeData.getCatalystId());
         counter.increment("Seeded");
 
         if (processed % 100 == 0) sleep(Duration.ofSeconds(6));
+    }
+
+    private CorpusData createPlaceData(CorpusData seedData) {
+        CorpusData placeData = new CorpusData(corpusName, System.currentTimeMillis());
+        placeData.setCatalystId(seedData.getCatalystId());
+
+        placeData.put(PlaceKey.name, PlaceKey.name.getValue(seedData));
+        placeData.put(PlaceKey.Location.postal, PlaceKey.Location.postal.getValue(seedData));
+        placeData.put(PlaceKey.Location.latLng, PlaceKey.Location.latLng.getValue(seedData));
+        return placeData;
     }
 }

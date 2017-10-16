@@ -20,7 +20,7 @@ import java.util.List;
  * Project: munch-data
  */
 @Singleton
-public final class LocationParser extends AbstractParser {
+public final class LocationParser extends AbstractParser<Place.Location> {
 
     private final TrainDatabase trainDatabase; // With latLng
     private final StreetNameClient streetNameClient; // With latLng
@@ -33,7 +33,8 @@ public final class LocationParser extends AbstractParser {
         this.oneMapApi = oneMapApi;
     }
 
-    public Place.Location parse(List<CorpusData> list) {
+    @Override
+    public Place.Location parse(Place place,List<CorpusData> list) {
         LatLngUtils.LatLng latLng = parseLatLng(list);
         double lat = latLng.getLat();
         double lng = latLng.getLng();

@@ -18,10 +18,11 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class PriceParser extends AbstractParser {
+public final class PriceParser extends AbstractParser<Place.Price> {
 
     @Nullable
-    public Place.Price parse(List<CorpusData> list) {
+    @Override
+    public Place.Price parse(Place place,List<CorpusData> list) {
         List<CorpusData.Field> fields = collect(list, PlaceKey.price);
         List<Double> prices = fields.stream()
                 .map(PriceParser::clean)

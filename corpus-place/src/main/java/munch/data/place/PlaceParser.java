@@ -20,7 +20,7 @@ import java.util.List;
  * Project: munch-data
  */
 @Singleton
-public final class PlaceParser extends AbstractParser {
+public final class PlaceParser extends AbstractParser<Place> {
 
     private final List<String> priorityNames;
 
@@ -47,8 +47,8 @@ public final class PlaceParser extends AbstractParser {
      * @param list list of CorpusData to use
      * @return Parsed Place, non-null
      */
-    public Place parse(List<CorpusData> list) {
-        Place place = new Place();
+    @Override
+    public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
 
         place.setName(collectMax(list, PlaceKey.name));
@@ -56,15 +56,15 @@ public final class PlaceParser extends AbstractParser {
         place.setWebsite(collectMax(list, PlaceKey.website));
         place.setDescription(collectMax(list, PlaceKey.description));
 
-        // Nested Parsers
-        place.setPrice(priceParser.parse(list));
-        place.setLocation(locationParser.parse(list));
-        place.setTag(tagParser.parse(list));
+        // Nested Parsers, TagParse needs location parser to parse first
+        place.setPrice(priceParser.parse(place, list));
+        place.setLocation(locationParser.parse(place, list));
+        place.setTag(tagParser.parse(place, list));
 
-        place.setHours(hourParser.parse(list));
-        place.setImages(imageParser.parse(list));
+        place.setHours(hourParser.parse(place, list));
+        place.setImages(imageParser.parse(place, list));
 
-        place.setRanking(rankingParser.parse(list));
+        place.setRanking(rankingParser.parse(place, list));
         place.setCreatedDate(findCreatedDate(list));
         place.setUpdatedDate(new Date());
         return place;

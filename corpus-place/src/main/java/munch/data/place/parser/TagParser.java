@@ -4,11 +4,9 @@ import catalyst.utils.LatLngUtils;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import munch.data.place.parser.location.LocationDatabase;
-import munch.data.place.parser.location.OneMapApi;
 import munch.data.place.parser.tag.GroupTag;
 import munch.data.place.parser.tag.GroupTagDatabase;
 import munch.data.structure.Place;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,22 +23,21 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class TagParser extends AbstractParser {
+public final class TagParser extends AbstractParser<Place.Tag> {
     private final GroupTagDatabase groupTagDatabase;
     private final LocationDatabase locationDatabase;
-    private final OneMapApi oneMapApi;
 
     @Inject
-    public TagParser(GroupTagDatabase groupTagDatabase, LocationDatabase locationDatabase, OneMapApi oneMapApi) {
+    public TagParser(GroupTagDatabase groupTagDatabase, LocationDatabase locationDatabase) {
         this.groupTagDatabase = groupTagDatabase;
         this.locationDatabase = locationDatabase;
-        this.oneMapApi = oneMapApi;
     }
 
-    public Place.Tag parse(List<CorpusData> list) {
+    @Override
+    public Place.Tag parse(Place place, List<CorpusData> list) {
         Place.Tag tag = new Place.Tag();
         tag.setExplicits(parseExplicits(list));
-        tag.setImplicits(parseImplicits(list));
+        tag.setImplicits(parseImplicits(place.getLocation(), list));
         return tag;
     }
 
@@ -56,8 +53,8 @@ public final class TagParser extends AbstractParser {
         return tags;
     }
 
-    private List<String> parseImplicits(List<CorpusData> list) {
-        LatLngUtils.LatLng latLng = parseLatLng(list);
+    private List<String> parseImplicits(Place.Location location, List<CorpusData> list) {
+        LatLngUtils.LatLng latLng = LatLngUtils.parse(location.getLatLng());
         return new ArrayList<>(locationDatabase.findTags(latLng.getLat(), latLng.getLng()));
     }
 
@@ -68,17 +65,5 @@ public final class TagParser extends AbstractParser {
                 .limit(2)
                 .map(GroupTag::getName)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * @param list list of corpus data
-     * @return find LatLng
-     */
-    private LatLngUtils.LatLng parseLatLng(List<CorpusData> list) {
-        String latLng = collectMax(list, PlaceKey.Location.latLng);
-        if (StringUtils.isNotBlank(latLng)) return LatLngUtils.parse(latLng);
-
-        String postal = collectMax(list, PlaceKey.Location.postal);
-        return oneMapApi.geocode(postal);
     }
 }

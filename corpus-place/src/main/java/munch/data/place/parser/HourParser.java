@@ -18,10 +18,11 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class HourParser extends AbstractParser {
+public final class HourParser extends AbstractParser<List<Place.Hour>> {
     private static final Logger logger = LoggerFactory.getLogger(HourParser.class);
 
-    public List<Place.Hour> parse(List<CorpusData> list) {
+    @Override
+    public List<Place.Hour> parse(Place place, List<CorpusData> list) {
         Map<String, Set<Place.Hour>> map = collect(list);
         if (map.isEmpty()) return Collections.emptyList();
 
