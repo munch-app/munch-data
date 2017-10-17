@@ -108,9 +108,10 @@ public final class Amalgamate {
 
         elasticClient.search(postal).forEachRemaining(result -> {
             CorpusData outside = corpusClient.get(result.getCorpusName(), result.getCorpusKey());
-            if (!isValid(outside)) return;
-            if (!placeMatcher.match(insides, outside)) return;
-            // if local count is smaller, don't transfer
+            if (!validate(insides, outside)) return;
+            // If already inside, don't transfer either
+            if (insides.contains(outside)) return;
+            // If local count is smaller, don't transfer
             if (localCount < catalystClient.countCorpus(outside.getCatalystId())) return;
 
             // Move Data Over
