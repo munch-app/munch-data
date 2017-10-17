@@ -102,10 +102,10 @@ public class ElasticClient {
         List<PartialPlace> list = new ArrayList<>();
         for (JsonNode result : results) {
             PartialPlace place = new PartialPlace();
-            place.setCorpusName(result.path("_index").asText());
+            place.setCorpusName(result.path("_type").asText());
             place.setCorpusKey(result.path("_id").asText());
-            place.setName(deserializeStrings(result.path("name")));
-            place.setPostal(deserializeStrings(result.path("postal")));
+            place.setName(deserializeStrings(result.path("_source").path("name")));
+            place.setPostal(deserializeStrings(result.path("_source").path("postal")));
             list.add(place);
         }
         return list;

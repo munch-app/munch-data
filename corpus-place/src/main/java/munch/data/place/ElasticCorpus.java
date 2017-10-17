@@ -63,10 +63,7 @@ public class ElasticCorpus extends CatalystEngine<CorpusData> {
         elasticClient.put(cycleNo, partial);
         counter.increment("Put");
 
-        if (processed % 200 == 0) {
-            sleep(Duration.ofSeconds(5));
-            counter.print();
-        }
+        if (processed % 200 == 0) sleep(Duration.ofSeconds(5));
     }
 
     @Override
