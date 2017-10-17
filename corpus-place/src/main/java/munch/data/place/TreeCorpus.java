@@ -117,6 +117,7 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
         Place existing = placeClient.get(place.getId());
         if (!place.equals(existing)) {
             placeClient.put(place);
+            counter.increment("Updated");
         }
     }
 
