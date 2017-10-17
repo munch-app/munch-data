@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class ImageParser extends AbstractParser<List<Place.Image>> {
     private static final int MAX_SIZE = 10;
+    // TODO Image Thumbnail
 
     /**
      * @param list list of corpus
