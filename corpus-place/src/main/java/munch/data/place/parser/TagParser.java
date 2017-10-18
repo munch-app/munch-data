@@ -46,7 +46,7 @@ public final class TagParser extends AbstractParser<Place.Tag> {
 
         List<String> tags = new ArrayList<>();
         tags.addAll(findGroups(groupTags, 1));
-        if (tags.isEmpty()) tags.add("Restaurant");
+        if (tags.isEmpty()) tags.add("restaurant");
 
         tags.addAll(findGroups(groupTags, 2));
         tags.addAll(findGroups(groupTags, 3));
@@ -63,7 +63,7 @@ public final class TagParser extends AbstractParser<Place.Tag> {
                 .filter(groupTag -> groupTag.getGroupNo() == groupNo)
                 .sorted(Comparator.comparingInt(GroupTag::getOrder))
                 .limit(2)
-                .map(GroupTag::getName)
+                .map(groupTag -> groupTag.getName().toLowerCase())
                 .collect(Collectors.toList());
     }
 }

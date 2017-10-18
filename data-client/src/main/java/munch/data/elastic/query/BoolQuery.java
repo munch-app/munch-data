@@ -118,7 +118,7 @@ public final class BoolQuery {
             }
 
             // Only add if contains max or min
-            if (range.size() != 0) {
+            if (range.size() > 0) {
                 // Filter is applied on middle
                 filterArray.add(mapper.createObjectNode().set("price.middle", range));
             }
