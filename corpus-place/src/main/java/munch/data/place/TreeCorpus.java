@@ -42,7 +42,7 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofMinutes(15);
+        return Duration.ofMinutes(20);
     }
 
     @Override
@@ -89,8 +89,9 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
-            // Sleep for 1.5 second every 5 processed
-            if (processed % 6 == 0) sleep(1000);
+            // Sleep for 0.4 second every 3 processed
+            if (processed % 3 == 0) sleep(400);
+            if (processed % 1000 == 0) logger.info("Processed {} places", processed);
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);
         }
