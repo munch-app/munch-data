@@ -7,6 +7,7 @@ import munch.data.structure.Place;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by: Fuxing
@@ -31,6 +32,13 @@ public abstract class AbstractParser<T> {
     }
 
     @Nullable
+    protected String collectMax(List<CorpusData> list, Function<String, String> mapper, AbstractKey... keys) {
+        FieldCollector fieldCollector = new FieldCollector(keys);
+        fieldCollector.addAll(list);
+        return mapper.apply(fieldCollector.collectMax());
+    }
+
+    @Nullable
     protected String collectMax(List<CorpusData> list, String[] corpusNames, AbstractKey... keys) {
         FieldCollector fieldCollector = new FieldCollector(keys);
         fieldCollector.addAll(list);
@@ -42,6 +50,20 @@ public abstract class AbstractParser<T> {
         FieldCollector fieldCollector = new FieldCollector(keys);
         fieldCollector.addAll(list);
         return fieldCollector.collectMax(corpusNames);
+    }
+
+    @Nullable
+    protected String collectMax(List<CorpusData> list, String[] corpusNames, Function<String, String> mapper, AbstractKey... keys) {
+        FieldCollector fieldCollector = new FieldCollector(keys);
+        fieldCollector.addAll(list);
+        return mapper.apply(fieldCollector.collectMax(corpusNames));
+    }
+
+    @Nullable
+    protected String collectMax(List<CorpusData> list, List<String> corpusNames, Function<String, String> mapper, AbstractKey... keys) {
+        FieldCollector fieldCollector = new FieldCollector(keys);
+        fieldCollector.addAll(list);
+        return mapper.apply(fieldCollector.collectMax(corpusNames));
     }
 
     protected List<String> collectValue(List<CorpusData> list, AbstractKey... keys) {

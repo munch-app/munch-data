@@ -46,10 +46,12 @@ public final class TagParser extends AbstractParser<Place.Tag> {
 
         List<String> tags = new ArrayList<>();
         tags.addAll(findGroups(groupTags, 1));
-        if (tags.isEmpty()) tags.add("restaurant");
-
         tags.addAll(findGroups(groupTags, 2));
         tags.addAll(findGroups(groupTags, 3));
+
+        if (!tags.contains("restaurant")) {
+            tags.add(0, "restaurant");
+        }
         return tags;
     }
 
@@ -58,11 +60,17 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         return new ArrayList<>(locationDatabase.findTags(latLng.getLat(), latLng.getLng()));
     }
 
+    /**
+     * @param groupTags group of tags to search in
+     * @param groupNo   groupNo
+     * @return lowercase groups of tags
+     */
     private List<String> findGroups(Set<GroupTag> groupTags, int groupNo) {
         return groupTags.stream()
                 .filter(groupTag -> groupTag.getGroupNo() == groupNo)
                 .sorted(Comparator.comparingInt(GroupTag::getOrder))
                 .limit(2)
+                // Must be lowercase
                 .map(groupTag -> groupTag.getName().toLowerCase())
                 .collect(Collectors.toList());
     }

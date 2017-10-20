@@ -5,6 +5,7 @@ import corpus.field.AbstractKey;
 import corpus.field.PlaceKey;
 import munch.data.place.parser.*;
 import munch.data.structure.Place;
+import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -52,7 +53,7 @@ public final class PlaceParser extends AbstractParser<Place> {
     public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
 
-        place.setName(collectMax(list, PlaceKey.name));
+        place.setName(WordUtils.capitalize(collectMax(list, PlaceKey.name)));
         place.setPhone(collectMax(list, PlaceKey.phone));
         place.setWebsite(collectMax(list, PlaceKey.website));
         place.setDescription(collectMax(list, PlaceKey.description));
