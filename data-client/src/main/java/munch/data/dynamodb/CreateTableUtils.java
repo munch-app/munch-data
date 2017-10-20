@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
 import com.google.common.collect.ImmutableList;
-import munch.data.clients.PlaceClient;
 
 /**
  * Created by: Fuxing
@@ -22,7 +21,7 @@ public class CreateTableUtils {
     public void createTable(String tableName, String hashKey) throws InterruptedException {
         CreateTableRequest request = new CreateTableRequest();
         request.setProvisionedThroughput(new ProvisionedThroughput(5L, 5L));
-        request.setTableName(PlaceClient.DYNAMO_TABLE_NAME);
+        request.setTableName(tableName);
 
         request.setAttributeDefinitions(ImmutableList.of(
                 new AttributeDefinition(hashKey, ScalarAttributeType.S)
@@ -40,7 +39,7 @@ public class CreateTableUtils {
     public void createTable(String tableName, String hashKey, String sortKey) throws InterruptedException {
         CreateTableRequest request = new CreateTableRequest();
         request.setProvisionedThroughput(new ProvisionedThroughput(5L, 5L));
-        request.setTableName(PlaceClient.DYNAMO_TABLE_NAME);
+        request.setTableName(tableName);
 
         request.setAttributeDefinitions(ImmutableList.of(
                 new AttributeDefinition(hashKey, ScalarAttributeType.S),
@@ -49,7 +48,7 @@ public class CreateTableUtils {
 
         request.setKeySchema(ImmutableList.of(
                 new KeySchemaElement(hashKey, KeyType.HASH),
-                new KeySchemaElement(hashKey, KeyType.RANGE)
+                new KeySchemaElement(sortKey, KeyType.RANGE)
         ));
 
         // Create table if not already exists & wait
