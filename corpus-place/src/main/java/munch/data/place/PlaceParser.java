@@ -53,7 +53,7 @@ public final class PlaceParser extends AbstractParser<Place> {
     public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
 
-        place.setName(WordUtils.capitalize(collectMax(list, PlaceKey.name)));
+        place.setName(WordUtils.capitalizeFully(collectMax(list, PlaceKey.name)));
         place.setPhone(collectMax(list, PlaceKey.phone));
         place.setWebsite(collectMax(list, PlaceKey.website));
         place.setDescription(collectMax(list, PlaceKey.description));

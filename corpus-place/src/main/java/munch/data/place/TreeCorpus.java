@@ -98,7 +98,7 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
     }
 
     private void count(Place place) {
-        counter.increment("Put");
+        counter.increment("Counts.Places");
 
         if (!place.getImages().isEmpty()) counter.increment("Counts.Images");
         if (!place.getHours().isEmpty()) counter.increment("Counts.Hours");

@@ -47,13 +47,13 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         Place.Location location = new Place.Location();
         // Might Need to be smarter
         location.setStreet(streetNameClient.getStreet(lat, lng));
-        location.setAddress(collectMax(list, WordUtils::capitalize, PlaceKey.Location.address));
+        location.setAddress(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.address));
         location.setUnitNumber(collectMax(list, PlaceKey.Location.unitNumber));
-        location.setBuilding(collectMax(list, WordUtils::capitalize, PlaceKey.Location.building));
+        location.setBuilding(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.building));
         location.setNearestTrain(trainDatabase.findNearest(lat, lng).getName());
 
-        location.setCity(collectMax(list, WordUtils::capitalize, PlaceKey.Location.city));
-        location.setCountry(collectMax(list, WordUtils::capitalize, PlaceKey.Location.country));
+        location.setCity(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.city));
+        location.setCountry(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.country));
 
         location.setPostal(collectMax(list, PlaceKey.Location.postal));
         location.setLatLng(lat, lng);
