@@ -33,6 +33,12 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         this.locationDatabase = locationDatabase;
     }
 
+    /**
+     *
+     * @param place read-only place data
+     * @param list  list of corpus data to parse from
+     * @return Place.Tag, tags must all be in lowercase
+     */
     @Override
     public Place.Tag parse(Place place, List<CorpusData> list) {
         Place.Tag tag = new Place.Tag();
@@ -56,8 +62,14 @@ public final class TagParser extends AbstractParser<Place.Tag> {
     }
 
     private List<String> parseImplicits(Place.Location location, List<CorpusData> list) {
+        List<String> tags = new ArrayList<>();
+
         LatLngUtils.LatLng latLng = LatLngUtils.parse(location.getLatLng());
-        return new ArrayList<>(locationDatabase.findTags(latLng.getLat(), latLng.getLng()));
+        tags.addAll(locationDatabase.findTags(latLng.getLat(), latLng.getLng()));
+
+        return tags.stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
     }
 
     /**
