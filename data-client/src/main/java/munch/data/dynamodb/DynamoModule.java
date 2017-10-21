@@ -25,6 +25,7 @@ public final class DynamoModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        requestInjection(this);
     }
 
     @Inject
