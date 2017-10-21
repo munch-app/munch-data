@@ -4,7 +4,7 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import corpus.data.CorpusClient;
-import corpus.field.PlaceKey;
+import corpus.field.FieldUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +72,8 @@ public final class LocationDatabase {
     private void sync() {
         List<LocationPolygon> locations = new ArrayList<>();
         corpusClient.list("Sg.MunchSheet.LocationPolygon").forEachRemaining(data -> {
-            String name = PlaceKey.name.getValue(data);
-            String polygon = PlaceKey.Location.polygon.getValue(data);
+            String name = FieldUtils.getValue(data, "LocationPolygon.name");
+            String polygon = FieldUtils.getValue(data, "LocationPolygon.polygon");
             if (StringUtils.isAnyBlank(name, polygon)) return;
 
             try {

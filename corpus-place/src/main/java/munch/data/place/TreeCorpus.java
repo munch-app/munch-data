@@ -89,8 +89,8 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
-            // Sleep for 0.4 second every 3 processed
-            if (processed % 3 == 0) sleep(400);
+            // Sleep for 0.3 second every 4 processed
+            if (processed % 4 == 0) sleep(300);
             if (processed % 1000 == 0) logger.info("Processed {} places", processed);
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);
