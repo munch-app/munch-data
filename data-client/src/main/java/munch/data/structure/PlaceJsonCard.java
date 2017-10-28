@@ -9,21 +9,30 @@ import munch.restful.core.JsonUtils;
  * Time: 9:31 AM
  * Project: munch-data
  */
-public abstract class PlaceJsonCard implements PlaceCard<JsonNode> {
+public class PlaceJsonCard implements PlaceCard<JsonNode> {
+    private final String cardId;
     private final JsonNode data;
 
     /**
+     * @param cardId static card id
      * @param data DynamicCard data type is bound to JsonNode
      */
-    protected PlaceJsonCard(JsonNode data) {
+    public PlaceJsonCard(String cardId, JsonNode data) {
+        this.cardId = cardId;
         this.data = data;
     }
 
     /**
+     * @param cardId static card id
      * @param object DynamicCard data type is bound to JsonNode
      */
-    protected PlaceJsonCard(Object object) {
-        this(JsonUtils.toTree(object));
+    public PlaceJsonCard(String cardId, Object object) {
+        this(cardId, JsonUtils.toTree(object));
+    }
+
+    @Override
+    public String getCardId() {
+        return cardId;
     }
 
     @Override

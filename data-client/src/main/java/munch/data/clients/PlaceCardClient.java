@@ -46,7 +46,7 @@ public class PlaceCardClient extends AbstractClient {
         for (Item item : collection) {
             String cardId = item.getString(_cardId);
             JsonNode data = fromJson(item.getJSON(_data), JsonNode.class);
-            cards.add(new DefaultCard(cardId, data));
+            cards.add(new PlaceJsonCard(cardId, data));
         }
         return cards;
     }
@@ -65,7 +65,7 @@ public class PlaceCardClient extends AbstractClient {
         if (item == null) return null;
 
         JsonNode data = fromJson(item.getJSON(_data), JsonNode.class);
-        return new DefaultCard(cardId, data);
+        return new PlaceJsonCard(cardId, data);
     }
 
     /**
@@ -127,23 +127,6 @@ public class PlaceCardClient extends AbstractClient {
         PlaceJsonCard existing = get(placeId, cardId);
         if (predicate.apply(existing)) {
             cardTable.deleteItem(_placeId, placeId, _cardId, cardId);
-        }
-    }
-
-    /**
-     * DefaultCard for static creation of cardName, cardVersion and data
-     */
-    private static class DefaultCard extends PlaceJsonCard {
-        private final String cardId;
-
-        private DefaultCard(String cardId, JsonNode data) {
-            super(data);
-            this.cardId = cardId;
-        }
-
-        @Override
-        public String getCardId() {
-            return cardId;
         }
     }
 }
