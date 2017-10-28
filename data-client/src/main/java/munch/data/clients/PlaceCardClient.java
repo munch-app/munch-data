@@ -2,7 +2,7 @@ package munch.data.clients;
 
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.fasterxml.jackson.databind.JsonNode;
-import munch.data.structure.PlaceDynamicCard;
+import munch.data.structure.PlaceJsonCard;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -36,13 +36,13 @@ public class PlaceCardClient extends AbstractClient {
      * @param placeId placeId
      * @return List of all the dynamic cards in table
      */
-    public List<PlaceDynamicCard> list(String placeId) {
+    public List<PlaceJsonCard> list(String placeId) {
         Objects.requireNonNull(placeId);
 
         ItemCollection<QueryOutcome> collection = cardTable.query(_placeId, placeId);
 
         // Collect results
-        List<PlaceDynamicCard> cards = new ArrayList<>();
+        List<PlaceJsonCard> cards = new ArrayList<>();
         for (Item item : collection) {
             String cardId = item.getString(_cardId);
             JsonNode data = fromJson(item.getJSON(_data), JsonNode.class);
@@ -57,7 +57,7 @@ public class PlaceCardClient extends AbstractClient {
      * @return get DynamicCard with placeId and cardName
      */
     @Nullable
-    public PlaceDynamicCard get(String placeId, String cardId) {
+    public PlaceJsonCard get(String placeId, String cardId) {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(cardId);
 
@@ -72,7 +72,7 @@ public class PlaceCardClient extends AbstractClient {
      * @param placeId place id where the card belongs to
      * @param card    card to put
      */
-    public void put(String placeId, PlaceDynamicCard card) {
+    public void put(String placeId, PlaceJsonCard card) {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(card.getCardId());
         Objects.requireNonNull(card.getData());
@@ -88,13 +88,13 @@ public class PlaceCardClient extends AbstractClient {
      * @param card      card to put
      * @param predicate predicate to check if to put, true = delete
      */
-    public void putIf(String placeId, PlaceDynamicCard card, Function<PlaceDynamicCard, Boolean> predicate) {
+    public void putIf(String placeId, PlaceJsonCard card, Function<PlaceJsonCard, Boolean> predicate) {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(card.getCardId());
         Objects.requireNonNull(card.getData());
         Objects.requireNonNull(predicate);
 
-        PlaceDynamicCard existing = get(placeId, card.getCardId());
+        PlaceJsonCard existing = get(placeId, card.getCardId());
         if (predicate.apply(existing)) {
             cardTable.putItem(new Item()
                     .with(_placeId, placeId)
@@ -119,12 +119,12 @@ public class PlaceCardClient extends AbstractClient {
      * @param cardId    card id
      * @param predicate predicate to check if to delete, true = delete
      */
-    public void deleteIf(String placeId, String cardId, Function<PlaceDynamicCard, Boolean> predicate) {
+    public void deleteIf(String placeId, String cardId, Function<PlaceJsonCard, Boolean> predicate) {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(cardId);
         Objects.requireNonNull(predicate);
 
-        PlaceDynamicCard existing = get(placeId, cardId);
+        PlaceJsonCard existing = get(placeId, cardId);
         if (predicate.apply(existing)) {
             cardTable.deleteItem(_placeId, placeId, _cardId, cardId);
         }
@@ -133,23 +133,17 @@ public class PlaceCardClient extends AbstractClient {
     /**
      * DefaultCard for static creation of cardName, cardVersion and data
      */
-    private static class DefaultCard extends PlaceDynamicCard {
+    private static class DefaultCard extends PlaceJsonCard {
         private final String cardId;
-        private final JsonNode data;
 
         private DefaultCard(String cardId, JsonNode data) {
+            super(data);
             this.cardId = cardId;
-            this.data = data;
         }
 
         @Override
         public String getCardId() {
             return cardId;
-        }
-
-        @Override
-        public JsonNode getData() {
-            return data;
         }
     }
 }
