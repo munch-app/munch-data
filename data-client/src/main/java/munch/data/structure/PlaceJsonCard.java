@@ -39,4 +39,22 @@ public class PlaceJsonCard implements PlaceCard<JsonNode> {
     public JsonNode getData() {
         return data;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlaceJsonCard that = (PlaceJsonCard) o;
+
+        if (!cardId.equals(that.cardId)) return false;
+        return data.equals(that.data);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = cardId.hashCode();
+        result = 31 * result + data.hashCode();
+        return result;
+    }
 }
