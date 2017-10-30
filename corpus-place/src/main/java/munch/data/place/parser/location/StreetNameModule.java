@@ -27,6 +27,12 @@ import java.time.Duration;
 public class StreetNameModule extends AbstractModule {
     private static final Logger logger = LoggerFactory.getLogger(StreetNameModule.class);
 
+    @Override
+    protected void configure() {
+        // OneMapApi, uses TLSv1.2
+        System.setProperty("https.protocols", "TLSv1.2");
+    }
+
     @Provides
     NominatimClient provideClient(Config config) throws UnirestException {
         HttpClient httpClient = HttpClientBuilder.create().build();
@@ -49,10 +55,5 @@ public class StreetNameModule extends AbstractModule {
         });
         retriable.loop(() -> new GetRequest(HttpMethod.GET,
                 url + "/reverse?format=json").asJson().getBody());
-    }
-
-    @Override
-    protected void configure() {
-
     }
 }
