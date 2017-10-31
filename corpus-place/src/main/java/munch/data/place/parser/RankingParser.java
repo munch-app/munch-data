@@ -1,7 +1,6 @@
 package munch.data.place.parser;
 
 import corpus.data.CorpusData;
-import corpus.field.PlaceKey;
 import munch.data.structure.Place;
 
 import javax.inject.Singleton;
@@ -19,7 +18,7 @@ public final class RankingParser extends AbstractParser<Double> {
     @Override
     public Double parse(Place place, List<CorpusData> list) {
         double ranking = list.size();
-        if (hasAny(PlaceKey.image, list)) ranking += 1000;
+        if (!place.getImages().isEmpty()) ranking += 1000;
         return ranking;
     }
 }

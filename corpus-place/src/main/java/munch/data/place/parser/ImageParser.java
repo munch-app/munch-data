@@ -23,7 +23,8 @@ public final class ImageParser extends AbstractParser<List<Place.Image>> {
     private static final int MAX_SIZE = 10;
     private static final Set<String> ARTICLE_SOURCE_IDS = ImmutableSet.of(
             "danielfooddiary.com", "sethlui.com", "ladyironchef.com",
-            "misstamchiak.com", "sgfoodonfoot.com", "camemberu.com");
+            "misstamchiak.com", "sgfoodonfoot.com", "camemberu.com",
+            "ieatandeat.com", "aspirantsg.com", "ms-skinnyfat.com", "six-and-seven.com");
 
     /**
      * @param list list of corpus
