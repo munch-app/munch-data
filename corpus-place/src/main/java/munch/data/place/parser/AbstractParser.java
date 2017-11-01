@@ -78,6 +78,12 @@ public abstract class AbstractParser<T> {
         return fieldCollector.collectField();
     }
 
+    protected List<CorpusData.Field> collect(CorpusData data, AbstractKey... keys) {
+        FieldCollector fieldCollector = new FieldCollector(keys);
+        fieldCollector.add(data);
+        return fieldCollector.collectField();
+    }
+
     protected boolean hasAny(AbstractKey key, List<CorpusData> list) {
         for (CorpusData data : list) {
             if (key.has(data)) return true;

@@ -43,7 +43,7 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
         Map<String, Set<Place.Hour>> map = new HashMap<>();
 
         for (CorpusData data : list) {
-            Set<Place.Hour> hours = collect(list, PlaceKey.Hour.week)
+            Set<Place.Hour> hours = collect(data, PlaceKey.Hour.week)
                     .stream().map(this::parseHour)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
