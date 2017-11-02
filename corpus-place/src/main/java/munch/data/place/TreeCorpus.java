@@ -82,7 +82,7 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
                 } else {
                     putIf(place);
                     putPlaceData(placeData, place);
-                    count(place);
+                    count(list, place);
                 }
             } else {
                 deleteIf(placeData.getCorpusKey());
@@ -97,13 +97,21 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
         }
     }
 
-    private void count(Place place) {
+    private void count(List<CorpusData> list, Place place) {
         counter.increment("Counts.Places");
 
-        if (!place.getImages().isEmpty()) counter.increment("Counts.Images");
-        if (!place.getHours().isEmpty()) counter.increment("Counts.Hours");
+
         if (StringUtils.isNotBlank(place.getPhone())) counter.increment("Counts.Phone");
         if (StringUtils.isNotBlank(place.getWebsite())) counter.increment("Counts.Website");
+        if (StringUtils.isNotBlank(place.getDescription())) counter.increment("Counts.Description");
+
+        if (place.getPrice() != null) counter.increment("Counts.Price");
+
+        if (!place.getHours().isEmpty()) counter.increment("Counts.Hours");
+        if (!place.getImages().isEmpty()) counter.increment("Counts.Images");
+
+        if (has(list, "Global.MunchArticle.Article")) counter.increment("Counts.Article");
+        if (has(list, "Global.Facebook.Place")) counter.increment("Counts.FacebookPlace");
     }
 
     /**
@@ -139,5 +147,19 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
         placeData.replace(PlaceKey.Location.postal, place.getLocation().getPostal());
         placeData.replace(PlaceKey.Location.latLng, place.getLocation().getLatLng());
         corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
+    }
+
+    /**
+     * @param list       list to check
+     * @param corpusName corpus name
+     * @return true is has corpus name
+     */
+    private static boolean has(List<CorpusData> list, String corpusName) {
+        for (CorpusData data : list) {
+            if (data.getCorpusName().equals(corpusName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
