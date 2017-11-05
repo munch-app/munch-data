@@ -35,7 +35,7 @@ public final class BoolQuery {
         ObjectNode bool = mapper.createObjectNode();
         bool.set("must", must(query.getQuery()));
         bool.set("must_not", mustNot(query.getFilter()));
-        bool.set("filter", filter(query.getLocation(), query.getFilter()));
+        bool.set("filter", filter(query));
         return bool;
     }
 
@@ -84,19 +84,22 @@ public final class BoolQuery {
     }
 
     /**
-     * @param location polygon geo query
-     * @param filter   filters object
+     * @param searchQuery search query
      * @return JsonNode bool filter
      */
-    private JsonNode filter(Location location, SearchQuery.Filter filter) {
+    private JsonNode filter(SearchQuery searchQuery) {
         ArrayNode filterArray = mapper.createArrayNode();
 
         // Polygon if location exists
+        Location location = searchQuery.getLocation();
         if (location != null && location.getPoints() != null) {
             filterArray.add(filterPolygon(location.getPoints()));
+        } else if (searchQuery.getLatLng() != null) {
+            filterArray.add(filterDistance(searchQuery.getLatLng(), 1000));
         }
 
         // Check if filter is not null before continuing
+        SearchQuery.Filter filter = searchQuery.getFilter();
         if (filter == null) return filterArray;
 
         // Filter to positive tags
@@ -140,6 +143,22 @@ public final class BoolQuery {
                 .putObject("location.latLng")
                 .putArray("points");
         pointList.forEach(points::add);
+        return filter;
+    }
+
+
+    /**
+     * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html
+     *
+     * @param latLng latLng center
+     * @param metres metres in distance
+     * @return JsonNode = { "geo_distance": { "distance": "1km", "location.latLng": "-1,2"}}
+     */
+    private JsonNode filterDistance(String latLng, double metres) {
+        ObjectNode filter = mapper.createObjectNode();
+        filter.putObject("geo_distance")
+                .put("distance", metres + "m")
+                .put("location.latLng", latLng);
         return filter;
     }
 

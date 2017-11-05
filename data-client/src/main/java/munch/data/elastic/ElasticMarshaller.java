@@ -45,9 +45,11 @@ public final class ElasticMarshaller {
         node.put("updatedDate", place.getUpdatedDate().getTime());
 
         // Suggest Field
-        ArrayNode suggest = mapper.createArrayNode();
-        suggest.add(place.getName());
-        node.set("suggest", suggest);
+        ArrayNode inputs = mapper.createArrayNode();
+        inputs.add(place.getName());
+        node.putObject("suggest")
+                .put("weight", 10)
+                .set("input", inputs);
         return node;
     }
 
@@ -83,9 +85,11 @@ public final class ElasticMarshaller {
 
 
         // Suggest Field
-        ArrayNode suggest = mapper.createArrayNode();
-        suggest.add(location.getName());
-        node.set("suggest", suggest);
+        ArrayNode inputs = mapper.createArrayNode();
+        inputs.add(location.getName());
+        node.putObject("suggest")
+                .put("weight", 100)
+                .set("input", inputs);
         return node;
     }
 
@@ -98,9 +102,11 @@ public final class ElasticMarshaller {
         node.put("name", tag.getName());
 
         // Suggest Field
-        ArrayNode suggest = mapper.createArrayNode();
-        suggest.add(tag.getName());
-        node.set("suggest", suggest);
+        ArrayNode inputs = mapper.createArrayNode();
+        inputs.add(tag.getName());
+        node.putObject("suggest")
+                .put("weight", 100)
+                .set("input", inputs);
         return node;
     }
 
