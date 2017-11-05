@@ -30,6 +30,8 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(LocationCorpus.class);
     private static final WKTReader reader = new WKTReader();
 
+    private static final long dataVersion = 1;
+
     private final LocationClient locationClient;
 
     @Inject
@@ -54,21 +56,21 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
     }
 
     @Override
-    protected void process(long cycleNo, CorpusData data, long processed) {
-        CorpusData locationPolygon = getLocationPolygon(data);
+    protected void process(long cycleNo, CorpusData storedData, long processed) {
+        CorpusData sheetData = getLocationPolygon(storedData);
 
-        if (locationPolygon != null) {
+        if (sheetData != null) {
             // To put if changed
-            if (!LocationKey.updatedDate.equal(data, locationPolygon.getUpdatedDate())) {
-                data.replace(LocationKey.updatedDate, locationPolygon.getUpdatedDate().getTime());
-                locationClient.put(createLocation(locationPolygon));
-                corpusClient.put(corpusName, data.getCorpusKey(), data);
+            if (!LocationKey.updatedDate.equal(storedData, sheetData.getUpdatedDate(), dataVersion)) {
+                storedData.replace(LocationKey.updatedDate, sheetData.getUpdatedDate().getTime() + dataVersion);
+                locationClient.put(createLocation(sheetData));
+                corpusClient.put(corpusName, storedData.getCorpusKey(), storedData);
                 counter.increment("Updated");
             }
         } else {
             // To delete
-            locationClient.delete(data.getCorpusKey());
-            corpusClient.delete(corpusName, data.getCorpusKey());
+            locationClient.delete(storedData.getCorpusKey());
+            corpusClient.delete(corpusName, storedData.getCorpusKey());
             counter.increment("Deleted");
         }
 

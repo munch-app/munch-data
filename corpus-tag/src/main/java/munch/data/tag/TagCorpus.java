@@ -24,6 +24,8 @@ import java.util.List;
 public class TagCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TagCorpus.class);
 
+    private static final long dataVersion = 1;
+
     private final TagClient tagClient;
 
     @Inject
@@ -52,8 +54,8 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
         CorpusData placeTag = getPlaceTag(data);
 
         if (placeTag != null) {
-            if (!TagKey.updatedDate.equal(data, placeTag.getUpdatedDate())) {
-                data.replace(TagKey.updatedDate, placeTag.getUpdatedDate().getTime());
+            if (!TagKey.updatedDate.equal(data, placeTag.getUpdatedDate(), dataVersion)) {
+                data.replace(TagKey.updatedDate, placeTag.getUpdatedDate().getTime() + dataVersion);
                 tagClient.put(createTag(placeTag));
                 corpusClient.put(corpusName, data.getCorpusKey(), data);
                 counter.increment("Updated");
