@@ -55,7 +55,7 @@ public final class PlaceParser extends AbstractParser<Place> {
 
         place.setName(WordUtils.capitalizeFully(collectMax(list, PlaceKey.name)));
         place.setPhone(collectMax(list, PlaceKey.phone));
-        place.setWebsite(collectMax(list, PlaceKey.website));
+        place.setWebsite(collectUrl(list, PlaceKey.website));
         place.setDescription(collectMax(list, PlaceKey.description));
 
         // Nested Parsers, TagParse needs location parser to parse first
@@ -78,6 +78,14 @@ public final class PlaceParser extends AbstractParser<Place> {
                 .map(CorpusData::getCreatedDate)
                 .min(Date::compareTo)
                 .orElseThrow(NullPointerException::new);
+    }
+
+    private String collectUrl(List<CorpusData> list, AbstractKey key) {
+        String website = collectMax(list, key);
+        if (website == null) return null;
+
+        if (website.startsWith("http")) return website;
+        return "http://" + website;
     }
 
     @Nullable
