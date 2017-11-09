@@ -13,6 +13,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by: Fuxing
@@ -22,6 +23,7 @@ import java.util.List;
  */
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
+    private static final Pattern HTTP_PATTERN = Pattern.compile("^https?://", Pattern.CASE_INSENSITIVE);
 
     private final List<String> priorityNames;
 
@@ -84,7 +86,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         String website = collectMax(list, key);
         if (website == null) return null;
 
-        if (website.startsWith("http")) return website;
+        if (HTTP_PATTERN.matcher(website).matches()) return website;
         return "http://" + website;
     }
 
