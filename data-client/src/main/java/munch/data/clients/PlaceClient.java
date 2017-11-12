@@ -52,6 +52,14 @@ public class PlaceClient extends AbstractClient {
     }
 
     /**
+     * @param query query
+     * @return total possible results count
+     */
+    public long count(SearchQuery query) {
+        return searchClient.count(query);
+    }
+
+    /**
      * @param id id of place
      * @return Place from dynamo
      * @throws JsonException parsing error
