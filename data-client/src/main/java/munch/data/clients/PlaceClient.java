@@ -114,7 +114,6 @@ public class PlaceClient extends AbstractClient {
         private List<Place> search(SearchQuery query) {
             validate(query);
 
-            // Filter hours
             JsonNode boolNode = this.boolQuery.make(query);
             JsonNode sortNode = this.sortQuery.make(query);
             JsonNode result = client.postBoolSearch("Place", query.getFrom(), query.getSize(), boolNode, sortNode);
@@ -124,6 +123,17 @@ public class PlaceClient extends AbstractClient {
             // Filter Hours after query
             HourFilter.filter(query, places);
             return places;
+        }
+
+        /**
+         * @param query query
+         * @return total possible results
+         */
+        private long count(SearchQuery query) {
+            validate(query);
+
+            JsonNode boolNode = this.boolQuery.make(query);
+            return client.postBoolCount("Place", boolNode);
         }
 
         /**

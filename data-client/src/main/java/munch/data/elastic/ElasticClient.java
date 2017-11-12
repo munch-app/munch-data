@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
 import io.searchbox.client.JestClient;
+import io.searchbox.core.Count;
 import io.searchbox.core.Search;
 import munch.data.exceptions.ElasticException;
 import org.apache.commons.lang3.StringUtils;
@@ -101,6 +102,24 @@ public final class ElasticClient {
         if (sort != null) root.set("sort", sort);
 
         return postSearch(type, root);
+    }
+
+    public long postBoolCount(String type, JsonNode boolQuery) {
+        ObjectNode root = mapper.createObjectNode();
+        root.putObject("query").set("bool", boolQuery);
+
+        try {
+            Count.Builder builder = new Count.Builder()
+                    .query(mapper.writeValueAsString(root))
+                    .addIndex("munch");
+            if (type != null) builder.addType(type);
+
+            Double count = client.execute(builder.build()).getCount();
+            if (count == null) return 0;
+            return count.longValue();
+        } catch (IOException e) {
+            throw new ElasticException(e);
+        }
     }
 
     /**
