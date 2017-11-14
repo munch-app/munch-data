@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
-    private static final Pattern HTTP_PATTERN = Pattern.compile("^https?://", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HTTP_PATTERN = Pattern.compile("^https?://.*", Pattern.CASE_INSENSITIVE);
 
     private final List<String> priorityNames;
 
