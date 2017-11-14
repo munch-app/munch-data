@@ -112,6 +112,7 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
 
         if (has(list, "Global.MunchArticle.Article")) counter.increment("Counts.Article");
         if (has(list, "Global.Facebook.Place")) counter.increment("Counts.FacebookPlace");
+        if (has(list, "Sg.MunchSheet.FranchisePlace")) counter.increment("Counts.Franchise");
     }
 
     /**
