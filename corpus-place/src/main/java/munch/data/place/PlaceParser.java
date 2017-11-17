@@ -29,6 +29,7 @@ public final class PlaceParser extends AbstractParser<Place> {
 
     private final PriceParser priceParser;
     private final LocationParser locationParser;
+    private final ReviewParser reviewParser;
     private final TagParser tagParser;
 
     private final HourParser hourParser;
@@ -36,10 +37,11 @@ public final class PlaceParser extends AbstractParser<Place> {
     private final RankingParser rankingParser;
 
     @Inject
-    public PlaceParser(@Named("place.priority") List<String> priorityNames, PriceParser priceParser, LocationParser locationParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
+    public PlaceParser(@Named("place.priority") List<String> priorityNames, PriceParser priceParser, LocationParser locationParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
         this.priorityNames = priorityNames;
         this.priceParser = priceParser;
         this.locationParser = locationParser;
+        this.reviewParser = reviewParser;
         this.tagParser = tagParser;
         this.hourParser = hourParser;
         this.imageParser = imageParser;
@@ -64,6 +66,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         place.setPrice(priceParser.parse(place, list));
         place.setLocation(locationParser.parse(place, list));
         if (place.getLocation() == null) return null;
+        place.setReview(reviewParser.parse(place, list));
         place.setTag(tagParser.parse(place, list));
 
         place.setHours(hourParser.parse(place, list));

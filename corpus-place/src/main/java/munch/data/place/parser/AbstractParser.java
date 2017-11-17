@@ -90,4 +90,18 @@ public abstract class AbstractParser<T> {
         }
         return false;
     }
+
+    /**
+     * @param list       list of corpus data to search
+     * @param corpusName corpus name to get
+     * @return retur
+     */
+    protected CorpusData find(List<CorpusData> list, String corpusName) {
+        for (CorpusData corpusData : list) {
+            if (corpusData.getCorpusName().equals(corpusName)) {
+                return corpusData;
+            }
+        }
+        return null;
+    }
 }
