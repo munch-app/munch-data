@@ -27,6 +27,7 @@ public class Place implements SearchResult {
     // One
     private Price price;
     private Location location;
+    private Review review;
     private Tag tag;
 
     // Many
@@ -118,6 +119,14 @@ public class Place implements SearchResult {
         this.location = location;
     }
 
+    public Review getReview() {
+        return review;
+    }
+
+    public void setReview(Review review) {
+        this.review = review;
+    }
+
     public Tag getTag() {
         return tag;
     }
@@ -177,16 +186,19 @@ public class Place implements SearchResult {
         Place place = (Place) o;
 
         if (Double.compare(place.ranking, ranking) != 0) return false;
-        if (id != null ? !id.equals(place.id) : place.id != null) return false;
-        if (name != null ? !name.equals(place.name) : place.name != null) return false;
+        if (!id.equals(place.id)) return false;
+        if (!name.equals(place.name)) return false;
         if (phone != null ? !phone.equals(place.phone) : place.phone != null) return false;
         if (website != null ? !website.equals(place.website) : place.website != null) return false;
         if (description != null ? !description.equals(place.description) : place.description != null) return false;
         if (price != null ? !price.equals(place.price) : place.price != null) return false;
-        if (location != null ? !location.equals(place.location) : place.location != null) return false;
+        if (!location.equals(place.location)) return false;
+        if (review != null ? !review.equals(place.review) : place.review != null) return false;
         if (tag != null ? !tag.equals(place.tag) : place.tag != null) return false;
         if (hours != null ? !hours.equals(place.hours) : place.hours != null) return false;
-        return images != null ? images.equals(place.images) : place.images == null;
+        if (images != null ? !images.equals(place.images) : place.images != null) return false;
+        if (!createdDate.equals(place.createdDate)) return false;
+        return updatedDate.equals(place.updatedDate);
     }
 
     @Override
@@ -198,11 +210,14 @@ public class Place implements SearchResult {
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
         result = 31 * result + (website != null ? website.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + price.hashCode();
+        result = 31 * result + (price != null ? price.hashCode() : 0);
         result = 31 * result + location.hashCode();
-        result = 31 * result + tag.hashCode();
-        result = 31 * result + hours.hashCode();
-        result = 31 * result + images.hashCode();
+        result = 31 * result + (review != null ? review.hashCode() : 0);
+        result = 31 * result + (tag != null ? tag.hashCode() : 0);
+        result = 31 * result + (hours != null ? hours.hashCode() : 0);
+        result = 31 * result + (images != null ? images.hashCode() : 0);
+        result = 31 * result + createdDate.hashCode();
+        result = 31 * result + updatedDate.hashCode();
         temp = Double.doubleToLongBits(ranking);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
@@ -218,6 +233,7 @@ public class Place implements SearchResult {
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", location=" + location +
+                ", review=" + review +
                 ", tag=" + tag +
                 ", hours=" + hours +
                 ", images=" + images +
@@ -428,6 +444,59 @@ public class Place implements SearchResult {
             return "Tag{" +
                     "explicits=" + explicits +
                     ", implicits=" + implicits +
+                    '}';
+        }
+    }
+
+    /**
+     * Review of a place
+     */
+    public static final class Review {
+        private long total;
+        private double average;
+
+        public long getTotal() {
+            return total;
+        }
+
+        public void setTotal(long total) {
+            this.total = total;
+        }
+
+        public double getAverage() {
+            return average;
+        }
+
+        public void setAverage(double average) {
+            this.average = average;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Review review = (Review) o;
+
+            if (total != review.total) return false;
+            return Double.compare(review.average, average) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            long temp;
+            result = (int) (total ^ (total >>> 32));
+            temp = Double.doubleToLongBits(average);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Review{" +
+                    "total=" + total +
+                    ", average=" + average +
                     '}';
         }
     }
