@@ -7,11 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import munch.restful.client.ExceptionParser;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.OfflineException;
 import munch.restful.core.exception.TimeoutException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NoHttpResponseException;
 
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
@@ -27,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public final class OneMapApi {
     private final Retriable retriable = new ExceptionRetriable(50, Duration.ofMinutes(5),
-            OfflineException.class, TimeoutException.class);
+            OfflineException.class, TimeoutException.class, NoHttpResponseException.class);
     private final ObjectMapper objectMapper = JsonUtils.objectMapper;
 
     private int callsInMinute;
@@ -50,7 +52,6 @@ public final class OneMapApi {
 
             return null;
         } catch (Exception exception) {
-            ExceptionParser.parse(exception);
             throw new RuntimeException(exception);
         }
     }
@@ -75,13 +76,18 @@ public final class OneMapApi {
         }
 
         return retriable.loop(() -> {
-            HttpResponse<String> response = Unirest.get("https://developers.onemap.sg/commonapi/search")
-                    .queryString("searchVal", query)
-                    .queryString("returnGeom", "Y")
-                    .queryString("getAddrDetails", "N")
-                    .asString();
+            try {
+                HttpResponse<String> response = Unirest.get("https://developers.onemap.sg/commonapi/search")
+                        .queryString("searchVal", query)
+                        .queryString("returnGeom", "Y")
+                        .queryString("getAddrDetails", "N")
+                        .asString();
 
-            return objectMapper.readTree(response.getBody());
+                return objectMapper.readTree(response.getBody());
+            } catch (Exception e) {
+                ExceptionParser.parse(e);
+                throw e;
+            }
         });
     }
 }

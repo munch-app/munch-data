@@ -51,6 +51,9 @@ public final class SortQuery {
                     sortArray.add(sortDistance(query.getLatLng()));
                 }
                 break;
+            case SearchQuery.Sort.TYPE_RATING_HIGHEST:
+                sortArray.add(sortField("review.average", "desc"));
+                break;
             default:
             case SearchQuery.Sort.TYPE_MUNCH_RANK:
                 sortArray.add(sortField("ranking", "desc"));
