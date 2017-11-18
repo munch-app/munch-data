@@ -13,6 +13,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
     private static final Pattern HTTP_PATTERN = Pattern.compile("^https?://.*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern PHONE_PATTERN = Pattern.compile(".*65?\\s?(?<g1>[0-9]{4})\\s?(?<g2>[0-9]{4}).*", Pattern.CASE_INSENSITIVE);
 
     private final List<String> priorityNames;
 
@@ -57,10 +59,10 @@ public final class PlaceParser extends AbstractParser<Place> {
     public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
 
-        place.setName(WordUtils.capitalizeFully(collectMax(list, PlaceKey.name)));
-        place.setPhone(collectMax(list, PlaceKey.phone));
-        place.setWebsite(collectUrl(list, PlaceKey.website));
-        place.setDescription(collectMax(list, PlaceKey.description));
+        place.setName(collectName(list));
+        place.setPhone(collectPhone(list));
+        place.setWebsite(collectWebsite(list));
+        place.setDescription(collectDescription(list));
 
         // Nested Parsers, TagParse needs location parser to parse first
         place.setPrice(priceParser.parse(place, list));
@@ -85,12 +87,32 @@ public final class PlaceParser extends AbstractParser<Place> {
                 .orElseThrow(NullPointerException::new);
     }
 
-    private String collectUrl(List<CorpusData> list, AbstractKey key) {
-        String website = collectMax(list, key);
+    private String collectName(List<CorpusData> list) {
+        return WordUtils.capitalizeFully(collectMax(list, PlaceKey.name));
+    }
+
+    private String collectPhone(List<CorpusData> list) {
+        String phone = collectMax(list, PlaceKey.phone);
+        if (phone == null) return null;
+
+        Matcher matcher = PHONE_PATTERN.matcher(phone);
+        if (!matcher.matches()) return null;
+
+        String g1 = matcher.group("g1");
+        String g2 = matcher.group("g2");
+        return "+65 " + g1 + " " + g2;
+    }
+
+    private String collectWebsite(List<CorpusData> list) {
+        String website = collectMax(list, PlaceKey.website);
         if (website == null) return null;
 
         if (HTTP_PATTERN.matcher(website).matches()) return website;
         return "http://" + website;
+    }
+
+    private String collectDescription(List<CorpusData> list) {
+        return collectMax(list, PlaceKey.description);
     }
 
     @Nullable
