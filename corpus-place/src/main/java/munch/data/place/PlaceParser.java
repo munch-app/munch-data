@@ -5,6 +5,7 @@ import corpus.field.AbstractKey;
 import corpus.field.PlaceKey;
 import munch.data.place.parser.*;
 import munch.data.structure.Place;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
@@ -116,7 +117,9 @@ public final class PlaceParser extends AbstractParser<Place> {
     }
 
     private String collectDescription(List<CorpusData> list) {
-        return collectMax(list, PlaceKey.description);
+        String description = collectMax(list, PlaceKey.description);
+        if (StringUtils.isBlank(description)) return null;
+        return description.replaceAll(" {2,}", " ");
     }
 
     @Nullable

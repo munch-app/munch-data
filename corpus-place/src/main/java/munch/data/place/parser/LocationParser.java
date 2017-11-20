@@ -7,7 +7,6 @@ import munch.data.place.parser.location.GeocodeApi;
 import munch.data.place.parser.location.StreetNameClient;
 import munch.data.place.parser.location.TrainDatabase;
 import munch.data.structure.Place;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
@@ -65,9 +64,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
      * @return find LatLng
      */
     private LatLngUtils.LatLng parseLatLng(List<CorpusData> list) {
-        String latLng = collectMax(list, PlaceKey.Location.latLng);
-        if (StringUtils.isNotBlank(latLng)) return LatLngUtils.parse(latLng);
-
+        // Never use given existing LatLng, you cannot trust them
         String postal = collectMax(list, PlaceKey.Location.postal);
         return geocodeApi.geocode(postal);
     }

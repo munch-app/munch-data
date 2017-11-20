@@ -105,10 +105,15 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
         if (StringUtils.isNotBlank(place.getWebsite())) counter.increment("Counts.Website");
         if (StringUtils.isNotBlank(place.getDescription())) counter.increment("Counts.Description");
 
+        if (place.getTag().getExplicits().size() > 2) counter.increment("Counts.Tag.Explicits>1");
+        if (place.getTag().getImplicits().size() > 2) counter.increment("Counts.Tag.Implicits>1");
+
         if (place.getPrice() != null) counter.increment("Counts.Price");
+        if (place.getReview().getTotal() > 0) counter.increment("Counts.Review.Total");
 
         if (!place.getHours().isEmpty()) counter.increment("Counts.Hours");
-        if (!place.getImages().isEmpty()) counter.increment("Counts.Images");
+        if (place.getImages().size() > 0) counter.increment("Counts.Images>0");
+        if (place.getImages().size() > 1) counter.increment("Counts.Images>1");
 
         if (has(list, "Global.MunchArticle.Article")) counter.increment("Counts.Article");
         if (has(list, "Global.Facebook.Place")) counter.increment("Counts.FacebookPlace");
