@@ -22,16 +22,15 @@ import java.util.stream.Collectors;
 @Singleton
 public final class TagParser extends AbstractParser<Place.Tag> {
     private final GroupTagDatabase groupTagDatabase;
-    private final LocationDatabase locationDatabase;
+    private final ImplicitParser implicitParser;
 
     @Inject
     public TagParser(GroupTagDatabase groupTagDatabase, LocationDatabase locationDatabase) {
         this.groupTagDatabase = groupTagDatabase;
-        this.locationDatabase = locationDatabase;
+        this.implicitParser = new ImplicitParser(locationDatabase);
     }
 
     /**
-     *
      * @param place read-only place data
      * @param list  list of corpus data to parse from
      * @return Place.Tag, tags must all be in lowercase
@@ -40,7 +39,7 @@ public final class TagParser extends AbstractParser<Place.Tag> {
     public Place.Tag parse(Place place, List<CorpusData> list) {
         Place.Tag tag = new Place.Tag();
         tag.setExplicits(parseExplicits(list));
-        tag.setImplicits(parseImplicits(place.getLocation(), list));
+        tag.setImplicits(parseImplicits(place, list));
         return tag;
     }
 
@@ -59,16 +58,8 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         return tags;
     }
 
-    private List<String> parseImplicits(Place.Location location, List<CorpusData> list) {
-        List<String> tags = new ArrayList<>();
-
-        LatLngUtils.LatLng latLng = LatLngUtils.parse(location.getLatLng());
-        tags.addAll(locationDatabase.findTags(latLng.getLat(), latLng.getLng()));
-        // TODO timings
-
-        return tags.stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
+    private List<String> parseImplicits(Place place, List<CorpusData> list) {
+        return implicitParser.parse(place, list);
     }
 
     /**
@@ -84,5 +75,72 @@ public final class TagParser extends AbstractParser<Place.Tag> {
                 // Must be lowercase
                 .map(groupTag -> groupTag.getName().toLowerCase())
                 .collect(Collectors.toList());
+    }
+
+    private class ImplicitParser {
+        private final LocationDatabase locationDatabase;
+
+        private ImplicitParser(LocationDatabase locationDatabase) {
+            this.locationDatabase = locationDatabase;
+        }
+
+        private List<String> parse(Place place, List<CorpusData> list) {
+            List<String> tags = new ArrayList<>();
+
+            // Parse all information to add
+            tags.addAll(parseLocation(place));
+            tags.addAll(parseTiming(place));
+
+            return tags.stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+        }
+
+        private Set<String> parseLocation(Place place) {
+            LatLngUtils.LatLng latLng = LatLngUtils.parse(place.getLocation().getLatLng());
+            return locationDatabase.findTags(latLng.getLat(), latLng.getLng());
+        }
+
+        private List<String> parseTiming(Place place) {
+            List<String> tags = new ArrayList<>();
+            if (isBreakfast(place.getHours())) tags.add("breakfast");
+            if (isLunch(place.getHours())) tags.add("lunch");
+            if (isDinner(place.getHours())) tags.add("dinner");
+            if (isSupper(place.getHours())) tags.add("supper");
+            return tags;
+        }
+
+        private boolean isBreakfast(List<Place.Hour> hours) {
+            return hours.stream()
+                    .filter(hour -> isOpen(hour, 815, 915, 1015))
+                    .count() > 2;
+        }
+
+        private boolean isLunch(List<Place.Hour> hours) {
+            return hours.stream()
+                    .filter(hour -> isOpen(hour, 1130, 1230, 1300, 1400, 1500))
+                    .count() > 2;
+        }
+
+        private boolean isDinner(List<Place.Hour> hours) {
+            return hours.stream()
+                    .filter(hour -> isOpen(hour, 1815, 1915, 2015, 2300))
+                    .count() > 2;
+        }
+
+        private boolean isSupper(List<Place.Hour> hours) {
+            return hours.stream()
+                    .filter(hour -> isOpen(hour, 1145))
+                    .count() > 2;
+        }
+
+        private boolean isOpen(Place.Hour hour, int... times) {
+            int open = Integer.parseInt(hour.getOpen().replace(":", ""));
+            int close = Integer.parseInt(hour.getClose().replace(":", ""));
+            for (int time : times) {
+                if (open >= time && time <= close) return true;
+            }
+            return false;
+        }
     }
 }

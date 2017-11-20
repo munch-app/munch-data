@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by: Fuxing
@@ -44,8 +45,7 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
 
         for (CorpusData data : list) {
             Set<Place.Hour> hours = collect(data, PlaceKey.Hour.week)
-                    .stream().map(this::parseHour)
-                    .filter(Objects::nonNull)
+                    .stream().flatMap(this::parseFields)
                     .collect(Collectors.toSet());
             if (!hours.isEmpty()) {
                 map.put(data.getCorpusKey(), hours);
@@ -54,21 +54,34 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
         return map;
     }
 
-    @Nullable
-    private Place.Hour parseHour(CorpusData.Field field) {
+    private Stream<Place.Hour> parseFields(CorpusData.Field field) {
         String day = parseDay(field.getKey());
-        if (day == null) return null;
+        if (day == null) return Stream.empty();
 
         String[] range = field.getValue().split("-");
-        Place.Hour hour = new Place.Hour();
-        hour.setOpen(range[0]);
-        hour.setClose(range[1]);
-        hour.setDay(day);
-        return hour;
+
+        if (pastMidnight(range[0], range[1])) {
+            Place.Hour firstDay = new Place.Hour();
+            firstDay.setOpen(range[0]);
+            firstDay.setClose("24:00");
+            firstDay.setDay(day);
+
+            Place.Hour secondDay = new Place.Hour();
+            secondDay.setOpen("00:00");
+            secondDay.setClose(range[1]);
+            secondDay.setDay(getNextDay(day));
+            return Stream.of(firstDay, secondDay);
+        } else {
+            Place.Hour hour = new Place.Hour();
+            hour.setOpen(range[0]);
+            hour.setClose(range[1]);
+            hour.setDay(day);
+            return Stream.of(hour);
+        }
     }
 
     @Nullable
-    public String parseDay(String key) {
+    private static String parseDay(String key) {
         switch (key) {
             case "Place.Hour.mon":
                 return "mon";
@@ -93,5 +106,32 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
             case "Place.Hour.raw":
                 return null;
         }
+    }
+
+    private static String getNextDay(String day) {
+        switch (day) {
+            case "mon":
+                return "tue";
+            case "tue":
+                return "wed";
+            case "wed":
+                return "thu";
+            case "thu":
+                return "fri";
+            case "fri":
+                return "sat";
+            case "sat":
+                return "sun";
+            case "sun":
+                return "mon";
+            default:
+                throw new RuntimeException("Unable to get next day, day is " + day);
+        }
+    }
+
+    private static boolean pastMidnight(String open, String close) {
+        int openInt = Integer.parseInt(open.replace(":", ""));
+        int closeInt = Integer.parseInt(close.replace(":", ""));
+        return openInt > closeInt;
     }
 }

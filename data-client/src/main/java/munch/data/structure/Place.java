@@ -585,6 +585,7 @@ public class Place implements SearchResult {
         /**
          * HH:mm
          * 00:00 - 23:59
+         * 00:00 - 24:00 (Allowed)
          * Midnight - 1 Min before midnight Max
          * <p>
          * 12:00 - 22:00
@@ -593,9 +594,6 @@ public class Place implements SearchResult {
          * 08:00 - 19:00
          * 8am - 7pm
          * <p>
-         * Now Allowed:
-         * 20:00 - 04:00
-         * 20:00 - 24:00
          * Not allowed to put 24:00 Highest is 23:59
          * Not allowed to cross to another day
          */

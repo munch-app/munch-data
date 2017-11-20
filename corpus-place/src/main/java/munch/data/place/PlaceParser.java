@@ -64,17 +64,21 @@ public final class PlaceParser extends AbstractParser<Place> {
         place.setWebsite(collectWebsite(list));
         place.setDescription(collectDescription(list));
 
-        // Nested Parsers, TagParse needs location parser to parse first
-        place.setPrice(priceParser.parse(place, list));
+        // LocationParser is mandatory
         place.setLocation(locationParser.parse(place, list));
         if (place.getLocation() == null) return null;
-        place.setReview(reviewParser.parse(place, list));
-        place.setTag(tagParser.parse(place, list));
 
+        // Theses are no dependencies parsers
+        place.setPrice(priceParser.parse(place, list));
         place.setHours(hourParser.parse(place, list));
         place.setImages(imageParser.parse(place, list));
+        place.setReview(reviewParser.parse(place, list));
 
+        // TagParser depend on HourParser & LocationParser
+        place.setTag(tagParser.parse(place, list));
+        // RankingParser depend on ImageParser
         place.setRanking(rankingParser.parse(place, list));
+
         place.setCreatedDate(findCreatedDate(list));
         place.setUpdatedDate(new Date());
         return place;
