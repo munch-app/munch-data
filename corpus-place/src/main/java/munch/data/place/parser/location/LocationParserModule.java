@@ -8,6 +8,7 @@ import com.mashape.unirest.http.HttpMethod;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
 import com.typesafe.config.Config;
+import corpus.location.GeocodeClient;
 import fr.dudie.nominatim.client.JsonNominatimClient;
 import fr.dudie.nominatim.client.NominatimClient;
 import munch.restful.WaitFor;
@@ -55,12 +56,20 @@ public class LocationParserModule extends AbstractModule {
     }
 
     @Provides
+    @Singleton
     NominatimClient provideClient(Config config) throws UnirestException {
         HttpClient httpClient = HttpClientBuilder.create().build();
         String url = config.getString("services.nominatim.url");
         String email = config.getString("services.nominatim.email");
 
         return new JsonNominatimClient(url, httpClient, email);
+    }
+
+    @Provides
+    @Singleton
+    GeocodeClient provideGeocodeClient(Config config) {
+        WaitFor.host(config.getString("services.location.url"), Duration.ofSeconds(300));
+        return new GeocodeClient(config.getString("services.location.url"));
     }
 
     @Provides
