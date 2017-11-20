@@ -12,7 +12,7 @@ import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
-import munch.data.place.parser.location.StreetNameModule;
+import munch.data.place.parser.location.LocationParserModule;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -35,7 +35,7 @@ public class PlaceModule extends AbstractModule {
         install(new DynamoModule());
         install(new munch.data.elastic.ElasticModule());
 
-        install(new StreetNameModule());
+        install(new LocationParserModule());
     }
 
     @Provides

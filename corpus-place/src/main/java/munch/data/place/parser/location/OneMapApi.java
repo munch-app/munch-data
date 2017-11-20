@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import munch.restful.client.ExceptionParser;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.OfflineException;
@@ -27,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * Project: munch-corpus
  */
 @Singleton
-public final class OneMapApi {
+public final class OneMapApi implements GeocodeApi {
     private final Retriable retriable = new ExceptionRetriable(50, Duration.ofMinutes(5),
             OfflineException.class, TimeoutException.class, NoHttpResponseException.class);
     private final ObjectMapper objectMapper = JsonUtils.objectMapper;

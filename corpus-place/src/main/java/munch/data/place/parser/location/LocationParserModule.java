@@ -16,6 +16,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Duration;
 
 /**
@@ -24,13 +26,32 @@ import java.time.Duration;
  * Time: 10:06 PM
  * Project: munch-corpus
  */
-public class StreetNameModule extends AbstractModule {
-    private static final Logger logger = LoggerFactory.getLogger(StreetNameModule.class);
+public class LocationParserModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(LocationParserModule.class);
 
     @Override
     protected void configure() {
         // OneMapApi, uses TLSv1.2
         System.setProperty("https.protocols", "TLSv1.2");
+
+        requestInjection(this);
+    }
+
+    /**
+     * Wait for 200 seconds for nominatim to be ready
+     *
+     * @param config to read url from
+     */
+    @Inject
+    void waitForNomination(Config config) throws UnirestException {
+        String url = config.getString("services.nominatim.url");
+
+        WaitFor.host(url, Duration.ofSeconds(200));
+        Retriable retriable = new SleepRetriable(15, Duration.ofSeconds(20), (throwable, integer) -> {
+            logger.info("Waiting for {} to be ready.", url);
+        });
+        retriable.loop(() -> new GetRequest(HttpMethod.GET,
+                url + "/reverse?format=json").asJson().getBody());
     }
 
     @Provides
@@ -39,21 +60,12 @@ public class StreetNameModule extends AbstractModule {
         String url = config.getString("services.nominatim.url");
         String email = config.getString("services.nominatim.email");
 
-        waitForNomination(url);
         return new JsonNominatimClient(url, httpClient, email);
     }
 
-    /**
-     * Wait for 200 seconds for nominatim to be ready
-     *
-     * @param url url of nominatim service
-     */
-    private void waitForNomination(String url) throws UnirestException {
-        WaitFor.host(url, Duration.ofSeconds(200));
-        Retriable retriable = new SleepRetriable(15, Duration.ofSeconds(20), (throwable, integer) -> {
-            logger.info("Waiting for {} to be ready.", url);
-        });
-        retriable.loop(() -> new GetRequest(HttpMethod.GET,
-                url + "/reverse?format=json").asJson().getBody());
+    @Provides
+    @Singleton
+    GeocodeApi provideGeocodeApi(GeoPostcodesApi geoPostcodes, OneMapApi oneMapApi) {
+        return new GeocodeApi.Chain(geoPostcodes, oneMapApi);
     }
 }

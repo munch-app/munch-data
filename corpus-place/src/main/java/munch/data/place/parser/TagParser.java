@@ -10,10 +10,7 @@ import munch.data.structure.Place;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,8 +52,9 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         tags.addAll(findGroups(groupTags, 2));
         tags.addAll(findGroups(groupTags, 3));
 
-        if (!tags.contains("restaurant")) {
-            tags.add(0, "restaurant");
+        // If no tags, restaurant is the default
+        if (tags.isEmpty()) {
+            return Collections.singletonList("restaurant");
         }
         return tags;
     }
@@ -66,6 +64,7 @@ public final class TagParser extends AbstractParser<Place.Tag> {
 
         LatLngUtils.LatLng latLng = LatLngUtils.parse(location.getLatLng());
         tags.addAll(locationDatabase.findTags(latLng.getLat(), latLng.getLng()));
+        // TODO timings
 
         return tags.stream()
                 .map(String::toLowerCase)

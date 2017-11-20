@@ -3,7 +3,7 @@ package munch.data.place.parser;
 import catalyst.utils.LatLngUtils;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
-import munch.data.place.parser.location.OneMapApi;
+import munch.data.place.parser.location.GeocodeApi;
 import munch.data.place.parser.location.StreetNameClient;
 import munch.data.place.parser.location.TrainDatabase;
 import munch.data.structure.Place;
@@ -26,13 +26,13 @@ public final class LocationParser extends AbstractParser<Place.Location> {
 
     private final TrainDatabase trainDatabase; // With latLng
     private final StreetNameClient streetNameClient; // With latLng
-    private final OneMapApi oneMapApi;
+    private final GeocodeApi geocodeApi;
 
     @Inject
-    public LocationParser(TrainDatabase trainDatabase, StreetNameClient streetNameClient, OneMapApi oneMapApi) {
+    public LocationParser(TrainDatabase trainDatabase, StreetNameClient streetNameClient, GeocodeApi geocodeApi) {
         this.trainDatabase = trainDatabase;
         this.streetNameClient = streetNameClient;
-        this.oneMapApi = oneMapApi;
+        this.geocodeApi = geocodeApi;
     }
 
     @Override
@@ -69,6 +69,6 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         if (StringUtils.isNotBlank(latLng)) return LatLngUtils.parse(latLng);
 
         String postal = collectMax(list, PlaceKey.Location.postal);
-        return oneMapApi.geocode(postal);
+        return geocodeApi.geocode(postal);
     }
 }
