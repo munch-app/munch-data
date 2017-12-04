@@ -104,6 +104,20 @@ public class PlaceCardClient extends AbstractClient {
     }
 
     /**
+     * Check if change, if changed = put
+     * If existing is null = put
+     *
+     * @param placeId place id where the card belongs to
+     * @param card    card to put
+     */
+    public void putIfChange(String placeId, PlaceJsonCard card) {
+        putIf(placeId, card, dynamicCard -> {
+            if (dynamicCard == null) return true;
+            return !dynamicCard.getData().equals(card.getData());
+        });
+    }
+
+    /**
      * @param placeId place id where the card belongs to
      * @param cardId  card id
      */
@@ -127,6 +141,35 @@ public class PlaceCardClient extends AbstractClient {
         PlaceJsonCard existing = get(placeId, cardId);
         if (predicate.apply(existing)) {
             cardTable.deleteItem(_placeId, placeId, _cardId, cardId);
+        }
+    }
+
+    /**
+     * Delete if existing is non null
+     *
+     * @param placeId place id where the card belongs to
+     * @param cardId  card id
+     */
+    public void deleteIfNonNull(String placeId, String cardId) {
+        deleteIf(placeId, cardId, Objects::nonNull);
+    }
+
+    /**
+     * if card != null then:
+     * Check if change, if changed = put
+     * If existing is null = put
+     * else:
+     * Delete if existing is non null
+     *
+     * @param placeId place id where the card belongs to
+     * @param cardId  card id
+     * @param card    card to put, nullable, if null = delete
+     */
+    public void putOrDelete(String placeId, String cardId, @Nullable PlaceJsonCard card) {
+        if (card != null) {
+            putIfChange(placeId, card);
+        } else {
+            deleteIfNonNull(placeId, cardId);
         }
     }
 }
