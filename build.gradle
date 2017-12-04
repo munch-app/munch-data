@@ -5,7 +5,7 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch.data'
-    version '1.0.0'
+    version '1.0.1'
     ext.restfulVersion = '1.1.1'
     ext.ccVersion = '2.0.6'
 

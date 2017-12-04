@@ -14,7 +14,7 @@ import java.io.IOException;
  * Project: munch-data
  */
 abstract class AbstractClient {
-    private static final ObjectMapper objectMapper = JsonUtils.objectMapper;
+    protected static final ObjectMapper objectMapper = JsonUtils.objectMapper;
 
 
     static String toJson(Object data) {
