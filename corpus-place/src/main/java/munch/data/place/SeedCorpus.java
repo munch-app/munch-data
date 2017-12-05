@@ -72,7 +72,7 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
         if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
 
         putPlaceData(seedData);
-        if (processed % 100 == 0) sleep(4000);
+        sleep(40);
     }
 
     /**

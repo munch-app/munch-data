@@ -90,7 +90,7 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
             }
 
             // Sleep for 0.3 second every 4 processed
-            if (processed % 4 == 0) sleep(300);
+            sleep(100);
             if (processed % 1000 == 0) logger.info("Processed {} places", processed);
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);

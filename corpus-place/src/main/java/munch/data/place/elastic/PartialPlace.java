@@ -14,6 +14,7 @@ public class PartialPlace {
 
     private List<String> name;
     private List<String> postal;
+    private String latLng;
 
     public String getCorpusName() {
         return corpusName;
@@ -45,5 +46,14 @@ public class PartialPlace {
 
     public void setPostal(List<String> postal) {
         this.postal = postal;
+    }
+
+    // TODO
+    public String getLatLng() {
+        return latLng;
+    }
+
+    public void setLatLng(String latLng) {
+        this.latLng = latLng;
     }
 }

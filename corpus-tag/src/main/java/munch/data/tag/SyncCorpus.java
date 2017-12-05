@@ -52,5 +52,6 @@ public class SyncCorpus extends CatalystEngine<CorpusData> {
 
         corpusClient.put(corpusName, seedData.getCorpusKey(), data);
         counter.increment("Seeded");
+        sleep(10);
     }
 }

@@ -1,18 +1,15 @@
 {
   "mappings": {
-    "place": {
+    "_default_": {
       "properties": {
-        "munchRank": {
-          "type": "double"
+        "name": {
+          "type": "text"
         },
-        "images": {
-          "enabled": false
-        },
-        "hours": {
-          "enabled": false
-        },
-        "tags": {
+        "postal": {
           "type": "keyword"
+        },
+        "latLng": {
+          "type": "geo_point"
         }
       }
     }

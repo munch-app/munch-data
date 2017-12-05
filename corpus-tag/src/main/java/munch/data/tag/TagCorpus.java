@@ -68,7 +68,7 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
         }
 
         // Sleep for 1 second every 5 processed
-        if (processed % 5 == 0) sleep(1000);
+        sleep(200);
     }
 
     /**
