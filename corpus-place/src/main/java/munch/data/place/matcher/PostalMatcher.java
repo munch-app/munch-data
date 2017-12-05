@@ -14,7 +14,7 @@ import java.util.List;
  * Project: munch-data
  */
 @Singleton
-public final class LocationMatcher {
+public final class PostalMatcher {
 
     /**
      * @param insides data already inside

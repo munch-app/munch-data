@@ -1,6 +1,5 @@
 package munch.data.place.elastic;
 
-import catalyst.utils.iterators.PaginationIterator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,11 +11,9 @@ import munch.restful.core.JsonUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -25,28 +22,33 @@ import java.util.List;
  * Time: 2:49 AM
  * Project: munch-data
  */
-@Singleton
-public class ElasticClient {
+public abstract class ElasticClient {
+    protected static final ObjectMapper mapper = JsonUtils.objectMapper;
 
-    private final JestClient client;
-    private final ObjectMapper mapper = JsonUtils.objectMapper;
+    protected final String index;
+    private JestClient client;
+
+    protected ElasticClient(String index) {
+        this.index = index;
+    }
 
     @Inject
-    public ElasticClient(@Named("munch.data.place.jest") JestClient client) {
+    void inject(@Named("munch.data.place.jest") JestClient client) {
         this.client = client;
     }
 
-    public void put(long cycleNo, PartialPlace place) {
+    public void put(long cycleNo, ElasticPlace place) {
         ObjectNode node = mapper.createObjectNode();
         node.put("cycleNo", cycleNo);
 
         node.set("name", mapper.valueToTree(place.getName()));
         node.set("postal", mapper.valueToTree(place.getPostal()));
+        node.put("latLng", place.getLatLng());
 
         try {
             String json = mapper.writeValueAsString(node);
             client.execute(new Index.Builder(json)
-                    .index("corpus")
+                    .index(index)
                     .type(place.getCorpusName())
                     .id(place.getCorpusKey())
                     .build());
@@ -55,7 +57,7 @@ public class ElasticClient {
         }
     }
 
-    public void delete(long cycleNo) {
+    public void deleteBefore(long cycleNo) {
         ObjectNode root = mapper.createObjectNode();
         root.putObject("query")
                 .putObject("range")
@@ -65,7 +67,7 @@ public class ElasticClient {
         try {
             String json = mapper.writeValueAsString(root);
             client.execute(new DeleteByQuery.Builder(json)
-                    .addIndex("corpus")
+                    .addIndex(index)
                     .setParameter("conflicts", "proceed")
                     .build());
         } catch (IOException e) {
@@ -73,23 +75,10 @@ public class ElasticClient {
         }
     }
 
-    public Iterator<PartialPlace> search(String postal) {
-        return new PaginationIterator<>(from -> search(postal, from, 50));
-    }
-
-    public List<PartialPlace> search(String postal, int from, int size) {
-        ObjectNode root = mapper.createObjectNode();
-        root.put("from", from)
-                .put("size", size)
-                .putObject("query")
-                .putObject("bool")
-                .putObject("filter")
-                .putObject("term")
-                .put("postal", postal);
-
+    protected List<ElasticPlace> search(JsonNode node) {
         try {
-            Search.Builder builder = new Search.Builder(mapper.writeValueAsString(root))
-                    .addIndex("corpus");
+            Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node))
+                    .addIndex(index);
             JsonNode result = mapper.readTree(client.execute(builder.build()).getJsonString());
             return deserializeList(result.path("hits").path("hits"));
         } catch (IOException e) {
@@ -97,11 +86,11 @@ public class ElasticClient {
         }
     }
 
-    private static List<PartialPlace> deserializeList(JsonNode results) {
+    private static List<ElasticPlace> deserializeList(JsonNode results) {
         if (results.isMissingNode()) return Collections.emptyList();
-        List<PartialPlace> list = new ArrayList<>();
+        List<ElasticPlace> list = new ArrayList<>();
         for (JsonNode result : results) {
-            PartialPlace place = new PartialPlace();
+            ElasticPlace place = new ElasticPlace();
             place.setCorpusName(result.path("_type").asText());
             place.setCorpusKey(result.path("_id").asText());
             place.setName(deserializeStrings(result.path("_source").path("name")));

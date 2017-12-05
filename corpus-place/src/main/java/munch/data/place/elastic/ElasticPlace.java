@@ -8,7 +8,7 @@ import java.util.List;
  * Time: 4:24 AM
  * Project: munch-data
  */
-public class PartialPlace {
+public class ElasticPlace {
     private String corpusName;
     private String corpusKey;
 

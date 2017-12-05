@@ -1,6 +1,8 @@
 package munch.data.place;
 
 import catalyst.utils.iterators.NestedIterator;
+import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
@@ -8,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
@@ -25,13 +26,11 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(SeedCorpus.class);
 
     private final Set<String> seedNames;
-    private final Amalgamate amalgamate;
 
     @Inject
-    public SeedCorpus(@Named("place.seeds") Set<String> seedNames, Amalgamate amalgamate) {
+    public SeedCorpus(Config config) {
         super(logger);
-        this.seedNames = seedNames;
-        this.amalgamate = amalgamate;
+        this.seedNames = ImmutableSet.copyOf(config.getStringList("place.seed"));
     }
 
     @Override
@@ -58,7 +57,9 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
     /**
      * Maintain Each(Place)
      * 1. Validate()
-     * 2. Add()
+     * 2. Put()
+     * <p>
+     * This method doesn't amalgamate any data, just seed data only
      *
      * @param cycleNo   cycleNo current cycleNo
      * @param seedData  each data to process
@@ -66,8 +67,8 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
      */
     @Override
     protected void process(long cycleNo, CorpusData seedData, long processed) {
-        // Check CorpusData is valid
-        if (!amalgamate.isValid(seedData)) return;
+        // Check CorpusData data is valid
+        if (!Amalgamate.isValid(seedData)) return;
         // If Sg.Munch.Place already exist, can skip, can never have more then 1 because key is catalystId
         if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
 

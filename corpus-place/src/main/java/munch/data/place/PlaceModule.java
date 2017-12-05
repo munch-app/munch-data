@@ -1,23 +1,14 @@
 package munch.data.place;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.typesafe.config.Config;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
 import munch.data.place.parser.location.LocationParserModule;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created By: Fuxing Loh
@@ -38,35 +29,15 @@ public class PlaceModule extends AbstractModule {
         install(new LocationParserModule());
     }
 
-    @Provides
-    @Singleton
-    @Named("place.seeds")
-    Set<String> provideSeedNames(Config config) {
-        return ImmutableSet.copyOf(config.getStringList("place.seeds"));
-    }
-
-    @Provides
-    @Singleton
-    @Named("place.trees")
-    Set<String> provideTreeNames(Config config) {
-        return ImmutableSet.copyOf(config.getStringList("place.trees"));
-    }
-
-    @Provides
-    @Singleton
-    @Named("place.priority")
-    List<String> providePriorityNames(Config config) {
-        return ImmutableList.copyOf(config.getStringList("place.priority"));
-    }
-
     public static void main(String[] args) throws InterruptedException {
         Injector injector = Guice.createInjector(new PlaceModule());
 
         // Start the following corpus
         EngineGroup.start(
-                injector.getInstance(ElasticCorpus.class),
+                injector.getInstance(ElasticPostalCorpus.class),
+                injector.getInstance(ElasticSpatialCorpus.class),
                 injector.getInstance(SeedCorpus.class),
-                injector.getInstance(TreeCorpus.class)
+                injector.getInstance(PlaceCorpus.class)
         );
         System.exit(0);
     }

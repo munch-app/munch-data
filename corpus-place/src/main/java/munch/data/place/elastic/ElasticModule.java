@@ -40,11 +40,17 @@ public final class ElasticModule extends AbstractModule {
         Thread.sleep(1500);
 
         logger.info("Creating index");
+        createIndex(client, "postal");
+        createIndex(client, "spatial");
+
+        Thread.sleep(3000);
+    }
+
+    private static void createIndex(JestClient client, String indexName) throws IOException {
         URL url = Resources.getResource("search-index.json");
         String json = Resources.toString(url, Charset.forName("UTF-8"));
-        JestResult result = client.execute(new CreateIndex.Builder("corpus").settings(json).build());
+        JestResult result = client.execute(new CreateIndex.Builder(indexName).settings(json).build());
         logger.info("Created index result: {}", result.getJsonString());
-        Thread.sleep(3000);
     }
 
     /**

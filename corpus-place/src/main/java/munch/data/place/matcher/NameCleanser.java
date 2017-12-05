@@ -18,6 +18,10 @@ public final class NameCleanser {
                 .finish();
     }
 
+
+    // TODO Singapore
+    // TODO location in name
+
     private class BoxedString {
         private String text;
 

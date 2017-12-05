@@ -1,5 +1,7 @@
 package munch.data.place;
 
+import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
 import corpus.field.PlaceKey;
@@ -10,7 +12,6 @@ import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
@@ -40,8 +41,8 @@ public final class PlaceParser extends AbstractParser<Place> {
     private final RankingParser rankingParser;
 
     @Inject
-    public PlaceParser(@Named("place.priority") List<String> priorityNames, PriceParser priceParser, LocationParser locationParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
-        this.priorityNames = priorityNames;
+    public PlaceParser(Config config, PriceParser priceParser, LocationParser locationParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
+        this.priorityNames = ImmutableList.copyOf(config.getStringList("place.priority"));
         this.priceParser = priceParser;
         this.locationParser = locationParser;
         this.reviewParser = reviewParser;

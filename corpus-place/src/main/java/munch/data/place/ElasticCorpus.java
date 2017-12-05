@@ -1,19 +1,17 @@
 package munch.data.place;
 
 import catalyst.utils.iterators.NestedIterator;
+import com.google.common.collect.ImmutableSet;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
 import munch.data.place.elastic.ElasticClient;
-import munch.data.place.elastic.PartialPlace;
+import munch.data.place.elastic.ElasticPlace;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -24,17 +22,14 @@ import java.util.Set;
  * Time: 8:01 PM
  * Project: munch-data
  */
-@Singleton
-public class ElasticCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(ElasticCorpus.class);
+abstract class ElasticCorpus extends CatalystEngine<CorpusData> {
 
-    private final Set<String> treeNames;
+    private final Set<String> names;
     private final ElasticClient elasticClient;
 
-    @Inject
-    public ElasticCorpus(@Named("place.trees") Set<String> treeNames, ElasticClient elasticClient) {
+    public ElasticCorpus(Logger logger, Collection<String> names, ElasticClient elasticClient) {
         super(logger);
-        this.treeNames = treeNames;
+        this.names = ImmutableSet.copyOf(names);
         this.elasticClient = elasticClient;
     }
 
@@ -50,17 +45,17 @@ public class ElasticCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
-        return new NestedIterator<>(treeNames.iterator(),
+        return new NestedIterator<>(names.iterator(),
                 corpusName -> corpusClient.list(corpusName)
         );
     }
 
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
-        PartialPlace partial = createPartial(data);
-        if (partial == null) return;
+        ElasticPlace place = createPlace(data);
+        if (place == null) return;
 
-        elasticClient.put(cycleNo, partial);
+        elasticClient.put(cycleNo, place);
         counter.increment("Put");
 
         sleep(30);
@@ -68,20 +63,22 @@ public class ElasticCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected void deleteCycle(long cycleNo) {
-        elasticClient.delete(cycleNo);
+        elasticClient.deleteBefore(cycleNo);
     }
 
     @Nullable
-    private static PartialPlace createPartial(CorpusData data) {
+    private static ElasticPlace createPlace(CorpusData data) {
         List<String> name = PlaceKey.name.getAllValue(data);
         List<String> postal = PlaceKey.Location.postal.getAllValue(data);
-        if (name.isEmpty() || postal.isEmpty()) return null;
+        String latLng = PlaceKey.Location.latLng.getValue(data);
+        if (name.isEmpty()) return null;
 
-        PartialPlace partial = new PartialPlace();
+        ElasticPlace partial = new ElasticPlace();
         partial.setCorpusName(data.getCorpusName());
         partial.setCorpusKey(data.getCorpusKey());
         partial.setName(name);
         partial.setPostal(postal);
+        partial.setLatLng(latLng);
         return partial;
     }
 }
