@@ -19,21 +19,30 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * This is the main corpus:
+ * It does theses:
+ * 1. Maintain Existing Links
+ * 2. Add Links from PostalCorpus
+ * 3. Add Links from SpatialCorpus
+ * 4. Amalgamate data to create Sg.Munch.Place
+ * 5. Push to DynamoDB (munch-data:data-client)
+ * 6. Push to Elasticsearch (munch-data:data-client)
+ * <p>
  * Created By: Fuxing Loh
  * Date: 8/10/2017
  * Time: 7:39 PM
  * Project: munch-data
  */
 @Singleton
-public final class TreeCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(TreeCorpus.class);
+public final class PlaceCorpus extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceCorpus.class);
 
     private final Amalgamate amalgamate;
     private final PlaceClient placeClient;
     private final PlaceParser placeParser;
 
     @Inject
-    public TreeCorpus(Amalgamate amalgamate, PlaceClient placeClient, PlaceParser placeParser) {
+    public PlaceCorpus(Amalgamate amalgamate, PlaceClient placeClient, PlaceParser placeParser) {
         super(logger);
         this.amalgamate = amalgamate;
         this.placeClient = placeClient;
@@ -89,7 +98,6 @@ public final class TreeCorpus extends CatalystEngine<CorpusData> {
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
-            // Sleep for 0.3 second every 4 processed
             sleep(100);
             if (processed % 1000 == 0) logger.info("Processed {} places", processed);
         } catch (NotFoundException e) {

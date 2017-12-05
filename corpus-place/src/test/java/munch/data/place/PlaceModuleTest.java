@@ -21,7 +21,7 @@ class PlaceModuleTest {
         EngineGroup.start(
                 injector.getInstance(ElasticCorpus.class),
                 injector.getInstance(SeedCorpus.class),
-                injector.getInstance(TreeCorpus.class)
+                injector.getInstance(PlaceCorpus.class)
         );
         System.exit(0);
     }
