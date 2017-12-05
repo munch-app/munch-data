@@ -40,7 +40,8 @@ public final class NameMatcher {
         List<String> outsideNames = collectNames(outside);
 
         for (CorpusData inside : insides) {
-            if (match(collectNames(inside), outsideNames)) {
+            List<String> insideNames = collectNames(inside);
+            if (match(insideNames, outsideNames)) {
                 return true;
             }
         }

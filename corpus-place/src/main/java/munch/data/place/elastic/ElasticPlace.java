@@ -48,7 +48,6 @@ public class ElasticPlace {
         this.postal = postal;
     }
 
-    // TODO
     public String getLatLng() {
         return latLng;
     }
