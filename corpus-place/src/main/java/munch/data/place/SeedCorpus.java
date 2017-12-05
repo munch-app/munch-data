@@ -70,7 +70,7 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
         // Check CorpusData data is valid
         if (!Amalgamate.isValid(seedData)) return;
         // If Sg.Munch.Place already exist, can skip, can never have more then 1 because key is catalystId
-        if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
+        if (catalystClient.countCorpus(seedData.getCatalystId(), "Sg.Munch.Place") > 0) return;
 
         putPlaceData(seedData);
         sleep(40);
@@ -82,16 +82,17 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
      * @param seedData seed data to copy from
      */
     private void putPlaceData(CorpusData seedData) {
-        CorpusData placeData = new CorpusData(corpusName, System.currentTimeMillis());
+        CorpusData placeData = new CorpusData(System.currentTimeMillis());
         placeData.setCatalystId(seedData.getCatalystId());
 
         placeData.put(PlaceKey.name, PlaceKey.name.getValue(seedData));
         placeData.put(PlaceKey.Location.postal, PlaceKey.Location.postal.getValue(seedData));
         placeData.put(PlaceKey.Location.latLng, PlaceKey.Location.latLng.getValue(seedData));
 
-        corpusClient.put(corpusName, seedData.getCatalystId(), placeData);
+        corpusClient.put("Sg.Munch.Place", seedData.getCatalystId(), placeData);
         logger.info("Seeded corpusName: {}, corpusKey: {} to catalystId: {}",
                 seedData.getCorpusName(), seedData.getCorpusKey(), placeData.getCatalystId());
-        counter.increment("Seeded");
+        counter.increment("Seeded: " + seedData.getCorpusName());
+        counter.increment("Seeded Total");
     }
 }

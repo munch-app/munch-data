@@ -142,7 +142,7 @@ public final class Amalgamate {
         }
     }
 
-    public class SpatialAmalgamate extends AbstractAmalgamate{
+    public class SpatialAmalgamate extends AbstractAmalgamate {
         private final SpatialClient spatialClient;
         private final SpatialMatcher spatialMatcher;
 
@@ -154,8 +154,11 @@ public final class Amalgamate {
 
         @Override
         protected Iterator<ElasticPlace> search(CorpusData placeData) {
-            String latLng = PlaceKey.Location.latLng.getValueOrThrow(placeData);
-            return spatialClient.search(latLng, SpatialMatcher.MAX_DISTANCE);
+            // Some Sg.Munch.Place might not have latLng ready for use
+            return PlaceKey.Location.latLng.get(placeData)
+                    .map(CorpusData.Field::getValue)
+                    .map(latLng -> spatialClient.search(latLng, SpatialMatcher.MAX_DISTANCE))
+                    .orElse(Collections.emptyIterator());
         }
 
         /**
