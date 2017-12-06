@@ -2,8 +2,6 @@ package munch.data.place.matcher;
 
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
-import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
-import info.debatty.java.stringsimilarity.interfaces.StringSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,14 +19,12 @@ import java.util.stream.Collectors;
 @Singleton
 public final class NameMatcher {
     private static final Logger logger = LoggerFactory.getLogger(NameMatcher.class);
-    private static final StringSimilarity similarity = new NormalizedLevenshtein();
-    private static final double threshold = 0.939;
 
-    private final NameCleanser nameCleanser;
+    private final NameCleaner nameCleaner;
 
     @Inject
-    public NameMatcher(NameCleanser nameCleanser) {
-        this.nameCleanser = nameCleanser;
+    public NameMatcher(NameCleaner nameCleaner) {
+        this.nameCleaner = nameCleaner;
     }
 
     /**
@@ -50,7 +46,7 @@ public final class NameMatcher {
 
     private List<String> collectNames(CorpusData data) {
         return PlaceKey.name.getAll(data).stream()
-                .map(field -> nameCleanser.clean(field.getValue()))
+                .map(field -> nameCleaner.clean(field.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -74,8 +70,6 @@ public final class NameMatcher {
      * @return true = potentially equal place right
      */
     private boolean match(String left, String right) {
-        double score = similarity.similarity(left, right);
-        logger.trace("left: {} and right: {} scored: {}", left, right, score);
-        return score > threshold;
+        return left.equalsIgnoreCase(right);
     }
 }

@@ -20,39 +20,52 @@ import java.util.regex.Pattern;
  * Project: munch-data
  */
 @Singleton
-public final class NameCleanser {
+public final class NameCleaner {
     static final Pattern PATTERN_COMPANY = Pattern.compile("pte\\.? ?ltd\\.?");
     static final Pattern PATTERN_COUNTRY = Pattern.compile("singapore\\s?$");
 
-    static final Pattern PATTERN_MULTI_SPACE = Pattern.compile(" {2,}");
-
-    private final LocationCleanser locationCleanser;
+    private final NameNormalizer nameNormalizer;
+    private final LocationCleaner locationCleaner;
 
     @Inject
-    public NameCleanser(LocationCleanser locationCleanser) {
-        this.locationCleanser = locationCleanser;
+    public NameCleaner(NameNormalizer nameNormalizer, LocationCleaner locationCleaner) {
+        this.nameNormalizer = nameNormalizer;
+        this.locationCleaner = locationCleaner;
     }
 
     public String clean(String name) {
         name = name.toLowerCase();
-        // Remove Company Postfix: PTE LTD
-        name = PATTERN_COMPANY.matcher(name).replaceAll("");
         // Remove Country Postfix: Singapore
         name = PATTERN_COUNTRY.matcher(name).replaceAll("");
-        // Remove multiple spaces "  " -> " "
-        name = fixWhitespace(name);
+        // Check if name is allowed to be cleaned
+        if (!cleanable(name)) {
+            return NameNormalizer.trim(name);
+        }
+
+        // Remove Company Postfix: PTE LTD
+        name = PATTERN_COMPANY.matcher(name).replaceAll("");
+        // Normalize before location cleaner
+        name = nameNormalizer.normalize(name);
         // Remove trailing location name
-        name = locationCleanser.remove(name);
+        name = locationCleaner.clean(name);
         // Finally trim any whitespace
-        return name.trim();
+        return NameNormalizer.trim(name);
     }
 
-    static String fixWhitespace(String text) {
-        return PATTERN_MULTI_SPACE.matcher(text).replaceAll(" ");
+    /**
+     * Name cannot be clean if < 8 char long
+     * Or contains any spacing
+     *
+     * @param name check if name can be cleaned
+     * @return whether it can be cleaned
+     */
+    private boolean cleanable(String name) {
+        if (name.length() < 9) return false;
+        return name.contains(" ");
     }
 
     @Singleton
-    public static class LocationCleanser {
+    public static class LocationCleaner {
         static final PatternSplit PATTERN_LOCATION_JOINER = PatternSplit.compile("\\s(-|–|—|@|at)\\s");
 
         private final Set<String> locationsNames;
@@ -64,7 +77,7 @@ public final class NameCleanser {
          * @throws IOException error loading file
          */
         @Inject
-        public LocationCleanser() throws IOException {
+        public LocationCleaner() throws IOException {
             URL url = Resources.getResource("location-cleanser.txt");
             this.locationsNames = ImmutableSet.copyOf(Resources.readLines(url, Charset.forName("UTF-8")));
         }
@@ -73,7 +86,7 @@ public final class NameCleanser {
          * @param name name to clean, must be lower case
          * @return removed trailing location name in the name
          */
-        public String remove(String name) {
+        public String clean(String name) {
             List<String> splits = PATTERN_LOCATION_JOINER.split(name, 0);
             if (splits.size() < 3) return name;
 

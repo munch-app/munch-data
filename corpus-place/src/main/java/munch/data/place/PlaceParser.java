@@ -5,6 +5,7 @@ import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
 import corpus.field.PlaceKey;
+import munch.data.place.matcher.NameNormalizer;
 import munch.data.place.parser.*;
 import munch.data.structure.Place;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,8 @@ public final class PlaceParser extends AbstractParser<Place> {
 
     private final List<String> priorityNames;
 
+    private final NameNormalizer nameNormalizer;
+
     private final PriceParser priceParser;
     private final LocationParser locationParser;
     private final ReviewParser reviewParser;
@@ -41,8 +44,9 @@ public final class PlaceParser extends AbstractParser<Place> {
     private final RankingParser rankingParser;
 
     @Inject
-    public PlaceParser(Config config, PriceParser priceParser, LocationParser locationParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
+    public PlaceParser(Config config, NameNormalizer nameNormalizer, PriceParser priceParser, LocationParser locationParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
         this.priorityNames = ImmutableList.copyOf(config.getStringList("place.priority"));
+        this.nameNormalizer = nameNormalizer;
         this.priceParser = priceParser;
         this.locationParser = locationParser;
         this.reviewParser = reviewParser;
@@ -94,7 +98,11 @@ public final class PlaceParser extends AbstractParser<Place> {
     }
 
     private String collectName(List<CorpusData> list) {
-        return WordUtils.capitalizeFully(collectMax(list, PlaceKey.name));
+        String name = collectMax(list, PlaceKey.name);
+        // Normalize name first
+        name = nameNormalizer.normalize(name);
+        // Then capitalize fully name
+        return WordUtils.capitalizeFully(name);
     }
 
     private String collectPhone(List<CorpusData> list) {

@@ -6,6 +6,7 @@ import corpus.field.PlaceKey;
 
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by: Fuxing
@@ -27,9 +28,10 @@ public final class SpatialMatcher {
     }
 
     public boolean matchLatLng(List<CorpusData> insides, CorpusData outside) {
-        LatLngUtils.LatLng rightLatLng = PlaceKey.Location.latLng.getLatLng(outside)
-                .orElseThrow(NullPointerException::new);
+        Optional<LatLngUtils.LatLng> outsideLatLng = PlaceKey.Location.latLng.getLatLng(outside);
+        if (!outsideLatLng.isPresent()) return false;
 
+        LatLngUtils.LatLng rightLatLng = outsideLatLng.get();
         for (CorpusData data : insides) {
             for (CorpusData.Field field : PlaceKey.Location.latLng.getAll(data)) {
                 if (matchDistance(field.getValue(), rightLatLng)) {
