@@ -98,7 +98,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
-            sleep(100);
+            sleep(300);
             if (processed % 1000 == 0) logger.info("Processed {} places", processed);
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);
