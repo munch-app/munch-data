@@ -118,7 +118,7 @@ public final class ElasticClient {
             if (count == null) return 0;
             return count.longValue();
         } catch (IOException e) {
-            throw new ElasticException(e);
+            throw ElasticException.parse(e);
         }
     }
 
@@ -136,7 +136,7 @@ public final class ElasticClient {
             return mapper.readTree(client.execute(builder.build())
                     .getJsonString());
         } catch (IOException e) {
-            throw new ElasticException(e);
+            throw ElasticException.parse(e);
         }
     }
 }

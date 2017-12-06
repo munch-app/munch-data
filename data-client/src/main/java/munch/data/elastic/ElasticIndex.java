@@ -60,7 +60,7 @@ public final class ElasticIndex {
                     .id(place.getId())
                     .build());
         } catch (IOException e) {
-            throw new ElasticException(e);
+            throw ElasticException.parse(e);
         }
     }
 
@@ -82,7 +82,7 @@ public final class ElasticIndex {
                     .id(location.getId())
                     .build());
         } catch (IOException e) {
-            throw new ElasticException(e);
+            throw ElasticException.parse(e);
         }
     }
 
@@ -103,7 +103,7 @@ public final class ElasticIndex {
                     .id(tag.getId())
                     .build());
         } catch (IOException e) {
-            throw new ElasticException(e);
+            throw ElasticException.parse(e);
         }
     }
 
@@ -113,7 +113,7 @@ public final class ElasticIndex {
                     .type(type).build());
             return marshaller.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
-            throw new ElasticException(e);
+            throw ElasticException.parse(e);
         }
     }
 
@@ -129,7 +129,7 @@ public final class ElasticIndex {
                     .type(type)
                     .build());
         } catch (IOException e) {
-            throw new ElasticException(e);
+            throw ElasticException.parse(e);
         }
     }
 }
