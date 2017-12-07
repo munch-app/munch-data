@@ -6,6 +6,7 @@ import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
 import munch.data.structure.Place;
+import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +141,10 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         Place existing = placeClient.get(place.getId());
         if (!place.equals(existing)) {
             placeClient.put(place);
+
+            logger.info("Updated: existing: {} new: {}",
+                    JsonUtils.toJsonString(existing),
+                    JsonUtils.toJsonString(place));
             counter.increment("Updated");
         }
     }

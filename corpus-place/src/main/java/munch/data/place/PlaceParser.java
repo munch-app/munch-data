@@ -121,6 +121,8 @@ public final class PlaceParser extends AbstractParser<Place> {
         String website = collectMax(list, PlaceKey.website);
         if (website == null) return null;
 
+        // Website cannot be facebook.com
+        if (website.contains("facebook.com")) return null;
         if (HTTP_PATTERN.matcher(website).matches()) return website;
         return "http://" + website;
     }
