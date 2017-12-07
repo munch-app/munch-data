@@ -7,6 +7,7 @@ import com.google.common.math.DoubleMath;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -653,29 +654,15 @@ public class Place implements SearchResult {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Hour hour = (Hour) o;
-
-            if (day != hour.day) return false;
-            if (!open.equals(hour.open)) return false;
-            return close.equals(hour.close);
+            return Objects.equals(day, hour.day) &&
+                    Objects.equals(open, hour.open) &&
+                    Objects.equals(close, hour.close);
         }
 
         @Override
         public int hashCode() {
-            int result = day.hashCode();
-            result = 31 * result + open.hashCode();
-            result = 31 * result + close.hashCode();
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Hour{" +
-                    "day=" + day +
-                    ", open='" + open + '\'' +
-                    ", close='" + close + '\'' +
-                    '}';
+            return Objects.hash(day, open, close);
         }
     }
 
