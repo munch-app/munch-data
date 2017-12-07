@@ -1,8 +1,10 @@
 package munch.data.place;
 
+import com.google.common.math.DoubleMath;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import corpus.engine.EngineGroup;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by: Fuxing
@@ -26,4 +28,9 @@ class PlaceModuleTest {
         System.exit(0);
     }
 
+    @Test
+    void name() throws Exception {
+        Double value = null;
+        System.out.println(DoubleMath.fuzzyEquals(0.75, value, 0.5));
+    }
 }

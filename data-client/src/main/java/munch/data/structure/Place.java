@@ -2,6 +2,7 @@ package munch.data.structure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.math.DoubleMath;
 
 import java.util.Date;
 import java.util.List;
@@ -197,8 +198,7 @@ public class Place implements SearchResult {
         if (tag != null ? !tag.equals(place.tag) : place.tag != null) return false;
         if (hours != null ? !hours.equals(place.hours) : place.hours != null) return false;
         if (images != null ? !images.equals(place.images) : place.images != null) return false;
-        if (!createdDate.equals(place.createdDate)) return false;
-        return updatedDate.equals(place.updatedDate);
+        return createdDate.equals(place.createdDate);
     }
 
     @Override
@@ -217,7 +217,6 @@ public class Place implements SearchResult {
         result = 31 * result + (hours != null ? hours.hashCode() : 0);
         result = 31 * result + (images != null ? images.hashCode() : 0);
         result = 31 * result + createdDate.hashCode();
-        result = 31 * result + updatedDate.hashCode();
         temp = Double.doubleToLongBits(ranking);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
@@ -479,7 +478,7 @@ public class Place implements SearchResult {
             Review review = (Review) o;
 
             if (total != review.total) return false;
-            return Double.compare(review.average, average) == 0;
+            return DoubleMath.fuzzyEquals(review.average, average, 0.05);
         }
 
         @Override
@@ -552,10 +551,17 @@ public class Place implements SearchResult {
             if (o == null || getClass() != o.getClass()) return false;
 
             Price price = (Price) o;
+            if (!comparePrice(lowest, price.lowest)) return false;
+            if (!comparePrice(middle, price.middle)) return false;
+            return comparePrice(highest, price.highest);
+        }
 
-            if (lowest != null ? !lowest.equals(price.lowest) : price.lowest != null) return false;
-            if (middle != null ? !middle.equals(price.middle) : price.middle != null) return false;
-            return highest != null ? highest.equals(price.highest) : price.highest == null;
+        public boolean comparePrice(Double left, Double right) {
+            if (left != null && right != null) {
+                return DoubleMath.fuzzyEquals(left, right, 0.05);
+            }
+            // One of them is null, if both null means same
+            return left == null && right == null;
         }
 
         @Override
@@ -718,7 +724,7 @@ public class Place implements SearchResult {
 
             Image image = (Image) o;
 
-            if (Double.compare(image.weight, weight) != 0) return false;
+            if (!DoubleMath.fuzzyEquals(image.weight, weight, 0.05)) return false;
             if (!source.equals(image.source)) return false;
             return images.equals(image.images);
         }

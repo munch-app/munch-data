@@ -35,7 +35,7 @@ abstract class ElasticCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofMinutes(60);
+        return Duration.ofMinutes(80);
     }
 
     @Override
@@ -58,7 +58,7 @@ abstract class ElasticCorpus extends CatalystEngine<CorpusData> {
         elasticClient.put(cycleNo, place);
         counter.increment("Put");
 
-        sleep(30);
+        sleep(50);
     }
 
     @Override

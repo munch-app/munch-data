@@ -150,6 +150,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         // Delete if exist only
         Place existing = placeClient.get(placeId);
         if (existing != null) {
+            counter.increment("Deleted");
             placeClient.delete(placeId);
         }
     }
