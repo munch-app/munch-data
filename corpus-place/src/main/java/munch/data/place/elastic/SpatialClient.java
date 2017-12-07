@@ -50,7 +50,7 @@ public final class SpatialClient extends ElasticClient {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("geo_distance")
                 .put("distance", metres + "m")
-                .put("location.latLng", latLng);
+                .put("latLng", latLng);
         return filter;
     }
 }
