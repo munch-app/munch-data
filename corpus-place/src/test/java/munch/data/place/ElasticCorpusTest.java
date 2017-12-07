@@ -31,7 +31,7 @@ public class ElasticCorpusTest extends AbstractModule {
 
         // Start the following corpus
         EngineGroup.start(
-                injector.getInstance(ElasticCorpus.class)
+                injector.getInstance(ElasticSpatialCorpus.class)
         );
         System.exit(0);
     }

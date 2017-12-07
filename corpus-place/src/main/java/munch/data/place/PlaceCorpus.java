@@ -5,6 +5,7 @@ import corpus.engine.CatalystEngine;
 import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
+import munch.data.place.amalgamate.Amalgamate;
 import munch.data.structure.Place;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;

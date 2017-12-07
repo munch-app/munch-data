@@ -95,6 +95,7 @@ public abstract class ElasticClient {
             place.setCorpusKey(result.path("_id").asText());
             place.setName(deserializeStrings(result.path("_source").path("name")));
             place.setPostal(deserializeStrings(result.path("_source").path("postal")));
+            place.setLatLng(result.path("_source").path("latLng").asText());
             list.add(place);
         }
         return list;

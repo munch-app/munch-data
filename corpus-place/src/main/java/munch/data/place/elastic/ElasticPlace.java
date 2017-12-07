@@ -55,4 +55,15 @@ public class ElasticPlace {
     public void setLatLng(String latLng) {
         this.latLng = latLng;
     }
+
+    @Override
+    public String toString() {
+        return "ElasticPlace{" +
+                "corpusName='" + corpusName + '\'' +
+                ", corpusKey='" + corpusKey + '\'' +
+                ", name=" + name +
+                ", postal=" + postal +
+                ", latLng='" + latLng + '\'' +
+                '}';
+    }
 }

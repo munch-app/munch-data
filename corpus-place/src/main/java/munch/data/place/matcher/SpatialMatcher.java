@@ -5,7 +5,6 @@ import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 
 import javax.inject.Singleton;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,24 +18,22 @@ public final class SpatialMatcher {
     public static final double MAX_DISTANCE = 200.0; // Metres
 
     /**
-     * @param insides data already inside
+     * @param placeData place data
      * @param outside data outside coming in
      * @return true is outside data belongs with inside
      */
-    public boolean match(List<CorpusData> insides, CorpusData outside) {
-        return matchLatLng(insides, outside);
+    public boolean match(CorpusData placeData, CorpusData outside) {
+        return matchLatLng(placeData, outside);
     }
 
-    public boolean matchLatLng(List<CorpusData> insides, CorpusData outside) {
+    public boolean matchLatLng(CorpusData inside, CorpusData outside) {
         Optional<LatLngUtils.LatLng> outsideLatLng = PlaceKey.Location.latLng.getLatLng(outside);
         if (!outsideLatLng.isPresent()) return false;
 
         LatLngUtils.LatLng rightLatLng = outsideLatLng.get();
-        for (CorpusData data : insides) {
-            for (CorpusData.Field field : PlaceKey.Location.latLng.getAll(data)) {
-                if (matchDistance(field.getValue(), rightLatLng)) {
-                    return true;
-                }
+        for (CorpusData.Field field : PlaceKey.Location.latLng.getAll(inside)) {
+            if (matchDistance(field.getValue(), rightLatLng)) {
+                return true;
             }
         }
 

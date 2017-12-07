@@ -6,6 +6,7 @@ import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
+import munch.data.place.amalgamate.Amalgamate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
