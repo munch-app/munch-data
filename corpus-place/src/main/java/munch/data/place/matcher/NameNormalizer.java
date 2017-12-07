@@ -15,7 +15,11 @@ public final class NameNormalizer {
     private static final Pattern PATTERN_MULTI_SPACE = Pattern.compile(" {2,}");
 
     private static final List<ReplacementGroup> GROUPS = List.of(
-            new ReplacementGroup(Pattern.compile("`\""), "'")
+            new ReplacementGroup(Pattern.compile("[`\"]"), "'"),
+            new ReplacementGroup(Pattern.compile("-|–|—"), "-"),
+            new ReplacementGroup(Pattern.compile("é", Pattern.CASE_INSENSITIVE), "e"),
+            new ReplacementGroup(Pattern.compile("á", Pattern.CASE_INSENSITIVE), "a"),
+            new ReplacementGroup(Pattern.compile("ó", Pattern.CASE_INSENSITIVE), "o")
     );
 
     public String normalize(String name) {
