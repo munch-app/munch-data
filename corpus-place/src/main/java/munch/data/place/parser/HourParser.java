@@ -33,11 +33,35 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
             values.compute(hours, (h, i) -> i == null ? 1 : i + 1);
         }
 
-        return values.entrySet().stream()
+        if (values.isEmpty()) return Collections.emptyList();
+
+        // Get the value appearance count for the collection of hours
+        int max = values.entrySet().stream()
                 .max(Comparator.comparingInt(Map.Entry::getValue))
+                .map(Map.Entry::getValue)
+                .orElse(1);
+
+        // Filter out the possibles set of hours
+        List<Set<Place.Hour>> possibles = values.entrySet().stream()
+                .filter(entry -> entry.getValue() == max)
                 .map(Map.Entry::getKey)
-                .map(ArrayList::new)
-                .orElseGet(ArrayList::new);
+                .collect(Collectors.toList());
+
+        // Deterministic select of possible place hour
+        return selectOne(possibles);
+    }
+
+    /**
+     * Deterministic selection of List of List of Place.Hour
+     *
+     * @param list multiple possible set of opening hours
+     * @return select one that is grantee always in same order and always be selected
+     */
+    private List<Place.Hour> selectOne(List<Set<Place.Hour>> list) {
+        if (list.isEmpty()) return Collections.emptyList();
+
+        list.sort(Comparator.comparingInt(Set::hashCode));
+        return new ArrayList<>(list.get(0));
     }
 
     private Map<String, Set<Place.Hour>> collect(List<CorpusData> list) {
