@@ -81,10 +81,10 @@ public final class PlaceParser extends AbstractParser<Place> {
 
         // TagParser depend on HourParser & LocationParser
         place.setTag(tagParser.parse(place, list));
-        // RankingParser depend on ImageParser
-        place.setRanking(rankingParser.parse(place, list));
         // ImageParser depend on TagParser
         place.setImages(imageParser.parse(place, list));
+        // RankingParser depend on ImageParser
+        place.setRanking(rankingParser.parse(place, list));
 
         place.setCreatedDate(findCreatedDate(list));
         place.setUpdatedDate(new Date());
