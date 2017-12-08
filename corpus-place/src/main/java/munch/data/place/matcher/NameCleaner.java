@@ -35,6 +35,8 @@ public final class NameCleaner {
 
     public String clean(String name) {
         name = name.toLowerCase();
+        // Normalize first
+        name = nameNormalizer.normalize(name);
         // Remove Country Postfix: Singapore
         name = PATTERN_COUNTRY.matcher(name).replaceAll("");
         // Check if name is allowed to be cleaned
@@ -44,8 +46,6 @@ public final class NameCleaner {
 
         // Remove Company Postfix: PTE LTD
         name = PATTERN_COMPANY.matcher(name).replaceAll("");
-        // Normalize before location cleaner
-        name = nameNormalizer.normalize(name);
         // Remove trailing location name
         name = locationCleaner.clean(name);
         // Finally trim any whitespace
