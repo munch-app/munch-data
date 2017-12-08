@@ -4,11 +4,13 @@ import com.google.common.collect.ImmutableSet;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.images.ImageCachedField;
+import munch.data.place.parser.images.ImagePlaceholderDatabase;
 import munch.data.structure.Place;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,12 +28,26 @@ public final class ImageParser extends AbstractParser<List<Place.Image>> {
             "misstamchiak.com", "sgfoodonfoot.com", "camemberu.com",
             "ieatandeat.com", "aspirantsg.com", "ms-skinnyfat.com", "six-and-seven.com");
 
+    private final ImagePlaceholderDatabase placeholderDatabase;
+
+    @Inject
+    public ImageParser(ImagePlaceholderDatabase placeholderDatabase) {
+        this.placeholderDatabase = placeholderDatabase;
+    }
+
     /**
      * @param list list of corpus
      * @return List of Place.Image can be empty
      */
     @Override
     public List<Place.Image> parse(Place place, List<CorpusData> list) {
+        List<Place.Image> images = collectImages(list);
+        if (!images.isEmpty()) return images;
+
+        return placeholderDatabase.findImages(place.getTag());
+    }
+
+    private List<Place.Image> collectImages(List<CorpusData> list) {
         return collect(list, PlaceKey.image).stream()
                 .map(ImageCachedField::new)
                 .filter(field -> field.getImages() != null && field.getSource() != null)
@@ -49,8 +65,9 @@ public final class ImageParser extends AbstractParser<List<Place.Image>> {
                     image.setImages(field.getImages());
                     return image;
                 })
-                .filter(Objects::nonNull)
-                .sorted((o1, o2) -> Double.compare(o2.getWeight(), o1.getWeight()))
+                .sorted(Comparator.comparingDouble(Place.Image::getWeight).reversed()
+                        .thenComparing(Place.Image::getSource)
+                        .thenComparing(Comparator.comparingInt(o -> o.getImages().hashCode())))
                 .limit(MAX_SIZE)
                 .collect(Collectors.toList());
     }

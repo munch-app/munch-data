@@ -124,6 +124,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         if (!place.getHours().isEmpty()) counter.increment("Counts.Hours");
         if (place.getImages().size() > 0) counter.increment("Counts.Images>0");
         if (place.getImages().size() > 1) counter.increment("Counts.Images>1");
+        if (place.getImages().size() > 2) counter.increment("Counts.Images>2");
 
         if (has(list, "Global.MunchArticle.Article")) counter.increment("Counts.Article");
         if (has(list, "Global.Facebook.Place")) counter.increment("Counts.FacebookPlace");
