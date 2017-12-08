@@ -144,9 +144,10 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         if (!place.equals(existing)) {
             placeClient.put(place);
 
-            logger.info("Updated: existing: {} new: {}",
-                    JsonUtils.toJsonString(existing),
-                    JsonUtils.toJsonString(place));
+            logger.info("Updated: updated: {} existing: {}",
+                    JsonUtils.toJsonString(place),
+                    JsonUtils.toJsonString(existing)
+            );
             counter.increment("Updated");
         }
     }

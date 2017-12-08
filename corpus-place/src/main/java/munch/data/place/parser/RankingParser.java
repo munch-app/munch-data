@@ -25,7 +25,13 @@ public final class RankingParser extends AbstractParser<Double> {
                 ranking += 1;
             }
         }
-        if (!place.getImages().isEmpty()) ranking += 1000;
+        if (!place.getImages().isEmpty()) {
+            if (place.getImages().size() == 1 && place.getImages().get(0).getSource().equals("munch-image-placeholder")) {
+                ranking += 500;
+            } else {
+                ranking += 1000;
+            }
+        }
         return ranking;
     }
 }
