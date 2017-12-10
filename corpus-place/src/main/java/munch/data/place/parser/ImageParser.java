@@ -53,6 +53,7 @@ public final class ImageParser extends AbstractParser<List<Place.Image>> {
                 .filter(field -> field.getImages() != null && field.getSource() != null)
                 .filter(field -> {
                     if (field.getSource().equals("facebook")) return true;
+                    if (field.getSource().equals("munch-franchise")) return true;
                     if (field.getSource().equals("article")) {
                         return ARTICLE_SOURCE_IDS.contains(field.getSourceId());
                     }
