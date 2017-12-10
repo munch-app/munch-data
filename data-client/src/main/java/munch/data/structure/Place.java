@@ -122,6 +122,9 @@ public class Place implements SearchResult {
         this.location = location;
     }
 
+    /**
+     * @return nullable review
+     */
     public Review getReview() {
         return review;
     }
