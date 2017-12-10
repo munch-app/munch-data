@@ -8,6 +8,7 @@ import munch.data.structure.Place;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -94,7 +95,7 @@ public abstract class AbstractParser<T> {
     /**
      * @param list       list of corpus data to search
      * @param corpusName corpus name to get
-     * @return retur
+     * @return return matched corpus data or null
      */
     protected CorpusData find(List<CorpusData> list, String corpusName) {
         for (CorpusData corpusData : list) {
@@ -103,5 +104,16 @@ public abstract class AbstractParser<T> {
             }
         }
         return null;
+    }
+
+    /**
+     * @param list       list of corpus data to search
+     * @param corpusName corpus name to get
+     * @return return all matched corpus data
+     */
+    protected List<CorpusData> findAll(List<CorpusData> list, String corpusName) {
+        return list.stream()
+                .filter(data -> data.getCorpusName().equals(corpusName))
+                .collect(Collectors.toList());
     }
 }

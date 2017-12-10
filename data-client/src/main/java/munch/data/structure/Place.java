@@ -35,10 +35,11 @@ public class Place implements SearchResult {
     // Many
     private List<Hour> hours;
     private List<Image> images;
+    private List<Container> containers;
 
     // Others
     private Date createdDate;
-    private Date updatedDate;
+    private Date updatedDate; // Must in hashcode or equals
     private double ranking;
 
     /**
@@ -156,6 +157,14 @@ public class Place implements SearchResult {
         this.images = images;
     }
 
+    public List<Container> getContainers() {
+        return containers;
+    }
+
+    public void setContainers(List<Container> containers) {
+        this.containers = containers;
+    }
+
     public Date getCreatedDate() {
         return createdDate;
     }
@@ -184,43 +193,26 @@ public class Place implements SearchResult {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Place place = (Place) o;
-
-        if (Double.compare(place.ranking, ranking) != 0) return false;
-        if (!id.equals(place.id)) return false;
-        if (!name.equals(place.name)) return false;
-        if (phone != null ? !phone.equals(place.phone) : place.phone != null) return false;
-        if (website != null ? !website.equals(place.website) : place.website != null) return false;
-        if (description != null ? !description.equals(place.description) : place.description != null) return false;
-        if (price != null ? !price.equals(place.price) : place.price != null) return false;
-        if (!location.equals(place.location)) return false;
-        if (review != null ? !review.equals(place.review) : place.review != null) return false;
-        if (tag != null ? !tag.equals(place.tag) : place.tag != null) return false;
-        if (hours != null ? !hours.equals(place.hours) : place.hours != null) return false;
-        if (images != null ? !images.equals(place.images) : place.images != null) return false;
-        return createdDate.equals(place.createdDate);
+        return Double.compare(place.ranking, ranking) == 0 &&
+                Objects.equals(id, place.id) &&
+                Objects.equals(name, place.name) &&
+                Objects.equals(phone, place.phone) &&
+                Objects.equals(website, place.website) &&
+                Objects.equals(description, place.description) &&
+                Objects.equals(price, place.price) &&
+                Objects.equals(location, place.location) &&
+                Objects.equals(review, place.review) &&
+                Objects.equals(tag, place.tag) &&
+                Objects.equals(hours, place.hours) &&
+                Objects.equals(images, place.images) &&
+                Objects.equals(containers, place.containers) &&
+                Objects.equals(createdDate, place.createdDate);
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = id.hashCode();
-        result = 31 * result + name.hashCode();
-        result = 31 * result + (phone != null ? phone.hashCode() : 0);
-        result = 31 * result + (website != null ? website.hashCode() : 0);
-        result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (price != null ? price.hashCode() : 0);
-        result = 31 * result + location.hashCode();
-        result = 31 * result + (review != null ? review.hashCode() : 0);
-        result = 31 * result + (tag != null ? tag.hashCode() : 0);
-        result = 31 * result + (hours != null ? hours.hashCode() : 0);
-        result = 31 * result + (images != null ? images.hashCode() : 0);
-        result = 31 * result + createdDate.hashCode();
-        temp = Double.doubleToLongBits(ranking);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
+        return Objects.hash(id, name, phone, website, description, price, location, review, tag, hours, images, containers, createdDate, ranking);
     }
 
     @Override
@@ -237,6 +229,7 @@ public class Place implements SearchResult {
                 ", tag=" + tag +
                 ", hours=" + hours +
                 ", images=" + images +
+                ", containers=" + containers +
                 ", createdDate=" + createdDate +
                 ", updatedDate=" + updatedDate +
                 ", ranking=" + ranking +
@@ -246,6 +239,52 @@ public class Place implements SearchResult {
     @Override
     public String getDataType() {
         return "Place";
+    }
+
+    /**
+     * Container list generated must be sorted properly or else .equals will fail
+     */
+    public static final class Container {
+        private String id;
+        private String name;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Container container = (Container) o;
+            return Objects.equals(id, container.id) &&
+                    Objects.equals(name, container.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "Container{" +
+                    "id='" + id + '\'' +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
     }
 
     /**
@@ -346,34 +385,21 @@ public class Place implements SearchResult {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Location location = (Location) o;
-
-            if (street != null ? !street.equals(location.street) : location.street != null) return false;
-            if (address != null ? !address.equals(location.address) : location.address != null) return false;
-            if (unitNumber != null ? !unitNumber.equals(location.unitNumber) : location.unitNumber != null)
-                return false;
-            if (building != null ? !building.equals(location.building) : location.building != null) return false;
-            if (nearestTrain != null ? !nearestTrain.equals(location.nearestTrain) : location.nearestTrain != null)
-                return false;
-            if (city != null ? !city.equals(location.city) : location.city != null) return false;
-            if (country != null ? !country.equals(location.country) : location.country != null) return false;
-            if (postal != null ? !postal.equals(location.postal) : location.postal != null) return false;
-            return latLng != null ? latLng.equals(location.latLng) : location.latLng == null;
+            return Objects.equals(street, location.street) &&
+                    Objects.equals(address, location.address) &&
+                    Objects.equals(unitNumber, location.unitNumber) &&
+                    Objects.equals(building, location.building) &&
+                    Objects.equals(nearestTrain, location.nearestTrain) &&
+                    Objects.equals(city, location.city) &&
+                    Objects.equals(country, location.country) &&
+                    Objects.equals(postal, location.postal) &&
+                    Objects.equals(latLng, location.latLng);
         }
 
         @Override
         public int hashCode() {
-            int result = street != null ? street.hashCode() : 0;
-            result = 31 * result + (address != null ? address.hashCode() : 0);
-            result = 31 * result + (unitNumber != null ? unitNumber.hashCode() : 0);
-            result = 31 * result + (building != null ? building.hashCode() : 0);
-            result = 31 * result + (nearestTrain != null ? nearestTrain.hashCode() : 0);
-            result = 31 * result + (city != null ? city.hashCode() : 0);
-            result = 31 * result + (country != null ? country.hashCode() : 0);
-            result = 31 * result + (postal != null ? postal.hashCode() : 0);
-            result = 31 * result + (latLng != null ? latLng.hashCode() : 0);
-            return result;
+            return Objects.hash(street, address, unitNumber, building, nearestTrain, city, country, postal, latLng);
         }
 
         @Override
@@ -425,18 +451,14 @@ public class Place implements SearchResult {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Tag tag = (Tag) o;
-
-            if (!explicits.equals(tag.explicits)) return false;
-            return implicits.equals(tag.implicits);
+            return Objects.equals(explicits, tag.explicits) &&
+                    Objects.equals(implicits, tag.implicits);
         }
 
         @Override
         public int hashCode() {
-            int result = explicits.hashCode();
-            result = 31 * result + implicits.hashCode();
-            return result;
+            return Objects.hash(explicits, implicits);
         }
 
         @Override
@@ -484,12 +506,7 @@ public class Place implements SearchResult {
 
         @Override
         public int hashCode() {
-            int result;
-            long temp;
-            result = (int) (total ^ (total >>> 32));
-            temp = Double.doubleToLongBits(average);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            return result;
+            return Objects.hash(total, average);
         }
 
         @Override
@@ -567,10 +584,7 @@ public class Place implements SearchResult {
 
         @Override
         public int hashCode() {
-            int result = lowest != null ? lowest.hashCode() : 0;
-            result = 31 * result + (middle != null ? middle.hashCode() : 0);
-            result = 31 * result + (highest != null ? highest.hashCode() : 0);
-            return result;
+            return Objects.hash(lowest, middle, highest);
         }
 
         @Override
@@ -664,6 +678,15 @@ public class Place implements SearchResult {
         public int hashCode() {
             return Objects.hash(day, open, close);
         }
+
+        @Override
+        public String toString() {
+            return "Hour{" +
+                    "day='" + day + '\'' +
+                    ", open='" + open + '\'' +
+                    ", close='" + close + '\'' +
+                    '}';
+        }
     }
 
     /**
@@ -718,13 +741,7 @@ public class Place implements SearchResult {
 
         @Override
         public int hashCode() {
-            int result;
-            long temp;
-            temp = Double.doubleToLongBits(weight);
-            result = (int) (temp ^ (temp >>> 32));
-            result = 31 * result + source.hashCode();
-            result = 31 * result + images.hashCode();
-            return result;
+            return Objects.hash(weight, source, images);
         }
 
         @Override

@@ -15,7 +15,7 @@ import munch.data.elastic.ElasticModule;
  * Time: 3:20 AM
  * Project: munch-data
  */
-public class LocationModule extends AbstractModule{
+public class LocationModule extends AbstractModule {
 
     @Override
     protected void configure() {
@@ -30,7 +30,7 @@ public class LocationModule extends AbstractModule{
 
         // Start the following corpus
         EngineGroup.start(
-                injector.getInstance(SyncCorpus.class),
+                injector.getInstance(SeedingCorpus.class),
                 injector.getInstance(LocationCorpus.class)
         );
         System.exit(0);

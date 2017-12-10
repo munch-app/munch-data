@@ -10,6 +10,7 @@ import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import munch.data.exceptions.ElasticException;
+import munch.data.structure.Container;
 import munch.data.structure.Location;
 import munch.data.structure.Place;
 import munch.data.structure.Tag;
@@ -101,6 +102,27 @@ public final class ElasticIndex {
                     .index("munch")
                     .type("Tag")
                     .id(tag.getId())
+                    .build());
+        } catch (IOException e) {
+            throw ElasticException.parse(e);
+        }
+    }
+
+    /**
+     * Index a Container by putting it into elastic search
+     *
+     * @param container container to index
+     * @throws ElasticException wrapped exception
+     */
+    public void put(Container container) throws ElasticException {
+        try {
+            ObjectNode node = marshaller.serialize(container);
+            String json = mapper.writeValueAsString(node);
+
+            client.execute(new Index.Builder(json)
+                    .index("munch")
+                    .type("Container")
+                    .id(container.getId())
                     .build());
         } catch (IOException e) {
             throw ElasticException.parse(e);

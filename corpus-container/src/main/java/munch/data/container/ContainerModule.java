@@ -1,4 +1,4 @@
-package munch.data.tag;
+package munch.data.container;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -11,12 +11,11 @@ import munch.data.elastic.ElasticModule;
 
 /**
  * Created by: Fuxing
- * Date: 10/10/2017
- * Time: 3:20 AM
+ * Date: 10/12/2017
+ * Time: 9:49 AM
  * Project: munch-data
  */
-public class TagModule extends AbstractModule{
-
+public class ContainerModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new CorpusModule());
@@ -26,12 +25,12 @@ public class TagModule extends AbstractModule{
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Injector injector = Guice.createInjector(new TagModule());
+        Injector injector = Guice.createInjector(new ContainerModule());
 
         // Start the following corpus
         EngineGroup.start(
                 injector.getInstance(SeedingCorpus.class),
-                injector.getInstance(TagCorpus.class)
+                injector.getInstance(ContainerCorpus.class)
         );
         System.exit(0);
     }

@@ -57,8 +57,9 @@ public final class BoolQuery {
         // Match name if got query
         ObjectNode multiMatch = root.putObject("multi_match");
         multiMatch.put("query", query);
+        multiMatch.put("fuzziness", 1);
         multiMatch.putArray("fields")
-                .add("name^3")
+                .add("name^5")
                 .add("tag.explicits^2")
                 .add("tag.implicits");
         return root;

@@ -2,14 +2,8 @@
   "mappings": {
     "_default_": {
       "properties": {
-        "id": {
-          "type": "keyword"
-        },
         "dataType": {
           "type": "keyword"
-        },
-        "location.latLng": {
-          "type": "geo_point"
         },
         "suggest": {
           "type": "completion",
@@ -26,37 +20,80 @@
               "path": "location.latLng"
             }
           ]
-        }
-      }
-    },
-    "Tag": {
-      "properties": {
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "type": {
+          "type": "keyword"
+        },
         "name": {
           "type": "text"
-        }
-      }
-    },
-    "Location": {
-      "properties": {
+        },
+        "phone": {
+          "enabled": false
+        },
+        "website": {
+          "enabled": false
+        },
+        "description": {
+          "enabled": false
+        },
+        "createdDate": {
+          "enabled": false
+        },
+        "updatedDate": {
+          "enabled": false
+        },
+        "location.street": {
+          "enabled": false
+        },
+        "location.unitNumber": {
+          "enabled": false
+        },
+        "location.building": {
+          "enabled": false
+        },
+        "location.nearestTrain": {
+          "enabled": false
+        },
+        "location.city": {
+          "enabled": false
+        },
+        "location.country": {
+          "enabled": false
+        },
+        "location.postal": {
+          "type": "keyword"
+        },
+        "location.latLng": {
+          "type": "geo_point"
+        },
         "location.polygon": {
           "type": "geo_shape",
           "precision": "5m"
         },
-        "images": {
-          "enabled": false
-        }
-      }
-    },
-    "Place": {
-      "properties": {
         "ranking": {
           "type": "double"
         },
         "images": {
           "enabled": false
-        },
+        }
+      }
+    },
+    "Tag": {
+    },
+    "Location": {
+    },
+    "Container": {
+    },
+    "Place": {
+      "properties": {
         "hours": {
           "enabled": false
+        },
+        "containers.id": {
+          "type": "keyword"
         },
         "tag.explicits": {
           "type": "keyword"

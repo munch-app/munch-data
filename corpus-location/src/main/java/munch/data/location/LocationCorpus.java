@@ -52,25 +52,25 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
-        return corpusClient.list(corpusName);
+        return corpusClient.list("Sg.Munch.Location");
     }
 
     @Override
-    protected void process(long cycleNo, CorpusData storedData, long processed) {
-        CorpusData sheetData = getLocationPolygon(storedData);
+    protected void process(long cycleNo, CorpusData munchData, long processed) {
+        CorpusData sourceData = getLocationPolygon(munchData);
 
-        if (sheetData != null) {
+        if (sourceData != null) {
             // To put if changed
-            if (!LocationKey.updatedDate.equal(storedData, sheetData.getUpdatedDate(), dataVersion)) {
-                storedData.replace(LocationKey.updatedDate, sheetData.getUpdatedDate().getTime() + dataVersion);
-                locationClient.put(createLocation(sheetData));
-                corpusClient.put(corpusName, storedData.getCorpusKey(), storedData);
+            if (!LocationKey.updatedDate.equal(munchData, sourceData.getUpdatedDate(), dataVersion)) {
+                munchData.replace(LocationKey.updatedDate, sourceData.getUpdatedDate().getTime() + dataVersion);
+                locationClient.put(createLocation(sourceData));
+                corpusClient.put("Sg.Munch.Location", munchData.getCorpusKey(), munchData);
                 counter.increment("Updated");
             }
         } else {
             // To delete
-            locationClient.delete(storedData.getCorpusKey());
-            corpusClient.delete(corpusName, storedData.getCorpusKey());
+            locationClient.delete(munchData.getCorpusKey());
+            corpusClient.delete("Sg.Munch.Location", munchData.getCorpusKey());
             counter.increment("Deleted");
         }
 

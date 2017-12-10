@@ -58,6 +58,7 @@ public final class ElasticMapping {
             index = getIndex();
         }
 
+        logger.info("Index: {}", index);
         if (!validate(index)) {
             logger.error("Index: {}", index);
             throw new RuntimeException("Index validation failed.");
@@ -109,6 +110,12 @@ public final class ElasticMapping {
         String json = Resources.toString(url, Charset.forName("UTF-8"));
         JestResult result = client.execute(new CreateIndex.Builder("munch").settings(json).build());
         logger.info("Created index result: {}", result.getJsonString());
+    }
+
+    public JsonNode getExpectedMapping() throws IOException {
+        URL url = Resources.getResource("elastic-index.json");
+        String json = Resources.toString(url, Charset.forName("UTF-8"));
+        return mapper.readTree(json);
     }
 
     /**

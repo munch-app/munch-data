@@ -36,6 +36,7 @@ public final class PlaceParser extends AbstractParser<Place> {
 
     private final PriceParser priceParser;
     private final LocationParser locationParser;
+    private final ContainerParser containerParser;
     private final ReviewParser reviewParser;
     private final TagParser tagParser;
 
@@ -44,11 +45,12 @@ public final class PlaceParser extends AbstractParser<Place> {
     private final RankingParser rankingParser;
 
     @Inject
-    public PlaceParser(Config config, NameNormalizer nameNormalizer, PriceParser priceParser, LocationParser locationParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
+    public PlaceParser(Config config, NameNormalizer nameNormalizer, PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
         this.priorityNames = ImmutableList.copyOf(config.getStringList("place.priority"));
         this.nameNormalizer = nameNormalizer;
         this.priceParser = priceParser;
         this.locationParser = locationParser;
+        this.containerParser = containerParser;
         this.reviewParser = reviewParser;
         this.tagParser = tagParser;
         this.hourParser = hourParser;
@@ -75,6 +77,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         if (place.getLocation() == null) return null;
 
         // Theses are no dependencies parsers
+        place.setContainers(containerParser.parse(place, list));
         place.setPrice(priceParser.parse(place, list));
         place.setHours(hourParser.parse(place, list));
         place.setReview(reviewParser.parse(place, list));

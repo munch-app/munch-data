@@ -6,3 +6,5 @@ include 'data-client'
 include 'corpus-location'
 include 'corpus-place'
 include 'corpus-tag'
+include 'corpus-container'
+

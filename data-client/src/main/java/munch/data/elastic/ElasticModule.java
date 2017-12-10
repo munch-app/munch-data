@@ -10,6 +10,8 @@ import io.searchbox.client.config.HttpClientConfig;
 import munch.restful.WaitFor;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vc.inreach.aws.request.AWSSigner;
 import vc.inreach.aws.request.AWSSigningRequestInterceptor;
 
@@ -27,6 +29,7 @@ import java.time.ZoneOffset;
  * Project: munch-core
  */
 public final class ElasticModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticModule.class);
 
     @Override
     protected void configure() {
@@ -35,7 +38,12 @@ public final class ElasticModule extends AbstractModule {
 
     @Inject
     void configureMapping(ElasticMapping mapping) throws IOException {
-        mapping.tryCreate();
+        try {
+            mapping.tryCreate();
+        } catch (Exception e) {
+            logger.error("ElasticMapping Error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Provides

@@ -17,11 +17,11 @@ import java.util.Iterator;
  * Project: munch-data
  */
 @Singleton
-public class SyncCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(SyncCorpus.class);
+public class SeedingCorpus extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(SeedingCorpus.class);
 
     @Inject
-    public SyncCorpus() {
+    public SeedingCorpus() {
         super(logger);
     }
 
@@ -43,14 +43,14 @@ public class SyncCorpus extends CatalystEngine<CorpusData> {
     @Override
     protected void process(long cycleNo, CorpusData seedData, long processed) {
         // If Sg.Munch.Location already exist, can skip, can never have more then 1 because key is catalystId
-        if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
+        if (catalystClient.countCorpus(seedData.getCatalystId(), "Sg.Munch.Location") > 0) return;
 
         // Put created Sg.Munch.Location
         CorpusData data = new CorpusData(cycleNo);
         data.setCatalystId(seedData.getCatalystId());
         data.put(LocationKey.updatedDate, "0");
 
-        corpusClient.put(corpusName, seedData.getCorpusKey(), data);
+        corpusClient.put("Sg.Munch.Location", seedData.getCorpusKey(), data);
         counter.increment("Seeded");
         sleep(10);
     }

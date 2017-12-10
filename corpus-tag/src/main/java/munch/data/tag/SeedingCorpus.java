@@ -17,11 +17,11 @@ import java.util.Iterator;
  * Project: munch-data
  */
 @Singleton
-public class SyncCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(SyncCorpus.class);
+public class SeedingCorpus extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(SeedingCorpus.class);
 
     @Inject
-    public SyncCorpus() {
+    public SeedingCorpus() {
         super(logger);
     }
 
