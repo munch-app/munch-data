@@ -155,13 +155,6 @@ public class PlaceClient extends AbstractClient {
             // From and Size not null validation
             ValidationException.requireNonNull("from", query.getFrom());
             ValidationException.requireNonNull("size", query.getSize());
-
-            // Check if location contains polygon if exist
-            if (query.getLocation() != null && query.getLocation().getPoints() != null) {
-                if (query.getLocation().getPoints().size() < 3) {
-                    throw new ValidationException("location.points", "Points must have at least 3 points.");
-                }
-            }
         }
     }
 }

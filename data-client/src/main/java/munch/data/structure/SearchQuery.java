@@ -3,7 +3,7 @@ package munch.data.structure;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,7 +24,6 @@ public final class SearchQuery {
 
     private String query;
     private String latLng;
-    private Location location;
 
     private Filter filter;
     private Sort sort;
@@ -79,26 +78,6 @@ public final class SearchQuery {
     }
 
     /**
-     * Location is Polygon, latLng is user location
-     * <p>
-     * location.name = for display
-     * location.latLng = currently provide no functions
-     * location.points = polygon points
-     * <p>
-     * For ad-hoc location, should be generated here as well
-     *
-     * @return Location for searchQuery
-     * @see Location
-     */
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    /**
      * Optional
      *
      * @return Place additional filters
@@ -128,6 +107,8 @@ public final class SearchQuery {
         private Price price;
         private Tag tag;
         private Hour hour;
+        private List<Container> containers;
+        private Location location;
 
         public Price getPrice() {
             return price;
@@ -151,6 +132,34 @@ public final class SearchQuery {
 
         public void setHour(Hour hour) {
             this.hour = hour;
+        }
+
+        public List<Container> getContainers() {
+            return containers;
+        }
+
+        public void setContainers(List<Container> containers) {
+            this.containers = containers;
+        }
+
+        /**
+         * Location is Polygon, latLng is user location
+         * <p>
+         * location.name = for display
+         * location.latLng = currently provide no functions
+         * location.points = polygon points
+         * <p>
+         * For ad-hoc location, should be generated here as well
+         *
+         * @return Location for searchQuery
+         * @see Location
+         */
+        public Location getLocation() {
+            return location;
+        }
+
+        public void setLocation(Location location) {
+            this.location = location;
         }
 
         @JsonIgnoreProperties(ignoreUnknown = true)
@@ -257,6 +266,8 @@ public final class SearchQuery {
                     "price=" + price +
                     ", tag=" + tag +
                     ", hour=" + hour +
+                    ", containers=" + containers +
+                    ", location=" + location +
                     '}';
         }
     }
@@ -305,55 +316,8 @@ public final class SearchQuery {
                 "from=" + from +
                 ", size=" + size +
                 ", query='" + query + '\'' +
-                ", location=" + location +
                 ", filter=" + filter +
                 ", sort=" + sort +
                 '}';
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-        private final SearchQuery query;
-
-        private Builder() {
-            this.query = new SearchQuery();
-        }
-
-        public Builder query(String text) {
-            query.setQuery(text);
-            return this;
-        }
-
-        public Builder location(Location location) {
-            query.setLocation(location);
-            return this;
-        }
-
-        public Builder tag(String tag, boolean positive) {
-            if (query.getFilter() == null) query.setFilter(new Filter());
-            if (query.getFilter().getTag() == null) query.getFilter().setTag(new Filter.Tag());
-
-            if (positive) {
-                if (query.getFilter().getTag().getPositives() == null)
-                    query.getFilter().getTag().setPositives(new HashSet<>());
-                query.getFilter().getTag().getPositives().add(tag);
-            } else {
-                if (query.getFilter().getTag().getNegatives() == null)
-                    query.getFilter().getTag().setNegatives(new HashSet<>());
-                query.getFilter().getTag().getNegatives().add(tag);
-            }
-            return this;
-        }
-
-        public Builder tag(String tag) {
-            return tag(tag, true);
-        }
-
-        public SearchQuery build() {
-            return query;
-        }
     }
 }

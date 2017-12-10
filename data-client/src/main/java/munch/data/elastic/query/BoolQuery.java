@@ -4,13 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import munch.data.structure.Container;
 import munch.data.structure.Location;
 import munch.data.structure.SearchQuery;
+import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created By: Fuxing Loh
@@ -20,12 +25,8 @@ import java.util.List;
  */
 @Singleton
 public final class BoolQuery {
-    private final ObjectMapper mapper;
-
-    @Inject
-    public BoolQuery(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(BoolQuery.class);
+    private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
     /**
      * @param query SearchQuery for place
@@ -91,13 +92,8 @@ public final class BoolQuery {
     private JsonNode filter(SearchQuery searchQuery) {
         ArrayNode filterArray = mapper.createArrayNode();
 
-        // Polygon if location exists
-        Location location = searchQuery.getLocation();
-        if (location != null && location.getPoints() != null) {
-            filterArray.add(filterPolygon(location.getPoints()));
-        } else if (searchQuery.getLatLng() != null) {
-            filterArray.add(filterDistance(searchQuery.getLatLng(), 1000));
-        }
+        // Filter 'Container' else 'Location' else 'LatLng' else none
+        filterLocation(searchQuery).ifPresent(filterArray::add);
 
         // Check if filter is not null before continuing
         SearchQuery.Filter filter = searchQuery.getFilter();
@@ -132,13 +128,71 @@ public final class BoolQuery {
         return filterArray;
     }
 
+    private Optional<JsonNode> filterLocation(SearchQuery searchQuery) {
+        SearchQuery.Filter filter = searchQuery.getFilter();
+
+        JsonNode locationFilter = filterContainer(filter);
+        if (locationFilter != null) return Optional.of(locationFilter);
+
+        locationFilter = filterPolygon(filter);
+        if (locationFilter != null) return Optional.of(locationFilter);
+
+        if (searchQuery.getLatLng() != null) {
+            JsonNode filtered = filterDistance(searchQuery.getLatLng(), 950);
+            return Optional.of(filtered);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html
+     *
+     * @param filter object containing containers object for filtering
+     * @return { "terms" : { "containers.id" : ["id1", "id2"] } }
+     */
+    @Nullable
+    private static JsonNode filterContainer(SearchQuery.Filter filter) {
+        if (filter == null) return null;
+
+        List<Container> containers = filter.getContainers();
+        if (containers == null) return null;
+        if (containers.isEmpty()) return null;
+
+        ObjectNode filterObject = mapper.createObjectNode();
+        ArrayNode values = filterObject.putObject("terms").putArray("containers.id");
+        for (Container container : containers) {
+            // Malformed == return also
+            if (StringUtils.isEmpty(container.getId())) {
+                logger.warn("SearchQuery.Filter.Containers.id is blank. SearchQuery.Filter: {}", filter);
+                return null;
+            }
+            values.add(container.getId());
+        }
+        return filterObject;
+    }
+
+    private JsonNode filterPolygon(SearchQuery.Filter filter) {
+        if (filter == null) return null;
+
+        Location location = filter.getLocation();
+        if (location == null) return null;
+        if (location.getPoints() == null) return null;
+        if (location.getPoints().size() < 3) {
+            logger.warn("SearchQuery.Filter.Location.points < 3. SearchQuery.Filter: {}", filter);
+            return null;
+        }
+
+        return filterPolygon(location.getPoints());
+    }
+
     /**
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-polygon-query.html
      *
      * @param pointList list of points to form a polygon
      * @return JsonNode = { "geo_polygon": { "location.latLng": { "points": ["-1,2", "-5,33" ...]}}}
      */
-    private JsonNode filterPolygon(List<String> pointList) {
+    private static JsonNode filterPolygon(List<String> pointList) {
         ObjectNode filter = mapper.createObjectNode();
         ArrayNode points = filter.putObject("geo_polygon")
                 .putObject("location.latLng")
@@ -155,7 +209,7 @@ public final class BoolQuery {
      * @param metres metres in distance
      * @return JsonNode = { "geo_distance": { "distance": "1km", "location.latLng": "-1,2"}}
      */
-    private JsonNode filterDistance(String latLng, double metres) {
+    private static JsonNode filterDistance(String latLng, double metres) {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("geo_distance")
                 .put("distance", metres + "m")
@@ -168,7 +222,7 @@ public final class BoolQuery {
      * @param text text of term
      * @return JsonNode =  { "term" : { "name" : "text" } }
      */
-    private JsonNode filterTerm(String name, String text) {
+    private static JsonNode filterTerm(String name, String text) {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("term").put(name, text);
         return filter;
