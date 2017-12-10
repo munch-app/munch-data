@@ -15,6 +15,7 @@ import java.util.Date;
 public final class MunchContainerKey extends AbstractKey {
     public static final MunchContainerKey updatedDate = new MunchContainerKey("updatedDate", false);
     public static final MunchContainerKey sourceCorpusName = new MunchContainerKey("sourceCorpusName", false);
+    public static final MunchContainerKey sourceCorpusKey = new MunchContainerKey("sourceCorpusKey", false);
 
     private MunchContainerKey(String key, boolean multi) {
         super("Sg.Munch.Container." + key, multi);

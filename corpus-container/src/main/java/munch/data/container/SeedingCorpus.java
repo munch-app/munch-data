@@ -50,6 +50,7 @@ public final class SeedingCorpus extends CatalystEngine<CorpusData> {
         data.setCatalystId(seedData.getCatalystId());
         data.put(MunchContainerKey.updatedDate, "0");
         data.put(MunchContainerKey.sourceCorpusName, seedData.getCorpusName());
+        data.put(MunchContainerKey.sourceCorpusKey, seedData.getCorpusKey());
 
         corpusClient.put("Sg.Munch.Container", seedData.getCorpusKey(), data);
         counter.increment("Seeded");
