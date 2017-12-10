@@ -24,6 +24,7 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
 
     @Override
     public List<Place.Hour> parse(Place place, List<CorpusData> list) {
+        // Collect them into corpus: hours
         Map<String, Set<Place.Hour>> map = collect(list);
         if (map.isEmpty()) return Collections.emptyList();
 
@@ -61,7 +62,12 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
         if (list.isEmpty()) return Collections.emptyList();
 
         list.sort(Comparator.comparingInt(Set::hashCode));
-        return new ArrayList<>(list.get(0));
+
+        return list.get(0).stream()
+                .sorted(Comparator.comparing(Place.Hour::getDay)
+                        .thenComparing(Place.Hour::getOpen)
+                        .thenComparing(Place.Hour::getClose))
+                .collect(Collectors.toList());
     }
 
     private Map<String, Set<Place.Hour>> collect(List<CorpusData> list) {
@@ -70,9 +76,12 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
         for (CorpusData data : list) {
             Set<Place.Hour> hours = collect(data, PlaceKey.Hour.week)
                     .stream().flatMap(this::parseFields)
+                    .filter(hour -> hour.getClose().equals(hour.getOpen()))
                     .collect(Collectors.toSet());
+
             if (!hours.isEmpty()) {
-                map.put(data.getCorpusKey(), hours);
+                // Unique corpus id: hours
+                map.put(data.getId(), hours);
             }
         }
         return map;

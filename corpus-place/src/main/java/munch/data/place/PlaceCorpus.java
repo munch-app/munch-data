@@ -119,7 +119,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         if (place.getTag().getImplicits().size() > 2) counter.increment("Counts.Tag.Implicits>1");
 
         if (place.getPrice() != null) counter.increment("Counts.Price");
-        if (place.getReview().getTotal() > 0) counter.increment("Counts.Review.Total");
+        if (place.getReview() != null) counter.increment("Counts.Review.Total");
 
         if (!place.getHours().isEmpty()) counter.increment("Counts.Hours");
         if (place.getImages().size() > 0) counter.increment("Counts.Images>0");
