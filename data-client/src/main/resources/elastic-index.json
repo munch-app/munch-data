@@ -93,6 +93,12 @@
           "properties": {
             "id": {
               "type": "keyword"
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "text"
             }
           }
         },

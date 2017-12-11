@@ -9,6 +9,7 @@ import io.searchbox.client.JestClient;
 import io.searchbox.client.JestResult;
 import io.searchbox.indices.CreateIndex;
 import io.searchbox.indices.mapping.GetMapping;
+import io.searchbox.indices.mapping.PutMapping;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -56,26 +57,17 @@ public final class ElasticMapping {
             createIndex();
             sleep(5000);
             index = getIndex();
+        } else {
+            JsonNode data = getExpectedMapping().path("mappings").path("Data");
+            JestResult execute = client.execute(new PutMapping.Builder("munch", "Data", mapper.writeValueAsString(data)).build());
+            logger.info(execute.getJsonString());
+
+            if (execute.getResponseCode() != 200) {
+                throw new RuntimeException("elastic-index.json is different from server");
+            }
         }
 
         logger.info("Index: {}", index);
-        if (!validate(index)) {
-            logger.error("Index: {}", index);
-            throw new RuntimeException("Index validation failed.");
-        }
-    }
-
-    /**
-     * Major migrate of elastic search mapping should be done by migrate
-     * to a whole new elastic search version with different endpoint
-     *
-     * @return true = passed
-     */
-    private boolean validate(JsonNode node) {
-        JsonNode mappings = node.path("munch").path("mappings");
-
-        // Validate has these types
-        return mappings.path("Data").has("properties");
     }
 
     /**

@@ -26,6 +26,7 @@ public final class ContainerParser extends AbstractParser<List<Place.Container>>
         return containerPlaces.stream().map(data -> {
             Place.Container container = new Place.Container();
             container.setId(ContainerKey.id.getValue(data));
+            container.setType(ContainerKey.type.getValue(data));
             container.setName(ContainerKey.name.getValue(data));
             return container;
         })

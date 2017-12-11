@@ -249,6 +249,7 @@ public class Place implements SearchResult {
      */
     public static final class Container {
         private String id;
+        private String type;
         private String name;
 
         public String getId() {
@@ -257,6 +258,14 @@ public class Place implements SearchResult {
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
         }
 
         public String getName() {
@@ -273,18 +282,21 @@ public class Place implements SearchResult {
             if (o == null || getClass() != o.getClass()) return false;
             Container container = (Container) o;
             return Objects.equals(id, container.id) &&
+                    Objects.equals(type, container.type) &&
                     Objects.equals(name, container.name);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, name);
+
+            return Objects.hash(id, type, name);
         }
 
         @Override
         public String toString() {
             return "Container{" +
                     "id='" + id + '\'' +
+                    ", type='" + type + '\'' +
                     ", name='" + name + '\'' +
                     '}';
         }
