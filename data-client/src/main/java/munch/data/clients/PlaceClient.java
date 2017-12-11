@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
-import munch.data.elastic.query.BoolQuery;
+import munch.data.elastic.query.PlaceBoolQuery;
 import munch.data.elastic.query.HourFilter;
 import munch.data.elastic.query.SortQuery;
 import munch.data.structure.Place;
@@ -107,12 +107,12 @@ public class PlaceClient extends AbstractClient {
     @Singleton
     private static final class SearchClient {
         private final ElasticClient client;
-        private final BoolQuery boolQuery;
+        private final PlaceBoolQuery boolQuery;
         private final SortQuery sortQuery;
         private final ElasticMarshaller marshaller;
 
         @Inject
-        private SearchClient(ElasticClient client, BoolQuery boolQuery, SortQuery sortQuery, ElasticMarshaller marshaller) {
+        private SearchClient(ElasticClient client, PlaceBoolQuery boolQuery, SortQuery sortQuery, ElasticMarshaller marshaller) {
             this.client = client;
             this.boolQuery = boolQuery;
             this.sortQuery = sortQuery;
@@ -124,7 +124,7 @@ public class PlaceClient extends AbstractClient {
 
             JsonNode boolNode = this.boolQuery.make(query);
             JsonNode sortNode = this.sortQuery.make(query);
-            JsonNode result = client.postBoolSearch("Place", query.getFrom(), query.getSize(), boolNode, sortNode);
+            JsonNode result = client.postBoolSearch(query.getFrom(), query.getSize(), boolNode, sortNode);
             JsonNode hits = result.path("hits");
 
             List<Place> places = marshaller.deserializeList(hits.path("hits"));
@@ -141,7 +141,7 @@ public class PlaceClient extends AbstractClient {
             validate(query);
 
             JsonNode boolNode = this.boolQuery.make(query);
-            return client.postBoolCount("Place", boolNode);
+            return client.postBoolCount(boolNode);
         }
 
         /**

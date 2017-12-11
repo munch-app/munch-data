@@ -24,7 +24,7 @@ import java.util.List;
 public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(ContainerCorpus.class);
 
-    private static final long dataVersion = 20;
+    private static final long dataVersion = 21;
 
     private final ContainerClient containerClient;
 

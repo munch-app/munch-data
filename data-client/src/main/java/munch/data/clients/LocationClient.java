@@ -1,6 +1,7 @@
 package munch.data.clients;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
@@ -49,8 +50,9 @@ public class LocationClient extends AbstractClient {
     public List<Location> search(String text, int size) {
         ObjectNode bool = objectMapper.createObjectNode();
         bool.set("must", must(text));
+        bool.set("filter", filter());
 
-        JsonNode result = elasticClient.postBoolSearch("Location", 0, size, bool, null);
+        JsonNode result = elasticClient.postBoolSearch(0, size, bool, null);
         JsonNode hits = result.path("hits");
 
         return marshaller.deserializeList(hits.path("hits"));
@@ -88,5 +90,15 @@ public class LocationClient extends AbstractClient {
         ObjectNode match = root.putObject("match");
         match.put("name", query);
         return root;
+    }
+
+    private static JsonNode filter() {
+        ArrayNode filterArray = objectMapper.createArrayNode();
+
+        filterArray.addObject()
+                .putObject("term")
+                .put("dataType", "Container");
+
+        return filterArray;
     }
 }

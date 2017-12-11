@@ -1,6 +1,6 @@
 {
   "mappings": {
-    "_default_": {
+    "Data": {
       "properties": {
         "suggest": {
           "type": "completion",
@@ -85,17 +85,7 @@
               "precision": "5m"
             }
           }
-        }
-      }
-    },
-    "Tag": {
-    },
-    "Location": {
-    },
-    "Container": {
-    },
-    "Place": {
-      "properties": {
+        },
         "hours": {
           "enabled": false
         },

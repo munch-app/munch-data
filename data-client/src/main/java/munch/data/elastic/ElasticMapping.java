@@ -31,8 +31,6 @@ public final class ElasticMapping {
     private static final Logger logger = LoggerFactory.getLogger(ElasticMapping.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
-    public static final String INDEX = "munch";
-
     private final JestClient client;
 
     @Inject
@@ -77,8 +75,7 @@ public final class ElasticMapping {
         JsonNode mappings = node.path("munch").path("mappings");
 
         // Validate has these types
-        if (!mappings.path("Place").has("properties")) return false;
-        return true;
+        return mappings.path("Data").has("properties");
     }
 
     /**

@@ -54,20 +54,8 @@ public final class ElasticIndex {
      * @throws ElasticException wrapped exception
      */
     public void put(Place place) throws ElasticException {
-        try {
-            ObjectNode node = marshaller.serialize(place);
-            String json = mapper.writeValueAsString(node);
-
-            DocumentResult result = client.execute(new Index.Builder(json)
-                    .index("munch")
-                    .type("Place")
-                    .id(place.getId())
-                    .build());
-
-            parseResult(result);
-        } catch (IOException e) {
-            throw ElasticException.parse(e);
-        }
+        ObjectNode node = marshaller.serialize(place);
+        put("Place", place.getId(), node);
     }
 
     /**
@@ -78,20 +66,8 @@ public final class ElasticIndex {
      * @throws ElasticException wrapped exception
      */
     public void put(Location location) throws ElasticException {
-        try {
-            ObjectNode node = marshaller.serialize(location);
-            String json = mapper.writeValueAsString(node);
-
-            DocumentResult result = client.execute(new Index.Builder(json)
-                    .index("munch")
-                    .type("Location")
-                    .id(location.getId())
-                    .build());
-
-            parseResult(result);
-        } catch (IOException e) {
-            throw ElasticException.parse(e);
-        }
+        ObjectNode node = marshaller.serialize(location);
+        put("Location", location.getId(), node);
     }
 
     /**
@@ -101,20 +77,8 @@ public final class ElasticIndex {
      * @throws ElasticException wrapped exception
      */
     public void put(Tag tag) throws ElasticException {
-        try {
-            ObjectNode node = marshaller.serialize(tag);
-            String json = mapper.writeValueAsString(node);
-
-            DocumentResult result = client.execute(new Index.Builder(json)
-                    .index("munch")
-                    .type("Tag")
-                    .id(tag.getId())
-                    .build());
-
-            parseResult(result);
-        } catch (IOException e) {
-            throw ElasticException.parse(e);
-        }
+        ObjectNode node = marshaller.serialize(tag);
+        put("Tag", tag.getId(), node);
     }
 
     /**
@@ -124,34 +88,31 @@ public final class ElasticIndex {
      * @throws ElasticException wrapped exception
      */
     public void put(Container container) throws ElasticException {
-        try {
-            ObjectNode node = marshaller.serialize(container);
-            String json = mapper.writeValueAsString(node);
+        ObjectNode node = marshaller.serialize(container);
+        put("Container", container.getId(), node);
+    }
 
+    private void put(String type, String key, ObjectNode node) {
+        try {
+            String json = mapper.writeValueAsString(node);
             DocumentResult result = client.execute(new Index.Builder(json)
                     .index("munch")
-                    .type("Container")
-                    .id(container.getId())
+                    .type("Data")
+                    .id(createKey(type, key))
                     .build());
 
-            parseResult(result);
+            if (result.getErrorMessage() != null) {
+                logger.warn("{}", result.getJsonString());
+                throw new ElasticException("Failed to put object.");
+            }
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
     }
 
-    private static void parseResult(DocumentResult result) {
-        if (result.getType() == null) {
-            logger.warn("{}", result.getJsonString());
-        } else {
-            throw new ElasticException("Failed to put object.");
-        }
-    }
-
     public <T> T get(String type, String key) {
         try {
-            DocumentResult result = client.execute(new Get.Builder("munch", key)
-                    .type(type).build());
+            DocumentResult result = client.execute(new Get.Builder("munch", createKey(type, key)).type("Data").build());
             return marshaller.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
             throw ElasticException.parse(e);
@@ -165,12 +126,16 @@ public final class ElasticIndex {
      */
     public void delete(String type, String key) {
         try {
-            client.execute(new Delete.Builder(key)
+            client.execute(new Delete.Builder(createKey(type, key))
                     .index("munch")
-                    .type(type)
+                    .type("Data")
                     .build());
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
+    }
+
+    private String createKey(String type, String key) {
+        return type + "|" + key;
     }
 }

@@ -24,11 +24,13 @@ import java.util.Optional;
  * Project: munch-core
  */
 @Singleton
-public final class BoolQuery {
-    private static final Logger logger = LoggerFactory.getLogger(BoolQuery.class);
+public final class PlaceBoolQuery {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceBoolQuery.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
     /**
+     * NOTE: This BoolQuery is only for Place data type
+     *
      * @param query SearchQuery for place
      * @return created bool node
      */
@@ -91,6 +93,7 @@ public final class BoolQuery {
      */
     private JsonNode filter(SearchQuery searchQuery) {
         ArrayNode filterArray = mapper.createArrayNode();
+        filterArray.add(filterTerm("dataType", "Place"));
 
         // Filter 'Container' else 'Location' else 'LatLng' else none
         filterLocation(searchQuery).ifPresent(filterArray::add);

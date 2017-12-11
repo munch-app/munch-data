@@ -66,7 +66,7 @@ public final class ElasticClient {
                 .set("completion", completion);
 
         // Query, parse and return options array node
-        return postSearch(null, root)
+        return postSearch(root)
                 .path("suggest")
                 .path("suggestions")
                 .path(0)
@@ -81,30 +81,28 @@ public final class ElasticClient {
      * @return JsonNode
      * @throws IOException exception
      */
-    public JsonNode postBoolSearch(String type, int from, int size, JsonNode boolQuery) {
-        return postBoolSearch(type, from, size, boolQuery, null);
+    public JsonNode postBoolSearch(int from, int size, JsonNode boolQuery) {
+        return postBoolSearch(from, size, boolQuery, null);
     }
 
     /**
-     * @param type      type to focus
      * @param from      page from
      * @param size      page size
      * @param boolQuery bool query node
      * @param sort      sort nodes
      * @return JsonNode
-     * @throws IOException exception
      */
-    public JsonNode postBoolSearch(String type, int from, int size, JsonNode boolQuery, @Nullable JsonNode sort) {
+    public JsonNode postBoolSearch(int from, int size, JsonNode boolQuery, @Nullable JsonNode sort) {
         ObjectNode root = mapper.createObjectNode();
         root.put("from", from);
         root.put("size", size);
         root.putObject("query").set("bool", boolQuery);
         if (sort != null) root.set("sort", sort);
 
-        return postSearch(type, root);
+        return postSearch(root);
     }
 
-    public long postBoolCount(String type, JsonNode boolQuery) {
+    public long postBoolCount(JsonNode boolQuery) {
         ObjectNode root = mapper.createObjectNode();
         root.putObject("query").set("bool", boolQuery);
 
@@ -112,7 +110,6 @@ public final class ElasticClient {
             Count.Builder builder = new Count.Builder()
                     .query(mapper.writeValueAsString(root))
                     .addIndex("munch");
-            if (type != null) builder.addType(type);
 
             Double count = client.execute(builder.build()).getCount();
             if (count == null) return 0;
@@ -127,11 +124,10 @@ public final class ElasticClient {
      * @param node search node
      * @return root node
      */
-    public JsonNode postSearch(String type, JsonNode node) {
+    public JsonNode postSearch(JsonNode node) {
         try {
             Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node))
                     .addIndex("munch");
-            if (type != null) builder.addType(type);
 
             return mapper.readTree(client.execute(builder.build())
                     .getJsonString());

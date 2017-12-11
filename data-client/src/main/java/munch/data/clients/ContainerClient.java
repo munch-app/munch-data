@@ -44,7 +44,7 @@ public class ContainerClient extends AbstractClient {
         ObjectNode bool = objectMapper.createObjectNode();
         bool.set("filter", filter(latLng, radius));
 
-        JsonNode result = elasticClient.postBoolSearch("Container", 0, size, bool, SORT_NODE);
+        JsonNode result = elasticClient.postBoolSearch(0, size, bool, SORT_NODE);
         JsonNode hits = result.path("hits");
 
         return marshaller.deserializeList(hits.path("hits"));
@@ -73,6 +73,10 @@ public class ContainerClient extends AbstractClient {
         Objects.requireNonNull(latLng);
 
         ArrayNode filterArray = objectMapper.createArrayNode();
+        filterArray.addObject()
+                .putObject("term")
+                .put("dataType", "Container");
+
         filterArray.addObject()
                 .putObject("geo_distance")
                 .put("distance", radius + "m")
