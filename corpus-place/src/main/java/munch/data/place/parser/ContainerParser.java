@@ -3,8 +3,8 @@ package munch.data.place.parser;
 import corpus.data.CorpusData;
 import corpus.field.ContainerKey;
 import corpus.images.ImageCachedField;
-import munch.data.structure.Container;
 import munch.data.structure.Place;
+import munch.data.structure.SourcedImage;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Singleton;
@@ -43,19 +43,19 @@ public final class ContainerParser extends AbstractParser<List<Place.Container>>
     }
 
     @SuppressWarnings("Duplicates")
-    private List<Container.Image> collectImages(CorpusData sourceData) {
+    private List<SourcedImage> collectImages(CorpusData sourceData) {
         return ContainerKey.image.getAll(sourceData).stream()
                 .map(ImageCachedField::new)
                 .filter(field -> field.getImages() != null && field.getSource() != null)
                 .map(field -> {
-                    Container.Image image = new Container.Image();
+                    SourcedImage image = new SourcedImage();
                     image.setWeight(field.getWeight(1.0));
                     image.setSource(field.getSource());
                     image.setImages(field.getImages());
                     return image;
                 })
-                .sorted(Comparator.comparingDouble(Container.Image::getWeight).reversed()
-                        .thenComparing(Container.Image::getSource)
+                .sorted(Comparator.comparingDouble(SourcedImage::getWeight).reversed()
+                        .thenComparing(SourcedImage::getSource)
                         .thenComparing(Comparator.comparingInt(o -> o.getImages().hashCode())))
                 .limit(1)
                 .collect(Collectors.toList());

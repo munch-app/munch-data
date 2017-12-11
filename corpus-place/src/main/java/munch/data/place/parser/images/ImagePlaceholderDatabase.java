@@ -6,6 +6,7 @@ import corpus.field.AbstractKey;
 import corpus.field.FieldUtils;
 import corpus.images.ImageCachedField;
 import munch.data.structure.Place;
+import munch.data.structure.SourcedImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public final class ImagePlaceholderDatabase {
      * @param tag tag
      * @return List<Place.Image>
      */
-    public List<Place.Image> findImages(Place.Tag tag) {
+    public List<SourcedImage> findImages(Place.Tag tag) {
         Set<String> explicits = tag.getExplicits().stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
@@ -80,10 +81,10 @@ public final class ImagePlaceholderDatabase {
     private ImageGroup parseImageGroup(CorpusData data) {
         int order = OrderKey.getValueInt(data, 0);
         String tag = FieldUtils.getValue(data, "Munch.ImagePlaceholder.tag");
-        Place.Image imageField = FieldUtils.get(data, "Munch.ImagePlaceholder.image", fields -> {
+        SourcedImage imageField = FieldUtils.get(data, "Munch.ImagePlaceholder.image", fields -> {
             if (fields.isEmpty()) return null;
             ImageCachedField field = new ImageCachedField(fields.get(0));
-            Place.Image image = new Place.Image();
+            SourcedImage image = new SourcedImage();
             image.setWeight(field.getWeight(1.0));
             image.setSource(field.getSource());
             image.setImages(field.getImages());
@@ -97,9 +98,9 @@ public final class ImagePlaceholderDatabase {
     class ImageGroup {
         private int order;
         private String tag;
-        private Place.Image image;
+        private SourcedImage image;
 
-        private ImageGroup(int order, String tag, Place.Image image) {
+        private ImageGroup(int order, String tag, SourcedImage image) {
             this.order = order;
             this.tag = tag.toLowerCase();
             this.image = image;

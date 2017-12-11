@@ -6,6 +6,7 @@ import corpus.field.PlaceKey;
 import corpus.images.ImageCachedField;
 import munch.data.place.parser.images.ImagePlaceholderDatabase;
 import munch.data.structure.Place;
+import munch.data.structure.SourcedImage;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class ImageParser extends AbstractParser<List<Place.Image>> {
+public final class ImageParser extends AbstractParser<List<SourcedImage>> {
     private static final int MAX_SIZE = 10;
     private static final Set<String> ARTICLE_SOURCE_IDS = ImmutableSet.of(
             "danielfooddiary.com", "sethlui.com", "ladyironchef.com",
@@ -40,14 +41,15 @@ public final class ImageParser extends AbstractParser<List<Place.Image>> {
      * @return List of Place.Image can be empty
      */
     @Override
-    public List<Place.Image> parse(Place place, List<CorpusData> list) {
-        List<Place.Image> images = collectImages(list);
+    public List<SourcedImage> parse(Place place, List<CorpusData> list) {
+        List<SourcedImage> images = collectImages(list);
         if (!images.isEmpty()) return images;
 
         return placeholderDatabase.findImages(place.getTag());
     }
 
-    private List<Place.Image> collectImages(List<CorpusData> list) {
+    @SuppressWarnings("Duplicates")
+    private List<SourcedImage> collectImages(List<CorpusData> list) {
         return collect(list, PlaceKey.image).stream()
                 .map(ImageCachedField::new)
                 .filter(field -> field.getImages() != null && field.getSource() != null)
@@ -60,14 +62,14 @@ public final class ImageParser extends AbstractParser<List<Place.Image>> {
                     return false;
                 })
                 .map(field -> {
-                    Place.Image image = new Place.Image();
+                    SourcedImage image = new SourcedImage();
                     image.setWeight(field.getWeight(1.0));
                     image.setSource(field.getSource());
                     image.setImages(field.getImages());
                     return image;
                 })
-                .sorted(Comparator.comparingDouble(Place.Image::getWeight).reversed()
-                        .thenComparing(Place.Image::getSource)
+                .sorted(Comparator.comparingDouble(SourcedImage::getWeight).reversed()
+                        .thenComparing(SourcedImage::getSource)
                         .thenComparing(Comparator.comparingInt(o -> o.getImages().hashCode())))
                 .limit(MAX_SIZE)
                 .collect(Collectors.toList());

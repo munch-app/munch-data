@@ -2,10 +2,8 @@ package munch.data.structure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.math.DoubleMath;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -25,7 +23,7 @@ public final class Container implements SearchResult {
     private String phone;
     private String website;
     private String description;
-    private List<Image> images;
+    private List<SourcedImage> images;
 
     private Location location;
     private double ranking;
@@ -86,11 +84,11 @@ public final class Container implements SearchResult {
         this.location = location;
     }
 
-    public List<Image> getImages() {
+    public List<SourcedImage> getImages() {
         return images;
     }
 
-    public void setImages(List<Image> images) {
+    public void setImages(List<SourcedImage> images) {
         this.images = images;
     }
 
@@ -233,68 +231,6 @@ public final class Container implements SearchResult {
                     '}';
         }
 
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Image {
-        private double weight;
-        private String source;
-        private Map<String, String> images;
-
-        public double getWeight() {
-            return weight;
-        }
-
-        public void setWeight(double weight) {
-            this.weight = weight;
-        }
-
-        public String getSource() {
-            return source;
-        }
-
-        public void setSource(String source) {
-            this.source = source;
-        }
-
-        /**
-         * different types of images
-         *
-         * @return type->url
-         */
-        public Map<String, String> getImages() {
-            return images;
-        }
-
-        public void setImages(Map<String, String> images) {
-            this.images = images;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Container.Image image = (Container.Image) o;
-
-            if (!DoubleMath.fuzzyEquals(image.weight, weight, 0.05)) return false;
-            if (!source.equals(image.source)) return false;
-            return images.equals(image.images);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(weight, source, images);
-        }
-
-        @Override
-        public String toString() {
-            return "Image{" +
-                    "weight=" + weight +
-                    ", source='" + source + '\'' +
-                    ", images=" + images +
-                    '}';
-        }
     }
 
     @Override

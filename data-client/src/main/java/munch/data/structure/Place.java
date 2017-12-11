@@ -6,7 +6,6 @@ import com.google.common.math.DoubleMath;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -34,7 +33,7 @@ public class Place implements SearchResult {
 
     // Many
     private List<Hour> hours;
-    private List<Image> images;
+    private List<SourcedImage> images;
     private List<Container> containers;
 
     // Others
@@ -152,11 +151,11 @@ public class Place implements SearchResult {
     /**
      * @return some images of place from other source
      */
-    public List<Image> getImages() {
+    public List<SourcedImage> getImages() {
         return images;
     }
 
-    public void setImages(List<Image> images) {
+    public void setImages(List<SourcedImage> images) {
         this.images = images;
     }
 
@@ -253,7 +252,7 @@ public class Place implements SearchResult {
         private String type;
         private String name;
 
-        private List<munch.data.structure.Container.Image> images;
+        private List<SourcedImage> images;
         private double ranking;
 
         public String getId() {
@@ -280,11 +279,11 @@ public class Place implements SearchResult {
             this.name = name;
         }
 
-        public List<munch.data.structure.Container.Image> getImages() {
+        public List<SourcedImage> getImages() {
             return images;
         }
 
-        public void setImages(List<munch.data.structure.Container.Image> images) {
+        public void setImages(List<SourcedImage> images) {
             this.images = images;
         }
 
@@ -727,69 +726,4 @@ public class Place implements SearchResult {
         }
     }
 
-    /**
-     * Technically this is a smaller subclass of ImageMeta in munch-images
-     * with lesser fields
-     */
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Image {
-        private double weight;
-        private String source;
-        private Map<String, String> images;
-
-        public double getWeight() {
-            return weight;
-        }
-
-        public void setWeight(double weight) {
-            this.weight = weight;
-        }
-
-        public String getSource() {
-            return source;
-        }
-
-        public void setSource(String source) {
-            this.source = source;
-        }
-
-        /**
-         * different types of images
-         *
-         * @return type->url
-         */
-        public Map<String, String> getImages() {
-            return images;
-        }
-
-        public void setImages(Map<String, String> images) {
-            this.images = images;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Image image = (Image) o;
-
-            if (!DoubleMath.fuzzyEquals(image.weight, weight, 0.05)) return false;
-            if (!source.equals(image.source)) return false;
-            return images.equals(image.images);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(weight, source, images);
-        }
-
-        @Override
-        public String toString() {
-            return "Image{" +
-                    "weight=" + weight +
-                    ", source='" + source + '\'' +
-                    ", images=" + images +
-                    '}';
-        }
-    }
 }

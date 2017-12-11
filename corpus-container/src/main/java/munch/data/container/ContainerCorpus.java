@@ -6,6 +6,7 @@ import corpus.field.ContainerKey;
 import corpus.images.ImageCachedField;
 import munch.data.clients.ContainerClient;
 import munch.data.structure.Container;
+import munch.data.structure.SourcedImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,19 +126,19 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     }
 
     @SuppressWarnings("Duplicates")
-    public static List<Container.Image> collectImages(CorpusData sourceData) {
+    public static List<SourcedImage> collectImages(CorpusData sourceData) {
         return ContainerKey.image.getAll(sourceData).stream()
                 .map(ImageCachedField::new)
                 .filter(field -> field.getImages() != null && field.getSource() != null)
                 .map(field -> {
-                    Container.Image image = new Container.Image();
+                    SourcedImage image = new SourcedImage();
                     image.setWeight(field.getWeight(1.0));
                     image.setSource(field.getSource());
                     image.setImages(field.getImages());
                     return image;
                 })
-                .sorted(Comparator.comparingDouble(Container.Image::getWeight).reversed()
-                        .thenComparing(Container.Image::getSource)
+                .sorted(Comparator.comparingDouble(SourcedImage::getWeight).reversed()
+                        .thenComparing(SourcedImage::getSource)
                         .thenComparing(Comparator.comparingInt(o -> o.getImages().hashCode())))
                 .limit(5)
                 .collect(Collectors.toList());

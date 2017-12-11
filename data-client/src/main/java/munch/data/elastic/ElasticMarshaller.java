@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
-import munch.data.structure.Container;
-import munch.data.structure.Location;
-import munch.data.structure.Place;
-import munch.data.structure.Tag;
+import munch.data.structure.*;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.JsonException;
 
@@ -236,7 +233,7 @@ public final class ElasticMarshaller {
         container.setPhone(node.path("phone").asText());
         container.setWebsite(node.path("website").asText());
         container.setDescription(node.path("description").asText());
-        container.setImages(JsonUtils.toList(node.path("images"), Container.Image.class));
+        container.setImages(JsonUtils.toList(node.path("images"), SourcedImage.class));
 
         container.setRanking(node.path("ranking").asDouble());
 
