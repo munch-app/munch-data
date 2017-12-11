@@ -235,6 +235,7 @@ public final class Container implements SearchResult {
 
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Image {
         private double weight;
         private String source;

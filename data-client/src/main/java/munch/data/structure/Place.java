@@ -247,6 +247,7 @@ public class Place implements SearchResult {
     /**
      * Container list generated must be sorted properly or else .equals will fail
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Container {
         private String id;
         private String type;
@@ -730,6 +731,7 @@ public class Place implements SearchResult {
      * Technically this is a smaller subclass of ImageMeta in munch-images
      * with lesser fields
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Image {
         private double weight;
         private String source;
