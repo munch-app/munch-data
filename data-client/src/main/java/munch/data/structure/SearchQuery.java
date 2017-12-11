@@ -24,6 +24,7 @@ public final class SearchQuery {
 
     private String query;
     private String latLng;
+    private Double radius;
 
     private Filter filter;
     private Sort sort;
@@ -75,6 +76,17 @@ public final class SearchQuery {
 
     public void setLatLng(String latLng) {
         this.latLng = latLng;
+    }
+
+    /**
+     * @return radius if latLng query is used
+     */
+    public Double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(Double radius) {
+        this.radius = radius;
     }
 
     /**

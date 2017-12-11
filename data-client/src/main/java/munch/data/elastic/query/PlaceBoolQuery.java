@@ -131,6 +131,10 @@ public final class PlaceBoolQuery {
         return filterArray;
     }
 
+    /**
+     * @param searchQuery searchQuery
+     * @return Filter Location Json
+     */
     private Optional<JsonNode> filterLocation(SearchQuery searchQuery) {
         SearchQuery.Filter filter = searchQuery.getFilter();
 
@@ -141,7 +145,8 @@ public final class PlaceBoolQuery {
         if (locationFilter != null) return Optional.of(locationFilter);
 
         if (searchQuery.getLatLng() != null) {
-            JsonNode filtered = filterDistance(searchQuery.getLatLng(), 950);
+            double radius = searchQuery.getRadius() != null ? searchQuery.getRadius() : 1000;
+            JsonNode filtered = filterDistance(searchQuery.getLatLng(), radius);
             return Optional.of(filtered);
         }
 
