@@ -30,7 +30,7 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(LocationCorpus.class);
     private static final WKTReader reader = new WKTReader();
 
-    private static final long dataVersion = 1;
+    private static final long dataVersion = 20;
 
     private final LocationClient locationClient;
 

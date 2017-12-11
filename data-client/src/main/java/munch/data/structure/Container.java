@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Container {
+public final class Container implements SearchResult {
     private String id;
 
     private String name;
@@ -127,13 +127,14 @@ public final class Container {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Location {
+
         private String address;
         private String street;
-
         private String city;
-        private String country;
 
+        private String country;
         private String postal;
+
         private String latLng;
 
         public String getStreet() {
@@ -217,5 +218,11 @@ public final class Container {
                     ", latLng='" + latLng + '\'' +
                     '}';
         }
+
+    }
+
+    @Override
+    public String getDataType() {
+        return "Container";
     }
 }
