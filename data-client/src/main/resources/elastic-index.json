@@ -2,9 +2,6 @@
   "mappings": {
     "_default_": {
       "properties": {
-        "dataType": {
-          "type": "keyword"
-        },
         "suggest": {
           "type": "completion",
           "contexts": [
@@ -21,6 +18,9 @@
             }
           ]
         },
+        "dataType": {
+          "type": "keyword"
+        },
         "id": {
           "type": "keyword"
         },
@@ -29,6 +29,12 @@
         },
         "name": {
           "type": "text"
+        },
+        "ranking": {
+          "type": "double"
+        },
+        "images": {
+          "enabled": false
         },
         "phone": {
           "enabled": false
@@ -40,44 +46,42 @@
           "enabled": false
         },
         "createdDate": {
-          "enabled": false
+          "type": "long"
         },
         "updatedDate": {
-          "enabled": false
+          "type": "long"
         },
-        "location.street": {
-          "enabled": false
-        },
-        "location.unitNumber": {
-          "enabled": false
-        },
-        "location.building": {
-          "enabled": false
-        },
-        "location.nearestTrain": {
-          "enabled": false
-        },
-        "location.city": {
-          "enabled": false
-        },
-        "location.country": {
-          "enabled": false
-        },
-        "location.postal": {
-          "type": "keyword"
-        },
-        "location.latLng": {
-          "type": "geo_point"
-        },
-        "location.polygon": {
-          "type": "geo_shape",
-          "precision": "5m"
-        },
-        "ranking": {
-          "type": "double"
-        },
-        "images": {
-          "enabled": false
+        "location": {
+          "properties": {
+            "street": {
+              "enabled": false
+            },
+            "unitNumber": {
+              "enabled": false
+            },
+            "building": {
+              "enabled": false
+            },
+            "nearestTrain": {
+              "enabled": false
+            },
+            "city": {
+              "enabled": false
+            },
+            "country": {
+              "enabled": false
+            },
+            "postal": {
+              "type": "keyword"
+            },
+            "latLng": {
+              "type": "geo_point"
+            },
+            "polygon": {
+              "type": "geo_shape",
+              "precision": "5m"
+            }
+          }
         }
       }
     },
@@ -92,14 +96,22 @@
         "hours": {
           "enabled": false
         },
-        "containers.id": {
-          "type": "keyword"
+        "containers": {
+          "properties": {
+            "id": {
+              "type": "keyword"
+            }
+          }
         },
-        "tag.explicits": {
-          "type": "keyword"
-        },
-        "tag.implicits": {
-          "type": "keyword"
+        "tag": {
+          "properties": {
+            "explicits": {
+              "type": "keyword"
+            },
+            "implicits": {
+              "type": "keyword"
+            }
+          }
         }
       }
     }

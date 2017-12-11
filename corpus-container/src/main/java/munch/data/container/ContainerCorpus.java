@@ -24,7 +24,7 @@ import java.util.List;
 public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(ContainerCorpus.class);
 
-    private static final long dataVersion = 1;
+    private static final long dataVersion = 4;
 
     private final ContainerClient containerClient;
 
@@ -37,11 +37,6 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     @Override
     protected Duration cycleDelay() {
         return Duration.ofMinutes(30);
-    }
-
-    @Override
-    protected long loadCycleNo() {
-        return System.currentTimeMillis();
     }
 
     @Override

@@ -9,6 +9,7 @@ import io.searchbox.client.JestClient;
 import io.searchbox.client.JestResult;
 import io.searchbox.indices.CreateIndex;
 import io.searchbox.indices.mapping.GetMapping;
+import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +29,15 @@ import java.nio.charset.Charset;
 @Singleton
 public final class ElasticMapping {
     private static final Logger logger = LoggerFactory.getLogger(ElasticMapping.class);
+    private static final ObjectMapper mapper = JsonUtils.objectMapper;
+
+    public static final String INDEX = "munch";
 
     private final JestClient client;
-    private final ObjectMapper mapper;
 
     @Inject
-    public ElasticMapping(JestClient client, ObjectMapper mapper) {
+    public ElasticMapping(JestClient client) {
         this.client = client;
-        this.mapper = mapper;
     }
 
     /**
@@ -76,8 +78,7 @@ public final class ElasticMapping {
 
         // Validate has these types
         if (!mappings.path("Place").has("properties")) return false;
-        if (!mappings.path("Tag").has("properties")) return false;
-        return mappings.path("Location").has("properties");
+        return true;
     }
 
     /**
