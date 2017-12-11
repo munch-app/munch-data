@@ -3,6 +3,7 @@ package munch.data.container;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.ContainerKey;
+import corpus.images.ImageCachedField;
 import munch.data.clients.ContainerClient;
 import munch.data.structure.Container;
 import org.slf4j.Logger;
@@ -11,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -24,7 +27,7 @@ import java.util.List;
 public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(ContainerCorpus.class);
 
-    private static final long dataVersion = 21;
+    private static final long dataVersion = 22;
 
     private final ContainerClient containerClient;
 
@@ -88,6 +91,7 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
         if (!ContainerKey.id.has(sourceData)) return null;
         if (!ContainerKey.name.has(sourceData)) return null;
         if (!ContainerKey.type.has(sourceData)) return null;
+        if (!ContainerKey.ranking.has(sourceData)) return null;
         if (!ContainerKey.Location.city.has(sourceData)) return null;
         if (!ContainerKey.Location.country.has(sourceData)) return null;
         if (!ContainerKey.Location.postal.has(sourceData)) return null;
@@ -113,8 +117,29 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
         location.setLatLng(ContainerKey.Location.latLng.getValue(sourceData));
         container.setLocation(location);
 
+        container.setImages(collectImages(sourceData));
+
         //noinspection ConstantConditions
         container.setRanking(ContainerKey.ranking.getValueDouble(sourceData, 0.0));
         return container;
+    }
+
+    @SuppressWarnings("Duplicates")
+    public static List<Container.Image> collectImages(CorpusData sourceData) {
+        return ContainerKey.image.getAll(sourceData).stream()
+                .map(ImageCachedField::new)
+                .filter(field -> field.getImages() != null && field.getSource() != null)
+                .map(field -> {
+                    Container.Image image = new Container.Image();
+                    image.setWeight(field.getWeight(1.0));
+                    image.setSource(field.getSource());
+                    image.setImages(field.getImages());
+                    return image;
+                })
+                .sorted(Comparator.comparingDouble(Container.Image::getWeight).reversed()
+                        .thenComparing(Container.Image::getSource)
+                        .thenComparing(Comparator.comparingInt(o -> o.getImages().hashCode())))
+                .limit(5)
+                .collect(Collectors.toList());
     }
 }

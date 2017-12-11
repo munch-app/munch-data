@@ -252,6 +252,9 @@ public class Place implements SearchResult {
         private String type;
         private String name;
 
+        private List<munch.data.structure.Container.Image> images;
+        private double ranking;
+
         public String getId() {
             return id;
         }
@@ -276,20 +279,37 @@ public class Place implements SearchResult {
             this.name = name;
         }
 
+        public List<munch.data.structure.Container.Image> getImages() {
+            return images;
+        }
+
+        public void setImages(List<munch.data.structure.Container.Image> images) {
+            this.images = images;
+        }
+
+        public double getRanking() {
+            return ranking;
+        }
+
+        public void setRanking(double ranking) {
+            this.ranking = ranking;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Container container = (Container) o;
-            return Objects.equals(id, container.id) &&
+            return Double.compare(container.ranking, ranking) == 0 &&
+                    Objects.equals(id, container.id) &&
                     Objects.equals(type, container.type) &&
-                    Objects.equals(name, container.name);
+                    Objects.equals(name, container.name) &&
+                    Objects.equals(images, container.images);
         }
 
         @Override
         public int hashCode() {
-
-            return Objects.hash(id, type, name);
+            return Objects.hash(id, type, name, images, ranking);
         }
 
         @Override
@@ -298,6 +318,8 @@ public class Place implements SearchResult {
                     "id='" + id + '\'' +
                     ", type='" + type + '\'' +
                     ", name='" + name + '\'' +
+                    ", images=" + images +
+                    ", ranking=" + ranking +
                     '}';
         }
     }

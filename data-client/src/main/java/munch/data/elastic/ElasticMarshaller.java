@@ -118,6 +118,7 @@ public final class ElasticMarshaller {
         node.put("phone", container.getPhone());
         node.put("website", container.getWebsite());
         node.put("description", container.getDescription());
+        node.set("images", JsonUtils.toTree(container.getImages()));
 
         node.put("ranking", container.getRanking());
 
@@ -235,6 +236,7 @@ public final class ElasticMarshaller {
         container.setPhone(node.path("phone").asText());
         container.setWebsite(node.path("website").asText());
         container.setDescription(node.path("description").asText());
+        container.setImages(JsonUtils.toList(node.path("images"), Container.Image.class));
 
         container.setRanking(node.path("ranking").asDouble());
 
