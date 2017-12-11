@@ -18,9 +18,10 @@ public final class PostalContainerMatcher {
     private Map<String, Set<Matched>> postalMap = new HashMap<>();
 
     public void put(CorpusData container) {
-        String postal = ContainerKey.Location.postal.getValueOrThrow(container);
-        postalMap.computeIfAbsent(postal, s -> new HashSet<>())
-                .add(new Matched(container));
+        ContainerKey.Location.postal.getAll(container).forEach(field -> {
+            postalMap.computeIfAbsent(field.getValue(), s -> new HashSet<>())
+                    .add(new Matched(container));
+        });
     }
 
     public List<CorpusData> find(String postal, String catalystId, long cycleNo) {
