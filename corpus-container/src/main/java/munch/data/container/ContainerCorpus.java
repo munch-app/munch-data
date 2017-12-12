@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(ContainerCorpus.class);
-    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
+    private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
 
     private static final long dataVersion = 22;
 
@@ -56,32 +56,33 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData munchData, long processed) {
         CorpusData sourceData = getSourceData(munchData);
 
-        retriable.loop(() -> process(sourceData, munchData));
-
-        // Sleep for 1 second every 5 processed
-        sleep(200);
-    }
-
-    protected void process(CorpusData sourceData, CorpusData munchData) {
         if (sourceData != null) {
             if (!MunchContainerKey.updatedDate.equal(munchData, sourceData.getUpdatedDate(), dataVersion)) {
                 munchData.replace(MunchContainerKey.updatedDate, sourceData.getUpdatedDate().getTime() + dataVersion);
                 Container container = createContainer(sourceData);
-                if (container != null) {
-                    containerClient.put(container);
-                    corpusClient.put("Sg.Munch.Container", munchData.getCorpusKey(), munchData);
-                    counter.increment("Updated");
-                } else {
-                    logger.warn("Sg.Munch.Container from {} validation failed", sourceData);
-                    counter.increment("Failure");
-                }
+                retriable.loop(() -> {
+                    if (container != null) {
+                        containerClient.put(container);
+                        corpusClient.put("Sg.Munch.Container", munchData.getCorpusKey(), munchData);
+                        logger.info("Updated: {}", container);
+                        counter.increment("Updated");
+                    } else {
+                        logger.warn("Sg.Munch.Container from {} validation failed", sourceData);
+                        counter.increment("Failure");
+                    }
+                });
             }
         } else {
-            // To delete
-            containerClient.delete(munchData.getCorpusKey());
-            corpusClient.delete("Sg.Munch.Container", munchData.getCorpusKey());
-            counter.increment("Deleted");
+            retriable.loop(() -> {
+                // To delete
+                containerClient.delete(munchData.getCorpusKey());
+                corpusClient.delete("Sg.Munch.Container", munchData.getCorpusKey());
+                counter.increment("Deleted");
+            });
         }
+
+        // Sleep for 1 second every 5 processed
+        sleep(200);
     }
 
     /**

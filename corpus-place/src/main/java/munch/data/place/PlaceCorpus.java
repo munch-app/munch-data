@@ -41,7 +41,7 @@ import java.util.Objects;
 @Singleton
 public final class PlaceCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceCorpus.class);
-    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
+    private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
 
     private final Amalgamate amalgamate;
     private final PlaceClient placeClient;
@@ -104,7 +104,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
-            sleep(100);
+            sleep(150);
             if (processed % 1000 == 0) logger.info("Processed {} places", processed);
         } catch (NotFoundException e) {
             logger.warn("Amalgamate Conflict Error catalystId: {}", placeData.getCatalystId(), e);

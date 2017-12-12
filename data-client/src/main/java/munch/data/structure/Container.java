@@ -118,7 +118,6 @@ public final class Container implements SearchResult {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, name, type, phone, website, description, images, location, ranking);
     }
 
@@ -139,7 +138,6 @@ public final class Container implements SearchResult {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Location {
-
         private String address;
         private String street;
         private String city;

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Singleton
 public class LocationCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(LocationCorpus.class);
-    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
+    private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
     private static final WKTReader reader = new WKTReader();
 
     private static final long dataVersion = 21;
@@ -63,28 +63,28 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData munchData, long processed) {
         CorpusData sourceData = getLocationPolygon(munchData);
 
-        retriable.loop(() -> process(sourceData, munchData));
-
-        // Sleep for 1 second every 5 processed
-        sleep(200);
-
-    }
-
-    protected void process(CorpusData sourceData, CorpusData munchData) {
         if (sourceData != null) {
             // To put if changed
             if (!LocationKey.updatedDate.equal(munchData, sourceData.getUpdatedDate(), dataVersion)) {
                 munchData.replace(LocationKey.updatedDate, sourceData.getUpdatedDate().getTime() + dataVersion);
-                locationClient.put(createLocation(sourceData));
-                corpusClient.put("Sg.Munch.Location", munchData.getCorpusKey(), munchData);
-                counter.increment("Updated");
+                retriable.loop(() -> {
+                    locationClient.put(createLocation(sourceData));
+                    corpusClient.put("Sg.Munch.Location", munchData.getCorpusKey(), munchData);
+                    counter.increment("Updated");
+                });
             }
         } else {
-            // To delete
-            locationClient.delete(munchData.getCorpusKey());
-            corpusClient.delete("Sg.Munch.Location", munchData.getCorpusKey());
-            counter.increment("Deleted");
+            retriable.loop(() -> {
+                // To delete
+                locationClient.delete(munchData.getCorpusKey());
+                corpusClient.delete("Sg.Munch.Location", munchData.getCorpusKey());
+                counter.increment("Deleted");
+            });
         }
+
+        // Sleep for 1 second every 5 processed
+        sleep(200);
+
     }
 
     /**

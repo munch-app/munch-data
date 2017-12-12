@@ -26,7 +26,7 @@ import java.util.List;
 @Singleton
 public class TagCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TagCorpus.class);
-    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
+    private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
     private static final long dataVersion = 21;
 
     private final TagClient tagClient;
@@ -67,15 +67,19 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
             if (!TagKey.updatedDate.equal(data, placeTag.getUpdatedDate(), dataVersion)) {
                 data.replace(TagKey.updatedDate, placeTag.getUpdatedDate().getTime() + dataVersion);
 
-                tagClient.put(createTag(placeTag));
-                corpusClient.put(corpusName, data.getCorpusKey(), data);
-                counter.increment("Updated");
+                retriable.loop(() -> {
+                    tagClient.put(createTag(placeTag));
+                    corpusClient.put(corpusName, data.getCorpusKey(), data);
+                    counter.increment("Updated");
+                });
             }
         } else {
-            // To delete
-            tagClient.delete(data.getCorpusKey());
-            corpusClient.delete(corpusName, data.getCorpusKey());
-            counter.increment("Deleted");
+            retriable.loop(() -> {
+                // To delete
+                tagClient.delete(data.getCorpusKey());
+                corpusClient.delete(corpusName, data.getCorpusKey());
+                counter.increment("Deleted");
+            });
         }
     }
 

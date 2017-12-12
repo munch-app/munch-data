@@ -8,6 +8,9 @@ package munch.data.exceptions;
  */
 public class ClusterBlockException extends ElasticException {
 
+    /**
+     * http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-handling-errors.html#aes-handling-errors-watermark
+     */
     public ClusterBlockException() {
         super("cluster_block_exception");
     }
