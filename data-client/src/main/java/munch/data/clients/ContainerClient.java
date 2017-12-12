@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
+import munch.data.exceptions.ElasticException;
 import munch.data.structure.Container;
 
 import javax.inject.Inject;
@@ -50,15 +51,15 @@ public class ContainerClient extends AbstractClient {
         return marshaller.deserializeList(hits.path("hits"));
     }
 
-    public Container get(String id) {
+    public Container get(String id) throws ElasticException {
         return elasticIndex.get("Container", id);
     }
 
-    public void put(Container container) {
+    public void put(Container container) throws ElasticException {
         elasticIndex.put(container);
     }
 
-    public void delete(String id) {
+    public void delete(String id) throws ElasticException {
         elasticIndex.delete("Container", id);
     }
 

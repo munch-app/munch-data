@@ -1,9 +1,12 @@
 package munch.data.tag;
 
+import catalyst.utils.exception.ExceptionRetriable;
+import catalyst.utils.exception.Retriable;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.FieldUtils;
 import munch.data.clients.TagClient;
+import munch.data.exceptions.ClusterBlockException;
 import munch.data.structure.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +26,7 @@ import java.util.List;
 @Singleton
 public class TagCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TagCorpus.class);
-
+    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
     private static final long dataVersion = 21;
 
     private final TagClient tagClient;
@@ -53,9 +56,17 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData data, long processed) {
         CorpusData placeTag = getPlaceTag(data);
 
+        retriable.loop(() -> process(placeTag, data));
+
+        // Sleep for 1 second every 5 processed
+        sleep(200);
+    }
+
+    protected void process(CorpusData placeTag, CorpusData data) {
         if (placeTag != null) {
             if (!TagKey.updatedDate.equal(data, placeTag.getUpdatedDate(), dataVersion)) {
                 data.replace(TagKey.updatedDate, placeTag.getUpdatedDate().getTime() + dataVersion);
+
                 tagClient.put(createTag(placeTag));
                 corpusClient.put(corpusName, data.getCorpusKey(), data);
                 counter.increment("Updated");
@@ -66,9 +77,6 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
             corpusClient.delete(corpusName, data.getCorpusKey());
             counter.increment("Deleted");
         }
-
-        // Sleep for 1 second every 5 processed
-        sleep(200);
     }
 
     /**

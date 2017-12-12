@@ -1,6 +1,7 @@
 package munch.data.clients;
 
 import munch.data.elastic.ElasticIndex;
+import munch.data.exceptions.ElasticException;
 import munch.data.structure.Tag;
 
 import javax.inject.Inject;
@@ -21,16 +22,16 @@ public class TagClient extends AbstractClient {
         this.elasticIndex = elasticIndex;
     }
 
-    public Tag get(String id)  {
+    public Tag get(String id) throws ElasticException {
         return elasticIndex.get("Tag", id);
     }
 
 
-    public void put(Tag tag) {
+    public void put(Tag tag) throws ElasticException {
         elasticIndex.put(tag);
     }
 
-    public void delete(String id){
+    public void delete(String id) throws ElasticException {
         elasticIndex.delete("Tag", id);
     }
 }

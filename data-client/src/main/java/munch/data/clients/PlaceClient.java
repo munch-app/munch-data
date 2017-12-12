@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
-import munch.data.elastic.query.PlaceBoolQuery;
 import munch.data.elastic.query.HourFilter;
+import munch.data.elastic.query.PlaceBoolQuery;
 import munch.data.elastic.query.SortQuery;
+import munch.data.exceptions.ElasticException;
 import munch.data.structure.Place;
 import munch.data.structure.SearchQuery;
 import munch.restful.core.exception.JsonException;
@@ -65,7 +66,7 @@ public class PlaceClient extends AbstractClient {
      * @throws JsonException parsing error
      */
     @Nullable
-    public Place get(String id) throws JsonException {
+    public Place get(String id) throws ElasticException {
         Objects.requireNonNull(id);
 
         Item item = placeTable.getItem("_id", id);
@@ -81,7 +82,7 @@ public class PlaceClient extends AbstractClient {
      * @param place put place to dynamo and elastic
      * @throws JsonException parsing error
      */
-    public void put(Place place) throws JsonException {
+    public void put(Place place) throws ElasticException{
         Objects.requireNonNull(place.getId());
         Objects.requireNonNull(place.getName());
 
@@ -97,7 +98,7 @@ public class PlaceClient extends AbstractClient {
      *
      * @param id id of place to delete
      */
-    public void delete(String id) {
+    public void delete(String id) throws ElasticException {
         Objects.requireNonNull(id);
 
         elasticIndex.delete("Place", id);

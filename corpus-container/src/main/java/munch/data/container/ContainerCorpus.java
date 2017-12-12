@@ -1,10 +1,13 @@
 package munch.data.container;
 
+import catalyst.utils.exception.ExceptionRetriable;
+import catalyst.utils.exception.Retriable;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.ContainerKey;
 import corpus.images.ImageCachedField;
 import munch.data.clients.ContainerClient;
+import munch.data.exceptions.ClusterBlockException;
 import munch.data.structure.Container;
 import munch.data.structure.SourcedImage;
 import org.slf4j.Logger;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(ContainerCorpus.class);
+    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
 
     private static final long dataVersion = 22;
 
@@ -52,6 +56,13 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData munchData, long processed) {
         CorpusData sourceData = getSourceData(munchData);
 
+        retriable.loop(() -> process(sourceData, munchData));
+
+        // Sleep for 1 second every 5 processed
+        sleep(200);
+    }
+
+    protected void process(CorpusData sourceData, CorpusData munchData) {
         if (sourceData != null) {
             if (!MunchContainerKey.updatedDate.equal(munchData, sourceData.getUpdatedDate(), dataVersion)) {
                 munchData.replace(MunchContainerKey.updatedDate, sourceData.getUpdatedDate().getTime() + dataVersion);
@@ -71,9 +82,6 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
             corpusClient.delete("Sg.Munch.Container", munchData.getCorpusKey());
             counter.increment("Deleted");
         }
-
-        // Sleep for 1 second every 5 processed
-        sleep(200);
     }
 
     /**

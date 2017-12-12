@@ -1,5 +1,6 @@
 package munch.data.elastic;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
@@ -9,6 +10,7 @@ import io.searchbox.core.Delete;
 import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
+import munch.data.exceptions.ClusterBlockException;
 import munch.data.exceptions.ElasticException;
 import munch.data.structure.Container;
 import munch.data.structure.Location;
@@ -92,7 +94,7 @@ public final class ElasticIndex {
         put("Container", container.getId(), node);
     }
 
-    private void put(String type, String key, ObjectNode node) {
+    private void put(String type, String key, ObjectNode node) throws ElasticException {
         try {
             String json = mapper.writeValueAsString(node);
             DocumentResult result = client.execute(new Index.Builder(json)
@@ -101,10 +103,7 @@ public final class ElasticIndex {
                     .id(createKey(type, key))
                     .build());
 
-            if (result.getErrorMessage() != null) {
-                logger.warn("{}", result.getJsonString());
-                throw new ElasticException("Failed to put object.");
-            }
+            validateResult(result);
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
@@ -113,6 +112,7 @@ public final class ElasticIndex {
     public <T> T get(String type, String key) {
         try {
             DocumentResult result = client.execute(new Get.Builder("munch", createKey(type, key)).type("Data").build());
+            validateResult(result);
             return marshaller.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
             throw ElasticException.parse(e);
@@ -126,12 +126,27 @@ public final class ElasticIndex {
      */
     public void delete(String type, String key) {
         try {
-            client.execute(new Delete.Builder(createKey(type, key))
+            DocumentResult result = client.execute(new Delete.Builder(createKey(type, key))
                     .index("munch")
                     .type("Data")
                     .build());
+
+            validateResult(result);
         } catch (IOException e) {
             throw ElasticException.parse(e);
+        }
+    }
+
+    private void validateResult(DocumentResult result) {
+        if (result.getErrorMessage() != null) {
+            JsonNode jsonNode = JsonUtils.readTree(result.getJsonString());
+            String errorType = jsonNode.path("error").path("type").asText();
+            if (errorType.equals("cluster_block_exception")) {
+                throw new ClusterBlockException();
+            }
+
+            logger.warn("{}", jsonNode);
+            throw new ElasticException("Failed to put object.");
         }
     }
 

@@ -1,5 +1,7 @@
 package munch.data.location;
 
+import catalyst.utils.exception.ExceptionRetriable;
+import catalyst.utils.exception.Retriable;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -7,6 +9,7 @@ import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.FieldUtils;
 import munch.data.clients.LocationClient;
+import munch.data.exceptions.ClusterBlockException;
 import munch.data.structure.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
 @Singleton
 public class LocationCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(LocationCorpus.class);
+    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
     private static final WKTReader reader = new WKTReader();
 
     private static final long dataVersion = 21;
@@ -59,6 +63,14 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData munchData, long processed) {
         CorpusData sourceData = getLocationPolygon(munchData);
 
+        retriable.loop(() -> process(sourceData, munchData));
+
+        // Sleep for 1 second every 5 processed
+        sleep(200);
+
+    }
+
+    protected void process(CorpusData sourceData, CorpusData munchData) {
         if (sourceData != null) {
             // To put if changed
             if (!LocationKey.updatedDate.equal(munchData, sourceData.getUpdatedDate(), dataVersion)) {
@@ -73,10 +85,6 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
             corpusClient.delete("Sg.Munch.Location", munchData.getCorpusKey());
             counter.increment("Deleted");
         }
-
-        // Sleep for 1 second every 5 processed
-        sleep(200);
-
     }
 
     /**

@@ -1,10 +1,13 @@
 package munch.data.place;
 
+import catalyst.utils.exception.ExceptionRetriable;
+import catalyst.utils.exception.Retriable;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
+import munch.data.exceptions.ClusterBlockException;
 import munch.data.place.amalgamate.Amalgamate;
 import munch.data.structure.Place;
 import munch.restful.core.JsonUtils;
@@ -38,6 +41,7 @@ import java.util.Objects;
 @Singleton
 public final class PlaceCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceCorpus.class);
+    private static final Retriable retriable = new ExceptionRetriable(10, Duration.ofMillis(15), ClusterBlockException.class);
 
     private final Amalgamate amalgamate;
     private final PlaceClient placeClient;
@@ -142,7 +146,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         // Put if data is changed only
         Place existing = placeClient.get(place.getId());
         if (!place.equals(existing)) {
-            placeClient.put(place);
+            retriable.loop(() -> placeClient.put(place));
 
             logger.info("Updated: updated: {} existing: {}",
                     JsonUtils.toJsonString(place),
@@ -158,8 +162,8 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         // Delete if exist only
         Place existing = placeClient.get(placeId);
         if (existing != null) {
+            retriable.loop(() -> placeClient.delete(placeId));
             counter.increment("Deleted");
-            placeClient.delete(placeId);
         }
     }
 
