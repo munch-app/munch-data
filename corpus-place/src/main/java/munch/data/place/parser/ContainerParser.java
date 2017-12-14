@@ -2,7 +2,7 @@ package munch.data.place.parser;
 
 import corpus.data.CorpusData;
 import corpus.field.ContainerKey;
-import corpus.images.ImageCachedField;
+import corpus.images.ImageField;
 import munch.data.structure.Place;
 import munch.data.structure.SourcedImage;
 import org.apache.commons.lang3.StringUtils;
@@ -45,11 +45,10 @@ public final class ContainerParser extends AbstractParser<List<Place.Container>>
     @SuppressWarnings("Duplicates")
     private List<SourcedImage> collectImages(CorpusData sourceData) {
         return ContainerKey.image.getAll(sourceData).stream()
-                .map(ImageCachedField::new)
+                .map(ImageField::new)
                 .filter(field -> field.getImages() != null && field.getSource() != null)
                 .map(field -> {
                     SourcedImage image = new SourcedImage();
-                    image.setWeight(field.getWeight(1.0));
                     image.setSource(field.getSource());
                     image.setImages(field.getImages());
                     return image;

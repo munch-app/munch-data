@@ -5,7 +5,7 @@ import catalyst.utils.exception.Retriable;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.ContainerKey;
-import corpus.images.ImageCachedField;
+import corpus.images.ImageField;
 import munch.data.clients.ContainerClient;
 import munch.data.exceptions.ClusterBlockException;
 import munch.data.structure.Container;
@@ -137,11 +137,10 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     @SuppressWarnings("Duplicates")
     public static List<SourcedImage> collectImages(CorpusData sourceData) {
         return ContainerKey.image.getAll(sourceData).stream()
-                .map(ImageCachedField::new)
+                .map(ImageField::new)
                 .filter(field -> field.getImages() != null && field.getSource() != null)
                 .map(field -> {
                     SourcedImage image = new SourcedImage();
-                    image.setWeight(field.getWeight(1.0));
                     image.setSource(field.getSource());
                     image.setImages(field.getImages());
                     return image;

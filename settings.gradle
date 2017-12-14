@@ -5,7 +5,7 @@ include 'data-client'
 
 include 'corpus-location'
 include 'corpus-place'
+include 'corpus-place-image'
 include 'corpus-tag'
 include 'corpus-container'
-include 'corpus-place-images'
 

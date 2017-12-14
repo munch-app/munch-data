@@ -2,6 +2,7 @@ dependencies {
     compile project(':data-client')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
     compile group: 'munch.brain', name: 'finn-client', version: '0.4.0'
+    compile group: 'facebook-corpus', name: 'instagram-client', version: '2.0.0-SNAPSHOT'
 }
 
 mainClassName = 'munch.data.place.PlaceImageModule'
