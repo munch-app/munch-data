@@ -114,7 +114,6 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
     private void count(List<CorpusData> list, Place place) {
         counter.increment("Counts.Places");
 
-
         if (StringUtils.isNotBlank(place.getPhone())) counter.increment("Counts.Phone");
         if (StringUtils.isNotBlank(place.getWebsite())) counter.increment("Counts.Website");
         if (StringUtils.isNotBlank(place.getDescription())) counter.increment("Counts.Description");

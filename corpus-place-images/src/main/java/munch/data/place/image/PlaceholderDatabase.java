@@ -1,4 +1,4 @@
-package munch.data.place.parser.images;
+package munch.data.place.image;
 
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
@@ -26,14 +26,14 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class ImagePlaceholderDatabase {
-    private static final Logger logger = LoggerFactory.getLogger(ImagePlaceholderDatabase.class);
+public final class PlaceholderDatabase {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceholderDatabase.class);
 
     private final CorpusClient corpusClient;
     private List<ImageGroup> imageGroups;
 
     @Inject
-    public ImagePlaceholderDatabase(CorpusClient corpusClient) {
+    public PlaceholderDatabase(CorpusClient corpusClient) {
         this.corpusClient = corpusClient;
         sync();
 

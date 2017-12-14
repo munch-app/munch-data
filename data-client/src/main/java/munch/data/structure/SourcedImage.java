@@ -16,10 +16,12 @@ public final class SourcedImage {
     private String source;
     private Map<String, String> images;
 
+    @Deprecated
     public double getWeight() {
         return weight;
     }
 
+    @Deprecated
     public void setWeight(double weight) {
         this.weight = weight;
     }
