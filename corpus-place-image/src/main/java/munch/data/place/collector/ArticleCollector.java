@@ -26,11 +26,19 @@ public final class ArticleCollector extends AbstractCollector {
     @Override
     public List<CollectedImage> collect(String placeId, List<CorpusData> list) {
         return list.stream()
-                .filter(data -> data.getCorpusName().equals("Global.MunchArticle.Article"))
-                .filter(data -> ARTICLE_SOURCE_IDS.contains(FieldUtils.getValue(data, "Article.templateId")))
+                .filter(this::isArticle)
                 .flatMap(data -> data.getFields().stream())
                 .filter(field -> field.getKey().equals("Article.image"))
                 .map(field -> mapField(field, CollectedImage.From.Article))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isArticle(CorpusData data) {
+        if (!data.getCorpusName().equals("Global.MunchArticle.Article")) return false;
+        if (!ARTICLE_SOURCE_IDS.contains(FieldUtils.getValue(data, "Article.templateId"))) return false;
+        return FieldUtils.get(data, "Article.groupings")
+                .map(CorpusData.Field::getValue)
+                .filter(s -> s.equals("1"))
+                .isPresent();
     }
 }

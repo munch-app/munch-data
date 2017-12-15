@@ -18,6 +18,8 @@ public final class CorpusCollector extends AbstractCollector {
     @Override
     public List<CollectedImage> collect(String placeId, List<CorpusData> list) {
         return list.stream()
+                // Not to collect from self
+                .filter(data -> !data.getCorpusName().equals("Sg.Munch.PlaceImage"))
                 .flatMap(data -> data.getFields().stream())
                 .filter(field -> field.getKey().equals("Place.image"))
                 .map(field -> mapField(field, CollectedImage.From.Place))
