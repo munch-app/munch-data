@@ -104,7 +104,7 @@ public final class ImageProcessor {
      * @return FinnLabel selected for prediction
      */
     private FinnLabel predict(CollectedImage collectedImage) {
-        if (collectedImage == null || collectedImage.getImages().isEmpty()) {
+        if (collectedImage.getImages() == null || collectedImage.getImages().isEmpty()) {
             logger.warn("Images not suppose to be empty, CollectedImage: {}", collectedImage);
             throw new IllegalStateException("images is empty");
         }

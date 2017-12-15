@@ -61,4 +61,15 @@ public class CollectedImage {
     public void setImages(Map<String, String> images) {
         this.images = images;
     }
+
+    @Override
+    public String toString() {
+        return "CollectedImage{" +
+                "from=" + from +
+                ", uniqueId='" + uniqueId + '\'' +
+                ", source='" + source + '\'' +
+                ", sourceId='" + sourceId + '\'' +
+                ", images=" + images +
+                '}';
+    }
 }
