@@ -136,9 +136,9 @@ public final class PlaceParser extends AbstractParser<Place> {
         String description = collectMax(list, PlaceKey.description);
         if (StringUtils.isBlank(description)) return null;
         // Cannot be too short
-        if (description.length() < 20) return null;
+        if (description.length() < 15) return null;
         // Cannot be a website
-        if (description.length() < 45 && WEBSITE_PATTERN.matcher(description).matches()) return null;
+        if (description.length() < 40 && WEBSITE_PATTERN.matcher(description).matches()) return null;
 
         return description.replaceAll(" {2,}", " ");
     }
