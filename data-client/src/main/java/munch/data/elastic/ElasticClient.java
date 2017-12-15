@@ -2,6 +2,7 @@ package munch.data.elastic;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
 import io.searchbox.client.JestClient;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created By: Fuxing Loh
@@ -33,13 +35,29 @@ public final class ElasticClient {
 
     /**
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html#querying
+     * Basic suggest search via suggest data type
      *
+     * @param type   type to filter
      * @param query  query string
      * @param latLng nullable latLng
      * @param size   size of suggestion of place
      * @return options array nodes containing the results
      */
-    public JsonNode suggest(@Nullable String type, String query, @Nullable String latLng, int size) {
+    public JsonNode suggest(String type, String query, @Nullable String latLng, int size) {
+        return suggest(type == null ? null : List.of(type), query, latLng, size);
+    }
+
+    /**
+     * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html#querying
+     * Basic suggest search via suggest data type
+     *
+     * @param types  types to filter
+     * @param query  query string
+     * @param latLng nullable latLng
+     * @param size   size of suggestion of place
+     * @return options array nodes containing the results
+     */
+    public JsonNode suggest(List<String> types, String query, @Nullable String latLng, int size) {
         ObjectNode completion = mapper.createObjectNode()
                 .put("field", "suggest")
                 .put("size", size);
@@ -55,8 +73,8 @@ public final class ElasticClient {
         }
 
         // Context: Type
-        if (type != null) {
-            contexts.set("dataType", mapper.createArrayNode().add(type));
+        if (types != null && !types.isEmpty()) {
+            contexts.set("dataType", mapper.valueToTree(types));
         }
 
         ObjectNode root = mapper.createObjectNode();
@@ -74,12 +92,58 @@ public final class ElasticClient {
     }
 
     /**
-     * @param type      type to focus
+     * @param text text
+     * @param size size of location to search
+     * @return list of hits
+     */
+    public JsonNode search(List<String> types, String text, int size) {
+        ObjectNode bool = mapper.createObjectNode();
+        bool.set("must", must(text));
+        bool.set("filter", filter(types));
+
+        JsonNode result = postBoolSearch(0, size, bool, null);
+        JsonNode hits = result.path("hits");
+        return hits.path("hits");
+    }
+
+    /**
+     * Search with text on name
+     *
+     * @param query query string
+     * @return JsonNode must filter
+     */
+    private JsonNode must(String query) {
+        ObjectNode root = mapper.createObjectNode();
+
+        // Match all if query is blank
+        if (StringUtils.isBlank(query)) {
+            root.putObject("match_all");
+            return root;
+        }
+
+        // Match name if got query
+        ObjectNode match = root.putObject("match");
+        match.put("name", query);
+        return root;
+    }
+
+    private JsonNode filter(List<String> types) {
+        ArrayNode filterArray = mapper.createArrayNode();
+
+        // Filtered Type
+        if (types != null && !types.isEmpty()) {
+            filterArray.addObject()
+                    .putObject("term")
+                    .set("dataType", mapper.valueToTree(types));
+        }
+        return filterArray;
+    }
+
+    /**
      * @param from      page from
      * @param size      page size
      * @param boolQuery bool query node
      * @return JsonNode
-     * @throws IOException exception
      */
     public JsonNode postBoolSearch(int from, int size, JsonNode boolQuery) {
         return postBoolSearch(from, size, boolQuery, null);
@@ -120,7 +184,6 @@ public final class ElasticClient {
     }
 
     /**
-     * @param type type to focus
      * @param node search node
      * @return root node
      */

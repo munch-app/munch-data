@@ -1,14 +1,11 @@
 package munch.data.clients;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
 import munch.data.exceptions.ElasticException;
 import munch.data.structure.Location;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -49,14 +46,8 @@ public class LocationClient extends AbstractClient {
      * @return list of Location
      */
     public List<Location> search(String text, int size) {
-        ObjectNode bool = objectMapper.createObjectNode();
-        bool.set("must", must(text));
-        bool.set("filter", filter());
-
-        JsonNode result = elasticClient.postBoolSearch(0, size, bool, null);
-        JsonNode hits = result.path("hits");
-
-        return marshaller.deserializeList(hits.path("hits"));
+        JsonNode results = elasticClient.search(List.of("Location"), text, size);
+        return marshaller.deserializeList(results);
     }
 
     public Location get(String id) throws ElasticException {
@@ -70,37 +61,5 @@ public class LocationClient extends AbstractClient {
 
     public void delete(String id) throws ElasticException {
         elasticIndex.delete("Location", id);
-    }
-
-    /**
-     * Search with text on name
-     *
-     * @param query query string
-     * @return JsonNode must filter
-     */
-    private static JsonNode must(String query) {
-        ObjectNode root = objectMapper.createObjectNode();
-
-        // Match all if query is blank
-        if (StringUtils.isBlank(query)) {
-            root.putObject("match_all");
-            return root;
-        }
-
-        // Match name if got query
-        ObjectNode match = root.putObject("match");
-        match.put("name", query);
-        return root;
-    }
-
-    private static JsonNode filter() {
-        ArrayNode filterArray = objectMapper.createArrayNode();
-
-        filterArray.addObject()
-                .putObject("term")
-                .putArray("dataType")
-                .add("Container")
-                .add("Location");
-        return filterArray;
     }
 }

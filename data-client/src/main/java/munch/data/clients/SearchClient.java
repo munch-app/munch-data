@@ -29,14 +29,39 @@ public class SearchClient extends AbstractClient {
     }
 
     /**
-     * Suggest place data based on name
+     * Suggest all data based on name
      *
      * @param size size per list
      * @param text text query
      * @return List of SearchResult
      */
     public List<SearchResult> suggest(String text, @Nullable String latLng, int size) {
-        JsonNode results = client.suggest(null, text, latLng, size);
+        JsonNode results = client.suggest(List.of(), text, latLng, size);
+        return marshaller.deserializeList(results);
+    }
+
+    /**
+     * Search all data based on name
+     *
+     * @param size size per list
+     * @param text text query
+     * @return List of SearchResult
+     */
+    public List<SearchResult> search(String text, int size) {
+        JsonNode results = client.search(List.of(), text, size);
+        return marshaller.deserializeList(results);
+    }
+
+    /**
+     * Search all types given based on name
+     *
+     * @param types types to filter to
+     * @param size  size per list
+     * @param text  text query
+     * @return List of SearchResult
+     */
+    public List<SearchResult> search(List<String> types, String text, int size) {
+        JsonNode results = client.search(types, text, size);
         return marshaller.deserializeList(results);
     }
 }
