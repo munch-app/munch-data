@@ -68,7 +68,7 @@ public final class ImageProcessor {
 
         // Select 1 place image, Sorted by Place.image, then score
         processedImages.stream()
-                .filter(image -> image.isOutput("food", 0.75f))
+                .filter(image -> image.isOutput("place", 0.75f))
                 .sorted(Comparator.comparingInt(ImageProcessor::sortFrom)
                         .thenComparingLong(ImageProcessor::sortSize)
                         .thenComparingDouble(ImageProcessor::sortOutput)
@@ -104,7 +104,7 @@ public final class ImageProcessor {
      * @return FinnLabel selected for prediction
      */
     private FinnLabel predict(CollectedImage collectedImage) {
-        if (collectedImage.getImages().isEmpty()) {
+        if (collectedImage == null || collectedImage.getImages().isEmpty()) {
             logger.warn("Images not suppose to be empty, CollectedImage: {}", collectedImage);
             throw new IllegalStateException("images is empty");
         }
