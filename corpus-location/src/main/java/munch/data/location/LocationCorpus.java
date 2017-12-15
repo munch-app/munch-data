@@ -9,7 +9,6 @@ import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.FieldUtils;
 import munch.data.clients.LocationClient;
-import munch.data.exceptions.ClusterBlockException;
 import munch.data.structure.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 @Singleton
 public class LocationCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(LocationCorpus.class);
-    private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
+    private static final Retriable retriable = new ExceptionRetriable(4);
     private static final WKTReader reader = new WKTReader();
 
     private static final long dataVersion = 21;

@@ -35,8 +35,12 @@ public abstract class AbstractCollector {
     }
 
     private static String getUniqueId(ImageField imageField) {
-        Objects.requireNonNull(imageField.getSource());
         Objects.requireNonNull(imageField.getImageKey());
-        return imageField.getSource() + "/" + imageField.getImageKey();
+        if (imageField.getSource() != null) {
+            return imageField.getSource() + "|" + imageField.getImageKey();
+        }else  {
+            Objects.requireNonNull(imageField.getBucket());
+            return imageField.getBucket() + "|" + imageField.getImageKey();
+        }
     }
 }

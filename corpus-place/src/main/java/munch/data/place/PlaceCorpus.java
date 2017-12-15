@@ -7,7 +7,6 @@ import corpus.engine.CatalystEngine;
 import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
-import munch.data.exceptions.ClusterBlockException;
 import munch.data.place.amalgamate.Amalgamate;
 import munch.data.structure.Place;
 import munch.restful.core.JsonUtils;
@@ -41,7 +40,7 @@ import java.util.Objects;
 @Singleton
 public final class PlaceCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceCorpus.class);
-    private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
+    private static final Retriable retriable = new ExceptionRetriable(4);
 
     private final Amalgamate amalgamate;
     private final PlaceClient placeClient;
@@ -162,6 +161,10 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         Place existing = placeClient.get(placeId);
         if (existing != null) {
             retriable.loop(() -> placeClient.delete(placeId));
+
+            logger.info("Deleted: {}",
+                    JsonUtils.toJsonString(existing)
+            );
             counter.increment("Deleted");
         }
     }

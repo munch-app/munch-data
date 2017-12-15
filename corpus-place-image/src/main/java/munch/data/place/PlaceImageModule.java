@@ -3,11 +3,12 @@ package munch.data.place;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.typesafe.config.Config;
-import munch.finn.FinnClient;
-
-import javax.inject.Singleton;
+import corpus.CorpusModule;
+import corpus.data.DataModule;
+import munch.data.dynamodb.DynamoModule;
+import munch.data.place.processor.ProcessorModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by: Fuxing
@@ -16,19 +17,23 @@ import javax.inject.Singleton;
  * Project: munch-data
  */
 public final class PlaceImageModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceImageModule.class);
+
     @Override
     protected void configure() {
-
-    }
-
-    @Provides
-    @Singleton
-    FinnClient provideFinnClient(Config config) {
-        return new FinnClient(config.getString("services.finn.url"));
+        install(new CorpusModule());
+        install(new DataModule());
+        install(new DynamoModule());
+        install(new ProcessorModule());
     }
 
     public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new PlaceImageModule());
-        injector.getInstance(PlaceImageCorpus.class).run();
+        try {
+            Injector injector = Guice.createInjector(new PlaceImageModule());
+            injector.getInstance(PlaceImageCorpus.class).run();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
     }
 }

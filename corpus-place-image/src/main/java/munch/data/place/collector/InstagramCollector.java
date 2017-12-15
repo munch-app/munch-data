@@ -32,7 +32,7 @@ public final class InstagramCollector extends AbstractCollector {
         return mediaList.stream()
                 .map(media -> {
                     CollectedImage image = new CollectedImage();
-                    image.setUniqueId("instagram/" + media.getMediaId());
+                    image.setUniqueId("instagram|" + media.getMediaId());
                     image.setFrom(CollectedImage.From.Instagram);
                     image.setImages(image.getImages());
                     image.setSource("instagram");

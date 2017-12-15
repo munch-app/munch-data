@@ -7,7 +7,6 @@ import corpus.engine.CatalystEngine;
 import corpus.field.ContainerKey;
 import corpus.images.ImageField;
 import munch.data.clients.ContainerClient;
-import munch.data.exceptions.ClusterBlockException;
 import munch.data.structure.Container;
 import munch.data.structure.SourcedImage;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(ContainerCorpus.class);
-    private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
+    private static final Retriable retriable = new ExceptionRetriable(4);
 
     private static final long dataVersion = 22;
 

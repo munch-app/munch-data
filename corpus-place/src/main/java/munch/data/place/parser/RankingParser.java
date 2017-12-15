@@ -40,8 +40,13 @@ public final class RankingParser extends AbstractParser<Double> {
                 return 10;
             case "Global.MunchArticle.Article":
                 return 2;
+            case "Sg.Munch.Place":
             default:
                 return 1;
+
+            // Utility Corpus gives no ranking
+            case "Sg.Munch.PlaceImage":
+                return 0;
         }
     }
 

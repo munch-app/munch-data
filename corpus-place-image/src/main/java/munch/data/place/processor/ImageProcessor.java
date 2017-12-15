@@ -103,7 +103,7 @@ public final class ImageProcessor {
         File file = null;
         try {
             URL url = new URL(imageUrl);
-            file = File.createTempFile("", FilenameUtils.getName(url.getPath()));
+            file = File.createTempFile(FilenameUtils.getName(url.getPath()),"");
 
             File finalFile = file;
             return retriable.loop(() -> {
