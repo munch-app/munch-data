@@ -52,6 +52,13 @@ public final class NameCleaner {
         return NameNormalizer.trim(name);
     }
 
+    public String simpleClean(String name) {
+        name = name.toLowerCase();
+        // Normalize first
+        name = nameNormalizer.normalize(name);
+        return NameNormalizer.trim(name);
+    }
+
     /**
      * Name cannot be clean if < 8 char long
      * Or contains any spacing
