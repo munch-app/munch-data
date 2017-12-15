@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
     private static final Pattern HTTP_PATTERN = Pattern.compile("^https?://.*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern WEBSITE_PATTERN = Pattern.compile("^(https?://)|(www\\.).+\\.com$", Pattern.CASE_INSENSITIVE);
     private static final Pattern PHONE_PATTERN = Pattern.compile(".*(65)?\\s?(?<g1>[0-9]{4})\\s?(?<g2>[0-9]{4}).*", Pattern.CASE_INSENSITIVE);
 
     private final List<String> priorityNames;
@@ -134,6 +135,11 @@ public final class PlaceParser extends AbstractParser<Place> {
     private String collectDescription(List<CorpusData> list) {
         String description = collectMax(list, PlaceKey.description);
         if (StringUtils.isBlank(description)) return null;
+        // Cannot be too short
+        if (description.length() < 20) return null;
+        // Cannot be a website
+        if (description.length() < 45 && WEBSITE_PATTERN.matcher(description).matches()) return null;
+
         return description.replaceAll(" {2,}", " ");
     }
 
