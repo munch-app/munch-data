@@ -34,9 +34,9 @@ public final class InstagramCollector extends AbstractCollector {
                     CollectedImage image = new CollectedImage();
                     image.setUniqueId("instagram|" + media.getMediaId());
                     image.setFrom(CollectedImage.From.Instagram);
-                    image.setImages(image.getImages());
                     image.setSource("instagram");
                     image.setSourceId(media.getUserId());
+                    image.setImages(media.getImages());
                     return image;
                 })
                 .collect(Collectors.toList());
