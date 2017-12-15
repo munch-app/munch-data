@@ -98,8 +98,9 @@ public class LocationClient extends AbstractClient {
 
         filterArray.addObject()
                 .putObject("term")
-                .put("dataType", "Container");
-
+                .putArray("dataType")
+                .add("Container")
+                .add("Location");
         return filterArray;
     }
 }

@@ -53,8 +53,7 @@ public final class ContainerParser extends AbstractParser<List<Place.Container>>
                     image.setImages(field.getImages());
                     return image;
                 })
-                .sorted(Comparator.comparingDouble(SourcedImage::getWeight).reversed()
-                        .thenComparing(SourcedImage::getSource)
+                .sorted(Comparator.comparing(SourcedImage::getSource)
                         .thenComparing(Comparator.comparingInt(o -> o.getImages().hashCode())))
                 .limit(1)
                 .collect(Collectors.toList());

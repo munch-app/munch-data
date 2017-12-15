@@ -1,5 +1,6 @@
 dependencies {
     compile project(':data-client')
+    compile project(':name-cleaner-utils')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
 
     // Matcher
