@@ -10,6 +10,8 @@ import munch.finn.FinnLabel;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class ImageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
     private static final String HASH_KEY = "Sg.Munch.PlaceImage.Finn-0.4.0";
     private static final Retriable retriable = new ExceptionRetriable(10);
 
@@ -48,6 +51,7 @@ public final class ImageProcessor {
     public List<ProcessedImage> process(List<CollectedImage> collectedImages) {
         List<ProcessedImage> processedImages = collectedImages.stream()
                 .map(this::parse)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         List<ProcessedImage> finalList = new ArrayList<>();
@@ -83,11 +87,16 @@ public final class ImageProcessor {
         JsonNode cache = documentClient.get(HASH_KEY, uniqueId);
         if (cache != null) return JsonUtils.toObject(cache, ProcessedImage.class);
 
-        ProcessedImage processedImage = new ProcessedImage();
-        processedImage.setImage(collectedImage);
-        processedImage.setFinnLabel(predict(collectedImage));
-        documentClient.put(HASH_KEY, uniqueId, JsonUtils.toTree(processedImage));
-        return processedImage;
+        try {
+            ProcessedImage processedImage = new ProcessedImage();
+            processedImage.setImage(collectedImage);
+            processedImage.setFinnLabel(predict(collectedImage));
+            documentClient.put(HASH_KEY, uniqueId, JsonUtils.toTree(processedImage));
+            return processedImage;
+        }catch (IllegalStateException e) {
+            if (e.getMessage().equals("images is empty")) return null;
+            throw e;
+        }
     }
 
     /**
@@ -95,7 +104,10 @@ public final class ImageProcessor {
      * @return FinnLabel selected for prediction
      */
     private FinnLabel predict(CollectedImage collectedImage) {
-        assert collectedImage.getImages().isEmpty() : "Images not suppose to be empty";
+        if (collectedImage.getImages().isEmpty()) {
+            logger.warn("Images not suppose to be empty, CollectedImage: {}", collectedImage);
+            throw new IllegalStateException("images is empty");
+        }
         String imageUrl = collectedImage.getImages().get("640x640");
         if (imageUrl == null) imageUrl = collectedImage.getImages().get("original");
         if (imageUrl == null) imageUrl = collectedImage.getImages().entrySet().iterator().next().getValue();
@@ -103,7 +115,7 @@ public final class ImageProcessor {
         File file = null;
         try {
             URL url = new URL(imageUrl);
-            file = File.createTempFile(FilenameUtils.getName(url.getPath()),"");
+            file = File.createTempFile(FilenameUtils.getName(url.getPath()), "");
 
             File finalFile = file;
             return retriable.loop(() -> {

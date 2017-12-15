@@ -41,6 +41,19 @@ public class SearchClient extends AbstractClient {
     }
 
     /**
+     * Suggest all types given based on name
+     *
+     * @param types types to filter to
+     * @param size  size per list
+     * @param text  text query
+     * @return List of SearchResult
+     */
+    public List<SearchResult> suggest(List<String> types, String text, @Nullable String latLng, int size) {
+        JsonNode results = client.suggest(types, text, latLng, size);
+        return marshaller.deserializeList(results);
+    }
+
+    /**
      * Search all data based on name
      *
      * @param size size per list

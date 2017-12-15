@@ -47,7 +47,6 @@ public class ContainerClient extends AbstractClient {
 
         JsonNode result = elasticClient.postBoolSearch(0, size, bool, SORT_NODE);
         JsonNode hits = result.path("hits");
-
         return marshaller.deserializeList(hits.path("hits"));
     }
 
