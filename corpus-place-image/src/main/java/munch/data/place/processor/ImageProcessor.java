@@ -54,7 +54,7 @@ public final class ImageProcessor {
 
         // Select 3 food image, Sorted by Place.image, then score
         processedImages.stream()
-                .filter(image -> image.getFinnLabel().getMaxOutput().getKey().equals("food"))
+                .filter(image -> image.isOutput("food", 0.8f))
                 .sorted(Comparator.comparingInt(ImageProcessor::sortFrom)
                         .thenComparingLong(ImageProcessor::sortSize)
                         .thenComparingDouble(ImageProcessor::sortOutput)
@@ -64,7 +64,7 @@ public final class ImageProcessor {
 
         // Select 1 place image, Sorted by Place.image, then score
         processedImages.stream()
-                .filter(image -> image.getFinnLabel().getMaxOutput().getKey().equals("place"))
+                .filter(image -> image.isOutput("food", 0.75f))
                 .sorted(Comparator.comparingInt(ImageProcessor::sortFrom)
                         .thenComparingLong(ImageProcessor::sortSize)
                         .thenComparingDouble(ImageProcessor::sortOutput)
