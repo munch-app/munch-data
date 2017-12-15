@@ -39,11 +39,9 @@ public final class SourcedImage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        SourcedImage image = (SourcedImage) o;
-
-        if (!source.equals(image.source)) return false;
-        return images.equals(image.images);
+        SourcedImage that = (SourcedImage) o;
+        return Objects.equals(source, that.source) &&
+                Objects.equals(images, that.images);
     }
 
     @Override
@@ -53,8 +51,8 @@ public final class SourcedImage {
 
     @Override
     public String toString() {
-        return "Image{" +
-                ", source='" + source + '\'' +
+        return "SourcedImage{" +
+                "source='" + source + '\'' +
                 ", images=" + images +
                 '}';
     }
