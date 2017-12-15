@@ -83,6 +83,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
             ImageField field = new ImageField(PlaceKey.image, String.valueOf(i));
             field.setSource(image.getImage().getSource());
             field.setImages(image.getImage().getImages());
+            fieldList.add(field);
         }
 
         return fieldList;
