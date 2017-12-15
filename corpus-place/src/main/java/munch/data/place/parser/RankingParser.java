@@ -3,6 +3,7 @@ package munch.data.place.parser;
 import corpus.data.CorpusData;
 import corpus.field.FieldUtils;
 import munch.data.structure.Place;
+import munch.data.structure.SourcedImage;
 
 import javax.inject.Singleton;
 import java.util.List;
@@ -62,12 +63,16 @@ public final class RankingParser extends AbstractParser<Double> {
 
     private double getImageScore(Place place) {
         if (!place.getImages().isEmpty()) {
-            if (place.getImages().size() == 1 && place.getImages().get(0).getSource().equals("munch-image-placeholder")) {
-                return 500;
-            } else {
-                return 1000;
-            }
+            if (isPlaceholder(place.getImages())) return 500;
+            return 1000;
         }
         return 0;
+    }
+
+    private boolean isPlaceholder(List<SourcedImage> images) {
+        if (images.size() > 1) return false;
+        String source = images.get(0).getSource();
+        if (source == null) return false;
+        return source.equals("munch-image-placeholder");
     }
 }

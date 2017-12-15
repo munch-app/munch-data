@@ -1,7 +1,6 @@
 package munch.data.structure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.math.DoubleMath;
 
 import java.util.Map;
 import java.util.Objects;
@@ -12,19 +11,8 @@ import java.util.Objects;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class SourcedImage {
-    private double weight;
     private String source;
     private Map<String, String> images;
-
-    @Deprecated
-    public double getWeight() {
-        return weight;
-    }
-
-    @Deprecated
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
 
     public String getSource() {
         return source;
@@ -54,20 +42,18 @@ public final class SourcedImage {
 
         SourcedImage image = (SourcedImage) o;
 
-        if (!DoubleMath.fuzzyEquals(image.weight, weight, 0.05)) return false;
         if (!source.equals(image.source)) return false;
         return images.equals(image.images);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(weight, source, images);
+        return Objects.hash(source, images);
     }
 
     @Override
     public String toString() {
         return "Image{" +
-                "weight=" + weight +
                 ", source='" + source + '\'' +
                 ", images=" + images +
                 '}';
