@@ -33,6 +33,8 @@ public final class ImageProcessor {
     private static final String HASH_KEY = "Sg.Munch.PlaceImage.Finn-0.4.0";
     private static final Retriable retriable = new ExceptionRetriable(10);
 
+    private static final Set<String> EXPLICIT_SOURCES = Set.of("munch-franchise", "munch-place-info");
+
     private final FinnClient finnClient;
     private final DocumentClient documentClient;
 
@@ -57,14 +59,7 @@ public final class ImageProcessor {
         List<ProcessedImage> finalList = new ArrayList<>();
 
         // Select 3 food image, Sorted by Place.image, then score
-        processedImages.stream()
-                .filter(image -> image.isOutput("food", 0.8f))
-                .sorted(Comparator.comparingInt(ImageProcessor::sortFrom)
-                        .thenComparingLong(ImageProcessor::sortSize)
-                        .thenComparingDouble(ImageProcessor::sortOutput)
-                ).limit(3)
-                .forEach(finalList::add);
-
+        finalList.addAll(selectFood(processedImages));
 
         // Select 1 place image, Sorted by Place.image, then score
         processedImages.stream()
@@ -76,6 +71,25 @@ public final class ImageProcessor {
                 .forEach(finalList::add);
 
         return finalList;
+    }
+
+    public List<ProcessedImage> selectFood(List<ProcessedImage> processedImages) {
+        List<ProcessedImage> explicitImage = processedImages.stream()
+                .filter(image -> EXPLICIT_SOURCES.contains(image.getImage().getSource()))
+                .sorted(Comparator.comparingLong(ImageProcessor::sortSize)
+                        .thenComparingDouble(ImageProcessor::sortOutput))
+                .collect(Collectors.toList());
+
+        if (!explicitImage.isEmpty()) return explicitImage;
+
+        // Else pick food images first
+        return processedImages.stream()
+                .filter(image -> image.isOutput("food", 0.8f))
+                .sorted(Comparator.comparingInt(ImageProcessor::sortFrom)
+                        .thenComparingLong(ImageProcessor::sortSize)
+                        .thenComparingDouble(ImageProcessor::sortOutput)
+                ).limit(3)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -93,7 +107,7 @@ public final class ImageProcessor {
             processedImage.setFinnLabel(predict(collectedImage));
             documentClient.put(HASH_KEY, uniqueId, JsonUtils.toTree(processedImage));
             return processedImage;
-        }catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             if (e.getMessage().equals("images is empty")) return null;
             throw e;
         }
