@@ -9,5 +9,6 @@ include 'corpus-place-image'
 include 'corpus-tag'
 include 'corpus-container'
 
-include 'name-cleaner-utils'
+include 'name-utils'
+include 'price-utils'
 
