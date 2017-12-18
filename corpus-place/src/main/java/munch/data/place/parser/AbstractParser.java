@@ -1,11 +1,14 @@
 package munch.data.place.parser;
 
+import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
 import corpus.utils.FieldCollector;
 import munch.data.structure.Place;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -17,6 +20,12 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 public abstract class AbstractParser<T> {
+    protected List<String> priorityCorpus;
+
+    @Inject
+    void inject(Config config) {
+        this.priorityCorpus = ImmutableList.copyOf(config.getStringList("place.priority"));
+    }
 
     /**
      * @param place read-only place data
@@ -25,11 +34,17 @@ public abstract class AbstractParser<T> {
      */
     public abstract T parse(Place place, List<CorpusData> list);
 
+    /**
+     * Note this method will call collectMax with priorityCorpus
+     *
+     * @param list list of corpus data
+     * @param keys keys to collect and get max
+     * @return value that appear the most
+     * @see AbstractParser#collectMax(List, List, AbstractKey...)
+     */
     @Nullable
     protected String collectMax(List<CorpusData> list, AbstractKey... keys) {
-        FieldCollector fieldCollector = new FieldCollector(keys);
-        fieldCollector.addAll(list);
-        return fieldCollector.collectMax();
+        return collectMax(list, priorityCorpus, keys);
     }
 
     @Nullable
@@ -40,31 +55,17 @@ public abstract class AbstractParser<T> {
     }
 
     @Nullable
-    protected String collectMax(List<CorpusData> list, String[] corpusNames, AbstractKey... keys) {
-        FieldCollector fieldCollector = new FieldCollector(keys);
-        fieldCollector.addAll(list);
-        return fieldCollector.collectMax(corpusNames);
-    }
-
-    @Nullable
     protected String collectMax(List<CorpusData> list, List<String> corpusNames, AbstractKey... keys) {
         FieldCollector fieldCollector = new FieldCollector(keys);
         fieldCollector.addAll(list);
-        return fieldCollector.collectMax(corpusNames);
-    }
-
-    @Nullable
-    protected String collectMax(List<CorpusData> list, String[] corpusNames, Function<String, String> mapper, AbstractKey... keys) {
-        FieldCollector fieldCollector = new FieldCollector(keys);
-        fieldCollector.addAll(list);
-        return mapper.apply(fieldCollector.collectMax(corpusNames));
+        String max = fieldCollector.collectMax(corpusNames);
+        if (max != null) return max;
+        return fieldCollector.collectMax();
     }
 
     @Nullable
     protected String collectMax(List<CorpusData> list, List<String> corpusNames, Function<String, String> mapper, AbstractKey... keys) {
-        FieldCollector fieldCollector = new FieldCollector(keys);
-        fieldCollector.addAll(list);
-        return mapper.apply(fieldCollector.collectMax(corpusNames));
+        return mapper.apply(collectMax(list, corpusNames, keys));
     }
 
     protected List<String> collectValue(List<CorpusData> list, AbstractKey... keys) {

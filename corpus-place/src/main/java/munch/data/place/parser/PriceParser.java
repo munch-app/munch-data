@@ -6,7 +6,6 @@ import munch.data.structure.Place;
 
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,28 +21,36 @@ public final class PriceParser extends AbstractParser<Place.Price> {
 
     @Nullable
     @Override
-    public Place.Price parse(Place place,List<CorpusData> list) {
+    public Place.Price parse(Place place, List<CorpusData> list) {
         List<CorpusData.Field> fields = collect(list, PlaceKey.price);
         List<Double> prices = fields.stream()
                 .map(PriceParser::clean)
                 .filter(Objects::nonNull)
+                .sorted(Double::compareTo)
                 .collect(Collectors.toList());
 
         if (prices.isEmpty()) return null;
-        double low = Collections.min(prices);
-        double high = Collections.max(prices);
 
+        // If only less then 10 prices
+        if (prices.size() < 10) {
+            Double secondLast = prices.get(prices.size() - 1);
+            Place.Price price = new Place.Price();
+            price.setMiddle(secondLast);
+            return price;
+        }
+
+        // More then 10 prices
+        int index = (int) (((double) prices.size()) * 0.7);
         Place.Price price = new Place.Price();
-        price.setLowest(low);
-        price.setHighest(high);
-        price.setMiddle((high - low) / 2 + low);
+        price.setMiddle(prices.get(index));
         return price;
     }
 
     @Nullable
     public static Double clean(CorpusData.Field field) {
         String value = field.getValue();
-        String cleaned = value.replace("$", "")
+        String cleaned = value
+                .replace("$", "")
                 .replace(" ", "");
 
         try {

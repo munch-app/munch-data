@@ -1,11 +1,10 @@
-package munch.data.place.parser;
+package munch.data.place.parser.tag;
 
 import catalyst.utils.LatLngUtils;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
+import munch.data.place.parser.AbstractParser;
 import munch.data.place.parser.location.LocationDatabase;
-import munch.data.place.parser.tag.GroupTag;
-import munch.data.place.parser.tag.GroupTagDatabase;
 import munch.data.structure.Place;
 
 import javax.inject.Inject;

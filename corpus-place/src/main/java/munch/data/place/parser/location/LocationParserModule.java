@@ -57,7 +57,7 @@ public class LocationParserModule extends AbstractModule {
 
     @Provides
     @Singleton
-    NominatimClient provideClient(Config config) throws UnirestException {
+    NominatimClient provideClient(Config config) {
         HttpClient httpClient = HttpClientBuilder.create().build();
         String url = config.getString("services.nominatim.url");
         String email = config.getString("services.nominatim.email");

@@ -560,7 +560,7 @@ public class Place implements SearchResult {
      */
     public static final class Price {
         private Double lowest;
-        private Double middle; // AKA per pax
+        private Double middle; // Average per Pax
         private Double highest;
 
         /**
@@ -568,6 +568,7 @@ public class Place implements SearchResult {
          *
          * @return lowest in price range
          */
+        @Deprecated
         public Double getLowest() {
             return lowest;
         }
@@ -592,6 +593,7 @@ public class Place implements SearchResult {
          *
          * @return highest in price range
          */
+        @Deprecated
         public Double getHighest() {
             return highest;
         }

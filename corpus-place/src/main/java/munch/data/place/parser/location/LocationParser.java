@@ -1,11 +1,9 @@
-package munch.data.place.parser;
+package munch.data.place.parser.location;
 
 import catalyst.utils.LatLngUtils;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
-import munch.data.place.parser.location.GeocodeApi;
-import munch.data.place.parser.location.StreetNameClient;
-import munch.data.place.parser.location.TrainDatabase;
+import munch.data.place.parser.AbstractParser;
 import munch.data.structure.Place;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;

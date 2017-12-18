@@ -4,20 +4,16 @@ import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
-import corpus.field.PlaceKey;
-import munch.data.place.matcher.NameNormalizer;
 import munch.data.place.parser.*;
+import munch.data.place.parser.location.LocationParser;
+import munch.data.place.parser.tag.TagParser;
 import munch.data.structure.Place;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by: Fuxing
@@ -27,13 +23,12 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
-    private static final Pattern HTTP_PATTERN = Pattern.compile("^https?://.*", Pattern.CASE_INSENSITIVE);
-    private static final Pattern WEBSITE_PATTERN = Pattern.compile("^(https?://)|(www\\.)[0-9a-z\\-]+\\.com$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern PHONE_PATTERN = Pattern.compile(".*(65)?\\s?(?<g1>[0-9]{4})\\s?(?<g2>[0-9]{4}).*", Pattern.CASE_INSENSITIVE);
-
     private final List<String> priorityNames;
 
-    private final NameNormalizer nameNormalizer;
+    private final NameParser nameParser;
+    private final PhoneParser phoneParser;
+    private final WebsiteParser websiteParser;
+    private final DescriptionParser descriptionParser;
 
     private final PriceParser priceParser;
     private final LocationParser locationParser;
@@ -46,14 +41,21 @@ public final class PlaceParser extends AbstractParser<Place> {
     private final RankingParser rankingParser;
 
     @Inject
-    public PlaceParser(Config config, NameNormalizer nameNormalizer, PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser, ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
+    public PlaceParser(Config config, NameParser nameParser, PhoneParser phoneParser, WebsiteParser websiteParser, DescriptionParser descriptionParser,
+                       PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser, ReviewParser reviewParser, TagParser tagParser,
+                       HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
         this.priorityNames = ImmutableList.copyOf(config.getStringList("place.priority"));
-        this.nameNormalizer = nameNormalizer;
+        this.nameParser = nameParser;
+        this.phoneParser = phoneParser;
+        this.websiteParser = websiteParser;
+        this.descriptionParser = descriptionParser;
+
         this.priceParser = priceParser;
         this.locationParser = locationParser;
         this.containerParser = containerParser;
         this.reviewParser = reviewParser;
         this.tagParser = tagParser;
+
         this.hourParser = hourParser;
         this.imageParser = imageParser;
         this.rankingParser = rankingParser;
@@ -68,10 +70,10 @@ public final class PlaceParser extends AbstractParser<Place> {
     public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
 
-        place.setName(collectName(list));
-        place.setPhone(collectPhone(list));
-        place.setWebsite(collectWebsite(list));
-        place.setDescription(collectDescription(list));
+        place.setName(nameParser.parse(place, list));
+        place.setPhone(phoneParser.parse(place, list));
+        place.setWebsite(websiteParser.parse(place, list));
+        place.setDescription(descriptionParser.parse(place, list));
 
         // LocationParser is mandatory
         place.setLocation(locationParser.parse(place, list));
@@ -95,52 +97,15 @@ public final class PlaceParser extends AbstractParser<Place> {
         return place;
     }
 
+    /**
+     * @param list list
+     * @return earliest created date
+     */
     private Date findCreatedDate(List<CorpusData> list) {
         return list.stream()
                 .map(CorpusData::getCreatedDate)
                 .min(Date::compareTo)
                 .orElseThrow(NullPointerException::new);
-    }
-
-    private String collectName(List<CorpusData> list) {
-        String name = collectMax(list, PlaceKey.name);
-        // Normalize name first
-        name = nameNormalizer.normalize(name);
-        // Then capitalize fully name
-        return WordUtils.capitalizeFully(name);
-    }
-
-    private String collectPhone(List<CorpusData> list) {
-        String phone = collectMax(list, PlaceKey.phone);
-        if (phone == null) return null;
-
-        Matcher matcher = PHONE_PATTERN.matcher(phone);
-        if (!matcher.matches()) return null;
-
-        String g1 = matcher.group("g1");
-        String g2 = matcher.group("g2");
-        return "+65 " + g1 + " " + g2;
-    }
-
-    private String collectWebsite(List<CorpusData> list) {
-        String website = collectMax(list, PlaceKey.website);
-        if (website == null) return null;
-
-        // Website cannot be facebook.com
-        if (website.contains("facebook.com")) return null;
-        if (HTTP_PATTERN.matcher(website).matches()) return website;
-        return "http://" + website;
-    }
-
-    private String collectDescription(List<CorpusData> list) {
-        String description = collectMax(list, PlaceKey.description);
-        if (StringUtils.isBlank(description)) return null;
-        // Cannot be too short
-        if (description.length() < 15) return null;
-        // Cannot be a website
-        if (description.length() < 40 && WEBSITE_PATTERN.matcher(description).matches()) return null;
-
-        return description.replaceAll(" {2,}", " ");
     }
 
     @Nullable
