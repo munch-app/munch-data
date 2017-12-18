@@ -19,7 +19,8 @@ public final class NameNormalizer {
             new ReplacementGroup(Pattern.compile("-|–|—"), "-"),
             new ReplacementGroup(Pattern.compile("é", Pattern.CASE_INSENSITIVE), "e"),
             new ReplacementGroup(Pattern.compile("á", Pattern.CASE_INSENSITIVE), "a"),
-            new ReplacementGroup(Pattern.compile("[óô]", Pattern.CASE_INSENSITIVE), "o")
+            new ReplacementGroup(Pattern.compile("[óô]", Pattern.CASE_INSENSITIVE), "o"),
+            new ReplacementGroup(Pattern.compile("ç", Pattern.CASE_INSENSITIVE), "c")
     );
 
     public String normalize(String name) {

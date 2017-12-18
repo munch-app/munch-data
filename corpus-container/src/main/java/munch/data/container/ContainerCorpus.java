@@ -144,8 +144,7 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
                     image.setImages(field.getImages());
                     return image;
                 })
-                .sorted(Comparator.comparingDouble(SourcedImage::getWeight).reversed()
-                        .thenComparing(SourcedImage::getSource)
+                .sorted(Comparator.comparing(SourcedImage::getSource)
                         .thenComparing(Comparator.comparingInt(o -> o.getImages().hashCode())))
                 .limit(5)
                 .collect(Collectors.toList());
