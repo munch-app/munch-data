@@ -17,9 +17,12 @@ public final class NameNormalizer {
     private static final List<ReplacementGroup> GROUPS = List.of(
             new ReplacementGroup(Pattern.compile("[`\"’]"), "'"),
             new ReplacementGroup(Pattern.compile("-|–|—"), "-"),
-            new ReplacementGroup(Pattern.compile("é", Pattern.CASE_INSENSITIVE), "e"),
-            new ReplacementGroup(Pattern.compile("á", Pattern.CASE_INSENSITIVE), "a"),
-            new ReplacementGroup(Pattern.compile("[óô]", Pattern.CASE_INSENSITIVE), "o"),
+            new ReplacementGroup(Pattern.compile("á|â|à", Pattern.CASE_INSENSITIVE), "a"),
+            new ReplacementGroup(Pattern.compile("é|ê|è|ë|ē", Pattern.CASE_INSENSITIVE), "e"),
+            new ReplacementGroup(Pattern.compile("î|ï", Pattern.CASE_INSENSITIVE), "i"),
+            new ReplacementGroup(Pattern.compile("ó|ô|ò", Pattern.CASE_INSENSITIVE), "o"),
+            new ReplacementGroup(Pattern.compile("û|ù|ü", Pattern.CASE_INSENSITIVE), "u"),
+            new ReplacementGroup(Pattern.compile("ÿ", Pattern.CASE_INSENSITIVE), "y"),
             new ReplacementGroup(Pattern.compile("ç", Pattern.CASE_INSENSITIVE), "c")
     );
 
