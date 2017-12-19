@@ -173,7 +173,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
 
     private void putCorpus(Place place) {
         // Put to corpus client
-        CorpusData placeData = new CorpusData();
+        CorpusData placeData = new CorpusData(System.currentTimeMillis());
         placeData.put(PlaceKey.name, place.getName());
         placeData.put(PlaceKey.phone, place.getPhone());
         placeData.put(PlaceKey.website, place.getWebsite());
