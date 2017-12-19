@@ -54,7 +54,11 @@ public final class PriceParser extends AbstractParser<Place.Price> {
                 .replace(" ", "");
 
         try {
-            return Double.parseDouble(cleaned);
+            double price = Double.parseDouble(cleaned);
+            if (price <= 200) return price;
+
+            // Extreme prices are removed
+            return null;
         } catch (NumberFormatException e) {
             return null;
         }
