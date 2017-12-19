@@ -165,27 +165,16 @@ public final class ImageProcessor {
      * @return float for comparing
      */
     private static float sortOutput(ProcessedImage image) {
-        return image.getFinnLabel().getMaxOutput().getValue();
+        float value = image.getFinnLabel().getMaxOutput().getValue();
+        return 1.0f - value;
     }
 
     private static long sortSize(ProcessedImage image) {
-        for (Map.Entry<String, String> entry : image.getImage().getImages().entrySet()) {
-            switch (entry.getKey().toLowerCase()) {
-                case "original":
-                    return 200 * 200;
-                case "150x150":
-                    return 150 * 150;
-                case "320x320":
-                    return 320 * 320;
-                case "640x640":
-                    return 640 * 640;
-                case "1080x1080":
-                    return 1080 * 1080;
-                default:
-                    String[] leftRight = entry.getKey().split("x");
-                    return Long.parseLong(leftRight[0]) * Long.parseLong(leftRight[1]);
-            }
-        }
-        return 0;
+        Map<String, String> images = image.getImage().getImages();
+        if (images.containsKey("1080x1080")) return 0;
+        if (images.containsKey("640x640")) return 1;
+        if (images.containsKey("320x320")) return 2;
+        if (images.containsKey("150x150")) return 3;
+        return 10;
     }
 }

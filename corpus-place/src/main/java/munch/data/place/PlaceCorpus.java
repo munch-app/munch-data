@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * This is the main corpus:
@@ -41,6 +38,7 @@ import java.util.Objects;
 public final class PlaceCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceCorpus.class);
     private static final Retriable retriable = new ExceptionRetriable(4);
+    private static final Set<String> BLOCKED_CORPUS = Set.of("Sg.Munch.Place");
 
     private final Amalgamate amalgamate;
     private final PlaceClient placeClient;
@@ -87,7 +85,11 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         try {
             if (amalgamate.maintain(placeData)) {
                 List<CorpusData> list = new ArrayList<>();
-                catalystClient.listCorpus(placeData.getCatalystId()).forEachRemaining(list::add);
+                catalystClient.listCorpus(placeData.getCatalystId()).forEachRemaining(data -> {
+                    if (!BLOCKED_CORPUS.contains(data.getCorpusName())) {
+                        list.add(data);
+                    }
+                });
 
                 Place place = placeParser.parse(new Place(), list);
                 // Null = parsing failed
@@ -95,7 +97,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                     deleteIf(placeData.getCorpusKey());
                 } else {
                     putIf(place);
-                    putPlaceData(placeData, place);
+                    putCorpus(place);
                     count(list, place);
                 }
             } else {
@@ -169,13 +171,25 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         }
     }
 
-    private void putPlaceData(CorpusData placeData, Place place) {
+    private void putCorpus(Place place) {
         // Put to corpus client
-        // CACHED FEEDBACK LOOP, Parser will read from here also
-        placeData.replace(PlaceKey.name, place.getName());
-        placeData.replace(PlaceKey.Location.postal, place.getLocation().getPostal());
-        placeData.replace(PlaceKey.Location.latLng, place.getLocation().getLatLng());
-        corpusClient.put(corpusName, placeData.getCorpusKey(), placeData);
+        CorpusData placeData = new CorpusData();
+        placeData.put(PlaceKey.name, place.getName());
+        placeData.put(PlaceKey.phone, place.getPhone());
+        placeData.put(PlaceKey.website, place.getWebsite());
+        placeData.put(PlaceKey.description, place.getDescription());
+
+        placeData.put(PlaceKey.Location.street, place.getLocation().getStreet());
+        placeData.put(PlaceKey.Location.address, place.getLocation().getAddress());
+        placeData.put(PlaceKey.Location.unitNumber, place.getLocation().getUnitNumber());
+        placeData.put(PlaceKey.Location.building, place.getLocation().getBuilding());
+
+        placeData.put(PlaceKey.Location.city, place.getLocation().getCity());
+        placeData.put(PlaceKey.Location.country, place.getLocation().getCountry());
+
+        placeData.put(PlaceKey.Location.postal, place.getLocation().getPostal());
+        placeData.put(PlaceKey.Location.latLng, place.getLocation().getLatLng());
+        corpusClient.put("Sg.Munch.Place", place.getId(), placeData);
     }
 
     /**

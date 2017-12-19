@@ -28,12 +28,7 @@ public final class PlaceImageModule extends AbstractModule {
     }
 
     public static void main(String[] args) {
-        try {
-            Injector injector = Guice.createInjector(new PlaceImageModule());
-            injector.getInstance(PlaceImageCorpus.class).run();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw e;
-        }
+        Injector injector = Guice.createInjector(new PlaceImageModule());
+        injector.getInstance(PlaceImageCorpus.class).run();
     }
 }
