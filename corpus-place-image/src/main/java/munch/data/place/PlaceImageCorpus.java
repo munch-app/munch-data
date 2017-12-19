@@ -82,7 +82,10 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         ImageListBuilder builder = new ImageListBuilder(processedImages);
         // Select from explicit sources first
         builder.supply(stream -> stream
-                .filter(image -> EXPLICIT_SOURCES.contains(image.getImage().getSource()))
+                .filter(image -> {
+                    if (image.getImage().getSource() == null) return false;
+                    return EXPLICIT_SOURCES.contains(image.getImage().getSource());
+                })
                 .sorted(Comparator.comparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput)));
 
@@ -130,7 +133,10 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     private boolean due(String placeId) {
         CorpusData imageData = catalystClient.getCorpus(placeId, "Sg.Munch.PlaceImage");
         if (imageData == null) return true;
-        if (PlaceKey.image.getAll(imageData).size() < 3) return true;
+        if (PlaceKey.image.getAll(imageData).size() < 3) {
+            // If less then 3 photos, 1 day expiry date
+            return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(1));
+        }
         return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(7));
     }
 }
