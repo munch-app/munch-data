@@ -7,7 +7,9 @@ import corpus.field.PlaceKey;
 import corpus.images.ImageField;
 import munch.data.place.collector.CollectedImage;
 import munch.data.place.collector.ImageCollector;
+import munch.data.place.processor.ImageListBuilder;
 import munch.data.place.processor.ImageProcessor;
+import munch.data.place.processor.MenuProcessor;
 import munch.data.place.processor.ProcessedImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -28,15 +28,19 @@ import java.util.List;
 @Singleton
 public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceImageCorpus.class);
+    private static final Set<String> EXPLICIT_SOURCES = Set.of("munch-franchise", "munch-place-info");
 
     private final ImageCollector imageCollector;
     private final ImageProcessor imageProcessor;
 
+    private final MenuProcessor menuProcessor;
+
     @Inject
-    public PlaceImageCorpus(ImageCollector imageCollector, ImageProcessor imageProcessor) {
+    public PlaceImageCorpus(ImageCollector imageCollector, ImageProcessor imageProcessor, MenuProcessor menuProcessor) {
         super(logger);
         this.imageCollector = imageCollector;
         this.imageProcessor = imageProcessor;
+        this.menuProcessor = menuProcessor;
     }
 
     @Override
@@ -64,18 +68,48 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
 
         CorpusData imageData = new CorpusData(cycleNo);
         imageData.setCatalystId(placeId);
-        imageData.getFields().addAll(parse(processedImages));
+        imageData.getFields().addAll(selectImages(processedImages));
         corpusClient.put("Sg.Munch.PlaceImage", placeId, imageData);
+
+        // Put Menu Card collected from images
+        menuProcessor.put(placeId, processedImages);
 
         sleep(100);
         if (processed % 100 == 0) logger.info("Processed {} places", processed);
+    }
+
+    private static List<ImageField> selectImages(List<ProcessedImage> processedImages) {
+        ImageListBuilder builder = new ImageListBuilder(processedImages);
+        // Select from explicit sources first
+        builder.supply(stream -> stream
+                .filter(image -> EXPLICIT_SOURCES.contains(image.getImage().getSource()))
+                .sorted(Comparator.comparingLong(ImageListBuilder::sortSize)
+                        .thenComparingDouble(ImageListBuilder::sortOutput)));
+
+        // Select 3 food image if existing is less then 3, Sorted by Place.image, then score
+        builder.supply(current -> current.size() < 3, stream -> stream
+                .filter(image -> image.isOutput("food", 0.75f))
+                .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
+                        .thenComparingLong(ImageListBuilder::sortSize)
+                        .thenComparingDouble(ImageListBuilder::sortOutput)
+                ).limit(3));
+
+        // Select 1 place image, Sorted by Place.image, then score
+        builder.supply(stream -> stream
+                .filter(image -> image.isOutput("place", 0.75f))
+                .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
+                        .thenComparingLong(ImageListBuilder::sortSize)
+                        .thenComparingDouble(ImageListBuilder::sortOutput)
+                ).limit(1));
+
+        return parse(builder.collect());
     }
 
     /**
      * @param processedImages image to parse to ImageField
      * @return List of ImageField
      */
-    private List<ImageField> parse(List<ProcessedImage> processedImages) {
+    private static List<ImageField> parse(List<ProcessedImage> processedImages) {
         List<ImageField> fieldList = new ArrayList<>();
 
         for (int i = 0; i < processedImages.size(); i++) {

@@ -54,7 +54,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofMinutes(20);
+        return Duration.ofHours(1);
     }
 
     @Override

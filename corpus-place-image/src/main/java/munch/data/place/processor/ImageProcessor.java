@@ -33,7 +33,6 @@ public final class ImageProcessor {
     private static final String HASH_KEY = "Sg.Munch.PlaceImage.Finn-0.4.0";
     private static final Retriable retriable = new ExceptionRetriable(10);
 
-    private static final Set<String> EXPLICIT_SOURCES = Set.of("munch-franchise", "munch-place-info");
 
     private final FinnClient finnClient;
     private final DocumentClient documentClient;
@@ -51,44 +50,9 @@ public final class ImageProcessor {
      * @return selected image
      */
     public List<ProcessedImage> process(List<CollectedImage> collectedImages) {
-        List<ProcessedImage> processedImages = collectedImages.stream()
+        return collectedImages.stream()
                 .map(this::parse)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        List<ProcessedImage> finalList = new ArrayList<>();
-
-        // Select 3 food image, Sorted by Place.image, then score
-        finalList.addAll(selectFood(processedImages));
-
-        // Select 1 place image, Sorted by Place.image, then score
-        processedImages.stream()
-                .filter(image -> image.isOutput("place", 0.75f))
-                .sorted(Comparator.comparingInt(ImageProcessor::sortFrom)
-                        .thenComparingLong(ImageProcessor::sortSize)
-                        .thenComparingDouble(ImageProcessor::sortOutput)
-                ).limit(1)
-                .forEach(finalList::add);
-
-        return finalList;
-    }
-
-    public List<ProcessedImage> selectFood(List<ProcessedImage> processedImages) {
-        List<ProcessedImage> explicitImage = processedImages.stream()
-                .filter(image -> EXPLICIT_SOURCES.contains(image.getImage().getSource()))
-                .sorted(Comparator.comparingLong(ImageProcessor::sortSize)
-                        .thenComparingDouble(ImageProcessor::sortOutput))
-                .collect(Collectors.toList());
-
-        if (!explicitImage.isEmpty()) return explicitImage;
-
-        // Else pick food images first
-        return processedImages.stream()
-                .filter(image -> image.isOutput("food", 0.8f))
-                .sorted(Comparator.comparingInt(ImageProcessor::sortFrom)
-                        .thenComparingLong(ImageProcessor::sortSize)
-                        .thenComparingDouble(ImageProcessor::sortOutput)
-                ).limit(3)
                 .collect(Collectors.toList());
     }
 
@@ -141,40 +105,5 @@ public final class ImageProcessor {
         } finally {
             FileUtils.deleteQuietly(file);
         }
-    }
-
-    /**
-     * @param image image
-     * @return int for comparing
-     */
-    private static int sortFrom(ProcessedImage image) {
-        switch (image.getImage().getFrom()) {
-            case Place:
-                return 0;
-            case Instagram:
-                return 1;
-            case Article:
-                return 2;
-            default:
-                return 10;
-        }
-    }
-
-    /**
-     * @param image image
-     * @return float for comparing
-     */
-    private static float sortOutput(ProcessedImage image) {
-        float value = image.getFinnLabel().getMaxOutput().getValue();
-        return 1.0f - value;
-    }
-
-    private static long sortSize(ProcessedImage image) {
-        Map<String, String> images = image.getImage().getImages();
-        if (images.containsKey("1080x1080")) return 0;
-        if (images.containsKey("640x640")) return 1;
-        if (images.containsKey("320x320")) return 2;
-        if (images.containsKey("150x150")) return 3;
-        return 10;
     }
 }
