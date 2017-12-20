@@ -32,7 +32,7 @@ public final class MenuProcessor {
 
     public void put(String placeId, List<ProcessedImage> processedImages) {
         List<ImageMenu> menus = processedImages.stream()
-                .filter(image -> image.isOutput("menu", 0.75f))
+                .filter(image -> image.isOutput("menu", 0.95f))
                 .sorted(Comparator.comparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput))
                 .limit(10)
@@ -46,6 +46,7 @@ public final class MenuProcessor {
             cardClient.deleteIfNonNull(placeId, MENU_CARD_ID);
         } else {
             // Put if card content changes
+            logger.info("Menus: {}, Added for {}", menus.size(), placeId);
             PlaceJsonCard card = new PlaceJsonCard(MENU_CARD_ID, menus);
             cardClient.putIfChange(placeId, card);
         }
