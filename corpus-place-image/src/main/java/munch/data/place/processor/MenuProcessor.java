@@ -1,7 +1,9 @@
 package munch.data.place.processor;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.clients.PlaceCardClient;
 import munch.data.structure.PlaceJsonCard;
+import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,10 @@ public final class MenuProcessor {
         } else {
             // Put if card content changes
             logger.info("Menus: {}, Added for {}", menus.size(), placeId);
-            PlaceJsonCard card = new PlaceJsonCard(MENU_CARD_ID, menus);
+
+            ObjectNode node = JsonUtils.objectMapper.createObjectNode();
+            node.set("menus", JsonUtils.toTree(menus));
+            PlaceJsonCard card = new PlaceJsonCard(MENU_CARD_ID, node);
             cardClient.putIfChange(placeId, card);
         }
     }
