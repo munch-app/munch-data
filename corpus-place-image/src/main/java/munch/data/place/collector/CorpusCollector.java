@@ -4,6 +4,7 @@ import corpus.data.CorpusData;
 
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +24,7 @@ public final class CorpusCollector extends AbstractCollector {
                 .flatMap(data -> data.getFields().stream())
                 .filter(field -> field.getKey().equals("Place.image"))
                 .map(field -> mapField(field, CollectedImage.From.Place))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 }

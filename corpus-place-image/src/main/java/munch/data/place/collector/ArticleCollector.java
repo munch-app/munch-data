@@ -6,6 +6,7 @@ import corpus.field.FieldUtils;
 
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ public final class ArticleCollector extends AbstractCollector {
                 .flatMap(data -> data.getFields().stream())
                 .filter(field -> field.getKey().equals("Article.image"))
                 .map(field -> mapField(field, CollectedImage.From.Article))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

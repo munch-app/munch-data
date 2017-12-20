@@ -24,6 +24,9 @@ public abstract class AbstractCollector {
             imageField = new ImageField(field);
         }
 
+        if (imageField.getImages() == null) return null;
+        if (imageField.getImages().isEmpty()) return null;
+
         // Map CollectedImage
         CollectedImage image = new CollectedImage();
         image.setFrom(from);
@@ -38,7 +41,7 @@ public abstract class AbstractCollector {
         Objects.requireNonNull(imageField.getImageKey());
         if (imageField.getSource() != null) {
             return imageField.getSource() + "|" + imageField.getImageKey();
-        }else  {
+        } else {
             Objects.requireNonNull(imageField.getBucket());
             return imageField.getBucket() + "|" + imageField.getImageKey();
         }
