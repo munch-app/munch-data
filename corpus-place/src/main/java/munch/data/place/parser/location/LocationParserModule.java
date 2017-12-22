@@ -71,10 +71,4 @@ public class LocationParserModule extends AbstractModule {
         WaitFor.host(config.getString("services.location.url"), Duration.ofSeconds(300));
         return new GeocodeClient(config.getString("services.location.url"));
     }
-
-    @Provides
-    @Singleton
-    GeocodeApi provideGeocodeApi(GeoPostcodesApi geoPostcodes, OneMapApi oneMapApi) {
-        return new GeocodeApi.Chain(geoPostcodes, oneMapApi);
-    }
 }

@@ -1,7 +1,6 @@
 package munch.data.place.parser;
 
 import catalyst.utils.LatLngUtils;
-import munch.data.place.parser.location.OneMapApi;
 import org.junit.jupiter.api.Test;
 
 /**
