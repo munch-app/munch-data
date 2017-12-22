@@ -33,7 +33,7 @@ public class DayOpenClose {
         }
     }
 
-    public List<Place.Hour> getPlaceHours() {
+    public List<Place.Hour> getPlaceHours(String day) {
         List<Place.Hour> hours = new ArrayList<>();
         boolean open = false; // State
         Place.Hour hour = null;
@@ -44,6 +44,7 @@ public class DayOpenClose {
 
                 if (open) {
                     hour = new Place.Hour();
+                    hour.setDay(day);
                     hour.setOpen(toTime(i));
                 } else {
                     assert hour != null;

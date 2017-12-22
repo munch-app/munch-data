@@ -64,7 +64,7 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
                 .entrySet()
                 .stream()
                 .max(HOUR_COMPARATOR)
-                .map(entry -> entry.getKey().getPlaceHours())
+                .map(entry -> entry.getKey().getPlaceHours(day))
                 .orElse(List.of());
     }
 
