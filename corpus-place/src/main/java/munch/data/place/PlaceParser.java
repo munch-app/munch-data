@@ -5,6 +5,7 @@ import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
 import munch.data.place.parser.*;
+import munch.data.place.parser.hour.HourParser;
 import munch.data.place.parser.location.LocationParser;
 import munch.data.place.parser.tag.TagParser;
 import munch.data.structure.Place;
