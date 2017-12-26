@@ -72,7 +72,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
      */
     private String collectStreet(double lat, double lng) {
         String street = locationClient.street(lat, lng);
-        if (street != null) return street;
+        if (StringUtils.isNotBlank(street)) return street;
         return "Singapore";
     }
 
@@ -111,6 +111,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         unitNumber = unitNumber.replaceAll(" ", "");
         unitNumber = unitNumber.replaceAll("^,|,$", "");
         if (unitNumber.startsWith("#")) return unitNumber;
+        if (unitNumber.isEmpty()) return null;
         return "#" + unitNumber.toUpperCase();
     }
 
