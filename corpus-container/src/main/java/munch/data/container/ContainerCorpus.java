@@ -31,7 +31,7 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(ContainerCorpus.class);
     private static final Retriable retriable = new ExceptionRetriable(4);
 
-    private static final long dataVersion = 22;
+    private static final long dataVersion = 23;
 
     private final ContainerClient containerClient;
 
@@ -137,7 +137,7 @@ public final class ContainerCorpus extends CatalystEngine<CorpusData> {
     public static List<SourcedImage> collectImages(CorpusData sourceData) {
         return ContainerKey.image.getAll(sourceData).stream()
                 .map(ImageField::new)
-                .filter(field -> field.getImages() != null && field.getSource() != null)
+                .filter(field -> field.getImages() != null)
                 .map(field -> {
                     SourcedImage image = new SourcedImage();
                     image.setSource(field.getSource());

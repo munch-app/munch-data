@@ -1,6 +1,7 @@
 package munch.data.place.parser.location;
 
 import catalyst.utils.LatLngUtils;
+import com.google.common.base.Joiner;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.location.GeocodeClient;
@@ -16,7 +17,6 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class LocationParser extends AbstractParser<Place.Location> {
     private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d+.*");
-    private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile(" ");
+    private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
 
     private final TrainDatabase trainDatabase; // With latLng
     private final StreetNameClient streetNameClient; // With latLng
@@ -73,13 +73,16 @@ public final class LocationParser extends AbstractParser<Place.Location> {
      */
     private String collectUnitNumber(List<CorpusData> list) {
         String unitNumber = collectMax(list, PlaceKey.Location.unitNumber);
-        if (StringUtils.isNotBlank(unitNumber)) return unitNumber;
+        if (StringUtils.isNotBlank(unitNumber)) {
+            return cleanUnitNumber(unitNumber);
+        }
 
         return collect(list, PlaceKey.Location.address).stream()
                 .map(CorpusData.Field::getValue)
                 .map(this::parseUnitNumber)
                 .filter(Objects::nonNull)
                 .findAny()
+                .map(this::cleanUnitNumber)
                 .orElse(null);
     }
 
@@ -95,17 +98,21 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         return null;
     }
 
+    public String cleanUnitNumber(String unitNumber) {
+        unitNumber = unitNumber.replaceAll(" ", "");
+        unitNumber = unitNumber.replaceAll("^,|,$", "");
+        if (unitNumber.startsWith("#")) return unitNumber;
+        return "#" + unitNumber.toUpperCase();
+    }
+
     private String collectAddress(Place.Location location, List<CorpusData> list) {
-        String address = collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.address);
+        String address = collectMax(list, WordUtils::capitalize, PlaceKey.Location.address);
         if (address == null) {
             // If address don't exist, create one
-            return List.of(
-                    location.getUnitNumber(),
-                    location.getStreet(),
-                    location.getCity() + " " + location.getPostal()
-            ).stream()
-                    .filter(StringUtils::isNotBlank)
-                    .collect(Collectors.joining(", "));
+            return Joiner.on(", ")
+                    .skipNulls()
+                    .join(location.getUnitNumber(), location.getStreet(),
+                            location.getCity() + " " + location.getPostal());
         }
         // If max contains - & # return it
         if (address.contains("-") && address.contains("#")) return address;
@@ -115,7 +122,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
                 .map(CorpusData.Field::getValue)
                 .filter(text -> text.contains("-") && text.contains("#"))
                 .findAny()
-                .map(WordUtils::capitalizeFully)
+                .map(WordUtils::capitalize)
                 .orElse(address);
     }
 

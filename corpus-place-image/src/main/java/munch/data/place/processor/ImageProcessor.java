@@ -7,6 +7,7 @@ import corpus.data.DocumentClient;
 import munch.data.place.collector.CollectedImage;
 import munch.finn.FinnClient;
 import munch.finn.FinnLabel;
+import munch.finn.RawLabelException;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -18,7 +19,8 @@ import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +70,9 @@ public final class ImageProcessor {
         try {
             ProcessedImage processedImage = new ProcessedImage();
             processedImage.setImage(collectedImage);
-            processedImage.setFinnLabel(predict(collectedImage));
+            FinnLabel finnLabel = predict(collectedImage);
+            if (finnLabel == null) return null;
+            processedImage.setFinnLabel(finnLabel);
             documentClient.put(HASH_KEY, uniqueId, JsonUtils.toTree(processedImage));
             return processedImage;
         } catch (IllegalStateException e) {
@@ -98,7 +102,12 @@ public final class ImageProcessor {
             File finalFile = file;
             return retriable.loop(() -> {
                 FileUtils.copyURLToFile(url, finalFile);
-                return finnClient.predict(finalFile);
+                try {
+                    return finnClient.predict(finalFile);
+                } catch (RawLabelException e) {
+                    logger.warn("RawLabelException for imageUrl: {}", url.toString(), e);
+                    return null;
+                }
             });
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
