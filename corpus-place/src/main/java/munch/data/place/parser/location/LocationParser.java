@@ -49,8 +49,8 @@ public final class LocationParser extends AbstractParser<Place.Location> {
 
         Place.Location location = new Place.Location();
         // Might Need to be smarter
-        location.setStreet(locationClient.street(lat, lng));
         location.setNearestTrain(trainDatabase.findNearest(lat, lng).getName());
+        location.setStreet(collectStreet(lat, lng));
         location.setBuilding(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.building));
         location.setUnitNumber(collectUnitNumber(list));
 
@@ -63,6 +63,17 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         location.setPostal(collectMax(list, PlaceKey.Location.postal));
         location.setLatLng(lat, lng);
         return location;
+    }
+
+    /**
+     * @param lat latitude
+     * @param lng longitude
+     * @return street name or Singapore if null
+     */
+    private String collectStreet(double lat, double lng) {
+        String street = locationClient.street(lat, lng);
+        if (street != null) return street;
+        return "Singapore";
     }
 
     /**
