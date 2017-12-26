@@ -4,7 +4,7 @@ import catalyst.utils.LatLngUtils;
 import com.google.common.base.Joiner;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
-import corpus.location.GeocodeClient;
+import corpus.location.LocationClient;
 import munch.data.place.matcher.PatternSplit;
 import munch.data.place.parser.AbstractParser;
 import munch.data.structure.Place;
@@ -30,14 +30,12 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
 
     private final TrainDatabase trainDatabase; // With latLng
-    private final StreetNameClient streetNameClient; // With latLng
-    private final GeocodeClient geocodeClient;
+    private final LocationClient locationClient;
 
     @Inject
-    public LocationParser(TrainDatabase trainDatabase, StreetNameClient streetNameClient, GeocodeClient geocodeClient) {
+    public LocationParser(TrainDatabase trainDatabase, LocationClient locationClient) {
         this.trainDatabase = trainDatabase;
-        this.streetNameClient = streetNameClient;
-        this.geocodeClient = geocodeClient;
+        this.locationClient = locationClient;
     }
 
     @Override
@@ -51,7 +49,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
 
         Place.Location location = new Place.Location();
         // Might Need to be smarter
-        location.setStreet(streetNameClient.getStreet(lat, lng));
+        location.setStreet(locationClient.street(lat, lng));
         location.setNearestTrain(trainDatabase.findNearest(lat, lng).getName());
         location.setBuilding(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.building));
         location.setUnitNumber(collectUnitNumber(list));
@@ -135,7 +133,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         String postal = collectMax(list, PlaceKey.Location.postal);
         if (StringUtils.isBlank(postal)) return null;
 
-        GeocodeClient.Data geocode = geocodeClient.geocodePostcode(postal);
+        LocationClient.Data geocode = locationClient.geocodePostcode(postal);
         LatLngUtils.LatLng existing = LatLngUtils.parse(latLng);
         if (geocode == null) return existing;
 

@@ -26,7 +26,7 @@ class CorpusDataHourTest {
         CorpusDataHour hour = new CorpusDataHour("", "", fieldList);
         hour.getDays().forEach((day, dayOpenClose) -> {
             System.out.println("Day: "+ day);
-            for (Place.Hour placeHour : dayOpenClose.getPlaceHours()) {
+            for (Place.Hour placeHour : dayOpenClose.getPlaceHours("mon")) {
                 System.out.println(placeHour.getOpen() + " - " + placeHour.getClose());
             }
         });

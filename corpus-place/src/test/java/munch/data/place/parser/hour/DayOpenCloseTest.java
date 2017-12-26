@@ -17,7 +17,7 @@ class DayOpenCloseTest {
         openClose.put("8:00", "14:45");
         openClose.put("15:00", "22:00");
 
-        for (Place.Hour hour : openClose.getPlaceHours()) {
+        for (Place.Hour hour : openClose.getPlaceHours("mon")) {
             System.out.println(hour.getOpen() + " - " + hour.getClose());
         }
     }
