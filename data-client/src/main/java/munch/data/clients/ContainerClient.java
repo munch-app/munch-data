@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
+import munch.data.elastic.query.SortQuery;
 import munch.data.exceptions.ElasticException;
 import munch.data.structure.Container;
 
@@ -26,8 +27,6 @@ public class ContainerClient extends AbstractClient {
     private final ElasticClient elasticClient;
     private final ElasticMarshaller marshaller;
 
-    private static final JsonNode SORT_NODE = sort();
-
     @Inject
     public ContainerClient(ElasticIndex elasticIndex, ElasticClient elasticClient, ElasticMarshaller marshaller) {
         this.elasticIndex = elasticIndex;
@@ -45,7 +44,7 @@ public class ContainerClient extends AbstractClient {
         ObjectNode bool = objectMapper.createObjectNode();
         bool.set("filter", filter(latLng, radius));
 
-        JsonNode result = elasticClient.postBoolSearch(0, size, bool, SORT_NODE);
+        JsonNode result = elasticClient.postBoolSearch(0, size, bool, sort(latLng));
         JsonNode hits = result.path("hits");
         return marshaller.deserializeList(hits.path("hits"));
     }
@@ -88,9 +87,9 @@ public class ContainerClient extends AbstractClient {
     /**
      * @return default sort for Container search
      */
-    private static JsonNode sort() {
+    private static JsonNode sort(String latLng) {
         ArrayNode sortArray = objectMapper.createArrayNode();
-        sortArray.addObject().put("ranking", "desc");
+        sortArray.add(SortQuery.sortDistance(latLng));
         return sortArray;
     }
 }

@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.structure.SearchQuery;
+import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Objects;
 
@@ -22,12 +22,7 @@ import java.util.Objects;
 @Singleton
 public final class SortQuery {
     private static final Logger logger = LoggerFactory.getLogger(SortQuery.class);
-    private final ObjectMapper mapper;
-
-    @Inject
-    public SortQuery(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
+    private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
     /**
      * @param query SearchQuery for place
@@ -69,7 +64,7 @@ public final class SortQuery {
      * @param latLng center
      * @return { "location.latLng" : "lat,lng", "order" : "asc", "unit" : "m", "mode" : "min", "distance_type" : "plane" }
      */
-    private JsonNode sortDistance(String latLng) {
+    public static JsonNode sortDistance(String latLng) {
         Objects.requireNonNull(latLng);
 
         ObjectNode geoDistance = mapper.createObjectNode()
@@ -89,7 +84,7 @@ public final class SortQuery {
      * @param by    direction
      * @return { "field": "by" }
      */
-    private JsonNode sortField(String field, String by) {
+    public static JsonNode sortField(String field, String by) {
         ObjectNode sort = mapper.createObjectNode();
         sort.put(field, by);
         return sort;
