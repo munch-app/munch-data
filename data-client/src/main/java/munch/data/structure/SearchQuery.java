@@ -176,8 +176,17 @@ public final class SearchQuery {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Price {
+            private String name;
             private Double min;
             private Double max;
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
 
             public Double getMin() {
                 return min;
@@ -198,7 +207,8 @@ public final class SearchQuery {
             @Override
             public String toString() {
                 return "Price{" +
-                        "min=" + min +
+                        "name='" + name + '\'' +
+                        ", min=" + min +
                         ", max=" + max +
                         '}';
             }
@@ -234,9 +244,24 @@ public final class SearchQuery {
             }
         }
 
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Hour {
+            private String name;
+
             private String day;
-            private String time;
+            private String open;
+            private String close;
+
+            /**
+             * @return name of hour filter
+             */
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
 
             /**
              * @return day which it is open
@@ -250,24 +275,29 @@ public final class SearchQuery {
                 this.day = day;
             }
 
-            /**
-             * @return time which it is open
-             * @see Place.Hour#open
-             * @see Place.Hour#close
-             */
-            public String getTime() {
-                return time;
+            public String getOpen() {
+                return open;
             }
 
-            public void setTime(String time) {
-                this.time = time;
+            public void setOpen(String open) {
+                this.open = open;
+            }
+
+            public String getClose() {
+                return close;
+            }
+
+            public void setClose(String close) {
+                this.close = close;
             }
 
             @Override
             public String toString() {
                 return "Hour{" +
-                        "day='" + day + '\'' +
-                        ", time='" + time + '\'' +
+                        "name='" + name + '\'' +
+                        ", day='" + day + '\'' +
+                        ", open='" + open + '\'' +
+                        ", close='" + close + '\'' +
                         '}';
             }
         }

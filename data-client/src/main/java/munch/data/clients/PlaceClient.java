@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
-import munch.data.elastic.query.HourFilter;
 import munch.data.elastic.query.PlaceBoolQuery;
 import munch.data.elastic.query.SortQuery;
 import munch.data.exceptions.ElasticException;
@@ -128,10 +127,7 @@ public class PlaceClient extends AbstractClient {
             JsonNode result = client.postBoolSearch(query.getFrom(), query.getSize(), boolNode, sortNode);
             JsonNode hits = result.path("hits");
 
-            List<Place> places = marshaller.deserializeList(hits.path("hits"));
-            // Filter Hours after query
-            HourFilter.filter(query, places);
-            return places;
+            return marshaller.deserializeList(hits.path("hits"));
         }
 
         /**
