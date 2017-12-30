@@ -123,7 +123,9 @@ public final class PlaceBoolQuery {
             // Only add if contains max or min
             if (range.size() > 0) {
                 // Filter is applied on middle
-                filterArray.add(mapper.createObjectNode().set("price.middle", range));
+                ObjectNode rangeFilter = mapper.createObjectNode();
+                rangeFilter.putObject("range").set("price.middle", range);
+                filterArray.add(rangeFilter);
             }
         }
 
