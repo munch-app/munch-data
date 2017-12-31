@@ -94,6 +94,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                 Place place = placeParser.parse(new Place(), list);
                 // Null = parsing failed
                 if (place == null) {
+                    logger.info("Failed to parse place id: {}", placeData.getCorpusKey());
                     deleteIf(placeData.getCorpusKey());
                 } else {
                     putIf(place);

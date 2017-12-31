@@ -85,10 +85,15 @@ public class ContainerClient extends AbstractClient {
     }
 
     /**
+     * Sort by ranking desc first
+     * Then sort by distance
+     *
+     * @param latLng latLng for 2nd sort by
      * @return default sort for Container search
      */
     private static JsonNode sort(String latLng) {
         ArrayNode sortArray = objectMapper.createArrayNode();
+        sortArray.add(SortQuery.sortField("ranking", "desc"));
         sortArray.add(SortQuery.sortDistance(latLng));
         return sortArray;
     }
