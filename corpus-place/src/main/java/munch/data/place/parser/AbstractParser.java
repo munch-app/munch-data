@@ -1,6 +1,8 @@
 package munch.data.place.parser;
 
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multiset;
 import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
@@ -84,6 +86,20 @@ public abstract class AbstractParser<T> {
         FieldCollector fieldCollector = new FieldCollector(keys);
         fieldCollector.add(data);
         return fieldCollector.collectField();
+    }
+
+    @Nullable
+    protected String collectMax(List<String> list) {
+        Multiset<String> multiset = HashMultiset.create(list);
+        String maxElement = null;
+        int maxCount = 0;
+        for (Multiset.Entry<String> entry : multiset.entrySet()) {
+            if (entry.getCount() > maxCount) {
+                maxElement = entry.getElement();
+                maxCount = entry.getCount();
+            }
+        }
+        return maxElement;
     }
 
     protected boolean hasAny(AbstractKey key, List<CorpusData> list) {

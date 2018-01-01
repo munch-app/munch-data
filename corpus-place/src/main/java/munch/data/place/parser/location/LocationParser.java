@@ -17,6 +17,7 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -86,13 +87,14 @@ public final class LocationParser extends AbstractParser<Place.Location> {
             return cleanUnitNumber(unitNumber);
         }
 
-        return collect(list, PlaceKey.Location.address).stream()
+        List<String> unitNumbers = collect(list, PlaceKey.Location.address).stream()
                 .map(CorpusData.Field::getValue)
                 .map(this::parseUnitNumber)
-                .filter(Objects::nonNull)
-                .findAny()
                 .map(this::cleanUnitNumber)
-                .orElse(null);
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        return collectMax(unitNumbers);
     }
 
     @Nullable
@@ -108,6 +110,8 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     }
 
     public String cleanUnitNumber(String unitNumber) {
+        if (unitNumber == null) return null;
+
         unitNumber = unitNumber.replaceAll(" ", "");
         unitNumber = unitNumber.replaceAll("^,|,$", "");
         if (unitNumber.startsWith("#")) return unitNumber;
