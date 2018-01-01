@@ -43,20 +43,10 @@ public class PlaceClient extends AbstractClient {
     }
 
     /**
-     * @param query query object
-     * @return List of Place result
-     * @see SearchQuery
+     * @return Place Search Client
      */
-    public List<Place> search(SearchQuery query) {
-        return searchClient.search(query);
-    }
-
-    /**
-     * @param query query
-     * @return total possible results count
-     */
-    public long count(SearchQuery query) {
-        return searchClient.count(query);
+    public SearchClient getSearchClient() {
+        return searchClient;
     }
 
     /**
@@ -105,7 +95,7 @@ public class PlaceClient extends AbstractClient {
     }
 
     @Singleton
-    private static final class SearchClient {
+    public static final class SearchClient {
         private final ElasticClient client;
         private final BoolQuery boolQuery;
         private final SortQuery sortQuery;
@@ -119,7 +109,7 @@ public class PlaceClient extends AbstractClient {
             this.marshaller = marshaller;
         }
 
-        private List<Place> search(SearchQuery query) {
+        public List<Place> search(SearchQuery query) {
             validate(query);
 
             JsonNode boolNode = this.boolQuery.make(query);
@@ -134,11 +124,19 @@ public class PlaceClient extends AbstractClient {
          * @param query query
          * @return total possible results
          */
-        private long count(SearchQuery query) {
+        public long count(SearchQuery query) {
             validate(query);
 
             JsonNode boolNode = this.boolQuery.make(query);
             return client.postBoolCount(boolNode);
+        }
+
+        /**
+         * @param node raw node search
+         * @return raw result
+         */
+        private JsonNode search(JsonNode node) {
+            return client.postSearch(node);
         }
 
         /**
