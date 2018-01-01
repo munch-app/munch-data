@@ -9,6 +9,8 @@ import com.google.inject.Singleton;
 import munch.data.structure.*;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.JsonException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.List;
  */
 @Singleton
 public final class ElasticMarshaller {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticMarshaller.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
     /**
@@ -32,6 +35,9 @@ public final class ElasticMarshaller {
     public ObjectNode serialize(Place place) {
         ObjectNode node = mapper.valueToTree(place);
         node.put("dataType", "Place");
+
+        // Special indexed hour field
+        node.set("hour", parseHour(place.getHours()));
 
         // Overrides
         node.put("createdDate", place.getCreatedDate().getTime());
@@ -44,6 +50,43 @@ public final class ElasticMarshaller {
                 .put("weight", 10)
                 .set("input", inputs);
         return node;
+    }
+
+    private static ObjectNode parseHour(List<Place.Hour> hours) {
+        ObjectNode objectNode = mapper.createObjectNode();
+        if (hours.isEmpty()) return objectNode;
+
+        objectNode.set("mon", collectDay("mon", hours));
+        objectNode.set("tue", collectDay("tue", hours));
+        objectNode.set("wed", collectDay("wed", hours));
+        objectNode.set("thu", collectDay("thu", hours));
+        objectNode.set("fri", collectDay("fri", hours));
+        objectNode.set("sat", collectDay("sat", hours));
+        objectNode.set("sun", collectDay("sun", hours));
+        return objectNode;
+    }
+
+    private static ArrayNode collectDay(String day, List<Place.Hour> hours) {
+        ArrayNode arrayNode = mapper.createArrayNode();
+
+        for (Place.Hour hour : hours) {
+            if (hour.getDay().equals(day)) {
+                try {
+                    arrayNode.addObject()
+                            .putObject("open_close")
+                            .put("gte", parseTime(hour.getOpen()))
+                            .put("lte", parseTime(hour.getClose()));
+                } catch (NumberFormatException | NullPointerException | IndexOutOfBoundsException e) {
+                    logger.error("Time parse error", e);
+                }
+            }
+        }
+        return arrayNode;
+    }
+
+    public static int parseTime(String time) {
+        String[] hourMin = time.split(":");
+        return Integer.parseInt(hourMin[0]) * 60 + Integer.parseInt(hourMin[1]);
     }
 
     /**

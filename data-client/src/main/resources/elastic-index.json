@@ -89,6 +89,66 @@
         "hours": {
           "enabled": false
         },
+        "hour": {
+          "properties": {
+            "mon": {
+              "properties": {
+                "open_close": {
+                  "type": "integer_range",
+                  "store": false
+                }
+              }
+            },
+            "tue": {
+              "properties": {
+                "open_close": {
+                  "type": "integer_range",
+                  "store": false
+                }
+              }
+            },
+            "wed": {
+              "properties": {
+                "open_close": {
+                  "type": "integer_range",
+                  "store": false
+                }
+              }
+            },
+            "thu": {
+              "properties": {
+                "open_close": {
+                  "type": "integer_range",
+                  "store": false
+                }
+              }
+            },
+            "fri": {
+              "properties": {
+                "open_close": {
+                  "type": "integer_range",
+                  "store": false
+                }
+              }
+            },
+            "sat": {
+              "properties": {
+                "open_close": {
+                  "type": "integer_range",
+                  "store": false
+                }
+              }
+            },
+            "sun": {
+              "properties": {
+                "open_close": {
+                  "type": "integer_range",
+                  "store": false
+                }
+              }
+            }
+          }
+        },
         "containers": {
           "properties": {
             "id": {

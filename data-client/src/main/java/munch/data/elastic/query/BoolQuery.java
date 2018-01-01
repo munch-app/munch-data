@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
+import munch.data.elastic.ElasticMarshaller;
 import munch.data.structure.Container;
 import munch.data.structure.Location;
 import munch.data.structure.SearchQuery;
@@ -24,8 +25,8 @@ import java.util.Optional;
  * Project: munch-core
  */
 @Singleton
-public final class PlaceBoolQuery {
-    private static final Logger logger = LoggerFactory.getLogger(PlaceBoolQuery.class);
+public final class BoolQuery {
+    private static final Logger logger = LoggerFactory.getLogger(BoolQuery.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
     /**
@@ -110,27 +111,55 @@ public final class PlaceBoolQuery {
         }
 
         // Filter price
-        if (filter.getPrice() != null) {
-            ObjectNode range = mapper.createObjectNode();
-            if (filter.getPrice().getMax() != null) {
-                range.put("lte", filter.getPrice().getMax());
-            }
+        filterPrice(filter.getPrice()).ifPresent(filterArray::add);
 
-            if (filter.getPrice().getMin() != null) {
-                range.put("gte", filter.getPrice().getMin());
-            }
+        // Filter hour
+        filterHour(filter.getHour()).ifPresent(filterArray::add);
+        return filterArray;
+    }
 
-            // Only add if contains max or min
-            if (range.size() > 0) {
-                // Filter is applied on middle
-                ObjectNode rangeFilter = mapper.createObjectNode();
-                rangeFilter.putObject("range").set("price.middle", range);
-                filterArray.add(rangeFilter);
-            }
+    /**
+     * @param price SearchQuery.Filter.Price filters
+     * @return Filter Price Json
+     */
+    private Optional<JsonNode> filterPrice(SearchQuery.Filter.Price price) {
+        if (price == null) return Optional.empty();
+
+        ObjectNode range = mapper.createObjectNode();
+        if (price.getMax() != null) {
+            range.put("lte", price.getMax());
         }
 
-        // Filter hours is done at client side
-        return filterArray;
+        if (price.getMin() != null) {
+            range.put("gte", price.getMin());
+        }
+
+        // Only add if contains max or min
+        if (range.size() > 0) {
+            // Filter is applied on middle
+            ObjectNode rangeFilter = mapper.createObjectNode();
+            rangeFilter.putObject("range").set("price.middle", range);
+            return Optional.of(rangeFilter);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * @param hour SearchQuery.Filter.Hour hour filters estimation
+     * @return Filter Hour for Json
+     */
+    private Optional<JsonNode> filterHour(SearchQuery.Filter.Hour hour) {
+        if (hour == null) return Optional.empty();
+        if (StringUtils.isAnyBlank(hour.getDay(), hour.getOpen(), hour.getClose())) return Optional.empty();
+
+        ObjectNode filter = mapper.createObjectNode();
+        filter.putObject("range")
+                .putObject("hour." + hour.getDay() + ".open_close")
+                .put("relation", "within")
+                .put("gte", ElasticMarshaller.parseTime(hour.getOpen()))
+                .put("lte", ElasticMarshaller.parseTime(hour.getClose()));
+        return Optional.of(filter);
     }
 
     /**
@@ -162,7 +191,7 @@ public final class PlaceBoolQuery {
      * @return { "terms" : { "containers.id" : ["id1", "id2"] } }
      */
     @Nullable
-    private static JsonNode filterContainer(SearchQuery.Filter filter) {
+    private JsonNode filterContainer(SearchQuery.Filter filter) {
         if (filter == null) return null;
 
         List<Container> containers = filter.getContainers();
@@ -202,7 +231,7 @@ public final class PlaceBoolQuery {
      * @param pointList list of points to form a polygon
      * @return JsonNode = { "geo_polygon": { "location.latLng": { "points": ["-1,2", "-5,33" ...]}}}
      */
-    private static JsonNode filterPolygon(List<String> pointList) {
+    public static JsonNode filterPolygon(List<String> pointList) {
         ObjectNode filter = mapper.createObjectNode();
         ArrayNode points = filter.putObject("geo_polygon")
                 .putObject("location.latLng")
@@ -219,7 +248,7 @@ public final class PlaceBoolQuery {
      * @param metres metres in distance
      * @return JsonNode = { "geo_distance": { "distance": "1km", "location.latLng": "-1,2"}}
      */
-    private static JsonNode filterDistance(String latLng, double metres) {
+    public static JsonNode filterDistance(String latLng, double metres) {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("geo_distance")
                 .put("distance", metres + "m")
@@ -232,7 +261,7 @@ public final class PlaceBoolQuery {
      * @param text text of term
      * @return JsonNode =  { "term" : { "name" : "text" } }
      */
-    private static JsonNode filterTerm(String name, String text) {
+    public static JsonNode filterTerm(String name, String text) {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("term").put(name, text);
         return filter;

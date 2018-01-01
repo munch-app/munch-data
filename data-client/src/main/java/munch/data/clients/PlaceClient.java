@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
-import munch.data.elastic.query.PlaceBoolQuery;
+import munch.data.elastic.query.BoolQuery;
 import munch.data.elastic.query.SortQuery;
 import munch.data.exceptions.ElasticException;
 import munch.data.structure.Place;
@@ -81,7 +81,7 @@ public class PlaceClient extends AbstractClient {
      * @param place put place to dynamo and elastic
      * @throws JsonException parsing error
      */
-    public void put(Place place) throws ElasticException{
+    public void put(Place place) throws ElasticException {
         Objects.requireNonNull(place.getId());
         Objects.requireNonNull(place.getName());
 
@@ -107,12 +107,12 @@ public class PlaceClient extends AbstractClient {
     @Singleton
     private static final class SearchClient {
         private final ElasticClient client;
-        private final PlaceBoolQuery boolQuery;
+        private final BoolQuery boolQuery;
         private final SortQuery sortQuery;
         private final ElasticMarshaller marshaller;
 
         @Inject
-        private SearchClient(ElasticClient client, PlaceBoolQuery boolQuery, SortQuery sortQuery, ElasticMarshaller marshaller) {
+        private SearchClient(ElasticClient client, BoolQuery boolQuery, SortQuery sortQuery, ElasticMarshaller marshaller) {
             this.client = client;
             this.boolQuery = boolQuery;
             this.sortQuery = sortQuery;
