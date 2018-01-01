@@ -166,7 +166,7 @@ public final class BoolQuery {
      * @param searchQuery searchQuery
      * @return Filter Location Json
      */
-    private Optional<JsonNode> filterLocation(SearchQuery searchQuery) {
+    public static Optional<JsonNode> filterLocation(SearchQuery searchQuery) {
         SearchQuery.Filter filter = searchQuery.getFilter();
 
         JsonNode locationFilter = filterContainer(filter);
@@ -191,7 +191,7 @@ public final class BoolQuery {
      * @return { "terms" : { "containers.id" : ["id1", "id2"] } }
      */
     @Nullable
-    private JsonNode filterContainer(SearchQuery.Filter filter) {
+    public static JsonNode filterContainer(SearchQuery.Filter filter) {
         if (filter == null) return null;
 
         List<Container> containers = filter.getContainers();
@@ -211,7 +211,8 @@ public final class BoolQuery {
         return filterObject;
     }
 
-    private JsonNode filterPolygon(SearchQuery.Filter filter) {
+    @Nullable
+    public static JsonNode filterPolygon(SearchQuery.Filter filter) {
         if (filter == null) return null;
 
         Location location = filter.getLocation();

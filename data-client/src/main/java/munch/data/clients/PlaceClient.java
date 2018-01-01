@@ -135,7 +135,7 @@ public class PlaceClient extends AbstractClient {
          * @param node raw node search
          * @return raw result
          */
-        private JsonNode search(JsonNode node) {
+        public JsonNode search(JsonNode node) {
             return client.postSearch(node);
         }
 
