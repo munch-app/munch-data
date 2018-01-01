@@ -156,7 +156,7 @@ public final class BoolQuery {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("range")
                 .putObject("hour." + hour.getDay() + ".open_close")
-                .put("relation", "within")
+                .put("relation", "intersects")
                 .put("gte", ElasticMarshaller.parseTime(hour.getOpen()))
                 .put("lte", ElasticMarshaller.parseTime(hour.getClose()));
         return Optional.of(filter);
