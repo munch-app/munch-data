@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public final class NameCleaner {
-    static final Pattern PATTERN_COMPANY = Pattern.compile("pte\\.? ?ltd\\.?");
+    static final Pattern PATTERN_COMPANY = Pattern.compile("pte\\.? *ltd\\.?");
     static final Pattern PATTERN_COUNTRY = Pattern.compile("singapore\\s?$");
 
     private final NameNormalizer nameNormalizer;

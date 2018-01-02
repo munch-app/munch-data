@@ -15,7 +15,7 @@ public final class NameNormalizer {
     private static final Pattern PATTERN_MULTI_SPACE = Pattern.compile(" {2,}");
 
     private static final List<ReplacementGroup> GROUPS = List.of(
-            new ReplacementGroup(Pattern.compile("[`\"’]"), "'"),
+            new ReplacementGroup(Pattern.compile("\"|’|`"), "'"),
             new ReplacementGroup(Pattern.compile("-|–|—"), "-"),
             new ReplacementGroup(Pattern.compile("á|â|à", Pattern.CASE_INSENSITIVE), "a"),
             new ReplacementGroup(Pattern.compile("é|ê|è|ë|ē", Pattern.CASE_INSENSITIVE), "e"),
@@ -23,9 +23,15 @@ public final class NameNormalizer {
             new ReplacementGroup(Pattern.compile("ó|ô|ò", Pattern.CASE_INSENSITIVE), "o"),
             new ReplacementGroup(Pattern.compile("û|ù|ü", Pattern.CASE_INSENSITIVE), "u"),
             new ReplacementGroup(Pattern.compile("ÿ", Pattern.CASE_INSENSITIVE), "y"),
-            new ReplacementGroup(Pattern.compile("ç", Pattern.CASE_INSENSITIVE), "c")
+            new ReplacementGroup(Pattern.compile("ç", Pattern.CASE_INSENSITIVE), "c"),
+
+            new ReplacementGroup(Pattern.compile("pte\\.? *ltd\\.?", Pattern.CASE_INSENSITIVE), "")
     );
 
+    /**
+     * @param name name to normalize
+     * @return normalized name
+     */
     public String normalize(String name) {
         // Iterate through all of replacement group
         for (ReplacementGroup group : GROUPS) {
