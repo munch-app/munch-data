@@ -82,16 +82,13 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         ImageListBuilder builder = new ImageListBuilder(processedImages);
         // Select from explicit sources first
         builder.supply(stream -> stream
-                .filter(image -> {
-                    if (image.getImage().getSource() == null) return false;
-                    return EXPLICIT_SOURCES.contains(image.getImage().getSource());
-                })
+                .filter(PlaceImageCorpus::isExplicit)
                 .sorted(Comparator.comparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput)));
 
         // Select 3 food image if existing is less then 3, Sorted by Place.image, then score
         builder.supply(current -> current.size() < 3, stream -> stream
-                .filter(image -> image.isOutput("food", 0.75f))
+                .filter(image -> !isExplicit(image) && image.isOutput("food", 0.75f))
                 .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
                         .thenComparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput)
@@ -106,6 +103,15 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
                 ).limit(1));
 
         return parse(builder.collect());
+    }
+
+    /**
+     * @param image processed image
+     * @return true if source of image is explicit
+     */
+    private static boolean isExplicit(ProcessedImage image) {
+        if (image.getImage().getSource() == null) return false;
+        return EXPLICIT_SOURCES.contains(image.getImage().getSource());
     }
 
     /**
