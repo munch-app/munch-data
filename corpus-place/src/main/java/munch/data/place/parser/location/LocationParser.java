@@ -136,7 +136,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
                 .map(CorpusData.Field::getValue)
                 .filter(text -> text.contains("-") && text.contains("#"))
                 .findAny()
-                .map(WordUtils::capitalize)
+                .map(WordUtils::capitalizeFully)
                 .orElse(address);
     }
 
