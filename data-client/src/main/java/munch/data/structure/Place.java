@@ -210,6 +210,7 @@ public class Place implements SearchResult {
         Place place = (Place) o;
         return Double.compare(place.ranking, ranking) == 0 &&
                 Objects.equals(id, place.id) &&
+                Objects.equals(version, place.version) &&
                 Objects.equals(name, place.name) &&
                 Objects.equals(phone, place.phone) &&
                 Objects.equals(website, place.website) &&
@@ -226,7 +227,7 @@ public class Place implements SearchResult {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, phone, website, description, price, location, review, tag, hours, images, containers, createdDate, ranking);
+        return Objects.hash(id, version, name, phone, website, description, price, location, review, tag, hours, images, containers, createdDate, ranking);
     }
 
     @Override

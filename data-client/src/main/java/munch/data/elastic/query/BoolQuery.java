@@ -153,12 +153,24 @@ public final class BoolQuery {
         if (hour == null) return Optional.empty();
         if (StringUtils.isAnyBlank(hour.getDay(), hour.getOpen(), hour.getClose())) return Optional.empty();
 
+
         ObjectNode filter = mapper.createObjectNode();
-        filter.putObject("range")
+        ArrayNode should = filter.putObject("bool")
+                .putArray("should");
+
+        should.addObject()
+                .putObject("range")
                 .putObject("hour." + hour.getDay() + ".open_close")
                 .put("relation", "intersects")
                 .put("gte", ElasticMarshaller.serializeTime(hour.getOpen()))
                 .put("lte", ElasticMarshaller.serializeTime(hour.getClose()));
+
+        if (StringUtils.isNotBlank(hour.getName()) &&
+                !hour.getName().equalsIgnoreCase("Open Now")) {
+            should.addObject()
+                    .putObject("term")
+                    .put("tag.explicits", hour.getName().toLowerCase());
+        }
         return Optional.of(filter);
     }
 
