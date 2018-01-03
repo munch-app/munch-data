@@ -35,6 +35,7 @@ public final class WebsiteParser extends AbstractParser<String> {
     }
 
     private static boolean isBlocked(String website) {
+        website = website.toLowerCase();
         for (String host : BLOCKED_HOST) {
             if (website.contains(host)) return true;
         }
