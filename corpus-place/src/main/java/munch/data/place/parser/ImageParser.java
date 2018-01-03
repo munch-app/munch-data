@@ -57,6 +57,7 @@ public final class ImageParser extends AbstractParser<List<SourcedImage>> {
                 .map(field -> {
                     SourcedImage image = new SourcedImage();
                     image.setSource(field.getSource());
+                    image.setSourceId(field.getSourceId());
                     image.setImages(field.getImages());
                     return image;
                 }).collect(Collectors.toList());

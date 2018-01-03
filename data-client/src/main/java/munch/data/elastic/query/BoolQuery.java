@@ -157,8 +157,8 @@ public final class BoolQuery {
         filter.putObject("range")
                 .putObject("hour." + hour.getDay() + ".open_close")
                 .put("relation", "intersects")
-                .put("gte", ElasticMarshaller.parseTime(hour.getOpen()))
-                .put("lte", ElasticMarshaller.parseTime(hour.getClose()));
+                .put("gte", ElasticMarshaller.serializeTime(hour.getOpen()))
+                .put("lte", ElasticMarshaller.serializeTime(hour.getClose()));
         return Optional.of(filter);
     }
 

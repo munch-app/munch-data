@@ -12,6 +12,7 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class SourcedImage {
     private String source;
+    private String sourceId;
     private Map<String, String> images;
 
     public String getSource() {
@@ -20,6 +21,14 @@ public final class SourcedImage {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
     }
 
     /**

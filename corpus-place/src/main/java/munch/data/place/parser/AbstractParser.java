@@ -102,6 +102,17 @@ public abstract class AbstractParser<T> {
         return maxElement;
     }
 
+    protected List<String> collectSorted(List<CorpusData> list, AbstractKey... keys) {
+        FieldCollector fieldCollector = new FieldCollector(keys);
+        fieldCollector.addAll(list);
+        Multiset<String> multiset = HashMultiset.create(fieldCollector.collect());
+        return multiset.entrySet()
+                .stream()
+                .sorted((o1, o2) -> Integer.compare(o2.getCount(), o1.getCount()))
+                .map(Multiset.Entry::getElement)
+                .collect(Collectors.toList());
+    }
+
     protected boolean hasAny(AbstractKey key, List<CorpusData> list) {
         for (CorpusData data : list) {
             if (key.has(data)) return true;

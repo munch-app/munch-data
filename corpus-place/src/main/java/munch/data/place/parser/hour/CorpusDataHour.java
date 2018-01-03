@@ -117,6 +117,6 @@ public final class CorpusDataHour {
     }
 
     private static boolean pastMidnight(String open, String close) {
-        return DayOpenClose.parse(open) > DayOpenClose.parse(close);
+        return DayOpenClose.serializeTime(open) > DayOpenClose.serializeTime(close);
     }
 }

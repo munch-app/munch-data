@@ -24,6 +24,7 @@ import java.util.List;
  */
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
+    private static final String version = "2018-01-03";
     private final List<String> priorityNames;
 
     private final NameParser nameParser;
@@ -70,6 +71,7 @@ public final class PlaceParser extends AbstractParser<Place> {
     @Nullable
     public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
+        place.setVersion(version);
 
         place.setName(nameParser.parse(place, list));
         place.setPhone(phoneParser.parse(place, list));

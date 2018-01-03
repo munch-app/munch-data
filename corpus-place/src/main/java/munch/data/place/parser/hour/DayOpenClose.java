@@ -26,8 +26,8 @@ public class DayOpenClose {
 
     public void put(String open, String close) {
         if (StringUtils.isAnyBlank(open, close)) return;
-        int openTime = parse(open);
-        int closeTime = parse(close);
+        int openTime = serializeTime(open);
+        int closeTime = serializeTime(close);
         for (int i = openTime; i < minutes.length && i < closeTime; i++) {
             minutes[i] = true;
         }
@@ -45,10 +45,10 @@ public class DayOpenClose {
                 if (open) {
                     hour = new Place.Hour();
                     hour.setDay(day);
-                    hour.setOpen(toTime(i));
+                    hour.setOpen(deserializeTime(i));
                 } else {
                     assert hour != null;
-                    hour.setClose(toTime(i));
+                    hour.setClose(deserializeTime(i));
                     hours.add(hour);
                     hour = null;
                 }
@@ -63,7 +63,7 @@ public class DayOpenClose {
         return hours;
     }
 
-    static int parse(String time) {
+    public static int serializeTime(String time) {
         if (StringUtils.isBlank(time)) return -1;
         String[] split = time.split(":");
         try {
@@ -75,7 +75,8 @@ public class DayOpenClose {
         }
     }
 
-    static String toTime(int i) {
+    @SuppressWarnings("Duplicates")
+    public static String deserializeTime(int i) {
         int hour = i / 60;
         int min = i % 60;
 

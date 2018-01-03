@@ -18,6 +18,7 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Place implements SearchResult {
     private String id;
+    private String version;
 
     // Basic
     private String name;
@@ -50,6 +51,17 @@ public class Place implements SearchResult {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * @return version of this data structure
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     /**

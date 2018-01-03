@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 public final class HourParser extends AbstractParser<List<Place.Hour>> {
     private static final Logger logger = LoggerFactory.getLogger(HourParser.class);
     private static final Comparator<Map.Entry<DayOpenClose, Long>> HOUR_COMPARATOR = comparator();
+    public static final Comparator<Place.Hour> DETERMINISTIC_COMPARATOR = Comparator.comparing(Place.Hour::getDay)
+            .thenComparing(Place.Hour::getOpen)
+            .thenComparing(Place.Hour::getClose);
 
     @Override
     public List<Place.Hour> parse(Place place, List<CorpusData> list) {
@@ -51,9 +54,7 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
 
         // Deterministic sort of place hour
         return hours.stream()
-                .sorted(Comparator.comparing(Place.Hour::getDay)
-                        .thenComparing(Place.Hour::getOpen)
-                        .thenComparing(Place.Hour::getClose))
+                .sorted(DETERMINISTIC_COMPARATOR)
                 .collect(Collectors.toList());
     }
 

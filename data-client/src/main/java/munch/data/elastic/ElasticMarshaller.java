@@ -74,8 +74,8 @@ public final class ElasticMarshaller {
                 try {
                     arrayNode.addObject()
                             .putObject("open_close")
-                            .put("gte", parseTime(hour.getOpen()))
-                            .put("lte", parseTime(hour.getClose()));
+                            .put("gte", serializeTime(hour.getOpen()))
+                            .put("lte", serializeTime(hour.getClose()));
                 } catch (NumberFormatException | NullPointerException | IndexOutOfBoundsException e) {
                     logger.error("Time parse error", e);
                 }
@@ -84,7 +84,7 @@ public final class ElasticMarshaller {
         return arrayNode;
     }
 
-    public static int parseTime(String time) {
+    public static int serializeTime(String time) {
         String[] hourMin = time.split(":");
         return Integer.parseInt(hourMin[0]) * 60 + Integer.parseInt(hourMin[1]);
     }
