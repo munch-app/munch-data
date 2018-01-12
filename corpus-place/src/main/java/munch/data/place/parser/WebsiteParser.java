@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @Singleton
 public final class WebsiteParser extends AbstractParser<String> {
     private static final Pattern HTTP_PATTERN = Pattern.compile("^https?://.*", Pattern.CASE_INSENSITIVE);
-    private static final Set<String> BLOCKED_HOST = Set.of("facebook.com", "instagram.com", "fb.com", "google.com", "burpple.com", "foursquare.com", "hungrygowhere.com", "yelp.com", "zomato.com");
+    private static final Set<String> BLOCKED_HOST = Set.of("facebook.com", "instagram.com", "fb.com", "google.com", "burpple.com", "foursquare.com", "hungrygowhere.com", "yelp.com", "zomato.com", "oddle.com", "eatigo.com");
 
     @Override
     public String parse(Place place, List<CorpusData> list) {
