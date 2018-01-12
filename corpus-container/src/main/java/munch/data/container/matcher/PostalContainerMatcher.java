@@ -3,6 +3,7 @@ package munch.data.container.matcher;
 import com.google.common.collect.ImmutableList;
 import corpus.data.CorpusData;
 import corpus.field.ContainerKey;
+import corpus.field.FieldUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,7 +38,10 @@ public final class PostalContainerMatcher {
         private final ImmutableList<CorpusData.Field> fields;
 
         public Matched(CorpusData data) {
-            this.fields = ImmutableList.copyOf(data.getFields());
+            ImmutableList.Builder<CorpusData.Field> builder = new ImmutableList.Builder<>();
+            builder.addAll(data.getFields());
+            injectFields(data).ifPresent(builder::add);
+            this.fields = builder.build();
         }
 
         /**
@@ -49,6 +53,16 @@ public final class PostalContainerMatcher {
             data.setCatalystId(catalystId);
             data.setFields(fields);
             return data;
+        }
+
+        private Optional<CorpusData.Field> injectFields(CorpusData data) {
+            String type = FieldUtils.getValueOrThrow(data, "Container.type");
+
+            if (type.equalsIgnoreCase("hawker")) {
+                CorpusData.Field field = new CorpusData.Field("Place.tag", "hawker");
+                return Optional.of(field);
+            }
+            return Optional.empty();
         }
     }
 }
