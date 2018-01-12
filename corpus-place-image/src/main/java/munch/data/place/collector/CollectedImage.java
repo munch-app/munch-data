@@ -20,6 +20,7 @@ public class CollectedImage {
 
     private String source;
     private String sourceId;
+    private String sourceName;
     private Map<String, String> images;
 
     public From getFrom() {
@@ -52,6 +53,14 @@ public class CollectedImage {
 
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public Map<String, String> getImages() {

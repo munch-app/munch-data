@@ -33,6 +33,7 @@ public abstract class AbstractCollector {
         image.setUniqueId(getUniqueId(imageField));
         image.setSource(imageField.getSource());
         image.setSourceId(imageField.getSourceId());
+        image.setSourceName(imageField.getSourceName());
         image.setImages(imageField.getImages());
         return image;
     }

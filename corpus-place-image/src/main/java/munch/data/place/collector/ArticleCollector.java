@@ -21,7 +21,8 @@ public final class ArticleCollector extends AbstractCollector {
     private static final Set<String> ARTICLE_SOURCE_IDS = ImmutableSet.of(
             "danielfooddiary.com", "sethlui.com", "ladyironchef.com",
             "misstamchiak.com", "sgfoodonfoot.com", "camemberu.com",
-            "ieatandeat.com", "aspirantsg.com", "ms-skinnyfat.com", "six-and-seven.com"
+            "ieatandeat.com", "aspirantsg.com", "ms-skinnyfat.com", "six-and-seven.com",
+            "thebestsingapore.com", "mobile.vegetarian-food.net"
     );
 
     @Override

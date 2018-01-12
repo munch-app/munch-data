@@ -13,6 +13,7 @@ import java.util.Objects;
 public final class SourcedImage {
     private String source;
     private String sourceId;
+    private String sourceName;
     private Map<String, String> images;
 
     public String getSource() {
@@ -29,6 +30,14 @@ public final class SourcedImage {
 
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     /**

@@ -25,7 +25,11 @@ public final class CorpusCollector extends AbstractCollector {
                 .filter(field -> field.getKey().equals("Place.image"))
                 .map(field -> mapField(field, CollectedImage.From.Place))
                 .filter(Objects::nonNull)
-                .peek(collectedImage -> collectedImage.setSourceId(null))
+                .peek(collectedImage -> {
+                    if (collectedImage.getSourceName() == null) {
+                        collectedImage.setSourceName(collectedImage.getSourceId());
+                    }
+                })
                 .collect(Collectors.toList());
     }
 }
