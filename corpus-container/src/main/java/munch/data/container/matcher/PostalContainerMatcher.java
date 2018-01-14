@@ -58,7 +58,7 @@ public final class PostalContainerMatcher {
         private Optional<CorpusData.Field> injectFields(CorpusData data) {
             String type = FieldUtils.getValueOrThrow(data, "Container.type");
 
-            if (type.equalsIgnoreCase("hawker")) {
+            if (type.equalsIgnoreCase("hawker centre")) {
                 CorpusData.Field field = new CorpusData.Field("Place.tag", "hawker");
                 return Optional.of(field);
             }
