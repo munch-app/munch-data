@@ -57,11 +57,11 @@ public final class LocationParser extends AbstractParser<Place.Location> {
 
         location.setCity(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.city));
         location.setCountry(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.country));
+        location.setPostal(collectMax(list, PlaceKey.Location.postal));
 
         // Address can be constructed from other parts
         location.setAddress(collectAddress(location, list));
 
-        location.setPostal(collectMax(list, PlaceKey.Location.postal));
         location.setLatLng(lat, lng);
         return location;
     }
@@ -120,7 +120,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     }
 
     private String collectAddress(Place.Location location, List<CorpusData> list) {
-        String address = collectMax(list, WordUtils::capitalize, PlaceKey.Location.address);
+        String address = collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.address);
         if (address == null) {
             // If address don't exist, create one
             return Joiner.on(", ")
