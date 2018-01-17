@@ -1,18 +1,14 @@
 package munch.data.dynamodb;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.typesafe.config.Config;
-import munch.data.clients.PlaceCardClient;
-import munch.data.clients.PlaceClient;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -25,17 +21,6 @@ public final class DynamoModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        requestInjection(this);
-    }
-
-    @Inject
-    void setupTable(Config config, AmazonDynamoDB dynamoDB) throws InterruptedException {
-        // Is in production mode, don't need setup table
-        if (!config.hasPath("services.munch-data.dynamodb.url")) return;
-
-        CreateTableUtils utils = new CreateTableUtils(dynamoDB);
-        utils.createTable(PlaceClient.DYNAMO_TABLE_NAME, "_id");
-        utils.createTable(PlaceCardClient.DYNAMO_TABLE_NAME, "_placeId", "_cardName");
     }
 
     @Provides
@@ -46,20 +31,10 @@ public final class DynamoModule extends AbstractModule {
 
     @Provides
     @Singleton
-    AmazonDynamoDB provideClient(Config config) {
-        String region = config.getString("services.munch-data.dynamodb.aws.region");
-
+    AmazonDynamoDB provideClient() {
         AmazonDynamoDBClientBuilder builder = AmazonDynamoDBClient.builder();
         builder.withCredentials(new DefaultAWSCredentialsProviderChain());
-
-        // Endpoint If Exist (Dev Mode)
-        if (config.hasPath("services.munch-data.dynamodb.url")) {
-            String endpoint = config.getString("services.munch-data.dynamodb.url");
-            builder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region));
-        } else {
-            builder.withRegion(region);
-        }
-
+        builder.withRegion(Regions.AP_SOUTHEAST_1);
         return builder.build();
     }
 }
