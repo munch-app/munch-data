@@ -30,12 +30,12 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d+.*");
     private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
 
-    private final TrainDatabase trainDatabase; // With latLng
+    private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
 
     @Inject
-    public LocationParser(TrainDatabase trainDatabase, LocationClient locationClient) {
-        this.trainDatabase = trainDatabase;
+    public LocationParser(LandmarkDatabase landmarkDatabase, LocationClient locationClient) {
+        this.landmarkDatabase = landmarkDatabase;
         this.locationClient = locationClient;
     }
 
@@ -49,20 +49,19 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         double lng = latLng.getLng();
 
         Place.Location location = new Place.Location();
-        // Might Need to be smarter
-        location.setNearestTrain(trainDatabase.findNearest(lat, lng).getName());
+        location.setLandmarks(landmarkDatabase.find(lat, lng));
         location.setStreet(collectStreet(lat, lng));
-        location.setBuilding(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.building));
         location.setUnitNumber(collectUnitNumber(list));
 
+        location.setNeighbourhood(collectNeighbourhood(lat, lng));
         location.setCity(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.city));
         location.setCountry(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.country));
+
         location.setPostal(collectMax(list, PlaceKey.Location.postal));
+        location.setLatLng(lat, lng);
 
         // Address can be constructed from other parts
         location.setAddress(collectAddress(location, list));
-
-        location.setLatLng(lat, lng);
         return location;
     }
 
@@ -74,6 +73,17 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private String collectStreet(double lat, double lng) {
         String street = locationClient.street(lat, lng);
         if (StringUtils.isNotBlank(street)) return street;
+        return "Singapore";
+    }
+
+    /**
+     * @param lat latitude
+     * @param lng longitude
+     * @return nearby neighbourhood or Singapore if null
+     */
+    private String collectNeighbourhood(double lat, double lng) {
+        String neighbourhood = locationClient.neighbourhood(lat, lng);
+        if (StringUtils.isNotBlank(neighbourhood)) return neighbourhood;
         return "Singapore";
     }
 

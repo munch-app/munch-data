@@ -183,7 +183,6 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         placeData.put(PlaceKey.Location.street, place.getLocation().getStreet());
         placeData.put(PlaceKey.Location.address, place.getLocation().getAddress());
         placeData.put(PlaceKey.Location.unitNumber, place.getLocation().getUnitNumber());
-        placeData.put(PlaceKey.Location.building, place.getLocation().getBuilding());
 
         placeData.put(PlaceKey.Location.city, place.getLocation().getCity());
         placeData.put(PlaceKey.Location.country, place.getLocation().getCountry());

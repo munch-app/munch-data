@@ -346,9 +346,11 @@ public class Place implements SearchResult {
         private String street;
         private String address;
         private String unitNumber;
-        private String building;
-        private String nearestTrain;
 
+        // Landmarks nearby
+        private List<Landmark> landmarks;
+
+        private String neighbourhood;
         private String city;
         private String country;
 
@@ -379,20 +381,23 @@ public class Place implements SearchResult {
             this.unitNumber = unitNumber;
         }
 
-        public String getBuilding() {
-            return building;
+        /**
+         * @return landmarks nearby
+         */
+        public List<Landmark> getLandmarks() {
+            return landmarks;
         }
 
-        public void setBuilding(String building) {
-            this.building = building;
+        public void setLandmarks(List<Landmark> landmarks) {
+            this.landmarks = landmarks;
         }
 
-        public String getNearestTrain() {
-            return nearestTrain;
+        public String getNeighbourhood() {
+            return neighbourhood;
         }
 
-        public void setNearestTrain(String nearestTrain) {
-            this.nearestTrain = nearestTrain;
+        public void setNeighbourhood(String neighbourhood) {
+            this.neighbourhood = neighbourhood;
         }
 
         public String getCity() {
@@ -439,8 +444,8 @@ public class Place implements SearchResult {
             return Objects.equals(street, location.street) &&
                     Objects.equals(address, location.address) &&
                     Objects.equals(unitNumber, location.unitNumber) &&
-                    Objects.equals(building, location.building) &&
-                    Objects.equals(nearestTrain, location.nearestTrain) &&
+                    Objects.equals(landmarks, location.landmarks) &&
+                    Objects.equals(neighbourhood, location.neighbourhood) &&
                     Objects.equals(city, location.city) &&
                     Objects.equals(country, location.country) &&
                     Objects.equals(postal, location.postal) &&
@@ -449,7 +454,7 @@ public class Place implements SearchResult {
 
         @Override
         public int hashCode() {
-            return Objects.hash(street, address, unitNumber, building, nearestTrain, city, country, postal, latLng);
+            return Objects.hash(street, address, unitNumber, landmarks, neighbourhood, city, country, postal, latLng);
         }
 
         @Override
@@ -458,13 +463,67 @@ public class Place implements SearchResult {
                     "street='" + street + '\'' +
                     ", address='" + address + '\'' +
                     ", unitNumber='" + unitNumber + '\'' +
-                    ", building='" + building + '\'' +
-                    ", nearestTrain='" + nearestTrain + '\'' +
+                    ", landmarks=" + landmarks +
+                    ", neighbourhood='" + neighbourhood + '\'' +
                     ", city='" + city + '\'' +
                     ", country='" + country + '\'' +
                     ", postal='" + postal + '\'' +
                     ", latLng='" + latLng + '\'' +
                     '}';
+        }
+
+        public static final class Landmark {
+            private String name;
+            private String type; // types: ["train"]
+            private String latLng;
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public String getType() {
+                return type;
+            }
+
+            public void setType(String type) {
+                this.type = type;
+            }
+
+            public String getLatLng() {
+                return latLng;
+            }
+
+            public void setLatLng(String latLng) {
+                this.latLng = latLng;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Landmark landmark = (Landmark) o;
+                return Objects.equals(name, landmark.name) &&
+                        Objects.equals(type, landmark.type) &&
+                        Objects.equals(latLng, landmark.latLng);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(name, type, latLng);
+            }
+
+            @Override
+            public String toString() {
+                return "Landmark{" +
+                        "name='" + name + '\'' +
+                        ", type='" + type + '\'' +
+                        ", latLng='" + latLng + '\'' +
+                        '}';
+            }
         }
     }
 

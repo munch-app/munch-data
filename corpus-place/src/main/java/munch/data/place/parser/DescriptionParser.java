@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public final class DescriptionParser extends AbstractParser<String> {
-    private static final Pattern WEBSITE_PATTERN = Pattern.compile("^(https?://)|(www\\.)[0-9a-z\\-]+\\.com$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern WEBSITE_PATTERN = Pattern.compile("^(https?://.*)|(www\\.)[0-9a-z\\-]+\\..*$", Pattern.CASE_INSENSITIVE);
 
     @Override
     public String parse(Place place, List<CorpusData> list) {
