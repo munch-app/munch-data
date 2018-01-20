@@ -84,7 +84,7 @@ public final class ContainerMatcher {
 
     public void forEach(Consumer<Container> consumer) {
         postalMap.forEach((s, all) -> {
-            all.forEach(matched -> consumer.accept(matched.container));
+            all.forEach(matched -> consumer.accept(matched.getContainer()));
         });
     }
 }
