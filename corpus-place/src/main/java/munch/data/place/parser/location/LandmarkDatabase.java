@@ -31,7 +31,7 @@ public final class LandmarkDatabase {
         TrainStation nearest = trainDatabase.findNearest(lat, lng);
 
         Place.Location.Landmark landmark = new Place.Location.Landmark();
-        landmark.setName(nearest.getName());
+        landmark.setName(nearest.getName() + " MRT");
         landmark.setType("train");
         landmark.setLatLng(nearest.getLat() + "," + nearest.getLng());
         return List.of(landmark);
