@@ -27,6 +27,7 @@ public final class Container implements SearchResult {
 
     private Location location;
     private double ranking;
+    private long count;
 
     public String getId() {
         return id;
@@ -98,6 +99,14 @@ public final class Container implements SearchResult {
 
     public void setRanking(double ranking) {
         this.ranking = ranking;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
     }
 
     @Override

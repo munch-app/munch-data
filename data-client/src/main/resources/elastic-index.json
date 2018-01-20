@@ -33,6 +33,9 @@
         "ranking": {
           "type": "double"
         },
+        "count": {
+          "type": "long"
+        },
         "images": {
           "enabled": false
         },

@@ -161,6 +161,7 @@ public final class ElasticMarshaller {
         node.set("images", JsonUtils.toTree(container.getImages()));
 
         node.put("ranking", container.getRanking());
+        node.put("count", container.getCount());
 
         Container.Location location = container.getLocation();
         node.putObject("location")
@@ -279,6 +280,7 @@ public final class ElasticMarshaller {
         container.setImages(JsonUtils.toList(node.path("images"), SourcedImage.class));
 
         container.setRanking(node.path("ranking").asDouble());
+        container.setCount(node.path("count").asLong());
 
         Container.Location location = new Container.Location();
         location.setAddress(node.path("location").path("address").asText());

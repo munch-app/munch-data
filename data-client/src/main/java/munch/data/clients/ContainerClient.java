@@ -63,6 +63,10 @@ public class ContainerClient extends AbstractClient {
 
     /**
      * Search with text on name
+     * <p>
+     * Filter to Container
+     * Filter to count >= 5
+     * Filter to geo distance
      *
      * @param latLng latLng = latitude,longitude
      * @param radius radius in metres
@@ -75,6 +79,11 @@ public class ContainerClient extends AbstractClient {
         filterArray.addObject()
                 .putObject("term")
                 .put("dataType", "Container");
+
+        filterArray.addObject()
+                .putObject("range")
+                .putObject("count")
+                .put("gte", 5);
 
         filterArray.addObject()
                 .putObject("geo_distance")
@@ -93,7 +102,7 @@ public class ContainerClient extends AbstractClient {
      */
     private static JsonNode sort(String latLng) {
         ArrayNode sortArray = objectMapper.createArrayNode();
-        sortArray.add(SortQuery.sortField("ranking", "desc"));
+        sortArray.add(SortQuery.sortField("count", "desc"));
         sortArray.add(SortQuery.sortDistance(latLng));
         return sortArray;
     }

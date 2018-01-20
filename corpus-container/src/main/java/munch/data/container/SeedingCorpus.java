@@ -48,7 +48,6 @@ public final class SeedingCorpus extends CatalystEngine<CorpusData> {
         // Put created Sg.Munch.Location
         CorpusData data = new CorpusData(cycleNo);
         data.setCatalystId(seedData.getCatalystId());
-        data.put(MunchContainerKey.updatedDate, "0");
         data.put(MunchContainerKey.sourceCorpusName, seedData.getCorpusName());
         data.put(MunchContainerKey.sourceCorpusKey, seedData.getCorpusKey());
 
