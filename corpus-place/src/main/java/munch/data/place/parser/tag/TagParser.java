@@ -54,7 +54,16 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         if (tags.isEmpty()) {
             return Collections.singletonList("restaurant");
         }
+
+        // Remove Restaurant if Hawker or Coffeeshop exists
+        removeConflicts(tags);
         return tags;
+    }
+
+    private static void removeConflicts(List<String> tags) {
+        if (tags.contains("hawker") || tags.contains("coffeeshop")) {
+            tags.remove("restaurant");
+        }
     }
 
     private List<String> parseImplicits(Place place, List<CorpusData> list) {
