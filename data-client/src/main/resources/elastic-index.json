@@ -68,6 +68,9 @@
             "nearestTrain": {
               "enabled": false
             },
+            "neighbourhood": {
+              "type": "text"
+            },
             "city": {
               "type": "keyword"
             },
@@ -83,6 +86,9 @@
             "polygon": {
               "type": "geo_shape",
               "precision": "5m"
+            },
+            "landmarks": {
+              "enabled": false
             }
           }
         },
