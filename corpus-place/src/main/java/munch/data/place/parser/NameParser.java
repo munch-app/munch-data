@@ -10,6 +10,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -19,6 +20,7 @@ import java.util.List;
  */
 @Singleton
 public final class NameParser extends AbstractParser<String> {
+    private static final Set<String> BLOCKED_NAMES = Set.of("chinese characters", "chinese character", "chinese letter", "chinese letters");
 
     private final NameNormalizer nameNormalizer;
 
@@ -41,7 +43,19 @@ public final class NameParser extends AbstractParser<String> {
         String name = fieldCollector.collectMax();
         // Normalize name first
         name = nameNormalizer.normalize(name);
+
+        // Validate name
+        if (!validateName(name)) return null;
+
         // Then capitalize fully name
         return WordUtils.capitalizeFully(name);
+    }
+
+    /**
+     * @param name name to validate
+     * @return true = allowed
+     */
+    private boolean validateName(String name) {
+        return !BLOCKED_NAMES.contains(name.toLowerCase());
     }
 }
