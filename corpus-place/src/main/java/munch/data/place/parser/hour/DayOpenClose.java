@@ -14,9 +14,10 @@ import java.util.List;
  * Project: munch-data
  */
 public class DayOpenClose {
+    public static final int TOTAL_MINUTES = 24 * 60;
 
     // Every 1 minutes whether its open or close
-    private boolean[] minutes = new boolean[24 * 60];
+    private boolean[] minutes = new boolean[TOTAL_MINUTES];
 
     public void put(String openClose) {
         if (StringUtils.isBlank(openClose)) return;
@@ -31,6 +32,35 @@ public class DayOpenClose {
         for (int i = openTime; i < minutes.length && i < closeTime; i++) {
             minutes[i] = true;
         }
+    }
+
+    public void putMinute(int minute, boolean bool) {
+        minutes[minute] = bool;
+    }
+
+    /**
+     * @return whether it is open in the current day
+     */
+    public boolean isOpen() {
+        for (boolean minute : minutes) {
+            if (minute) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return total minutes that is open
+     */
+    public int openMinutes() {
+        int open = 0;
+        for (boolean minute : minutes) {
+            if (minute) open++;
+        }
+        return open;
+    }
+
+    public boolean isOpen(int minute) {
+        return minutes[minute];
     }
 
     public List<Place.Hour> getPlaceHours(String day) {
