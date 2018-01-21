@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public final class LocationParser extends AbstractParser<Place.Location> {
     private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d+.*");
     private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
+    private static final PatternSplit ADDRESS_DIVIDER_PATTERN = PatternSplit.compile("([^a-z]|^)[a-z]");
 
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
@@ -61,7 +62,8 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         location.setLatLng(lat, lng);
 
         // Address can be constructed from other parts
-        location.setAddress(collectAddress(location, list));
+        String address = collectAddress(location, list);
+        location.setAddress(formatAddress(address));
         return location;
     }
 
@@ -130,7 +132,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     }
 
     private String collectAddress(Place.Location location, List<CorpusData> list) {
-        String address = collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.address);
+        String address = collectMax(list, PlaceKey.Location.address);
         if (address == null) {
             // If address don't exist, create one
             return Joiner.on(", ")
@@ -138,16 +140,21 @@ public final class LocationParser extends AbstractParser<Place.Location> {
                     .join(location.getUnitNumber(), location.getStreet(),
                             location.getCity() + " " + location.getPostal());
         }
-        // If max contains - & # return it
+        // If max contains - & # return it (UnitNumber)
         if (address.contains("-") && address.contains("#")) return address;
 
-        // Else find any that contains - & # and return it, else return max address
+        // Else find any that contains - & # and return it (UnitNumber), else return max address
         return collect(list, PlaceKey.Location.address).stream()
                 .map(CorpusData.Field::getValue)
                 .filter(text -> text.contains("-") && text.contains("#"))
                 .findAny()
-                .map(WordUtils::capitalizeFully)
                 .orElse(address);
+    }
+
+    static String formatAddress(String address) {
+        address = address.toLowerCase();
+        List<Object> split = ADDRESS_DIVIDER_PATTERN.split(address, 0, String::toUpperCase);
+        return Joiner.on("").join(split);
     }
 
     /**
