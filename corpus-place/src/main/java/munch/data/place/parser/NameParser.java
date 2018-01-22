@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Created by: Fuxing
@@ -21,6 +22,7 @@ import java.util.Set;
 @Singleton
 public final class NameParser extends AbstractParser<String> {
     private static final Set<String> BLOCKED_NAMES = Set.of("chinese characters", "chinese character", "chinese letter", "chinese letters");
+    private static final Pattern BLOCKED_PATTERN = Pattern.compile("stalls? [0-9]+", Pattern.CASE_INSENSITIVE);
 
     private final NameNormalizer nameNormalizer;
 
@@ -56,6 +58,9 @@ public final class NameParser extends AbstractParser<String> {
      * @return true = allowed
      */
     private boolean validateName(String name) {
-        return !BLOCKED_NAMES.contains(name.toLowerCase());
+        name = name.toLowerCase();
+        if (BLOCKED_NAMES.contains(name)) return false;
+        if (BLOCKED_PATTERN.matcher(name).matches()) return false;
+        return true;
     }
 }
