@@ -50,8 +50,8 @@ public final class PostalAmalgamate extends AbstractAmalgamate {
         if (!Amalgamate.isValid(outside)) return false;
         if (insides.isEmpty()) return true;
 
-        if (!postalMatcher.match(insides, outside)) return false;
-        if (!nameMatcher.match(insides, outside)) return false;
+        if (!postalMatcher.match(placeData, insides, outside)) return false;
+        if (!nameMatcher.match(placeData, insides, outside)) return false;
         return true;
     }
 }

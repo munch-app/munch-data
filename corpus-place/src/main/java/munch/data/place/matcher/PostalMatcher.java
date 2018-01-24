@@ -21,7 +21,7 @@ public final class PostalMatcher {
      * @param outside data outside coming in
      * @return true is outside data belongs with inside
      */
-    public boolean match(List<CorpusData> insides, CorpusData outside) {
+    public boolean match(CorpusData placeData, List<CorpusData> insides, CorpusData outside) {
         return matchPostal(insides, outside);
     }
 

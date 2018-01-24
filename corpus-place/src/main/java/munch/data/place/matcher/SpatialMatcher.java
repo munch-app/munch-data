@@ -5,6 +5,7 @@ import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 
 import javax.inject.Singleton;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,10 +20,10 @@ public final class SpatialMatcher {
 
     /**
      * @param placeData place data
-     * @param outside data outside coming in
+     * @param outside   data outside coming in
      * @return true is outside data belongs with inside
      */
-    public boolean match(CorpusData placeData, CorpusData outside) {
+    public boolean match(CorpusData placeData, List<CorpusData> insides, CorpusData outside) {
         return matchLatLng(placeData, outside);
     }
 

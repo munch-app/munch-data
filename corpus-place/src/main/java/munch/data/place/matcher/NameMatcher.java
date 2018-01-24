@@ -32,7 +32,7 @@ public final class NameMatcher {
      * @param outside data outside coming in
      * @return true is outside data belongs with inside
      */
-    public boolean match(List<CorpusData> insides, CorpusData outside) {
+    public boolean match(CorpusData placeData, List<CorpusData> insides, CorpusData outside) {
         List<String> outsideNames = collectNames(outside);
 
         for (CorpusData inside : insides) {
@@ -41,6 +41,12 @@ public final class NameMatcher {
                 return true;
             }
         }
+
+        // name from Sg.Munch.Place
+        if (match(collectNames(placeData), outsideNames)) {
+            return true;
+        }
+
         return false;
     }
 

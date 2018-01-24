@@ -32,6 +32,5 @@ public class ContainerModule extends AbstractModule {
                 injector.getInstance(SeedingCorpus.class),
                 injector.getInstance(ContainerPlaceCatalyst.class)
         );
-        System.exit(0);
     }
 }

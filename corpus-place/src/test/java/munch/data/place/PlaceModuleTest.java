@@ -23,6 +23,5 @@ class PlaceModuleTest {
                 injector.getInstance(SeedCorpus.class),
                 injector.getInstance(PlaceCorpus.class)
         );
-        System.exit(0);
     }
 }

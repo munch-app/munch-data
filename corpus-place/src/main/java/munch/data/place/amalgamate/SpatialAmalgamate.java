@@ -54,8 +54,8 @@ public final class SpatialAmalgamate extends AbstractAmalgamate {
         if (!Amalgamate.isValid(outside)) return false;
         if (insides.isEmpty()) return true;
 
-        if (!spatialMatcher.match(placeData, outside)) return false;
-        if (!nameMatcher.match(insides, outside)) return false;
+        if (!spatialMatcher.match(placeData, insides, outside)) return false;
+        if (!nameMatcher.match(placeData, insides, outside)) return false;
         return true;
     }
 }

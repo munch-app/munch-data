@@ -33,6 +33,5 @@ public class TagModule extends AbstractModule{
                 injector.getInstance(SeedingCorpus.class),
                 injector.getInstance(TagCorpus.class)
         );
-        System.exit(0);
     }
 }
