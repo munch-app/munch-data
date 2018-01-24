@@ -147,31 +147,8 @@ public final class ElasticMarshaller {
     }
 
     public ObjectNode serialize(Container container) {
-        ObjectNode node = mapper.createObjectNode();
+        ObjectNode node = mapper.valueToTree(container);
         node.put("dataType", "Container");
-
-        // Root Node
-        node.put("id", container.getId());
-        node.put("name", container.getName());
-        node.put("type", container.getType());
-
-        node.put("phone", container.getPhone());
-        node.put("website", container.getWebsite());
-        node.put("description", container.getDescription());
-        node.set("images", JsonUtils.toTree(container.getImages()));
-
-        node.put("ranking", container.getRanking());
-        node.put("count", container.getCount());
-
-        Container.Location location = container.getLocation();
-        node.putObject("location")
-                //now at /location/
-                .put("address", location.getAddress())
-                .put("street", location.getStreet())
-                .put("city", location.getCity())
-                .put("country", location.getCountry())
-                .put("postal", location.getPostal())
-                .put("latLng", location.getLatLng());
 
         // Suggest Field
         ArrayNode inputs = mapper.createArrayNode();
@@ -269,29 +246,11 @@ public final class ElasticMarshaller {
      * @return deserialized Container
      */
     public Container deserializeContainer(JsonNode node) {
-        Container container = new Container();
-        container.setId(node.get("id").asText());
-        container.setName(node.get("name").asText());
-        container.setType(node.get("type").asText());
-
-        container.setPhone(node.path("phone").asText());
-        container.setWebsite(node.path("website").asText());
-        container.setDescription(node.path("description").asText());
-        container.setImages(JsonUtils.toList(node.path("images"), SourcedImage.class));
-
-        container.setRanking(node.path("ranking").asDouble());
-        container.setCount(node.path("count").asLong());
-
-        Container.Location location = new Container.Location();
-        location.setAddress(node.path("location").path("address").asText());
-        location.setStreet(node.path("location").path("street").asText());
-        location.setCity(node.path("location").path("city").asText());
-        location.setCountry(node.path("location").path("country").asText());
-        location.setPostal(node.path("location").path("postal").asText());
-        location.setLatLng(node.path("location").path("latLng").asText());
-        container.setLocation(location);
-
-        return container;
+        try {
+            return mapper.treeToValue(node, Container.class);
+        } catch (JsonProcessingException e) {
+            throw new JsonException(e);
+        }
     }
 
     /**
