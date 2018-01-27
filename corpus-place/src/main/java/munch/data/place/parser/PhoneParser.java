@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 @Singleton
 public final class PhoneParser extends AbstractParser<String> {
     private static final Pattern PHONE_PATTERN = Pattern.compile(".*(65)?\\s*(?<g1>[0-9]{4})\\s{0,2}(?<g2>[0-9]{4}).*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern PHONE_1800_PATTERN = Pattern.compile(".*1800\\s*(?<g1>[0-9]{3})\\s{0,2}(?<g2>[0-9]{4}).*", Pattern.CASE_INSENSITIVE);
 
     @Override
     public String parse(Place place, List<CorpusData> list) {
@@ -25,10 +26,15 @@ public final class PhoneParser extends AbstractParser<String> {
         if (phone == null) return null;
 
         Matcher matcher = PHONE_PATTERN.matcher(phone);
-        if (!matcher.matches()) return null;
+        if (matcher.matches()) {
+            return "+65 " + matcher.group("g1") + " " + matcher.group("g2");
+        }
 
-        String g1 = matcher.group("g1");
-        String g2 = matcher.group("g2");
-        return "+65 " + g1 + " " + g2;
+        matcher = PHONE_1800_PATTERN.matcher(phone);
+        if (matcher.matches()) {
+            return "1800" + matcher.group("g1") + " " + matcher.group("g2");
+        }
+
+        return null;
     }
 }
