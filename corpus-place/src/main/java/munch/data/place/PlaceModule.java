@@ -3,9 +3,12 @@ package munch.data.place;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
+import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
 import munch.data.place.parser.location.LocationParserModule;
@@ -39,6 +42,8 @@ public class PlaceModule extends AbstractModule {
                 injector.getInstance(SeedCorpus.class),
                 injector.getInstance(PlaceCorpus.class)
         );
-        throw new RuntimeException("Place Corpus Stopped");
+
+        injector.getInstance(JestClient.class).shutdownClient();
+        injector.getInstance(Key.get(JestClient.class, Names.named("munch.data.place.jest"))).shutdownClient();
     }
 }

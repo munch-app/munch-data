@@ -27,7 +27,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
     private static final Retriable retriable = new ExceptionRetriable(4);
 
     private final ContainerClient containerClient;
-    private ContainerMatcher containerMatcher;
+    private PostalMatcher postalMatcher;
 
     @Inject
     public ContainerPlaceCatalyst(ContainerClient containerClient) {
@@ -42,7 +42,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
 
     @Override
     protected boolean preCycle(long cycleNo) {
-        containerMatcher = new ContainerMatcher();
+        postalMatcher = new PostalMatcher();
         corpusClient.list("Sg.Munch.Container").forEachRemaining(data -> {
             CorpusData sourceData = getSourceData(data);
             if (sourceData == null) {
@@ -61,7 +61,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
                 counter.increment("Failure");
                 return;
             }
-            containerMatcher.put(sourceData, container);
+            postalMatcher.put(sourceData, container);
             counter.increment("Loaded PostalMatcher");
             sleep(10);
         });
@@ -90,7 +90,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
         String placeId = data.getCatalystId();
         String postal = PlaceKey.Location.postal.getValueOrThrow(data);
 
-        containerMatcher.find(postal, placeId, cycleNo).forEach(containerPlace -> {
+        postalMatcher.find(postal, placeId, cycleNo).forEach(containerPlace -> {
             corpusClient.put("Sg.Munch.ContainerPlace", placeId, containerPlace);
             counter.increment("Matched PostalMatcher");
         });
@@ -103,7 +103,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
     protected void postCycle(long cycleNo) {
         super.postCycle(cycleNo);
 
-        containerMatcher.forEach(container -> {
+        postalMatcher.forEach(container -> {
             // Put, Delete will be done at preCycle
             retriable.loop(() -> {
                 containerClient.put(container);

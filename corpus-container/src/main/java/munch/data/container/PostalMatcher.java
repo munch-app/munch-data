@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Time: 6:59 PM
  * Project: munch-corpus
  */
-public final class ContainerMatcher {
+public final class PostalMatcher {
     private Map<String, Set<Matched>> postalMap = new HashMap<>();
 
     public void put(CorpusData sourceData, Container container) {

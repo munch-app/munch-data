@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
+import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.elastic.ElasticModule;
 
@@ -32,5 +33,7 @@ public class ContainerModule extends AbstractModule {
                 injector.getInstance(SeedingCorpus.class),
                 injector.getInstance(ContainerPlaceCatalyst.class)
         );
+
+        injector.getInstance(JestClient.class).shutdownClient();
     }
 }
