@@ -34,15 +34,18 @@ public final class PriceParser extends AbstractParser<Place.Price> {
         // If only less then 10 prices
         if (prices.size() < 10) {
             Double secondLast = prices.get(prices.size() - 1);
-            Place.Price price = new Place.Price();
-            price.setMiddle(secondLast);
-            return price;
+            return create(secondLast);
         }
 
         // More then 10 prices
         int index = (int) (((double) prices.size()) * 0.7);
+        return create(prices.get(index));
+    }
+
+    private static Place.Price create(double value) {
         Place.Price price = new Place.Price();
-        price.setMiddle(prices.get(index));
+        value = value * 1.17;
+        price.setMiddle((double) Math.round(value));
         return price;
     }
 
