@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +55,16 @@ public final class LocationDatabase {
                 .collect(Collectors.toSet());
     }
 
+    public String findLocation(double lat, double lng, String defaultValue) {
+        Point point = geometryFactory.createPoint(new Coordinate(lng, lat));
+        return locations.stream()
+                .filter(polygon -> polygon.intersects(point))
+                .min(Comparator.comparingDouble(LocationPolygon::getArea))
+                .map(LocationPolygon::getName)
+                .orElse(defaultValue);
+
+    }
+
     /**
      * @param polygon polygon to parse
      * @return polygon if parsed successfully
@@ -96,6 +103,10 @@ public final class LocationDatabase {
 
         public String getName() {
             return name;
+        }
+
+        public double getArea() {
+            return polygon.getArea();
         }
 
         public boolean intersects(Point point) {

@@ -33,11 +33,13 @@ public final class LocationParser extends AbstractParser<Place.Location> {
 
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
+    private final LocationDatabase locationDatabase;
 
     @Inject
-    public LocationParser(LandmarkDatabase landmarkDatabase, LocationClient locationClient) {
+    public LocationParser(LandmarkDatabase landmarkDatabase, LocationClient locationClient, LocationDatabase locationDatabase) {
         this.landmarkDatabase = landmarkDatabase;
         this.locationClient = locationClient;
+        this.locationDatabase = locationDatabase;
     }
 
     @Override
@@ -84,9 +86,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
      * @return nearby neighbourhood or Singapore if null
      */
     private String collectNeighbourhood(double lat, double lng) {
-        String neighbourhood = locationClient.neighbourhood(lat, lng);
-        if (StringUtils.isNotBlank(neighbourhood)) return neighbourhood;
-        return "Singapore";
+        return locationDatabase.findLocation(lat, lng, "Singapore");
     }
 
     /**
