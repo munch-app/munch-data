@@ -1,5 +1,6 @@
 package munch.data.container;
 
+import catalyst.utils.LatLngUtils;
 import catalyst.utils.exception.ExceptionRetriable;
 import catalyst.utils.exception.Retriable;
 import corpus.data.CorpusData;
@@ -14,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 /**
  * Created by: Fuxing
@@ -28,6 +30,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
 
     private final ContainerClient containerClient;
     private PostalMatcher postalMatcher;
+    private PolygonMatcher polygonMatcher;
 
     @Inject
     public ContainerPlaceCatalyst(ContainerClient containerClient) {
@@ -43,6 +46,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
     @Override
     protected boolean preCycle(long cycleNo) {
         postalMatcher = new PostalMatcher();
+        polygonMatcher = new PolygonMatcher();
         corpusClient.list("Sg.Munch.Container").forEachRemaining(data -> {
             CorpusData sourceData = getSourceData(data);
             if (sourceData == null) {
@@ -62,6 +66,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
                 return;
             }
             postalMatcher.put(sourceData, container);
+            polygonMatcher.put(sourceData, container);
             counter.increment("Loaded PostalMatcher");
             sleep(10);
         });
@@ -95,6 +100,12 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
             counter.increment("Matched PostalMatcher");
         });
 
+        LatLngUtils.LatLng latLng = PlaceKey.Location.latLng.getLatLngValue(data);
+        polygonMatcher.find(latLng, placeId, cycleNo).forEach(containerPlace -> {
+            corpusClient.put("Sg.Munch.ContainerPlace", placeId, containerPlace);
+            counter.increment("Matched PostalMatcher");
+        });
+
         sleep(250);
         if (processed % 1000 == 0) logger.info("Processed {}", processed);
     }
@@ -103,14 +114,17 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
     protected void postCycle(long cycleNo) {
         super.postCycle(cycleNo);
 
-        postalMatcher.forEach(container -> {
+        Consumer<Container> consumer = (Container container) -> {
             // Put, Delete will be done at preCycle
             retriable.loop(() -> {
                 containerClient.put(container);
                 counter.increment("Updated");
             });
             sleep(100);
-        });
+        };
+
+        postalMatcher.forEach(consumer);
+        polygonMatcher.forEach(consumer);
     }
 
     @Override

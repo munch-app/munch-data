@@ -5,6 +5,7 @@ import corpus.data.CorpusData;
 import corpus.field.ContainerKey;
 import corpus.field.FieldUtils;
 import munch.data.structure.Container;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -21,6 +22,9 @@ public final class PostalMatcher {
     private Map<String, Set<Matched>> postalMap = new HashMap<>();
 
     public void put(CorpusData sourceData, Container container) {
+        String matching = ContainerKey.matching.getValue(sourceData);
+        if (!StringUtils.equals(matching, "postal")) return;
+
         ContainerKey.Location.postal.getAll(sourceData).forEach(field -> {
             postalMap.computeIfAbsent(field.getValue(), s -> new HashSet<>())
                     .add(new Matched(sourceData, container));
@@ -63,6 +67,7 @@ public final class PostalMatcher {
          * @param cycleNo cycleNo
          * @return newly created Sg.MunchSheet.FranchisePlace
          */
+        @SuppressWarnings("Duplicates")
         public CorpusData createPlace(String catalystId, long cycleNo) {
             matchedPlaces++;
 

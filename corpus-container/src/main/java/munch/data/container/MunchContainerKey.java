@@ -41,7 +41,6 @@ public final class MunchContainerKey extends AbstractKey {
         if (!ContainerKey.ranking.has(sourceData)) return null;
         if (!ContainerKey.Location.city.has(sourceData)) return null;
         if (!ContainerKey.Location.country.has(sourceData)) return null;
-        if (!ContainerKey.Location.postal.has(sourceData)) return null;
         if (!ContainerKey.Location.latLng.has(sourceData)) return null;
 
         Container container = new Container();
