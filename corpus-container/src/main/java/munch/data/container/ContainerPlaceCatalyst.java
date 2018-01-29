@@ -1,6 +1,5 @@
 package munch.data.container;
 
-import catalyst.utils.LatLngUtils;
 import catalyst.utils.exception.ExceptionRetriable;
 import catalyst.utils.exception.Retriable;
 import corpus.data.CorpusData;
@@ -100,10 +99,11 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
             counter.increment("Matched PostalMatcher");
         });
 
-        LatLngUtils.LatLng latLng = PlaceKey.Location.latLng.getLatLngValue(data);
-        polygonMatcher.find(latLng, placeId, cycleNo).forEach(containerPlace -> {
-            corpusClient.put("Sg.Munch.ContainerPlace", placeId, containerPlace);
-            counter.increment("Matched PostalMatcher");
+        PlaceKey.Location.latLng.getLatLng(data).ifPresent(latLng -> {
+            polygonMatcher.find(latLng, placeId, cycleNo).forEach(containerPlace -> {
+                corpusClient.put("Sg.Munch.ContainerPlace", placeId, containerPlace);
+                counter.increment("Matched PostalMatcher");
+            });
         });
 
         sleep(250);
