@@ -60,22 +60,41 @@ public final class ElasticClient {
     public JsonNode suggest(List<String> types, String query, @Nullable String latLng, int size) {
         ObjectNode completion = mapper.createObjectNode()
                 .put("field", "suggest")
+                .put("fuzzy", true)
                 .put("size", size);
         ObjectNode contexts = completion.putObject("contexts");
 
         // Context: LatLng
         if (StringUtils.isNotBlank(latLng)) {
             String[] lls = latLng.split(",");
+            final double lat = Double.parseDouble(lls[0].trim());
+            final double lng = Double.parseDouble(lls[1].trim());
 
-            contexts.putObject("latLng")
-                    .put("lat", Double.parseDouble(lls[0].trim()))
-                    .put("lon", Double.parseDouble(lls[1].trim()));
+            ArrayNode latLngArray = contexts.putArray("latLng");
+            latLngArray.addObject()
+                    .put("precision", 3)
+                    .putObject("context")
+                    .put("lat", lat)
+                    .put("lon", lng);
+
+            latLngArray.addObject()
+                    .put("precision", 6)
+                    .put("boost", 2)
+                    .putObject("context")
+                    .put("lat", lat)
+                    .put("lon", lng);
         }
 
         // Context: Type
         if (types != null && !types.isEmpty()) {
             contexts.set("dataType", mapper.valueToTree(types));
         }
+
+        // Boost direct match
+        contexts.putArray("name")
+                .addObject()
+                .put("boost", 2)
+                .put("context", query);
 
         ObjectNode root = mapper.createObjectNode();
         root.putObject("suggest")
@@ -173,7 +192,7 @@ public final class ElasticClient {
         try {
             Count.Builder builder = new Count.Builder()
                     .query(mapper.writeValueAsString(root))
-                    .addIndex("munch");
+                    .addIndex(ElasticMapping.INDEX_NAME);
 
             Double count = client.execute(builder.build()).getCount();
             if (count == null) return 0;
@@ -190,7 +209,7 @@ public final class ElasticClient {
     public JsonNode postSearch(JsonNode node) {
         try {
             Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node))
-                    .addIndex("munch");
+                    .addIndex(ElasticMapping.INDEX_NAME);
 
             return mapper.readTree(client.execute(builder.build())
                     .getJsonString());

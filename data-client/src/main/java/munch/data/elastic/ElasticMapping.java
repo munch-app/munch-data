@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
  */
 @Singleton
 public final class ElasticMapping {
+    public static final String INDEX_NAME = "munch2";
     private static final Logger logger = LoggerFactory.getLogger(ElasticMapping.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
@@ -59,7 +60,7 @@ public final class ElasticMapping {
             index = getIndex();
         } else {
             JsonNode data = getExpectedMapping().path("mappings").path("Data");
-            JestResult execute = client.execute(new PutMapping.Builder("munch", "Data", mapper.writeValueAsString(data)).build());
+            JestResult execute = client.execute(new PutMapping.Builder(ElasticMapping.INDEX_NAME, "Data", mapper.writeValueAsString(data)).build());
             logger.info(execute.getJsonString());
 
             if (execute.getResponseCode() != 200) {
@@ -78,7 +79,7 @@ public final class ElasticMapping {
     @Nullable
     private JsonNode getIndex() throws IOException {
         JestResult result = client.execute(new GetMapping.Builder()
-                .addIndex("munch")
+                .addIndex(ElasticMapping.INDEX_NAME)
                 .build());
         JsonNode node = mapper.readTree(result.getJsonString());
         String type = node.path("error").path("type").asText(null);
@@ -98,7 +99,7 @@ public final class ElasticMapping {
         logger.info("Creating index");
         URL url = Resources.getResource("elastic-index.json");
         String json = Resources.toString(url, Charset.forName("UTF-8"));
-        JestResult result = client.execute(new CreateIndex.Builder("munch").settings(json).build());
+        JestResult result = client.execute(new CreateIndex.Builder(ElasticMapping.INDEX_NAME).settings(json).build());
         logger.info("Created index result: {}", result.getJsonString());
     }
 

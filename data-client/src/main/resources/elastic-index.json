@@ -11,9 +11,14 @@
               "path": "dataType"
             },
             {
+              "name": "name",
+              "type": "category",
+              "path": "name"
+            },
+            {
               "name": "latLng",
               "type": "geo",
-              "precision": 5,
+              "precision": 7,
               "path": "location.latLng"
             }
           ]

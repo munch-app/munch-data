@@ -98,7 +98,7 @@ public final class ElasticIndex {
         try {
             String json = mapper.writeValueAsString(node);
             DocumentResult result = client.execute(new Index.Builder(json)
-                    .index("munch")
+                    .index(ElasticMapping.INDEX_NAME)
                     .type("Data")
                     .id(createKey(type, key))
                     .build());
@@ -111,7 +111,7 @@ public final class ElasticIndex {
 
     public <T> T get(String type, String key) {
         try {
-            DocumentResult result = client.execute(new Get.Builder("munch", createKey(type, key)).type("Data").build());
+            DocumentResult result = client.execute(new Get.Builder(ElasticMapping.INDEX_NAME, createKey(type, key)).type("Data").build());
             validateResult(result);
             return marshaller.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
@@ -127,7 +127,7 @@ public final class ElasticIndex {
     public void delete(String type, String key) {
         try {
             DocumentResult result = client.execute(new Delete.Builder(createKey(type, key))
-                    .index("munch")
+                    .index(ElasticMapping.INDEX_NAME)
                     .type("Data")
                     .build());
 

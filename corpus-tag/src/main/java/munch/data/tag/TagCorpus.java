@@ -27,7 +27,7 @@ import java.util.List;
 public class TagCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TagCorpus.class);
     private static final Retriable retriable = new ExceptionRetriable(20, Duration.ofMinutes(3), ClusterBlockException.class);
-    private static final long dataVersion = 21;
+    private static final long dataVersion = 30;
 
     private final TagClient tagClient;
 

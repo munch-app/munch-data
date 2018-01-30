@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
-    private static final String version = "2018-01-20";
+    private static final String version = "2018-01-31";
     private final List<String> priorityNames;
 
     private final NameParser nameParser;

@@ -55,13 +55,13 @@ public final class LocationDatabase {
                 .collect(Collectors.toSet());
     }
 
-    public String findLocation(double lat, double lng, String defaultValue) {
+    public String findLocation(double lat, double lng) {
         Point point = geometryFactory.createPoint(new Coordinate(lng, lat));
         return locations.stream()
                 .filter(polygon -> polygon.intersects(point))
                 .min(Comparator.comparingDouble(LocationPolygon::getArea))
                 .map(LocationPolygon::getName)
-                .orElse(defaultValue);
+                .orElse(null);
 
     }
 
