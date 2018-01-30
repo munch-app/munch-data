@@ -11,4 +11,5 @@ include 'corpus-container'
 
 include 'name-utils'
 include 'price-utils'
+include 'corpus-place-tag'
 
