@@ -9,6 +9,7 @@ import munch.data.place.parser.hour.HourParser;
 import munch.data.place.parser.location.LocationParser;
 import munch.data.place.parser.tag.TagParser;
 import munch.data.structure.Place;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -74,7 +75,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         place.setVersion(version);
 
         place.setName(nameParser.parse(place, list));
-        if (place.getName() == null) return null;
+        if (StringUtils.isBlank(place.getName())) return null;
         place.setPhone(phoneParser.parse(place, list));
         place.setWebsite(websiteParser.parse(place, list));
         place.setDescription(descriptionParser.parse(place, list));

@@ -147,13 +147,18 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         // Put if data is changed only
         Place existing = placeClient.get(place.getId());
         if (!place.equals(existing)) {
-            retriable.loop(() -> placeClient.put(place));
+            try {
+                retriable.loop(() -> placeClient.put(place));
 
-            logger.info("Updated: updated: {} existing: {}",
-                    JsonUtils.toJsonString(place),
-                    JsonUtils.toJsonString(existing)
-            );
-            counter.increment("Updated");
+                logger.info("Updated: updated: {} existing: {}",
+                        JsonUtils.toString(place),
+                        JsonUtils.toString(existing)
+                );
+                counter.increment("Updated");
+            } catch (Exception e) {
+                logger.error("Error: updated: {}", JsonUtils.toString(place));
+                throw e;
+            }
         }
     }
 
@@ -166,7 +171,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
             retriable.loop(() -> placeClient.delete(placeId));
 
             logger.info("Deleted: {}",
-                    JsonUtils.toJsonString(existing)
+                    JsonUtils.toString(existing)
             );
             counter.increment("Deleted");
         }

@@ -30,6 +30,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceImageCorpus.class);
     private static final Set<String> EXPLICIT_SOURCES = Set.of("munch-franchise", "munch-place-info");
 
+    private static final String VERSION = "2018-01-31";
     private final ImageCollector imageCollector;
     private final ImageProcessor imageProcessor;
 
@@ -69,6 +70,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         CorpusData imageData = new CorpusData(cycleNo);
         imageData.setCatalystId(placeId);
         imageData.getFields().addAll(selectImages(processedImages));
+        imageData.put("Sg.Munch.PlaceImage.version", VERSION);
         corpusClient.put("Sg.Munch.PlaceImage", placeId, imageData);
 
         // Put Menu Card collected from images

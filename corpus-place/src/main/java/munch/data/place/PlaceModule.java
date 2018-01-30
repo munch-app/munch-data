@@ -12,6 +12,8 @@ import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
 import munch.data.place.parser.location.LocationParserModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created By: Fuxing Loh
@@ -20,6 +22,7 @@ import munch.data.place.parser.location.LocationParserModule;
  * Project: munch-data
  */
 public class PlaceModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceModule.class);
 
     @Override
     protected void configure() {
@@ -45,5 +48,10 @@ public class PlaceModule extends AbstractModule {
 
         injector.getInstance(JestClient.class).shutdownClient();
         injector.getInstance(Key.get(JestClient.class, Names.named("munch.data.place.jest"))).shutdownClient();
+        logger.info("Corpus should shutdown.");
+
+        Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
+            logger.error("Thread that are still running: {} {}", thread.getName(), thread);
+        });
     }
 }
