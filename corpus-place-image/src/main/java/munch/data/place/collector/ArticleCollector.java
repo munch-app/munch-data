@@ -1,6 +1,5 @@
 package munch.data.place.collector;
 
-import com.google.common.collect.ImmutableSet;
 import corpus.data.CorpusData;
 import corpus.field.FieldUtils;
 
@@ -18,11 +17,15 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class ArticleCollector extends AbstractCollector {
-    private static final Set<String> ARTICLE_SOURCE_IDS = ImmutableSet.of(
-            "danielfooddiary.com", "sethlui.com", "ladyironchef.com",
-            "misstamchiak.com", "sgfoodonfoot.com", "camemberu.com",
-            "ieatandeat.com", "aspirantsg.com", "ms-skinnyfat.com", "six-and-seven.com",
-            "thebestsingapore.com", "mobile.vegetarian-food.net"
+    private static final Set<String> BLACKLIST_SOURCE_ID = Set.of(
+            "ieatishootipost.sg",
+            "ordinarypatrons.com",
+            "eatbook.sg",
+            "thesmartlocal.com",
+            "therantingpanda.com",
+            "rubbisheatrubbishgrow.com",
+            "thehalalfoodblog.com",
+            "hungryangmo.com"
     );
 
     @Override
@@ -38,7 +41,7 @@ public final class ArticleCollector extends AbstractCollector {
 
     private boolean isArticle(CorpusData data) {
         if (!data.getCorpusName().equals("Global.MunchArticle.Article")) return false;
-        if (!ARTICLE_SOURCE_IDS.contains(FieldUtils.getValue(data, "Article.templateId"))) return false;
+        if (BLACKLIST_SOURCE_ID.contains(FieldUtils.getValue(data, "Article.templateId"))) return false;
         return FieldUtils.get(data, "Article.groupings")
                 .map(CorpusData.Field::getValue)
                 .filter(s -> s.equals("1"))
