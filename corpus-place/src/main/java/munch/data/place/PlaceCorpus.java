@@ -7,6 +7,7 @@ import corpus.engine.CatalystEngine;
 import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
+import munch.data.exceptions.ElasticException;
 import munch.data.place.amalgamate.Amalgamate;
 import munch.data.structure.Place;
 import munch.restful.core.JsonUtils;
@@ -168,12 +169,21 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         // Delete if exist only
         Place existing = placeClient.get(placeId);
         if (existing != null) {
-            retriable.loop(() -> placeClient.delete(placeId));
+            try {
+                retriable.loop(() -> placeClient.delete(placeId));
 
-            logger.info("Deleted: {}",
-                    JsonUtils.toString(existing)
-            );
-            counter.increment("Deleted");
+                logger.info("Deleted: {}",
+                        JsonUtils.toString(existing)
+                );
+                counter.increment("Deleted");
+            } catch (ElasticException e) {
+                if (e.getCode() == 404) {
+                    logger.info("Already Deleted: {}",
+                            JsonUtils.toString(existing)
+                    );
+                }
+            }
+
         }
     }
 

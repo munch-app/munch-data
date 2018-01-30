@@ -17,6 +17,7 @@ import munch.data.structure.Location;
 import munch.data.structure.Place;
 import munch.data.structure.Tag;
 import munch.restful.core.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,12 +142,16 @@ public final class ElasticIndex {
         if (result.getErrorMessage() != null) {
             JsonNode jsonNode = JsonUtils.readTree(result.getJsonString());
             String errorType = jsonNode.path("error").path("type").asText();
-            if (errorType.equals("cluster_block_exception")) {
+            if (StringUtils.equals(errorType, "cluster_block_exception")) {
                 throw new ClusterBlockException();
             }
 
+            if (StringUtils.equals(jsonNode.path("result").asText(), "not_found")) {
+                throw new ElasticException(404, "Failed to put/delete/get object.");
+            }
+
             logger.warn("{}", jsonNode);
-            throw new ElasticException("Failed to put object.");
+            throw new ElasticException("Failed to put/delete/get object.");
         }
     }
 

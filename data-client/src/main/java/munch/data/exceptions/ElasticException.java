@@ -21,6 +21,14 @@ public class ElasticException extends StructuredException {
         super(500, "ElasticException", message);
     }
 
+    public ElasticException(int code, Throwable cause) {
+        super(code, "ElasticException", cause.getMessage(), cause);
+    }
+
+    public ElasticException(int code, String message) {
+        super(code, "ElasticException", message);
+    }
+
     public static StructuredException parse(Exception e) {
         if (e instanceof SocketTimeoutException) {
             return new TimeoutException(e);
