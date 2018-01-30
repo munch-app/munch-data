@@ -87,9 +87,9 @@ public final class LocationParser extends AbstractParser<Place.Location> {
      */
     private String collectNeighbourhood(double lat, double lng) {
         String location = locationDatabase.findLocation(lat, lng);
-        if (location != null) return location;
+        if (StringUtils.isNotBlank(location)) return location;
         String neighbourhood = locationClient.neighbourhood(lat, lng);
-        if (neighbourhood != null) return neighbourhood;
+        if (StringUtils.isNotBlank(neighbourhood)) return neighbourhood;
         return "Singapore";
     }
 

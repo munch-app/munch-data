@@ -48,10 +48,12 @@ public class PlaceModule extends AbstractModule {
 
         injector.getInstance(JestClient.class).shutdownClient();
         injector.getInstance(Key.get(JestClient.class, Names.named("munch.data.place.jest"))).shutdownClient();
+        com.amazonaws.http.IdleConnectionReaper.shutdown();
         logger.info("Corpus should shutdown.");
 
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
-            logger.error("Thread that are still running: {} {}", thread.getName(), thread);
+            logger.error("Thread force shutdown: {} {}", thread.getName(), thread);
+            thread.interrupt();
         });
     }
 }

@@ -62,7 +62,6 @@ public final class LocationDatabase {
                 .min(Comparator.comparingDouble(LocationPolygon::getArea))
                 .map(LocationPolygon::getName)
                 .orElse(null);
-
     }
 
     /**
