@@ -1,5 +1,7 @@
 package munch.data.place.text;
 
+import java.util.List;
+
 /**
  * Created by: Fuxing
  * Date: 14/12/2017
@@ -14,9 +16,8 @@ public class CollectedText {
     }
 
     private From from;
-    private String uniqueId;
 
-    private String content;
+    private List<String> texts;
 
     public From getFrom() {
         return from;
@@ -26,19 +27,11 @@ public class CollectedText {
         this.from = from;
     }
 
-    public String getUniqueId() {
-        return uniqueId;
+    public List<String> getTexts() {
+        return texts;
     }
 
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
+    public void setTexts(List<String> texts) {
+        this.texts = texts;
     }
 }

@@ -32,9 +32,8 @@ public final class InstagramCollector extends AbstractCollector {
         return mediaList.stream()
                 .map(media -> {
                     CollectedText text = new CollectedText();
-                    text.setUniqueId("instagram|" + media.getMediaId());
                     text.setFrom(CollectedText.From.Instagram);
-                    text.setContent(media.getCaption());
+                    text.setTexts(List.of(media.getCaption()));
                     return text;
                 })
                 .collect(Collectors.toList());
