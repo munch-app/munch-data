@@ -52,8 +52,7 @@ public class PlaceModule extends AbstractModule {
         logger.info("Corpus should shutdown.");
 
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
-            logger.error("Thread force shutdown: {} {}", thread.getName(), thread);
-            thread.interrupt();
+            logger.error("Thread: {} {}", thread.getName(), thread);
         });
     }
 }
