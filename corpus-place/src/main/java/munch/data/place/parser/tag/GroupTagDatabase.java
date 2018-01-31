@@ -33,6 +33,7 @@ public final class GroupTagDatabase {
 
         ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
         exec.scheduleAtFixedRate(this::sync, 24, 24, TimeUnit.HOURS);
+        Runtime.getRuntime().addShutdownHook(new Thread(exec::shutdownNow));
     }
 
     /**
