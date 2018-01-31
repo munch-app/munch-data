@@ -94,7 +94,7 @@ public final class ElasticClient {
         contexts.putArray("name")
                 .addObject()
                 .put("boost", 2)
-                .put("context", query);
+                .put("context", StringUtils.lowerCase(query));
 
         ObjectNode root = mapper.createObjectNode();
         root.putObject("suggest")

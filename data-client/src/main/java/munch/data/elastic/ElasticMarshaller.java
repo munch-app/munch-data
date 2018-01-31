@@ -45,7 +45,7 @@ public final class ElasticMarshaller {
 
         // Suggest Field
         ArrayNode inputs = mapper.createArrayNode();
-        inputs.add(place.getName());
+        inputs.add(place.getName().toLowerCase());
         node.putObject("suggest")
                 .put("weight", 10)
                 .set("input", inputs);
