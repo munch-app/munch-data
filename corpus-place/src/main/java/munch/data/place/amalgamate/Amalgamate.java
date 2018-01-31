@@ -33,6 +33,7 @@ public final class Amalgamate {
     private final SpatialAmalgamate spatialAmalgamate;
 
     private final Set<String> names;
+    private final Set<String> seedNames;
 
     @Inject
     public Amalgamate(Config config, CorpusClient corpusClient, CatalystClient catalystClient,
@@ -47,6 +48,7 @@ public final class Amalgamate {
         builder.addAll(config.getStringList("place.postal"));
         builder.addAll(config.getStringList("place.spatial"));
         this.names = builder.build();
+        this.seedNames = ImmutableSet.copyOf(config.getStringList("place.seed"));
     }
 
     /**
@@ -89,8 +91,21 @@ public final class Amalgamate {
             corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), null);
         }
 
-        // If none left
-        return treeList.size() > 0;
+        // No seeded data in the list
+        return hasSeed(treeList);
+    }
+
+    /**
+     * @param list corpus data list to check that has any seed
+     * @return if any seed corpus data exists
+     */
+    private boolean hasSeed(List<CorpusData> list) {
+        for (CorpusData data : list) {
+            if (seedNames.contains(data.getCorpusName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<CorpusData> collectTree(String catalystId) {
