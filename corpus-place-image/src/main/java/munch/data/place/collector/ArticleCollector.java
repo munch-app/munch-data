@@ -25,7 +25,8 @@ public final class ArticleCollector extends AbstractCollector {
             "therantingpanda.com",
             "rubbisheatrubbishgrow.com",
             "thehalalfoodblog.com",
-            "hungryangmo.com"
+            "hungryangmo.com",
+            "six-and-seven.com"
     );
 
     @Override
