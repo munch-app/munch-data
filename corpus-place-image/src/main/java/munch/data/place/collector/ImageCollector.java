@@ -31,7 +31,7 @@ public final class ImageCollector {
      * @param list list of corpus
      * @return List of Place.Image can be empty
      */
-    public List<CollectedImage> parse(String placeId, List<CorpusData> list) {
+    public List<CollectedImage> collect(String placeId, List<CorpusData> list) {
         List<CollectedImage> collectedImages = new ArrayList<>();
         collectedImages.addAll(corpusCollector.collect(placeId, list));
         collectedImages.addAll(articleCollector.collect(placeId, list));

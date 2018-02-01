@@ -64,7 +64,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);
 
         // Collect and process
-        List<CollectedImage> collectedImages = imageCollector.parse(placeId, dataList);
+        List<CollectedImage> collectedImages = imageCollector.collect(placeId, dataList);
         List<ProcessedImage> processedImages = imageProcessor.process(collectedImages);
 
         CorpusData imageData = new CorpusData(cycleNo);
