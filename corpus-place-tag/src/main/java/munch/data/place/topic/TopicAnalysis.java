@@ -1,4 +1,4 @@
-package munch.data.place;
+package munch.data.place.topic;
 
 
 import cc.mallet.pipe.*;
