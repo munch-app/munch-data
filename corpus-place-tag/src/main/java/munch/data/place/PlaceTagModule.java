@@ -27,6 +27,6 @@ public final class PlaceTagModule extends AbstractModule {
 
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new PlaceTagModule());
-        injector.getInstance(PlaceImageCorpus.class).run();
+        injector.getInstance(PlaceTagCorpus.class).run();
     }
 }

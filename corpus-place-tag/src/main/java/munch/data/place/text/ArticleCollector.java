@@ -1,5 +1,6 @@
 package munch.data.place.text;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import corpus.data.CorpusData;
 import corpus.data.DocumentClient;
 import corpus.field.FieldUtils;
@@ -9,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -46,9 +48,19 @@ public final class ArticleCollector extends AbstractCollector {
     }
 
     private List<String> getTexts(CorpusData data) {
-        return FieldUtils.get(data, "Article.articleId")
-                .map(field -> documentClient.get(ARTICLE_TEXT, field.getValue()))
-                .map(node -> JsonUtils.toList(node, String.class))
-                .orElse(List.of());
+        // Because Global.MunchArticle.ArticleText store both [""] & "" now
+        // Suppose to be [""]
+
+        Optional<JsonNode> optionalNode = FieldUtils.get(data, "Article.articleId")
+                .map(field -> documentClient.get(ARTICLE_TEXT, field.getValue()));
+
+        if (!optionalNode.isPresent()) return List.of();
+
+        JsonNode node = optionalNode.get();
+
+        if (node.isArray()) {
+            return JsonUtils.toList(node, String.class);
+        }
+        return List.of(node.asText());
     }
 }

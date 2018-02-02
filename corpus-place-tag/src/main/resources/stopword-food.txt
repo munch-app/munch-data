@@ -1,0 +1,9 @@
+cuisine
+food
+cuisines
+foods
+dishes
+dish
+restaurant
+hurricane
+chef

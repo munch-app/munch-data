@@ -15,7 +15,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -24,15 +23,14 @@ import java.util.Set;
  * Project: munch-data
  */
 @Singleton
-public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(PlaceImageCorpus.class);
-    private static final Set<String> EXPLICIT_SOURCES = Set.of("munch-franchise", "munch-place-info");
+public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceTagCorpus.class);
 
     private static final String VERSION = "2018-01-31";
     private final TextCollector textCollector;
 
     @Inject
-    public PlaceImageCorpus(TextCollector textCollector) {
+    public PlaceTagCorpus(TextCollector textCollector) {
         super(logger);
         this.textCollector = textCollector;
     }
@@ -57,12 +55,12 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);
 
         // Collect and process
-        List<CollectedText> collectedTexts = textCollector.parse(placeId, dataList);
+        List<CollectedText> collectedTexts = textCollector.collect(placeId, dataList);
 
         CorpusData imageData = new CorpusData(cycleNo);
         imageData.setCatalystId(placeId);
-        imageData.put("Sg.Munch.PlaceImage.version", VERSION);
-        corpusClient.put("Sg.Munch.PlaceImage", placeId, imageData);
+        imageData.put("Sg.Munch.PlaceTag.version", VERSION);
+        corpusClient.put("Sg.Munch.PlaceTag", placeId, imageData);
 
 
         sleep(100);

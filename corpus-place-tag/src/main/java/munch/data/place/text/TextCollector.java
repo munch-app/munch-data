@@ -31,7 +31,7 @@ public final class TextCollector {
      * @param list list of corpus
      * @return List of Place.Image can be empty
      */
-    public List<CollectedText> parse(String placeId, List<CorpusData> list) {
+    public List<CollectedText> collect(String placeId, List<CorpusData> list) {
         List<CollectedText> collectedTexts = new ArrayList<>();
         collectedTexts.addAll(corpusCollector.collect(placeId, list));
         collectedTexts.addAll(articleCollector.collect(placeId, list));
