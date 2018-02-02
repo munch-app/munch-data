@@ -15,6 +15,8 @@ import munch.data.place.parser.location.LocationParserModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 /**
  * Created By: Fuxing Loh
  * Date: 8/10/2017
@@ -52,7 +54,8 @@ public class PlaceModule extends AbstractModule {
         logger.info("Corpus should shutdown.");
 
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
-            logger.error("Thread: {} {}", thread.getName(), thread);
+            logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));
         });
+        System.exit(0);
     }
 }
