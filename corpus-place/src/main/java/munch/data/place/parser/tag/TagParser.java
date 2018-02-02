@@ -97,7 +97,6 @@ public final class TagParser extends AbstractParser<Place.Tag> {
 
             // Parse all information to add
             tags.addAll(parseLocation(place));
-            tags.addAll(parseTiming(place));
 
             return tags.stream()
                     .map(String::toLowerCase)
@@ -107,48 +106,6 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         private Set<String> parseLocation(Place place) {
             LatLngUtils.LatLng latLng = LatLngUtils.parse(place.getLocation().getLatLng());
             return locationDatabase.findTags(latLng.getLat(), latLng.getLng());
-        }
-
-        private List<String> parseTiming(Place place) {
-            List<String> tags = new ArrayList<>();
-            if (isBreakfast(place.getHours())) tags.add("breakfast");
-            if (isLunch(place.getHours())) tags.add("lunch");
-            if (isDinner(place.getHours())) tags.add("dinner");
-            if (isSupper(place.getHours())) tags.add("supper");
-            return tags;
-        }
-
-        private boolean isBreakfast(List<Place.Hour> hours) {
-            return hours.stream()
-                    .filter(hour -> isOpen(hour, 815, 915, 1015))
-                    .count() > 2;
-        }
-
-        private boolean isLunch(List<Place.Hour> hours) {
-            return hours.stream()
-                    .filter(hour -> isOpen(hour, 1130, 1230, 1300, 1400, 1500))
-                    .count() > 2;
-        }
-
-        private boolean isDinner(List<Place.Hour> hours) {
-            return hours.stream()
-                    .filter(hour -> isOpen(hour, 1815, 1915, 2015, 2300))
-                    .count() > 2;
-        }
-
-        private boolean isSupper(List<Place.Hour> hours) {
-            return hours.stream()
-                    .filter(hour -> isOpen(hour, 1145))
-                    .count() > 2;
-        }
-
-        private boolean isOpen(Place.Hour hour, int... times) {
-            int open = Integer.parseInt(hour.getOpen().replace(":", ""));
-            int close = Integer.parseInt(hour.getClose().replace(":", ""));
-            for (int time : times) {
-                if (open >= time && time <= close) return true;
-            }
-            return false;
         }
     }
 }

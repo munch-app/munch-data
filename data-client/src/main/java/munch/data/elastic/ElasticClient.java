@@ -79,7 +79,7 @@ public final class ElasticClient {
 
             latLngArray.addObject()
                     .put("precision", 6)
-                    .put("boost", 2)
+                    .put("boost", 1.05)
                     .putObject("context")
                     .put("lat", lat)
                     .put("lon", lng);
@@ -89,12 +89,6 @@ public final class ElasticClient {
         if (types != null && !types.isEmpty()) {
             contexts.set("dataType", mapper.valueToTree(types));
         }
-
-        // Boost direct match
-        contexts.putArray("name")
-                .addObject()
-                .put("boost", 2)
-                .put("context", StringUtils.lowerCase(query));
 
         ObjectNode root = mapper.createObjectNode();
         root.putObject("suggest")
