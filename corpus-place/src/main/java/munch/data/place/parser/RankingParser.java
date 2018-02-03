@@ -3,7 +3,6 @@ package munch.data.place.parser;
 import corpus.data.CorpusData;
 import corpus.field.FieldUtils;
 import munch.data.structure.Place;
-import munch.data.structure.SourcedImage;
 
 import javax.inject.Singleton;
 import java.util.List;
@@ -31,6 +30,10 @@ public final class RankingParser extends AbstractParser<Double> {
 
         // Image
         ranking += getImageScore(place);
+
+        // Franchise
+        ranking += getFranchise(list);
+
         return ranking;
     }
 
@@ -63,16 +66,18 @@ public final class RankingParser extends AbstractParser<Double> {
 
     private double getImageScore(Place place) {
         if (!place.getImages().isEmpty()) {
-            if (isPlaceholder(place.getImages())) return 500;
             return 1000;
         }
         return 0;
     }
 
-    private boolean isPlaceholder(List<SourcedImage> images) {
-        if (images.size() > 1) return false;
-        String source = images.get(0).getSource();
-        if (source == null) return false;
-        return source.equals("munch-image-placeholder");
+    private double getFranchise(List<CorpusData> list) {
+        if (isFranchise(list)) return -200;
+        return 0;
+    }
+
+    private boolean isFranchise(List<CorpusData> list) {
+        return list.stream()
+                .anyMatch(data -> data.getCorpusName().equals("Sg.MunchSheet.FranchisePlace"));
     }
 }

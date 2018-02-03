@@ -99,7 +99,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                     deleteIf(placeData.getCorpusKey());
                 } else {
                     putIf(place);
-                    putCorpus(place);
+                    corpusClient.put("Sg.Munch.Place", place.getId(), createCorpusData(place));
                     count(list, place);
                 }
             } else {
@@ -171,6 +171,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         if (existing != null) {
             try {
                 retriable.loop(() -> placeClient.delete(placeId));
+                corpusClient.put("Sg.Munch.PlaceDeleted", existing.getId(), createCorpusData(existing));
 
                 logger.info("Deleted: {}",
                         JsonUtils.toString(existing)
@@ -187,7 +188,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         }
     }
 
-    private void putCorpus(Place place) {
+    private CorpusData createCorpusData(Place place) {
         // Put to corpus client
         CorpusData placeData = new CorpusData(System.currentTimeMillis());
         placeData.put(PlaceKey.name, place.getName());
@@ -204,7 +205,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
 
         placeData.put(PlaceKey.Location.postal, place.getLocation().getPostal());
         placeData.put(PlaceKey.Location.latLng, place.getLocation().getLatLng());
-        corpusClient.put("Sg.Munch.Place", place.getId(), placeData);
+        return placeData;
     }
 
     /**
