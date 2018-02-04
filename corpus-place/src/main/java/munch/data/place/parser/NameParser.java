@@ -22,7 +22,9 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public final class NameParser extends AbstractParser<String> {
-    private static final Set<String> BLOCKED_NAMES = Set.of("chinese characters", "chinese character", "chinese letter", "chinese letters");
+    private static final Set<String> BLOCKED_NAMES = Set.of("chinese characters", "chinese character", "chinese letter", "chinese letters", "cafeteria",
+            "ntuc", "fairprice finest", "fairprice", "cold storage", "giant", "fairprice extra", "golden village", "n.a.", "beverages", "beverage", "drinks", "drink",
+            "7-eleven", "7 eleven", "7eleven");
     private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z]|^)[a-z]");
     private static final Pattern BLOCKED_PATTERN = Pattern.compile("stalls? [0-9]+", Pattern.CASE_INSENSITIVE);
 
