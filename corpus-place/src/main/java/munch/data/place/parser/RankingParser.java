@@ -26,13 +26,13 @@ public final class RankingParser extends AbstractParser<Double> {
         }
 
         // Article TemplateIds
-        ranking += getArticleScore(list);
+        ranking += getArticleScore(place, list);
 
         // Image
-        ranking += getImageScore(place);
+        ranking += getImageScore(place, list);
 
-        // Franchise
-        ranking += getFranchise(list);
+        // Negative scores
+        ranking += getNegative(place, list);
 
         return ranking;
     }
@@ -54,7 +54,7 @@ public final class RankingParser extends AbstractParser<Double> {
         }
     }
 
-    private double getArticleScore(List<CorpusData> list) {
+    private double getArticleScore(Place place, List<CorpusData> list) {
         return list.stream()
                 .filter(data -> data.getCorpusName().equals("Global.MunchArticle.Article"))
                 .map(data -> FieldUtils.get(data, "Article.templateId"))
@@ -64,20 +64,19 @@ public final class RankingParser extends AbstractParser<Double> {
                 .size() * 10;
     }
 
-    private double getImageScore(Place place) {
+    private double getImageScore(Place place, List<CorpusData> list) {
         if (!place.getImages().isEmpty()) {
             return 1000;
         }
         return 0;
     }
 
-    private double getFranchise(List<CorpusData> list) {
-        if (isFranchise(list)) return -200;
+    private double getNegative(Place place, List<CorpusData> list) {
+        if (isFastFood(place)) return -200;
         return 0;
     }
 
-    private boolean isFranchise(List<CorpusData> list) {
-        return list.stream()
-                .anyMatch(data -> data.getCorpusName().equals("Sg.MunchSheet.FranchisePlace"));
+    private boolean isFastFood(Place place) {
+        return place.getTag().getExplicits().contains("fast food");
     }
 }
