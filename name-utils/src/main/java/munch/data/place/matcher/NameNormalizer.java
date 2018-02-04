@@ -25,7 +25,9 @@ public final class NameNormalizer {
             new ReplacementGroup(Pattern.compile("ÿ", Pattern.CASE_INSENSITIVE), "y"),
             new ReplacementGroup(Pattern.compile("ç", Pattern.CASE_INSENSITIVE), "c"),
 
-            new ReplacementGroup(Pattern.compile("pte\\.? *ltd\\.?", Pattern.CASE_INSENSITIVE), "")
+            new ReplacementGroup(Pattern.compile("pte\\.? *ltd\\.?", Pattern.CASE_INSENSITIVE), ""),
+
+            new ReplacementGroup(Pattern.compile("&amp;", Pattern.CASE_INSENSITIVE), "$")
     );
 
     /**

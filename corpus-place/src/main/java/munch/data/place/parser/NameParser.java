@@ -1,11 +1,12 @@
 package munch.data.place.parser;
 
+import com.google.common.base.Joiner;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.utils.FieldCollector;
 import munch.data.place.matcher.NameNormalizer;
+import munch.data.place.matcher.PatternSplit;
 import munch.data.structure.Place;
-import org.apache.commons.lang3.text.WordUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 @Singleton
 public final class NameParser extends AbstractParser<String> {
     private static final Set<String> BLOCKED_NAMES = Set.of("chinese characters", "chinese character", "chinese letter", "chinese letters");
+    private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z]|^)[a-z]");
     private static final Pattern BLOCKED_PATTERN = Pattern.compile("stalls? [0-9]+", Pattern.CASE_INSENSITIVE);
 
     private final NameNormalizer nameNormalizer;
@@ -49,8 +51,9 @@ public final class NameParser extends AbstractParser<String> {
         // Validate name
         if (!validateName(name)) return null;
 
-        // Then capitalize fully name
-        return WordUtils.capitalizeFully(name);
+        // Then format name properly
+        List<Object> split = NAME_DIVIDER_PATTERN.split(name.toLowerCase(), 0, String::toUpperCase);
+        return Joiner.on("").join(split);
     }
 
     /**
