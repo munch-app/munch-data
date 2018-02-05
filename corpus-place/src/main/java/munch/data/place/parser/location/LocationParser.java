@@ -34,17 +34,23 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
     private final LocationDatabase locationDatabase;
+    private final BlockedPostalDatabase blockedPostalDatabase;
 
     @Inject
-    public LocationParser(LandmarkDatabase landmarkDatabase, LocationClient locationClient, LocationDatabase locationDatabase) {
+    public LocationParser(LandmarkDatabase landmarkDatabase, LocationClient locationClient, LocationDatabase locationDatabase, BlockedPostalDatabase blockedPostalDatabase) {
         this.landmarkDatabase = landmarkDatabase;
         this.locationClient = locationClient;
         this.locationDatabase = locationDatabase;
+        this.blockedPostalDatabase = blockedPostalDatabase;
     }
 
     @Override
     @Nullable
     public Place.Location parse(Place place, List<CorpusData> list) {
+        String postal = collectMax(list, PlaceKey.Location.postal);
+        if (postal == null) return null;
+        if (blockedPostalDatabase.isBlocked(postal)) return null;
+
         LatLngUtils.LatLng latLng = parseLatLng(list);
         if (latLng == null) return null;
 
@@ -60,7 +66,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         location.setCity(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.city));
         location.setCountry(collectMax(list, WordUtils::capitalizeFully, PlaceKey.Location.country));
 
-        location.setPostal(collectMax(list, PlaceKey.Location.postal));
+        location.setPostal(postal);
         location.setLatLng(lat, lng);
 
         // Address can be constructed from other parts
