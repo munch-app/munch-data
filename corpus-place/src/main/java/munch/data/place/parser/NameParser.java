@@ -7,6 +7,7 @@ import corpus.utils.FieldCollector;
 import munch.data.place.matcher.NameNormalizer;
 import munch.data.place.matcher.PatternSplit;
 import munch.data.structure.Place;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -70,6 +71,7 @@ public final class NameParser extends AbstractParser<String> {
 
         return fieldCollector.collect()
                 .stream()
+                .map(StringUtils::lowerCase)
                 .map(nameNormalizer::normalize)
                 .filter(this::validateName)
                 .collect(Collectors.toSet());
