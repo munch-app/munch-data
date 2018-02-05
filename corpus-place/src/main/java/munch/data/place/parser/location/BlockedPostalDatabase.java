@@ -1,14 +1,13 @@
 package munch.data.place.parser.location;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import org.apache.commons.io.FileUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashSet;
+import java.nio.charset.Charset;
 import java.util.Set;
 
 /**
@@ -25,7 +24,7 @@ public final class BlockedPostalDatabase {
     @Inject
     public BlockedPostalDatabase() throws IOException {
         URL url = Resources.getResource("location-blocked-postal.txt");
-        this.postalSet = new HashSet<>(FileUtils.readLines(new File(url.getFile()), "utf-8"));
+        this.postalSet = ImmutableSet.copyOf(Resources.readLines(url, Charset.forName("UTF-8")));
     }
 
     public boolean isBlocked(String postal) {

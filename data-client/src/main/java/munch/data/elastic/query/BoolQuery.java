@@ -283,4 +283,12 @@ public final class BoolQuery {
         filter.putObject("term").put(name, text);
         return filter;
     }
+
+    public static JsonNode filterRange(String name, String operator, long value) {
+        ObjectNode filter = mapper.createObjectNode();
+        filter.putObject("range")
+                .putObject(name)
+                .put(operator, value);
+        return filter;
+    }
 }
