@@ -133,10 +133,12 @@ public class PlaceClient extends AbstractClient {
 
         /**
          * @param node raw node search
-         * @return raw result
+         * @return place result
          */
-        public JsonNode search(JsonNode node) {
-            return client.postSearch(node);
+        public List<Place> search(JsonNode node) {
+            JsonNode result = client.postSearch(node);
+            JsonNode hits = result.path("hits");
+            return marshaller.deserializeList(hits.path("hits"));
         }
 
         /**

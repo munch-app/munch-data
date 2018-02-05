@@ -40,11 +40,18 @@ public class ContainerClient extends AbstractClient {
      * @param size   size of location to search
      * @return list of Location
      */
+    @Deprecated
     public List<Container> search(String latLng, double radius, int size) {
         ObjectNode bool = objectMapper.createObjectNode();
         bool.set("filter", filter(latLng, radius));
 
         JsonNode result = elasticClient.postBoolSearch(0, size, bool, sort(latLng));
+        JsonNode hits = result.path("hits");
+        return marshaller.deserializeList(hits.path("hits"));
+    }
+
+    public List<Container> search(JsonNode node) {
+        JsonNode result = elasticClient.postSearch(node);
         JsonNode hits = result.path("hits");
         return marshaller.deserializeList(hits.path("hits"));
     }
