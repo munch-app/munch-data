@@ -52,10 +52,15 @@ public class PlaceModule extends AbstractModule {
         injector.getInstance(Key.get(JestClient.class, Names.named("munch.data.place.jest"))).shutdownClient();
         com.amazonaws.http.IdleConnectionReaper.shutdown();
         logger.info("Corpus should shutdown.");
+        Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
+            logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));
+        });
+
+        System.exit(0);
+        logger.info("Corpus exist status: 0.");
 
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
             logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));
         });
-        System.exit(0);
     }
 }

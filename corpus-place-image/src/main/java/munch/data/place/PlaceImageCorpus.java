@@ -58,7 +58,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData placeData, long processed) {
         String placeId = placeData.getCatalystId();
         // One week update once unless there is less then 3 images
-        if (!due(placeId)) return;
+        if (!isDue(placeId)) return;
 
         List<CorpusData> dataList = new ArrayList<>();
         catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);
@@ -140,7 +140,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
      * @param placeId if place id is due
      * @return true if due for update
      */
-    private boolean due(String placeId) {
+    private boolean isDue(String placeId) {
         CorpusData imageData = catalystClient.getCorpus(placeId, "Sg.Munch.PlaceImage");
         if (imageData == null) return true;
         if (PlaceKey.image.getAll(imageData).size() < 3) {
