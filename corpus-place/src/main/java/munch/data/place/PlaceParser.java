@@ -76,6 +76,7 @@ public final class PlaceParser extends AbstractParser<Place> {
 
         place.setName(nameParser.parse(place, list));
         if (StringUtils.isBlank(place.getName())) return null;
+        place.setAllNames(nameParser.parseAllNames(place, list));
         place.setPhone(phoneParser.parse(place, list));
         place.setWebsite(websiteParser.parse(place, list));
         place.setDescription(descriptionParser.parse(place, list));

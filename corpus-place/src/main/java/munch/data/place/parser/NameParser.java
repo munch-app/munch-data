@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -56,6 +57,22 @@ public final class NameParser extends AbstractParser<String> {
         // Then format name properly
         List<Object> split = NAME_DIVIDER_PATTERN.split(name.toLowerCase(), 0, String::toUpperCase);
         return Joiner.on("").join(split);
+    }
+
+    /**
+     * @param place place
+     * @param list  list of CorpusData
+     * @return set of all names
+     */
+    public Set<String> parseAllNames(Place place, List<CorpusData> list) {
+        FieldCollector fieldCollector = new FieldCollector(PlaceKey.name);
+        fieldCollector.addAll(list);
+
+        return fieldCollector.collect()
+                .stream()
+                .map(nameNormalizer::normalize)
+                .filter(this::validateName)
+                .collect(Collectors.toSet());
     }
 
     /**

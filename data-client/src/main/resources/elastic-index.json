@@ -35,6 +35,9 @@
         "name": {
           "type": "text"
         },
+        "allNames": {
+          "type": "text"
+        },
         "ranking": {
           "type": "double"
         },

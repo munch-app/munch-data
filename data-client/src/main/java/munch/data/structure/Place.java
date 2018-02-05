@@ -7,6 +7,7 @@ import com.google.common.math.DoubleMath;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -22,6 +23,7 @@ public class Place implements SearchResult {
 
     // Basic
     private String name;
+    private Set<String> allNames;
     private String phone;
     private String website;
     private String description;
@@ -73,6 +75,17 @@ public class Place implements SearchResult {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return all possible name of place
+     */
+    public Set<String> getAllNames() {
+        return allNames;
+    }
+
+    public void setAllNames(Set<String> allNames) {
+        this.allNames = allNames;
     }
 
     /**

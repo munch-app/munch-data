@@ -191,7 +191,10 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
     private CorpusData createCorpusData(Place place) {
         // Put to corpus client
         CorpusData placeData = new CorpusData(System.currentTimeMillis());
+        // Max name is put twice
         placeData.put(PlaceKey.name, place.getName());
+        place.getAllNames().forEach(name -> placeData.put(PlaceKey.name, name));
+
         placeData.put(PlaceKey.phone, place.getPhone());
         placeData.put(PlaceKey.website, place.getWebsite());
         placeData.put(PlaceKey.description, place.getDescription());
