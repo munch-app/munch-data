@@ -1,9 +1,8 @@
-package munch.data.place.parser.tag;
+package munch.data.place.group;
 
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
-import munch.data.place.parser.AbstractParser;
-import munch.data.structure.Place;
+import corpus.utils.FieldCollector;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,31 +16,27 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class TagParser extends AbstractParser<Place.Tag> {
+public final class ExplicitTagParser {
     private final GroupTagDatabase groupTagDatabase;
-    private final ImplicitTagParser implicitParser;
 
     @Inject
-    public TagParser(GroupTagDatabase groupTagDatabase, ImplicitTagParser implicitParser) {
+    public ExplicitTagParser(GroupTagDatabase groupTagDatabase) {
         this.groupTagDatabase = groupTagDatabase;
-        this.implicitParser = implicitParser;
     }
 
     /**
-     * @param place read-only place data
-     * @param list  list of corpus data to parse from
+     * @param list list of corpus data to parse from
      * @return Place.Tag, tags must all be in lowercase
      */
-    @Override
-    public Place.Tag parse(Place place, List<CorpusData> list) {
-        Place.Tag tag = new Place.Tag();
-        tag.setExplicits(parseExplicits(list));
-        tag.setImplicits(parseImplicits(place, list));
-        return tag;
+    public List<String> parse(List<CorpusData> list) {
+        return parseExplicits(list);
     }
 
     private List<String> parseExplicits(List<CorpusData> list) {
-        Set<GroupTag> groupTags = groupTagDatabase.findTags(collectValue(list, PlaceKey.tag));
+        FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
+        fieldCollector.addAll(list);
+
+        Set<GroupTag> groupTags = groupTagDatabase.findTags(fieldCollector.collect());
 
         List<String> tags = new ArrayList<>();
         tags.addAll(findGroups(groupTags, 1));
@@ -49,9 +44,7 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         tags.addAll(findGroups(groupTags, 3));
 
         // If no tags, restaurant is the default
-        if (tags.isEmpty()) {
-            return Collections.singletonList("restaurant");
-        }
+        if (tags.isEmpty()) return Collections.singletonList("restaurant");
 
         // Remove Restaurant if Hawker or Coffeeshop exists
         removeConflicts(tags);
@@ -62,10 +55,6 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         if (tags.contains("hawker") || tags.contains("coffeeshop")) {
             tags.remove("restaurant");
         }
-    }
-
-    private List<String> parseImplicits(Place place, List<CorpusData> list) {
-        return implicitParser.parse(place, list);
     }
 
     /**
@@ -82,5 +71,4 @@ public final class TagParser extends AbstractParser<Place.Tag> {
                 .map(groupTag -> groupTag.getName().toLowerCase())
                 .collect(Collectors.toList());
     }
-
 }

@@ -1,6 +1,5 @@
-package munch.data.place;
+package munch.data.place.ml;
 
-import catalyst.utils.exception.DateCompareUtils;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import munch.data.place.group.ExplicitTagParser;
@@ -14,39 +13,36 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
- * Date: 14/12/2017
- * Time: 3:22 PM
+ * Date: 6/2/18
+ * Time: 3:00 PM
  * Project: munch-data
  */
 @Singleton
-public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(PlaceTagCorpus.class);
+public final class TrainingPipelineCorpus extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(TrainingPipelineCorpus.class);
+    private static final Set<String> BLOCKED_TAGS = Set.of("restaurant");
 
-    private static final String VERSION = "2018-01-31";
     private final TextCollector textCollector;
     private final TopicAnalysis topicAnalysis;
 
     private final ExplicitTagParser tagParser;
 
     @Inject
-    public PlaceTagCorpus(TextCollector textCollector, ExplicitTagParser tagParser, TopicAnalysis topicAnalysis) {
+    public TrainingPipelineCorpus(TextCollector textCollector, TopicAnalysis topicAnalysis, ExplicitTagParser tagParser) {
         super(logger);
         this.textCollector = textCollector;
-        this.tagParser = tagParser;
         this.topicAnalysis = topicAnalysis;
+        this.tagParser = tagParser;
     }
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofHours(1);
+        return Duration.ofDays(1);
     }
 
     @Override
@@ -55,24 +51,29 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
     }
 
     @Override
-    protected void process(long cycleNo, CorpusData placeData, long processed) {
-        String placeId = placeData.getCatalystId();
-        // One week update once unless there is less then 3 images
-        if (!due(placeId)) return;
+    protected void process(long cycleNo, CorpusData data, long processed) {
+        String placeId = data.getCatalystId();
 
+        // Collect DataList for Tags & Topics
         List<CorpusData> dataList = new ArrayList<>();
         catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);
 
-        // Collect and process
         List<CollectedText> collectedTexts = textCollector.collect(placeId, dataList);
+
+        CorpusData trainingData = new CorpusData(cycleNo);
+
+        // Put all input tags
+        analyzeTopic(collectedTexts).forEach((tag, count) -> {
+            trainingData.put(TrainingPipelineKey.input.create(tag, count));
+        });
+
+        // Put all output tags
         List<String> tags = tagParser.parse(dataList);
-        Map<String, Integer> topics = analyzeTopic(collectedTexts);
+        tags.removeAll(BLOCKED_TAGS);
+        tags.forEach(tag -> trainingData.put(TrainingPipelineKey.output, tag));
 
-        CorpusData tagData = new CorpusData(cycleNo);
-        tagData.setCatalystId(placeId);
-        tagData.put("Sg.Munch.PlaceTag.version", VERSION);
-        corpusClient.put("Sg.Munch.PlaceTag", placeId, tagData);
-
+        // Technically don't need to use the same id as place id
+        corpusClient.put("Sg.Munch.PlaceTagTraining", placeId, trainingData);
 
         sleep(100);
         if (processed % 100 == 0) logger.info("Processed {} places", processed);
@@ -89,13 +90,9 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         }
     }
 
-    /**
-     * @param placeId if place id is due
-     * @return true if due for update
-     */
-    private boolean due(String placeId) {
-        CorpusData tagData = catalystClient.getCorpus(placeId, "Sg.Munch.PlaceTag");
-        if (tagData == null) return true;
-        return DateCompareUtils.after(tagData.getBridgedDate(), Duration.ofDays(7));
+    @Override
+    protected void deleteCycle(long cycleNo) {
+        super.deleteCycle(cycleNo);
+        corpusClient.deleteBefore("Sg.Munch.PlaceTagTraining", cycleNo);
     }
 }

@@ -5,7 +5,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
+import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
+import munch.data.place.ml.TrainingPipelineCorpus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +27,10 @@ public final class PlaceTagModule extends AbstractModule {
         install(new DynamoModule());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Injector injector = Guice.createInjector(new PlaceTagModule());
-        injector.getInstance(PlaceTagCorpus.class).run();
+        EngineGroup.start(
+                injector.getInstance(TrainingPipelineCorpus.class)
+        );
     }
 }
