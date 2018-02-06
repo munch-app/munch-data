@@ -1,6 +1,10 @@
 cuisine
 food
 cuisines
+taste
+tastes
+flavour
+flavours
 foods
 dishes
 dish

@@ -25,7 +25,7 @@ class TopicAnalysisTest extends AnalysisTest {
     @Test
     void placeAntoinette() throws IOException {
         List<String> texts = getTexts("8759e8cb-a52e-40e4-b75c-a65c9b089f23");
-        print(topicAnalysis.apply(texts, 5, 30));
+        print(topicAnalysis.apply(texts, 1, 50));
     }
 
     private void print(List<Map<String, Integer>> list) {
