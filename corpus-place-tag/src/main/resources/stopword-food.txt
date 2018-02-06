@@ -1,5 +1,7 @@
 cuisine
 food
+menu
+served
 cuisines
 taste
 tastes

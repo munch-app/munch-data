@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class TrainingPipelineCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TrainingPipelineCorpus.class);
-    private static final Set<String> BLOCKED_TAGS = Set.of("restaurant");
+    private static final Set<String> BLOCKED_TAGS = Set.of("restaurant", "hawker");
 
     private final TextCollector textCollector;
     private final TopicAnalysis topicAnalysis;
@@ -62,15 +62,19 @@ public final class TrainingPipelineCorpus extends CatalystEngine<CorpusData> {
 
         CorpusData trainingData = new CorpusData(cycleNo);
 
-        // Put all input tags
-        analyzeTopic(collectedTexts).forEach((tag, count) -> {
-            trainingData.put(TrainingPipelineKey.input.create(tag, count));
-        });
-
         // Put all output tags
         List<String> tags = tagParser.parse(dataList);
         tags.removeAll(BLOCKED_TAGS);
+        if (tags.isEmpty()) return;
         tags.forEach(tag -> trainingData.put(TrainingPipelineKey.output, tag));
+
+        // Put all input tags
+        Map<String, Integer> topics = analyzeTopic(collectedTexts);
+        if (topics.isEmpty()) return;
+
+        topics.forEach((tag, count) -> {
+            trainingData.put(TrainingPipelineKey.input.create(tag, count));
+        });
 
         // Technically don't need to use the same id as place id
         corpusClient.put("Sg.Munch.PlaceTagTraining", placeId, trainingData);
@@ -84,7 +88,10 @@ public final class TrainingPipelineCorpus extends CatalystEngine<CorpusData> {
                 .flatMap(collected -> collected.getTexts().stream())
                 .collect(Collectors.toList());
         try {
-            return topicAnalysis.apply(texts, 1, 50).get(0);
+            if (texts.isEmpty()) return Map.of();
+            List<Map<String, Integer>> topics = topicAnalysis.apply(texts, 1, 50);
+            if (topics.isEmpty()) return Map.of();
+            return topics.get(0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

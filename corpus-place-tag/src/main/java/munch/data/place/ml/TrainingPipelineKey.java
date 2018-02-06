@@ -3,6 +3,8 @@ package munch.data.place.ml;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
 
+import java.util.Map;
+
 /**
  * Created by: Fuxing
  * Date: 6/2/18
@@ -32,7 +34,7 @@ public class TrainingPipelineKey extends AbstractKey {
 
         public CorpusData.Field create(String value, int count) {
             CorpusData.Field field = createField(value);
-            field.getMetadata().put("count", String.valueOf(count));
+            field.setMetadata(Map.of("count", String.valueOf(count)));
             return field;
         }
     }

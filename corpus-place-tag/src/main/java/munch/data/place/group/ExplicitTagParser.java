@@ -44,7 +44,11 @@ public final class ExplicitTagParser {
         tags.addAll(findGroups(groupTags, 3));
 
         // If no tags, restaurant is the default
-        if (tags.isEmpty()) return Collections.singletonList("restaurant");
+        if (tags.isEmpty()) {
+            List<String> singleton = new ArrayList<>();
+            singleton.add("restaurant");
+            return singleton;
+        }
 
         // Remove Restaurant if Hawker or Coffeeshop exists
         removeConflicts(tags);
