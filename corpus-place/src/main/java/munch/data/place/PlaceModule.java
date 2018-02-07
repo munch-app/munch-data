@@ -38,6 +38,11 @@ public class PlaceModule extends AbstractModule {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            logger.error("Uncaught Exceptions: ", e.getCause());
+            System.exit(0);
+        });
+
         Injector injector = Guice.createInjector(new PlaceModule());
 
         // Start the following corpus
@@ -57,7 +62,7 @@ public class PlaceModule extends AbstractModule {
         });
 
         System.exit(0);
-        logger.info("Corpus exist status: 0.");
+        logger.info("Corpus exit status: 0.");
 
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
             logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));

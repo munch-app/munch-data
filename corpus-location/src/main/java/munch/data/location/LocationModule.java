@@ -9,6 +9,8 @@ import corpus.engine.EngineGroup;
 import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.elastic.ElasticModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by: Fuxing
@@ -17,6 +19,7 @@ import munch.data.elastic.ElasticModule;
  * Project: munch-data
  */
 public class LocationModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(LocationModule.class);
 
     @Override
     protected void configure() {
@@ -27,6 +30,11 @@ public class LocationModule extends AbstractModule {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            logger.error("Uncaught Exceptions: ", e.getCause());
+            System.exit(0);
+        });
+
         Injector injector = Guice.createInjector(new LocationModule());
 
         // Start the following corpus

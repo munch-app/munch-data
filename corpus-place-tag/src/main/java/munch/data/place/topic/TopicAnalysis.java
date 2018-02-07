@@ -7,9 +7,11 @@ import cc.mallet.types.*;
 import com.google.common.io.Resources;
 
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -28,17 +30,25 @@ public class TopicAnalysis {
 
     private final List<Pipe> pipeList;
 
-    public TopicAnalysis() {
+    public TopicAnalysis() throws IOException {
+        ParallelTopicModel.logger.setFilter(record -> !record.getLevel().equals(Level.INFO));
+
         pipeList = new ArrayList<>();
 
         pipeList.add(new CharSequenceLowercase());
         pipeList.add(new CharSequence2TokenSequence(Pattern.compile("\\p{L}[\\p{L}\\p{P}]+\\p{L}")));
 
         pipeList.add(new TokenSequenceRemoveStopwords(false, false)
-                .addStopWords(new File(Resources.getResource("stopword-food.txt").getFile()))
-                .addStopWords(new File(Resources.getResource("stopword-lang.txt").getFile()))
+                .addStopWords(readStringArray("stopword-food.txt"))
+                .addStopWords(readStringArray("stopword-lang.txt"))
         );
         pipeList.add(new TokenSequence2FeatureSequence());
+    }
+
+    private String[] readStringArray(String resourceName) throws IOException {
+        URL url = Resources.getResource(resourceName);
+        List<String> strings = Resources.readLines(url, Charset.defaultCharset());
+        return strings.toArray(new String[strings.size()]);
     }
 
     /**

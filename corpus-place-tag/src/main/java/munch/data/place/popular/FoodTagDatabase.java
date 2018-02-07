@@ -1,13 +1,12 @@
 package munch.data.place.popular;
 
 import com.google.common.io.Resources;
-import org.apache.commons.io.FileUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ public final class FoodTagDatabase {
     @Inject
     public FoodTagDatabase() throws IOException {
         URL resource = Resources.getResource("food.txt");
-        FileUtils.readLines(new File(resource.getFile()), "utf-8").forEach(s -> {
+        Resources.readLines(resource, Charset.defaultCharset()).forEach(s -> {
             String food = s.toLowerCase();
             patternMap.put(food, Pattern.compile("(\\b|\\s|^)" + food + "(\\b|\\s|$)"));
         });
