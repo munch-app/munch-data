@@ -27,7 +27,9 @@ public final class NameParser extends AbstractParser<String> {
     // TODO Convert to be stored in resource folder
     private static final Set<String> BLOCKED_NAMES = Set.of("chinese characters", "chinese character", "chinese letter", "chinese letters", "cafeteria",
             "ntuc", "fairprice finest", "fairprice", "cold storage", "giant", "fairprice extra", "golden village", "n.a.", "beverages", "beverage", "drinks", "drink",
-            "7-eleven", "7 eleven", "7eleven", "nil", "kim san leng", "s11");
+            "7-eleven", "7 eleven", "7eleven", "nil", "kim san leng", "s11", "giant express", "giant hypermarket", "giant super", "giant supermarket", "giant hypermarket/vivomart"
+    ,"fairprice hub", "fairprice express", "fairprice shop", "fairprice xpess", "fair priceexpress", "fair price express", "fair price"
+    ,"cold storage singapore (1983)", "cold storage singapore");
     private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z']|^)[a-z]");
     private static final Pattern BLOCKED_PATTERN = Pattern.compile("stalls? [0-9]+", Pattern.CASE_INSENSITIVE);
 

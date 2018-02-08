@@ -29,7 +29,8 @@ public final class ArticleCollector extends AbstractCollector {
             "six-and-seven.com",
             "allaboutceil.com",
             "missneverfull.com",
-            "foodgem.sg"
+            "foodgem.sg",
+            "umakemehungry.com"
     );
 
     @Override
