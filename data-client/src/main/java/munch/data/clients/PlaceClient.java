@@ -61,6 +61,8 @@ public class PlaceClient extends AbstractClient {
      * @return list of Place in order, with those not found removed
      */
     public List<Place> batchGet(List<String> ids) {
+        if (ids.isEmpty()) return List.of();
+
         BatchGetItemSpec spec = new BatchGetItemSpec()
                 .withTableKeyAndAttributes(new TableKeysAndAttributes(DYNAMO_TABLE_NAME)
                         .withHashOnlyKeys("_id", ids.toArray(new Object[ids.size()])));
@@ -91,7 +93,7 @@ public class PlaceClient extends AbstractClient {
      * @param collector data collector from (T, Optional Place) to Optional R
      * @param <R>       Return type
      * @param <T>       Data Type
-     * @return List of mapped result
+     * @return List of mapped result, null will be removed
      */
     public <R, T> List<R> batchGetMap(List<T> dataList, Function<T, String> idMapper, BiFunction<T, Place, R> collector) {
         List<String> placeIds = dataList.stream().map(idMapper).collect(Collectors.toList());
@@ -109,7 +111,7 @@ public class PlaceClient extends AbstractClient {
     /**
      * @param dataList data list to map from
      * @param idMapper data to place id mapper
-     * @param consumer consumer into Anything -> from Data, Place
+     * @param consumer consumer into Anything -> from Data, Nullable Place
      * @param <T>      Data Type
      */
     public <T> void batchGetForEach(List<T> dataList, Function<T, String> idMapper, BiConsumer<T, Place> consumer) {
