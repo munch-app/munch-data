@@ -1,8 +1,7 @@
 package munch.data.clients;
 
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
 import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
@@ -19,7 +18,12 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -35,10 +39,13 @@ public class PlaceClient extends AbstractClient {
     private final SearchClient searchClient;
     private final Table placeTable;
 
+    private final DynamoDB dynamoDB;
+
     @Inject
     public PlaceClient(ElasticIndex elasticIndex, SearchClient searchClient, DynamoDB dynamoDB) {
         this.elasticIndex = elasticIndex;
         this.searchClient = searchClient;
+        this.dynamoDB = dynamoDB;
         this.placeTable = dynamoDB.getTable(DYNAMO_TABLE_NAME);
     }
 
@@ -47,6 +54,71 @@ public class PlaceClient extends AbstractClient {
      */
     public SearchClient getSearchClient() {
         return searchClient;
+    }
+
+    /**
+     * @param ids list of place id
+     * @return list of Place in order, with those not found removed
+     */
+    public List<Place> batchGet(List<String> ids) {
+        BatchGetItemSpec spec = new BatchGetItemSpec()
+                .withTableKeyAndAttributes(new TableKeysAndAttributes(DYNAMO_TABLE_NAME)
+                        .withHashOnlyKeys("_id", ids.toArray(new Object[ids.size()])));
+
+        BatchGetItemOutcome outcome = dynamoDB.batchGetItem(spec);
+        return outcome.getTableItems()
+                .get(DYNAMO_TABLE_NAME)
+                .stream()
+                .filter(Objects::nonNull)
+                .map(item -> item.getJSON("_source"))
+                .map(s -> fromJson(s, Place.class))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * @param ids list of place id
+     * @return Map of Place, with placeId -> Place mapping
+     */
+    public Map<String, Place> batchGetMap(List<String> ids) {
+        return batchGet(ids)
+                .stream()
+                .collect(Collectors.toMap(Place::getId, o -> o));
+    }
+
+    /**
+     * @param dataList  data list to map from
+     * @param idMapper  data to place id mapper
+     * @param collector data collector from (T, Optional Place) to Optional R
+     * @param <R>       Return type
+     * @param <T>       Data Type
+     * @return List of mapped result
+     */
+    public <R, T> List<R> batchGetMap(List<T> dataList, Function<T, String> idMapper, BiFunction<T, Place, R> collector) {
+        List<String> placeIds = dataList.stream().map(idMapper).collect(Collectors.toList());
+        Map<String, Place> placeMap = batchGetMap(placeIds);
+        return dataList.stream()
+                .map(t -> {
+                    String id = idMapper.apply(t);
+                    Place place = placeMap.get(id);
+                    return collector.apply(t, place);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * @param dataList data list to map from
+     * @param idMapper data to place id mapper
+     * @param consumer consumer into Anything -> from Data, Place
+     * @param <T>      Data Type
+     */
+    public <T> void batchGetForEach(List<T> dataList, Function<T, String> idMapper, BiConsumer<T, Place> consumer) {
+        List<String> placeIds = dataList.stream().map(idMapper).collect(Collectors.toList());
+        Map<String, Place> placeMap = batchGetMap(placeIds);
+        for (T data : dataList) {
+            String id = idMapper.apply(data);
+            consumer.accept(data, placeMap.get(id));
+        }
     }
 
     /**
