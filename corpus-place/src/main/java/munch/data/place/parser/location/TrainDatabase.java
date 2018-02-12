@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
  * Time: 3:06 PM
  * Project: munch-corpus
  */
-
 @Singleton
 public final class TrainDatabase {
     private static final Logger logger = LoggerFactory.getLogger(TrainDatabase.class);

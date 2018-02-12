@@ -3,12 +3,9 @@ package munch.data.place;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
-import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
 import munch.data.place.parser.location.LocationParserModule;
@@ -40,7 +37,7 @@ public class PlaceModule extends AbstractModule {
     public static void main(String[] args) throws InterruptedException {
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             logger.error("Uncaught Exceptions: ", e.getCause());
-            System.exit(0);
+            System.exit(-1);
         });
 
         Injector injector = Guice.createInjector(new PlaceModule());
@@ -53,16 +50,13 @@ public class PlaceModule extends AbstractModule {
                 injector.getInstance(PlaceCorpus.class)
         );
 
-        injector.getInstance(JestClient.class).shutdownClient();
-        injector.getInstance(Key.get(JestClient.class, Names.named("munch.data.place.jest"))).shutdownClient();
-        com.amazonaws.http.IdleConnectionReaper.shutdown();
         logger.info("Corpus should shutdown.");
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
             logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));
         });
 
-        System.exit(0);
-        logger.info("Corpus exit status: 0.");
+        System.exit(-1);
+        logger.info("Corpus system exit.");
 
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
             logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));

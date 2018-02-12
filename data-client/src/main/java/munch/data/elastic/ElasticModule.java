@@ -46,6 +46,11 @@ public final class ElasticModule extends AbstractModule {
         }
     }
 
+    @Inject
+    void configShutdownHook(JestClient jestClient) {
+        Runtime.getRuntime().addShutdownHook(new Thread(jestClient::shutdownClient));
+    }
+
     @Provides
     @Singleton
     JestClientFactory provideJestFactory(Config config) {
@@ -91,6 +96,7 @@ public final class ElasticModule extends AbstractModule {
                 .readTimeout(30000)
                 .connTimeout(15000)
                 .build());
+
         return factory.getObject();
     }
 }
