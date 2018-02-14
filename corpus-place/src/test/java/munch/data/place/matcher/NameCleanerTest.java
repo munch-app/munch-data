@@ -1,5 +1,6 @@
 package munch.data.place.matcher;
 
+import munch.data.utils.PatternSplit;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;

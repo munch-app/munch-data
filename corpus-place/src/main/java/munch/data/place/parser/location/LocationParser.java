@@ -7,6 +7,7 @@ import corpus.field.PlaceKey;
 import corpus.location.LocationClient;
 import munch.data.place.parser.AbstractParser;
 import munch.data.structure.Place;
+import munch.data.utils.PatternSplit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
