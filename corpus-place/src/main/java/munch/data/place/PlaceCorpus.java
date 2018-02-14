@@ -149,6 +149,8 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         if (!place.equals(existing)) {
             try {
                 retriable.loop(() -> placeClient.put(place));
+                // Data might have been added to deleted, remove from deleted list
+                corpusClient.delete("Sg.Munch.PlaceDeleted", place.getId());
 
                 logger.info("Updated: updated: {} existing: {}",
                         JsonUtils.toString(place),
@@ -170,6 +172,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         if (existing != null) {
             try {
                 retriable.loop(() -> placeClient.delete(placeId));
+                // Put data to delete list for tracking
                 corpusClient.put("Sg.Munch.PlaceDeleted", existing.getId(), createCorpusData(existing));
 
                 logger.info("Deleted: {}",

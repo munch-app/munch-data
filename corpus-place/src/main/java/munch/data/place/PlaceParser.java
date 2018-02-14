@@ -91,7 +91,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         place.setLocation(locationParser.parse(place, list));
         if (place.getLocation() == null) return null;
 
-        // Theses are no dependencies parsers
+        // Theses are parers without dependencies
         place.setContainers(containerParser.parse(place, list));
         place.setPrice(priceParser.parse(place, list));
         place.setHours(hourParser.parse(place, list));
