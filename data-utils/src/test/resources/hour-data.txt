@@ -104,5 +104,75 @@ Monday to Sunday, 1700-0400
 Mon-Sun{17:00-04:00}
 Singapore 469560 | Sundays to Thursdays, 1030 - 1430 and 1730 - 2230 | Fridays, Saturdays & Eve of PH, 1030 - 1430 and 1730 - 0030
 Sun-Thu{10:30-14:30},Sun-Thu{17:30-22:30},Fri-Sat{10:30-14:30},Fri-Sat{17:30-00:30},evePh{10:30-14:30},evePh{17:30-00:30}
-Opening Hours: 11:30 am - 8.00pm Daily
+Opening Hours: 11.30 am – 8.00pm Daily
 Daily{11:30-20:00}
+1-2
+Nothing
+Wed & Fri 12pm to 3pm, Tue-Sat 7pm to 10pm (dinner)\nClosed on alternate Sundays.
+Wed{12:00-15:00},Fri{12:00-15:00},Tue-Sat{19:00-22:00}
+Tue-Sat 12pm to 2pm, 7pm to 9:30pm, Mon 7pm to 9:30pm
+Tue-Sat{12:00-14:00},Tue-Sat{19:00-21:30},Mon{19:00-21:30}
+Wed-Sat 11:45am to 2pm, Tue-Sat 6pm till late
+Wed-Sat{11:45-14:00},Tue-Sat{???}
+Daily 12pm to 2pm, 7pm to 9:30pm
+Mon-Sun{12:00-14:00},Mon-Sun{19:00-21:30}
+Daily 5:30pm and 8pm (two seatings daily)
+???
+Tue-Sat 12pm to 3pm, 6:30pm to 11pm, Sun 11:30am to 3pm, 6:30pm to 11pm
+Tue-Sat{12:00-15:00},Tue-Sat{18:30-23:00},Sun{11:30-15:00},Sun{18:30-23:00}
+Mon-Fri 12pm to 3pm, 6pm till late, Sat 6pm till late
+Mon-Fri{12:00-15:00}
+Mon-Sat 12pm to 2:30pm, 7pm to 11pm
+Mon-Sat{12:00-14:30},Mon-Sat{19:00-23:00}
+Mon-Sat 12pm to 3pm, 6pm to 10:30pm
+Mon-Sat{12:00-15:00},Mon-Sat{18:00-22:30}
+Monday: 12:00pm – 09:30pm\nTuesday: 12:00pm – 09:30pm\nWednesday: 12:00pm – 09:30pm\nThursday: 12:00pm – 09:30pm\nFriday: 12:00pm – 10:00pm\nSaturday: 12:00pm – 10:00pm\nSunday: 12:00pm – 09:30pm
+Sun-Thu{12:00-21:30},Fri-Sat{12:00-22:00}
+(Daily) 12pm – 12am
+Daily{12:00-00:00}
+Opening hours: (Daily) 6pm – 1am
+Daily{18:00-01:00}
+Monday to Thursday) 4pm – 1am, (Friday) 4pm – 2am, (Saturday) 3pm – 2am, (Sunday) 3pm – 1am
+Mon-Thu{16:00-01:00},Fri{16:00-02:00},Sat{15:00-02:00},Sun{15:00-01:00}
+Opening hours: (Monday to Thursday) 5pm – 1am, (Friday & Saturday) 5pm – 2am, (Sunday) 5pm – 1am
+Mon-Thu{17:00-01:00},Fri-Sat{17:00-02:00},Sun{17:00-01:00}
+Opening hours: (Monday to Thursday) 5pm – 1am, (Friday) 4.30pm – 1am, (Saturday & Sunday) 3pm – 1am
+Mon-Thu{17:00-01:00},Fri{16:30-01:00},Sat-Sun{15:00-01:00}
+Monday to Saturday 5pm to 1am (2am for Friday and Saturday)
+Mon-Thu{17:00-01:00},Fri-Sat{17:00-02:00}
+Monday to Friday: 9.30am to 7.30pm\nSaturday: 9am to 6pm\nClosed on Sunday
+Mon-Fri{09:30-19:30},Sat{09:00-18:00}
+9.30am to 7.30pm (Weekdays), 9am to 6pm (Weekends)
+Mon-Fri{09:30-19:30},Sat-Sun{09:00-18:00}
+Mon to Fri 09:30am to 7:30pm / Sat & Sun 9am to 6pm
+Mon-Fri{09:30-19:30},Sat-Sun{09:00-18:00}
+Opening Hours: Monday – Friday 9:30AM – 7:30PM
+Mon-Fri{09:30-19:30}
+Mon-Thurs, 11am-10pm. Fri, 11am-11pm, Sat, 10am-11pm. Sun, 10am-10pm.
+Mon-Thu{11:00-22:00},Fri{11:00-23:00},Sat{10:00-23:00},Sun{10:00-22:00}
+Mon-Wed, 11.30am-11pm (last order 9.30pm). Thurs-Sat, 11.30am-12am (last order 11.30pm). Sun, 11.30am-8pm (last order 8pm).
+Mon-Wed{11:30-23:00},Thu-Sat{11:30-00:00},Sun{11:30-20:00}
+Opening Hours: Mon-Sun, 7.30am-9pm.
+Mon-Sun{07:30-21:00}
+Opening Hours: Mon-Sat, 11am-3pm, 6pm-10pm. Closed on Sun and PH.
+Mon-Sat{11:00-15:00},Mon-Sat{18:00-22:00}
+Opening Hours: Tues-Fri, 5.30pm-9pm. Sat, 7.30am-2pm, 5.30pm-9pm. Sun, 7.30am-2pm.
+Tue-Fri{17:30-21:00},Sat{07:30-14:00},Sat{17:30-21:00},Sun{07:30-14:00}
+Opening Hours: Tues-Fri, 5.30pm – 10.30pm. Sat-Sun, 9am-2.30pm, 5.30pm – 10.30pm. Closed on Mon.
+Tue-Fri{17:30-22:30},Sat-Sun{09:00-14:30},Sat-Sun{17:30-22:30}
+Opening Hours: Mon-Sun, 12pm-2.30pm (lunch), 2.30pm-6pm (bar bites), 6pm-9.30pm (dinner), 9.30pm-11.30pm (bar bites & beer).
+Mon-Sun{12:00-14:30},Mon-Sun{14:30-18:00},Mon-Sun{18:00-21:30},Mon-Sun{21:30-23:30}
+Opening Hours: Mon-Fri 8am to 10pm; Sat 10am to 10pm; Sun 10am to 6pm
+Mon-Fri{08:00-22:00},Sat{10:00-22:00},Sun{10:00-18:00}
+Opening Hours: Sun-Thurs, 11am-10pm. Fri-Sat, 11am-11:30pm
+Sun-Thu{11:00-22:00},Fri-Sat{11:00-23:30}
+Opening Hours: Sun-Thurs, 12pm-9.30pm. Fri, 3pm-10.30pm. Sat, 12pm-10.30pm.
+Sun-Thu{12:00-21:30},Fri{15:00-22:30},Sat{12:00-22:30}
+Opening Hours: Mon-Thu, 5pm-1am. Fri-Sat, 5pm-2am. Closed on Sun.
+Mon-Thu{17:00-01:00},Fri-Sat{17:00-02:00}
+Opening Hours: Mon-Thurs, 5pm-1am. Fri-Sat, 5pm-3am. Closed on Sun.
+Mon-Thu{17:00-01:00},Fri-Sat{17:00-03:00}
+Opening Hours: Mon-Sun, 12pm-9.30pm.
+Mon-Sun{12:00-21:30}
+p. +65 6333 9905. Open Tue-Sun 12pm-3pm (last order 2pm), 6.30pm-11pm (last order 9.30pm).
+Tue-Sun{12:00-15:00},Tue-Sun{18:30-23:00}

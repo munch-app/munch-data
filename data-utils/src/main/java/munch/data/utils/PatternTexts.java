@@ -143,6 +143,8 @@ public class PatternTexts extends LinkedList<Object> {
                 iterator.remove();
                 iterator.previous();
                 iterator.remove();
+            }else {
+                iterator.previous();
             }
         }
     }
@@ -174,6 +176,9 @@ public class PatternTexts extends LinkedList<Object> {
 
                 // Replace start with new
                 iterator.remove();
+            }else {
+                iterator.previous();
+                iterator.previous();
             }
         }
     }

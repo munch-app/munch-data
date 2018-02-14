@@ -64,11 +64,18 @@ class HourExtractorTest {
 
     @Test
     void single() {
-        String text = "Monday to Sunday Lunch 11:30 am - 3 pm (Last Order at 2:30 pm); Dinner: 6 pm - 10 pm (Last Order at 9:30 pm)";
+        String text = "Mon-Wed{11:30,23:00},Thu-Sat{11:30-00:00},Sun{11:30-20:00}";
         List<OpenHour> extract = extractor.extract(text);
         PatternTexts patternTexts = extractor.parse(text);
         System.out.println(text);
         System.out.println(extract);
+        System.out.println(patternTexts);
+    }
+
+    @Test
+    void simpleShouldNot() {
+        String text = "1-2";
+        PatternTexts patternTexts = extractor.parse(text);
         System.out.println(patternTexts);
     }
 

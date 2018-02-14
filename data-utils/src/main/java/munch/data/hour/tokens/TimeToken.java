@@ -19,7 +19,7 @@ public class TimeToken {
     static final PatternSplit PatternMidnight = PatternSplit.compile("\\b(midnight|24[:.]00|12 ?am)\\b", Pattern.CASE_INSENSITIVE);
 
     static final PatternSplit PatternAmPm = PatternSplit.compile("\\b(?<hour>0?[0-9]|1[0-2])([:.]?(?<min>[0-5][0-9]))? ?(?<period>am|pm)\\b", Pattern.CASE_INSENSITIVE);
-    static final PatternSplit Pattern24 = PatternSplit.compile("\\b(?<hour>0?[0-9]|1[0-9]|2[0-3])([:.]?(?<min>[0-5][0-9]))?\\b", Pattern.CASE_INSENSITIVE);
+    static final PatternSplit Pattern24 = PatternSplit.compile("\\b(?<hour>0?[0-9]|1[0-9]|2[0-3])([:.]?(?<min>[0-5][0-9]))\\b", Pattern.CASE_INSENSITIVE);
 
     public final LocalTime time;
 
@@ -69,6 +69,6 @@ public class TimeToken {
 
     @Override
     public String toString() {
-        return "(Time:" + time.format(TimeRangeToken.hourFormat) + ")";
+        return "(Time:" + time.format(TimeRangeToken.HOUR_FORMAT) + ")";
     }
 }

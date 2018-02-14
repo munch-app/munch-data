@@ -1,7 +1,8 @@
 package munch.data.hour;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -11,16 +12,18 @@ import java.util.Objects;
  * Project: munch-data
  */
 public final class OpenHour {
+    static final DateTimeFormatter HOUR_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+
     public enum Day {
-        @JsonProperty("mon") Mon,
-        @JsonProperty("tue") Tue,
-        @JsonProperty("wed") Wed,
-        @JsonProperty("thu") Thu,
-        @JsonProperty("fri") Fri,
-        @JsonProperty("sat") Sat,
-        @JsonProperty("sun") Sun,
-        @JsonProperty("ph") Ph,
-        @JsonProperty("evePh") EvePh
+        Mon,
+        Tue,
+        Wed,
+        Thu,
+        Fri,
+        Sat,
+        Sun,
+        Ph,
+        EvePh
     }
 
     private Day day;
@@ -42,8 +45,16 @@ public final class OpenHour {
      * Not allowed to put 24:00 Highest is 23:59
      * Not allowed to cross to another day
      */
-    private String open;
-    private String close;
+    private final String open;
+    private final String close;
+    private final long minutes;
+
+    public OpenHour(Day day, LocalTime open, LocalTime close) {
+        this.day = day;
+        this.open = open.format(HOUR_FORMAT);
+        this.close = close.format(HOUR_FORMAT);
+        this.minutes = open.until(close, ChronoUnit.MINUTES);
+    }
 
     /**
      * @return day in enum will be string in json
@@ -53,19 +64,12 @@ public final class OpenHour {
         return day;
     }
 
-    public void setDay(Day day) {
-        this.day = day;
-    }
 
     /**
      * @return opening hours
      */
     public String getOpen() {
         return open;
-    }
-
-    public void setOpen(String open) {
-        this.open = open;
     }
 
     /**
@@ -75,8 +79,8 @@ public final class OpenHour {
         return close;
     }
 
-    public void setClose(String close) {
-        this.close = close;
+    public long getMinutes() {
+        return minutes;
     }
 
     @Override

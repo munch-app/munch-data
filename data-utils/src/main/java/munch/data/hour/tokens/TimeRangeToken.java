@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
  * Project: munch-data
  */
 public class TimeRangeToken {
-    static final DateTimeFormatter hourFormat = DateTimeFormatter.ofPattern("HH:mm");
+    static final DateTimeFormatter HOUR_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private final LocalTime open;
     private final LocalTime close;
@@ -28,11 +28,7 @@ public class TimeRangeToken {
      * @return hour field
      */
     public OpenHour toFields(DayToken day) {
-        OpenHour hour = new OpenHour();
-        hour.setOpen(open.format(hourFormat));
-        hour.setClose(close.format(hourFormat));
-        hour.setDay(day.toDay());
-        return hour;
+        return new OpenHour(day.toDay(), open, close);
     }
 
     public static void parse(PatternTexts texts) {
@@ -63,6 +59,6 @@ public class TimeRangeToken {
 
     @Override
     public String toString() {
-        return "(TimeRange:" + open.format(hourFormat) + "-" + close.format(hourFormat) + ")";
+        return "(TimeRange:" + open.format(HOUR_FORMAT) + "-" + close.format(HOUR_FORMAT) + ")";
     }
 }
