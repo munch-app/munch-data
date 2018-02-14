@@ -284,6 +284,14 @@ public final class BoolQuery {
         return filter;
     }
 
+    /**
+     * E.g. createdDate > 1000 is "createdDate", "gt", 1000
+     *
+     * @param name     name of field to filter
+     * @param operator operator in english form, e.g. gte, lt
+     * @param value    value to compare again
+     * @return filter range json
+     */
     public static JsonNode filterRange(String name, String operator, long value) {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("range")
