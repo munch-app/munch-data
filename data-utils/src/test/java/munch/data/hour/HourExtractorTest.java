@@ -2,6 +2,7 @@ package munch.data.hour;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import munch.data.utils.PatternTexts;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -53,10 +54,23 @@ class HourExtractorTest {
         Assertions.assertTrue(compare("Sun:15:15-20:30",
                 "Sun{15:15-20:30}"));
 
+        Assertions.assertTrue(compare("Sun, Eve of Ph: 10am - 10pm",
+                "Sun{10:00-22:00},evePh{10:00-22:00}"));
+
         Assertions.assertFalse(compare("Daily: 10am - 10pm",
                 "Sun{10:00-22:00}"));
+
     }
 
+    @Test
+    void single() {
+        String text = "Monday to Sunday Lunch 11:30 am - 3 pm (Last Order at 2:30 pm); Dinner: 6 pm - 10 pm (Last Order at 9:30 pm)";
+        List<OpenHour> extract = extractor.extract(text);
+        PatternTexts patternTexts = extractor.parse(text);
+        System.out.println(text);
+        System.out.println(extract);
+        System.out.println(patternTexts);
+    }
 
     @Test
     void file() throws IOException {
@@ -78,7 +92,7 @@ class HourExtractorTest {
                 System.out.println("Failed Test: " + test);
                 Set<OpenHour> extracted = ImmutableSet.copyOf(extractor.extract(test));
                 Set<OpenHour> expected = extractPattern(pattern);
-                System.out.println("Failed Result:" + extracted);
+                System.out.println("Failed Result:   " + extracted);
                 System.out.println("Expected Result: " + expected);
                 System.out.println();
             }

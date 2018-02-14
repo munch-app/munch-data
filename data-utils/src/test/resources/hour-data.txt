@@ -2,10 +2,6 @@ Daily: 10am - 10pm
 Mon-Sun{10:00-22:00}
 Monday: 10am-10pm
 Mon{10:00-22:00}
-Opening Hours: 10am to 3pm, closed every Tuesday.
-Wed-Mon{10:00-15:00}
-Operating Hours: 10.00 am to 3.00 pm (Closed on Tuesdays)
-Wed-Mon{10:00-15:00}
 7.30am to 8pm, open daily
 Daily{07:30-20:00}
 Mon-Sun 10:00 - 22:00
@@ -96,3 +92,17 @@ Lunch 1130 - 2.30pm, Dinner 5.30pm -10pm daily
 Daily{11:30-14:30},Daily{17:30-22:00}
 Lunch: Mon – Fri 12:30pm – 3:00pm. Dinner: Mon – Thu 6:00pm – 10:00pm, Fri & Sat: 6:00pm – 1:00am
 Weekday{12:30-15:00},Mon-Thu{18:00-22:00},Fri-Sat{18:00-01:00}
+Opening Hours: 10am to 3pm, closed every Tuesday.
+Wed-Mon{10:00-15:00}
+Operating Hours: 10.00 am to 3.00 pm (Closed on Tuesdays)
+Wed-Mon{10:00-15:00}
+Operating Hours: Tuesday to Friday 12pm - 8pm Saturday 11am - 7pm Closed on Monday & Sunday
+Tue-Fri{12:00-20:00},Sat{11:00-19:00}
+Opening Hours: Monday - Friday 11.30 am - 8:30pm \n Saturday - Sunday 12 pm - 8.30 pm
+Mon-Fri{11:30-20:30},Sat-Sun{12:00-20:30}
+Monday to Sunday, 1700-0400
+Mon-Sun{17:00-04:00}
+Singapore 469560 | Sundays to Thursdays, 1030 - 1430 and 1730 - 2230 | Fridays, Saturdays & Eve of PH, 1030 - 1430 and 1730 - 0030
+Sun-Thu{10:30-14:30},Sun-Thu{17:30-22:30},Fri-Sat{10:30-14:30},Fri-Sat{17:30-00:30},evePh{10:30-14:30},evePh{17:30-00:30}
+Opening Hours: 11:30 am - 8.00pm Daily
+Daily{11:30-20:00}

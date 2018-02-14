@@ -91,7 +91,6 @@ public final class OpenHour {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(day, open, close);
     }
 

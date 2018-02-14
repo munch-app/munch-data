@@ -127,6 +127,58 @@ public class PatternTexts extends LinkedList<Object> {
     }
 
     /**
+     * Remove if there is 2 class data in sequence
+     *
+     * @param left  left sequence
+     * @param right right sequence
+     */
+    public void remove(Class left, Class right) {
+        ListIterator<Object> iterator = listIterator();
+        while (iterator.hasNext()) {
+            Object start = iterator.next();
+            if (!iterator.hasNext()) break;
+            Object end = iterator.next();
+
+            if (left.isInstance(start) && right.isInstance(end)) {
+                iterator.remove();
+                iterator.previous();
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
+     * Remove if there is 3 class data in sequence
+     *
+     * @param left   left sequence
+     * @param middle middle sequence
+     * @param right  right sequence
+     */
+    public void remove(Class left, Class middle, Class right) {
+        ListIterator<Object> iterator = listIterator();
+        while (iterator.hasNext()) {
+            Object start = iterator.next();
+            if (!iterator.hasNext()) break;
+            Object between = iterator.next();
+            if (!iterator.hasNext()) break;
+            Object end = iterator.next();
+
+            if (left.isInstance(start) && middle.isInstance(between) && right.isInstance(end)) {
+                // Remove end and move back to middle
+                iterator.remove();
+                iterator.previous();
+
+                // Remove middle and move back to start
+                iterator.remove();
+                iterator.previous();
+
+                // Replace start with new
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
      * @param type type to collect
      * @param <R>  type
      * @return list of data collected that is given type
@@ -134,5 +186,10 @@ public class PatternTexts extends LinkedList<Object> {
     @SuppressWarnings("unchecked")
     public <R> List<R> collect(Class<R> type) {
         return stream().filter(type::isInstance).map(o -> (R) o).collect(Collectors.toList());
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }
