@@ -3,6 +3,7 @@ package munch.data.hour;
 import munch.data.hour.tokens.*;
 import munch.data.utils.PatternTexts;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,6 +17,35 @@ import java.util.stream.Collectors;
  */
 public class HourExtractor {
 
+    /**
+     * @param texts texts with possible opening hours inside
+     * @return List of Opening hours extracted, list if hours is sorted by strength, the strongest list will remain
+     */
+    public List<OpenHour> extract(List<String> texts) {
+        return texts.stream()
+                .map(this::extract)
+                .filter(s -> s.size() > 1)
+                .map(hours -> Pair.of(strength(hours), hours))
+                .sorted((o1, o2) -> o2.getLeft().compareTo(o1.getLeft()))
+                .findFirst()
+                .map(Pair::getRight)
+                .orElse(List.of());
+    }
+
+    /**
+     * @param hourList hour list
+     * @return strength of that open list
+     */
+    private long strength(List<OpenHour> hourList) {
+        return hourList.stream()
+                .mapToLong(OpenHour::getMinutes)
+                .sum();
+    }
+
+    /**
+     * @param text text with opening hours inside
+     * @return List of Opening hours extracted
+     */
     public List<OpenHour> extract(String text) {
         if (StringUtils.isBlank(text)) return List.of();
 
@@ -45,16 +75,22 @@ public class HourExtractor {
     PatternTexts parse(String text) {
         // Create texts and parse all: must be in order
         PatternTexts texts = new PatternTexts(text);
+        // Filter Tokens
+        PriceToken.parse(texts);
+
+        // Symbol Tokens
         SeperatorToken.parse(texts);
         AndToken.parse(texts);
         RangeToken.parse(texts);
         DayToken.parse(texts);
 
+        // Time Based Tokens
         TimeToken.parse(texts);
         ClosedToken.parse(texts);
         RemoveToken.parse(texts);
         LastOrderToken.parse(texts);
 
+        // Joining Tokens
         DaysToken.parse(texts);
         TimeRangeToken.parse(texts);
         TimeRangesToken.parse(texts);
