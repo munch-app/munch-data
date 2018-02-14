@@ -5,7 +5,6 @@ import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.utils.FieldCollector;
 import munch.data.place.matcher.NameNormalizer;
-import munch.data.place.matcher.PatternSplit;
 import munch.data.structure.Place;
 import org.apache.commons.lang3.StringUtils;
 

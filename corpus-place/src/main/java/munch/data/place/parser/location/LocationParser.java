@@ -5,7 +5,6 @@ import com.google.common.base.Joiner;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.location.LocationClient;
-import munch.data.place.matcher.PatternSplit;
 import munch.data.place.parser.AbstractParser;
 import munch.data.structure.Place;
 import org.apache.commons.lang3.StringUtils;

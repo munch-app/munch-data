@@ -1,4 +1,4 @@
-package munch.data.place.matcher;
+package munch.data.utils;
 
 import javax.annotation.RegEx;
 import java.util.ArrayList;

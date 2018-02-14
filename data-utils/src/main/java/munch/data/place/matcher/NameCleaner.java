@@ -3,6 +3,7 @@ package munch.data.place.matcher;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import munch.data.utils.PatternSplit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

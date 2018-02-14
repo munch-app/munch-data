@@ -1,5 +1,0 @@
-task publishLib {
-    dependsOn 'build'
-    dependsOn 'artifactoryPublish'
-    tasks.findByName('artifactoryPublish').mustRunAfter 'build'
-}
