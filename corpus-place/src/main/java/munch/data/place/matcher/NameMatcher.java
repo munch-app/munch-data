@@ -2,6 +2,8 @@ package munch.data.place.matcher;
 
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
+import info.debatty.java.stringsimilarity.experimental.Sift4;
+import info.debatty.java.stringsimilarity.interfaces.StringDistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class NameMatcher {
+    private static final StringDistance distance = new Sift4();
     private static final Logger logger = LoggerFactory.getLogger(NameMatcher.class);
 
     private final NameCleaner nameCleaner;
@@ -53,6 +56,7 @@ public final class NameMatcher {
     private List<String> collectNames(CorpusData data) {
         return PlaceKey.name.getAll(data).stream()
                 .map(field -> nameCleaner.clean(field.getValue()))
+                .map(String::toLowerCase)
                 .collect(Collectors.toList());
     }
 
@@ -76,6 +80,9 @@ public final class NameMatcher {
      * @return true = potentially equal place right
      */
     private boolean match(String left, String right) {
+        if (left.length() > 12) {
+            return distance.distance(left, right) <= 1.0;
+        }
         return left.equalsIgnoreCase(right);
     }
 }

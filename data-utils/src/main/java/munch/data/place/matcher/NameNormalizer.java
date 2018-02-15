@@ -16,6 +16,7 @@ public final class NameNormalizer {
 
     private static final List<ReplacementGroup> GROUPS = List.of(
             new ReplacementGroup(Pattern.compile("\"|’|`"), "'"),
+            new ReplacementGroup(Pattern.compile("'{2,}"), "'"),
             new ReplacementGroup(Pattern.compile("-|–|—"), "-"),
             new ReplacementGroup(Pattern.compile("á|â|à", Pattern.CASE_INSENSITIVE), "a"),
             new ReplacementGroup(Pattern.compile("é|ê|è|ë|ē", Pattern.CASE_INSENSITIVE), "e"),
