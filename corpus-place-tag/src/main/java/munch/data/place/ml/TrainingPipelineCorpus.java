@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class TrainingPipelineCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(TrainingPipelineCorpus.class);
-    private static final Set<String> BLOCKED_TAGS = Set.of("restaurant", "hawker");
+    private static final Set<String> BLOCKED_TAGS = Set.of("restaurant", "hawker", "halal");
 
     private final TextCollector textCollector;
     private final TopicAnalysis topicAnalysis;

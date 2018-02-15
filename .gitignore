@@ -42,3 +42,6 @@ gradle-app.setting
 
 classes/
 */var/
+*/tag-model/tag-data.txt
+*/tag-model/tag-data.tfrecord
+*/tag-model/output_class.txt
