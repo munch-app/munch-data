@@ -1,97 +1,95 @@
-import argparse
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-import tensorflow as tf
+import numpy as np
+import pandas as pd
+from keras.layers import Dense, Activation, Dropout
+from keras.models import Sequential
+from keras.preprocessing import text
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-parser.add_argument('--train_steps', default=1000, type=int, help='number of training steps')
-num_classes = 67
+data = pd.read_csv("data/tag-topic-data-1.csv", encoding="utf-8")
+data = data.sample(frac=1)
+print(data.head())
 
+print(data['tags'].value_counts())
 
-def my_model(features, labels, mode, params):
-    """DNN with three hidden layers, and dropout of 0.1 probability."""
-    # Create three fully connected layers each layer having a dropout
-    # probability of 0.1.
-    net = tf.feature_column.input_layer(features, params['feature_columns'])
-    for units in params['hidden_units']:
-        net = tf.layers.dense(net, units=units, activation=tf.nn.relu)
+# Split data into train and test
+train_size = int(len(data) * .9)
+print("Train size: %d" % train_size)
+print("Test size: %d" % (len(data) - train_size))
 
-    # Compute logits (1 per class).
-    logits = tf.layers.dense(net, params['n_classes'], activation=None)
-    # final_tensor = tf.nn.sigmoid(logits, name='label')
+train_posts = data['texts'][:train_size]
+train_tags = data['tags'][:train_size]
 
-    # Compute predictions.
-    # predicted_classes = tf.argmax(logits, 1)
-    # if mode == tf.estimator.ModeKeys.PREDICT:
-    #     predictions = {
-    #         'class_ids': predicted_classes[:, tf.newaxis],
-    #         'probabilities': tf.nn.softmax(logits),
-    #         'logits': logits,
-    #     }
-    #     return tf.estimator.EstimatorSpec(mode, predictions=predictions)
+test_posts = data['texts'][train_size:]
+test_tags = data['tags'][train_size:]
 
-    # Compute loss.
+max_words_x = 2000
+tokenize_x = text.Tokenizer(num_words=max_words_x, char_level=False)
+tokenize_x.fit_on_texts(train_posts)  # only fit on train
+x_train = tokenize_x.texts_to_matrix(train_posts)
+x_test = tokenize_x.texts_to_matrix(test_posts)
 
-    loss = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels, logits=logits)
-    # loss = tf.losses.sparse_softmax_cross_entropy()
+max_words_y = 150
+tokenize_y = text.Tokenizer(num_words=max_words_y, char_level=False)
+tokenize_y.fit_on_texts(train_tags)  # only fit on train
+y_train = tokenize_y.texts_to_matrix(train_tags)
+y_test = tokenize_y.texts_to_matrix(test_tags)
 
-    # Compute evaluation metrics.
-    # accuracy = tf.metrics.accuracy(labels=labels,
-    #                                predictions=predicted_classes,
-    #                                name='acc_op')
-    # metrics = {'accuracy': accuracy}
-    # tf.summary.scalar('accuracy', accuracy[1])
+# Inspect the dimenstions of our training and test data (this is helpful to debug)
+print('x_train shape:', x_train.shape)
+print('x_test shape:', x_test.shape)
+print('y_train shape:', y_train.shape)
+print('y_test shape:', y_test.shape)
 
-    # if mode == tf.estimator.ModeKeys.EVAL:
-    #     return tf.estimator.EstimatorSpec(
-    #         mode, loss=loss, eval_metric_ops=metrics)
+# This model trains very quickly and 2 epochs are already more than enough
+# Training for more epochs will likely lead to overfitting on this dataset
+# You can try tweaking these hyperparamaters when using this model with your own data
+batch_size = 64
+epochs = 32
 
-    # Create training op.
-    assert mode == tf.estimator.ModeKeys.TRAIN
+# Build the model
+model = Sequential()
+model.add(Dense(512, input_shape=(max_words_x,)))
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+model.add(Dense(max_words_y))
+model.add(Activation('sigmoid'))
 
-    optimizer = tf.train.AdagradOptimizer(learning_rate=0.1)
-    train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
-    return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
+model.compile(loss='binary_crossentropy',
+              optimizer='adam',
+              metrics=['categorical_accuracy'])
 
+# model.fit trains the model
+# The validation_split param tells Keras what % of our training data should be used in the validation set
+# You can see the validation loss decreasing slowly when you run this
+# Because val_loss is no longer decreasing we stop training to prevent overfitting
+history = model.fit(x_train, y_train,
+                    batch_size=batch_size,
+                    epochs=epochs,
+                    verbose=1,
+                    validation_split=0.1)
 
-def main(argv):
-    args = parser.parse_args(argv[1:])
+# Evaluate the accuracy of our trained model
+score = model.evaluate(x_test, y_test,
+                       batch_size=batch_size, verbose=1)
+print('Test score:', score[0])
+print('Test accuracy:', score[1])
 
-    input_feature_column = tf.feature_column.categorical_column_with_hash_bucket(key="topic", hash_bucket_size=5000)
-    input_feature_column = tf.feature_column.embedding_column(input_feature_column, dimension=300)
-
-    # Build 2 hidden layer DNN with 10, 10 units respectively.
-    classifier = tf.estimator.Estimator(
-        model_fn=my_model,
-        params={
-            'feature_columns': [input_feature_column],
-            # Two hidden layers of 10 nodes each.
-            'hidden_units': [500, 50, 100],
-            # The model must choose between 3 classes.
-            'n_classes': num_classes,
-        })
-
-    def parse_function(record):
-        features = {
-            'topic':
-                tf.VarLenFeature(dtype=tf.string),
-            'label':
-                tf.FixedLenFeature([67], tf.int64, default_value=tf.zeros([], dtype=tf.float32)),
-        }
-        parsed = tf.parse_single_example(record, features)
-
-        return {'topic': parsed["topic"]}, parsed["label"]
-
-    def input_fn():
-        dataset = tf.data.TFRecordDataset("tag-data.tfrecord")
-        dataset = dataset.map(parse_function)
-
-        dataset = dataset.shuffle(1000).repeat().batch(args.batch_size)
-        return dataset.make_one_shot_iterator().get_next()
-
-    classifier.train(input_fn=input_fn, steps=args.train_steps)
-
-
-if __name__ == '__main__':
-    tf.logging.set_verbosity(tf.logging.INFO)
-    tf.app.run(main)
+# Here's how to generate a prediction on individual examples
+# text_labels = {v - 1: k for k, v in tokenize_y.word_index.items()}
+#
+# for i in range(10):
+#     print(test_posts.iloc[i][:100], "...")
+#     print('Actual label:' + test_tags.iloc[i])
+#
+#     results = {}
+#     prediction = model.predict(np.array([x_test[i]]))
+#     for idx, val in enumerate(prediction[0]):
+#         results[text_labels.get(idx, None)] = val
+#
+#     labels = sorted(((v, k) for k, v in results.items()), reverse=True)
+#     labels = list(filter(lambda t: t[0] > 0.05, labels))
+#     labels = ', '.join(map(lambda t: str(t[1]) + ": " + str(t[0]), labels[0:10]))
+#     print("Predicted label: " + labels + "\n")

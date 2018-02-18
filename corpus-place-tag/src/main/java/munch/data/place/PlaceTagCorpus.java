@@ -65,9 +65,6 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
         // Collect and process
         List<CollectedText> collectedTexts = textCollector.collect(placeId, dataList);
-        List<String> tags = tagParser.parse(dataList);
-        Map<String, Integer> topics = analyzeTopic(collectedTexts);
-
         CorpusData tagData = new CorpusData(cycleNo);
         tagData.setCatalystId(placeId);
         tagData.put("Sg.Munch.PlaceTag.version", VERSION);

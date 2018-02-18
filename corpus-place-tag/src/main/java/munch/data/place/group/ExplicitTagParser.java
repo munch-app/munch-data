@@ -6,7 +6,10 @@ import corpus.utils.FieldCollector;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -25,23 +28,33 @@ public final class ExplicitTagParser {
     }
 
     /**
+     * @param list list
+     * @return all possible tags of place
+     */
+    public List<String> getAll(List<CorpusData> list) {
+        FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
+        fieldCollector.addAll(list);
+        return fieldCollector.collect();
+    }
+
+    /**
      * @param list list of corpus data to parse from
      * @return Place.Tag, tags must all be in lowercase
      */
-    public List<String> parse(List<CorpusData> list) {
-        return parseExplicits(list);
+    public List<String> getExplicits(List<CorpusData> list) {
+        return getExplicits(list, 2);
     }
 
-    private List<String> parseExplicits(List<CorpusData> list) {
+    public List<String> getExplicits(List<CorpusData> list, int limits) {
         FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
         fieldCollector.addAll(list);
 
         Set<GroupTag> groupTags = groupTagDatabase.findTags(fieldCollector.collect());
 
         List<String> tags = new ArrayList<>();
-        tags.addAll(findGroups(groupTags, 1));
-        tags.addAll(findGroups(groupTags, 2));
-        tags.addAll(findGroups(groupTags, 3));
+        tags.addAll(findGroups(groupTags, 1, limits));
+        tags.addAll(findGroups(groupTags, 2, limits));
+        tags.addAll(findGroups(groupTags, 3, limits));
 
         // If no tags, restaurant is the default
         if (tags.isEmpty()) {
@@ -66,11 +79,11 @@ public final class ExplicitTagParser {
      * @param groupNo   groupNo
      * @return lowercase groups of tags
      */
-    private List<String> findGroups(Set<GroupTag> groupTags, int groupNo) {
+    private List<String> findGroups(Set<GroupTag> groupTags, int groupNo, int limit) {
         return groupTags.stream()
                 .filter(groupTag -> groupTag.getGroupNo() == groupNo)
                 .sorted(Comparator.comparingInt(GroupTag::getOrder))
-                .limit(2)
+                .limit(limit)
                 // Must be lowercase
                 .map(groupTag -> groupTag.getName().toLowerCase())
                 .collect(Collectors.toList());

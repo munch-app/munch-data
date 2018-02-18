@@ -42,7 +42,4 @@ gradle-app.setting
 
 classes/
 */var/
-*/tag-model/tag-*.txt
-*/tag-model/tag-*.tfrecord
-*/tag-model/tag-*.csv
-*/tag-model/tag-*.json
+*/tag-model/data/

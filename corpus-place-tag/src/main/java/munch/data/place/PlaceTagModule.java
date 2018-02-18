@@ -7,7 +7,6 @@ import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
-import munch.data.place.ml.TrainingPipelineCorpus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,6 @@ public final class PlaceTagModule extends AbstractModule {
 
         Injector injector = Guice.createInjector(new PlaceTagModule());
         EngineGroup.start(
-                injector.getInstance(TrainingPipelineCorpus.class)
         );
 
         System.exit(0);
