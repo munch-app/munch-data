@@ -46,12 +46,12 @@ print('y_test shape:', y_test.shape)
 # This model trains very quickly and 2 epochs are already more than enough
 # Training for more epochs will likely lead to overfitting on this dataset
 # You can try tweaking these hyperparamaters when using this model with your own data
-batch_size = 64
-epochs = 32
+batch_size = 128
+epochs = 16
 
 # Build the model
 model = Sequential()
-model.add(Dense(512, input_shape=(max_words_x,)))
+model.add(Dense(1024, input_shape=(max_words_x,)))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(max_words_y))
