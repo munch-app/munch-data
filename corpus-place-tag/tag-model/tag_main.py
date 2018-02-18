@@ -8,7 +8,7 @@ from keras.layers import Dense, Activation, Dropout
 from keras.models import Sequential
 from keras.preprocessing import text
 
-data = pd.read_csv("data/tag-topic-data-1.csv", encoding="utf-8")
+data = pd.read_csv("data/tag-text-data-1.csv", encoding="utf-8")
 data = data.sample(frac=1)
 print(data.head())
 
@@ -81,18 +81,18 @@ print('Test score:', score[0])
 print('Test accuracy:', score[1])
 
 # Here's how to generate a prediction on individual examples
-# text_labels = {v - 1: k for k, v in tokenize_y.word_index.items()}
-#
-# for i in range(10):
-#     print(test_posts.iloc[i][:100], "...")
-#     print('Actual label:' + test_tags.iloc[i])
-#
-#     results = {}
-#     prediction = model.predict(np.array([x_test[i]]))
-#     for idx, val in enumerate(prediction[0]):
-#         results[text_labels.get(idx, None)] = val
-#
-#     labels = sorted(((v, k) for k, v in results.items()), reverse=True)
-#     labels = list(filter(lambda t: t[0] > 0.05, labels))
-#     labels = ', '.join(map(lambda t: str(t[1]) + ": " + str(t[0]), labels[0:10]))
-#     print("Predicted label: " + labels + "\n")
+text_labels = {v - 1: k for k, v in tokenize_y.word_index.items()}
+
+for i in range(10):
+    print(test_posts.iloc[i][:100], "...")
+    print('Actual label:' + test_tags.iloc[i])
+
+    results = {}
+    prediction = model.predict(np.array([x_test[i]]))
+    for idx, val in enumerate(prediction[0]):
+        results[text_labels.get(idx, None)] = val
+
+    labels = sorted(((v, k) for k, v in results.items()), reverse=True)
+    labels = list(filter(lambda t: t[0] > 0.05, labels))
+    labels = ', '.join(map(lambda t: str(t[1]) + ": " + str(t[0]), labels[0:10]))
+    print("Predicted label: " + labels + "\n")

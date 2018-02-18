@@ -123,6 +123,7 @@ public abstract class DataCollector {
                     .map(s -> labelMapping.computeIfAbsent(s, key -> key
                             .toLowerCase()
                             .replace(" ", "")
+                            .replace("&", "")
                             .replace("-", "")))
                     .collect(Collectors.joining(" "));
         }
