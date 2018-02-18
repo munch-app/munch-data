@@ -4,7 +4,19 @@ import tensorflow as tf
 from tqdm import tqdm
 
 writer = tf.python_io.TFRecordWriter("tag-data.tfrecord")
-output_class = set()
+output_index = []
+
+with open('output_class.txt', encoding="utf-8") as f:
+    for line in f.readlines():
+        output_index.append(line.replace("\n", ""))
+
+
+def output_as_int64(outputs):
+    output_list = []
+    for index in output_index:
+        output_list.append(1 if index in outputs else 0)
+    return output_list
+
 
 with open('tag-data.txt', encoding="utf-8") as f:
     for line in tqdm(f.readlines()):
@@ -12,7 +24,6 @@ with open('tag-data.txt', encoding="utf-8") as f:
             continue
 
         line = json.loads(line)
-        output_class.update(line["outputs"])
 
         # construct the Example proto boject
         example = tf.train.Example(
@@ -21,16 +32,12 @@ with open('tag-data.txt', encoding="utf-8") as f:
                 # Features contains a map of string to Feature proto objects
                 feature={
                     # A Feature contains one of either a int64_list, float_list, or bytes_list
-                    'inputs': tf.train.Feature(
-                        bytes_list=tf.train.BytesList(value=map(tf.compat.as_bytes, line["inputs"].keys()))),
-                    'outputs': tf.train.Feature(
-                        bytes_list=tf.train.BytesList(value=map(tf.compat.as_bytes, line["outputs"]))),
+                    'topic': tf.train.Feature(
+                        bytes_list=tf.train.BytesList(value=map(tf.compat.as_bytes, line["topic"]))),
+                    'label': tf.train.Feature(
+                        int64_list=tf.train.Int64List(value=output_as_int64(line["label"]))),
                 }))
 
         # Write to disk
         writer.write(example.SerializeToString())
 writer.close()
-
-with open('output_class.txt', 'w', encoding="utf-8") as f:
-    for output in output_class:
-        f.write(output + '\n')

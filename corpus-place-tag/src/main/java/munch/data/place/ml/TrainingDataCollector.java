@@ -9,7 +9,13 @@ import corpus.data.CorpusClient;
 import corpus.data.DataModule;
 import munch.restful.core.JsonUtils;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -25,19 +31,22 @@ public class TrainingDataCollector {
         Injector injector = Guice.createInjector(new CorpusModule(), new DataModule());
         CorpusClient client = injector.getInstance(CorpusClient.class);
 
+        Set<String> outputSet = new HashSet<>();
+
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream("corpus-place-tag/tag-model/tag-data.txt"), "UTF-8"
         ));
 
         client.list("Sg.Munch.PlaceTagTraining").forEachRemaining(data -> {
             ObjectNode objectNode = JsonUtils.objectMapper.createObjectNode();
-            ArrayNode outputs = objectNode.putArray("outputs");
-            ObjectNode inputs = objectNode.putObject("inputs");
+            objectNode.put("placeId", data.getCorpusKey());
+            ArrayNode topic = objectNode.putArray("topic");
+            ArrayNode label = objectNode.putArray("label");
 
-            TrainingPipelineKey.output.getAllValue(data).forEach(outputs::add);
-            TrainingPipelineKey.input.getAll(data).forEach(field -> {
-                inputs.put(field.getValue(), Integer.parseInt(field.getMetadata().get("count")));
-            });
+            TrainingPipelineKey.input.getAllValue(data).forEach(topic::add);
+            List<String> output = TrainingPipelineKey.output.getAllValue(data);
+            output.forEach(label::add);
+            outputSet.addAll(output);
             try {
                 writer.write(JsonUtils.toString(objectNode));
                 writer.newLine();
@@ -47,6 +56,15 @@ public class TrainingDataCollector {
         });
 
         writer.close();
+
+        BufferedWriter outputWriter = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream("corpus-place-tag/tag-model/output_class.txt"), "UTF-8"
+        ));
+        for (String s : outputSet) {
+            outputWriter.write(s);
+            outputWriter.newLine();
+        }
+        outputWriter.close();
     }
 
 

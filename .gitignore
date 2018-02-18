@@ -45,3 +45,4 @@ classes/
 */tag-model/tag-data.txt
 */tag-model/tag-data.tfrecord
 */tag-model/output_class.txt
+*/tag-model/tag-data.csv
