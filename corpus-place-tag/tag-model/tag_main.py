@@ -15,7 +15,7 @@ print(data.head())
 print(data['tags'].value_counts())
 
 # Split data into train and test
-train_size = int(len(data) * .9)
+train_size = int(len(data) * .95)
 print("Train size: %d" % train_size)
 print("Test size: %d" % (len(data) - train_size))
 
@@ -47,11 +47,14 @@ print('y_test shape:', y_test.shape)
 # Training for more epochs will likely lead to overfitting on this dataset
 # You can try tweaking these hyperparamaters when using this model with your own data
 batch_size = 128
-epochs = 16
+epochs = 40
 
 # Build the model
 model = Sequential()
-model.add(Dense(1024, input_shape=(max_words_x,)))
+model.add(Dense(512, input_shape=(max_words_x,)))
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+model.add(Dense(128, input_shape=(512,)))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(max_words_y))
