@@ -1,0 +1,1 @@
+docker build -t "munch-data/place-tag-predict" .

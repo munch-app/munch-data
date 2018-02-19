@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import pickle
 import numpy as np
 import pandas as pd
 from keras.layers import Dense, Activation, Dropout
@@ -80,19 +81,28 @@ score = model.evaluate(x_test, y_test,
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
 
+model.save('data/model/tag-model.h5')
+
+with open('data/model/tag-tokenzier-x.pickle', 'wb') as handle:
+    pickle.dump(tokenize_x, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('data/model/tag-tokenzier-y.pickle', 'wb') as handle:
+    pickle.dump(tokenize_y, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 # Here's how to generate a prediction on individual examples
-text_labels = {v: k for k, v in tokenize_y.word_index.items()}
-
-for i in range(10):
-    print(test_posts.iloc[i][:100], "...")
-    print('Actual label:' + test_tags.iloc[i])
-
-    results = {}
-    prediction = model.predict(np.array([x_test[i]]))
-    for idx, val in enumerate(prediction[0]):
-        results[text_labels.get(idx, None)] = val
-
-    labels = sorted(((v, k) for k, v in results.items()), reverse=True)
-    labels = list(filter(lambda t: t[0] > 0.05, labels))
-    labels = ', '.join(map(lambda t: str(t[1]) + ": " + str(t[0]), labels[0:10]))
-    print("Predicted label: " + labels + "\n")
+# text_labels = {v: k for k, v in tokenize_y.word_index.items()}
+#
+#
+# for i in range(10):
+#     print(test_posts.iloc[i][:100], "...")
+#     print('Actual label:' + test_tags.iloc[i])
+#
+#     results = {}
+#     prediction = model.predict(np.array([x_test[i]]))
+#     for idx, val in enumerate(prediction[0]):
+#         results[text_labels.get(idx, None)] = val
+#
+#     labels = sorted(((v, k) for k, v in results.items()), reverse=True)
+#     labels = list(filter(lambda t: t[0] > 0.1, labels))
+#     labels = ', '.join(map(lambda t: str(t[1]) + ": " + str(t[0]), labels[0:10]))
+#     print("Predicted label: " + labels + "\n")
