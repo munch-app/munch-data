@@ -48,6 +48,20 @@ public final class GroupTagDatabase {
                 .collect(Collectors.toSet());
     }
 
+    public List<String> resolve(List<String> tags) {
+        return tags.stream()
+                .map(name -> tagMap.get(name.toLowerCase()))
+                .filter(Objects::nonNull)
+                .map(GroupTag::getName)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<String> resolve(String tag) {
+        GroupTag groupTag = tagMap.get(tag);
+        if (groupTag == null) return Optional.empty();
+        return Optional.of(groupTag.getName());
+    }
+
     /**
      * @param tag tag
      * @return whether it exists in group tag

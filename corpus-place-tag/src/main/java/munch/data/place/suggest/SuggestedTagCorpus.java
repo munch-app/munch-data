@@ -3,6 +3,7 @@ package munch.data.place.suggest;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.PlaceCardClient;
+import munch.data.place.group.GroupTagDatabase;
 import munch.data.place.text.CollectedText;
 import munch.data.place.text.TextCollector;
 import munch.data.structure.PlaceJsonCard;
@@ -13,10 +14,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,13 +31,15 @@ public final class SuggestedTagCorpus extends CatalystEngine<CorpusData> {
 
     private final PlaceCardClient placeCardClient;
     private final PredictTagClient predictTagClient;
+    private final GroupTagDatabase groupTagDatabase;
 
     @Inject
-    public SuggestedTagCorpus(TextCollector textCollector, PlaceCardClient placeCardClient, PredictTagClient predictTagClient) {
+    public SuggestedTagCorpus(TextCollector textCollector, PlaceCardClient placeCardClient, PredictTagClient predictTagClient, GroupTagDatabase groupTagDatabase) {
         super(logger);
         this.textCollector = textCollector;
         this.placeCardClient = placeCardClient;
         this.predictTagClient = predictTagClient;
+        this.groupTagDatabase = groupTagDatabase;
     }
 
     @Override
@@ -85,6 +85,19 @@ public final class SuggestedTagCorpus extends CatalystEngine<CorpusData> {
                 .collect(Collectors.toList());
         Map<String, Double> labels = predictTagClient.predict(texts);
         if (labels.isEmpty()) return null;
-        return labels;
+
+        Map<String, Double> mapped = new HashMap<>();
+
+        // Only map if > 0.3
+        labels.forEach((key, value) -> {
+            if (value > 0.3) {
+                groupTagDatabase.resolve(key).ifPresent(tag -> {
+                    mapped.put(tag, value);
+                });
+            }
+        });
+
+        if (mapped.isEmpty()) return null;
+        return mapped;
     }
 }
