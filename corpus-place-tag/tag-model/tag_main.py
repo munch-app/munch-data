@@ -81,7 +81,7 @@ print('Test score:', score[0])
 print('Test accuracy:', score[1])
 
 # Here's how to generate a prediction on individual examples
-text_labels = {v - 1: k for k, v in tokenize_y.word_index.items()}
+text_labels = {v: k for k, v in tokenize_y.word_index.items()}
 
 for i in range(10):
     print(test_posts.iloc[i][:100], "...")
