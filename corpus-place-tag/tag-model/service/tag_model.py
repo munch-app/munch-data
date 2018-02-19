@@ -26,7 +26,7 @@ def map_keys(index_dict):
 def predict(text):
     global graph
     with graph.as_default():
-        x = tokenizer_x.texts_to_matrix(text)
+        x = tokenizer_x.texts_to_matrix([text])
         prediction = model.predict(x)
 
         results = {}

@@ -90,7 +90,7 @@ public final class SuggestedTagCorpus extends CatalystEngine<CorpusData> {
 
         // Only map if > 0.3
         labels.forEach((key, value) -> {
-            if (value > 0.3) {
+            if (value > 0.2) {
                 groupTagDatabase.resolve(key).ifPresent(tag -> {
                     mapped.put(tag, value);
                 });
