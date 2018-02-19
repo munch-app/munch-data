@@ -3,10 +3,8 @@ package munch.data.place.suggest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
-import com.typesafe.config.Config;
 import munch.restful.client.RestfulClient;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +18,6 @@ import java.util.Map;
  */
 @Singleton
 public final class PredictTagClient extends RestfulClient {
-
-    @Inject
-    public PredictTagClient(Config config) {
-        this(config.getString("services.tag-predict.url"));
-    }
 
     public PredictTagClient(String url) {
         super(url);
@@ -40,7 +33,7 @@ public final class PredictTagClient extends RestfulClient {
         node.put("texts", texts);
 
         JsonNode dataNode = doPost("/predict")
-                .body(texts)
+                .body(node)
                 .asResponse()
                 .getDataNode();
 

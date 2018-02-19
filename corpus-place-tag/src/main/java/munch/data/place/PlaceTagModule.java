@@ -7,6 +7,7 @@ import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
+import munch.data.place.suggest.PredictTagModule;
 import munch.data.place.suggest.SuggestedTagCorpus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public final class PlaceTagModule extends AbstractModule {
         install(new CorpusModule());
         install(new DataModule());
         install(new DynamoModule());
+        install(new PredictTagModule());
     }
 
     public static void main(String[] args) throws InterruptedException {
