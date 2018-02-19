@@ -66,6 +66,7 @@ public final class SuggestedTagCorpus extends CatalystEngine<CorpusData> {
         // Process if Able
         Map<String, Double> labels = predict(collectedTexts);
         if (labels != null) {
+            counter.increment("Tagged");
             PlaceJsonCard card = new PlaceJsonCard("ugc_SuggestedTag_20180219", labels);
             placeCardClient.putIfChange(placeId, card);
         } else {
