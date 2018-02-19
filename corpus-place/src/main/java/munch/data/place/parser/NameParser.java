@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class NameParser extends AbstractParser<String> {
-    private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z']|^)[a-z]");
+    private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z']|^|[^a-z]')[a-z]");
     private static final Pattern BLOCKED_PATTERN = Pattern.compile("stalls? [0-9]+", Pattern.CASE_INSENSITIVE);
 
     private final NameNormalizer nameNormalizer;
@@ -53,6 +53,10 @@ public final class NameParser extends AbstractParser<String> {
         if (!validateName(name)) return null;
 
         // Then format name properly
+        return format(name);
+    }
+
+    public static String format(String name) {
         List<Object> split = NAME_DIVIDER_PATTERN.split(name.toLowerCase(), 0, String::toUpperCase);
         return Joiner.on("").join(split);
     }
