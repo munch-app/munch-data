@@ -1,3 +1,5 @@
+import logging
+
 import tag_model
 from flask import Flask
 from flask import jsonify
@@ -5,10 +7,19 @@ from flask import request
 
 app = Flask(__name__)
 
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 
 @app.errorhandler(500)
 def handle_invalid_usage(error):
-    app.logger.error('UnknownError', error)
+    log.error('UnknownError', error)
+    return jsonify({'meta': {'code': 500, 'type': 'UnknownError'}}), 500
+
+
+@app.errorhandler(MemoryError)
+def handle_memory_error(error):
+    log.error('MemoryError', error)
     return jsonify({'meta': {'code': 500, 'type': 'UnknownError'}}), 500
 
 

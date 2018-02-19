@@ -163,6 +163,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
 
     static String formatAddress(String address) {
         address = address.toLowerCase();
+        address = address.replace("\n", ""); // Line Break is not allowed
         List<Object> split = ADDRESS_DIVIDER_PATTERN.split(address, 0, String::toUpperCase);
         return Joiner.on("").join(split);
     }
