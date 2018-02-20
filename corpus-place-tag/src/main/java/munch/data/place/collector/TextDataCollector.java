@@ -1,11 +1,10 @@
-package munch.data.place.ml;
+package munch.data.place.collector;
 
 import com.google.common.base.Joiner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by: Fuxing
@@ -14,17 +13,18 @@ import java.io.IOException;
  * Project: munch-data
  */
 public class TextDataCollector extends DataCollector {
-    private static final Logger logger = LoggerFactory.getLogger(TopicDataCollector.class);
 
     @Inject
     public TextDataCollector() throws IOException {
-        super("corpus-place-tag/tag-model/data/tag-text-data-1.csv",
-                "corpus-place-tag/tag-model/data/tag-text-mapping-1.json");
+        super("corpus-place-tag/tag-model/data/tag-text-data-2.csv",
+                "corpus-place-tag/tag-model/data/tag-text-mapping-2.json");
     }
 
 
     public void put(DataGroup group) throws IOException {
-        csvWriter.printRecord(Joiner.on(" ").join(group.getTexts()), group.getTags());
+        List<String> texts = group.getTexts();
+        if (texts.size() == 1) return;
+        csvWriter.printRecord(Joiner.on(" ").join(texts), group.getTags());
     }
 
 

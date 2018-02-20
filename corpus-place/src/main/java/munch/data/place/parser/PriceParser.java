@@ -45,7 +45,9 @@ public final class PriceParser extends AbstractParser<Place.Price> {
     private static Place.Price create(double value) {
         Place.Price price = new Place.Price();
         value = value * 1.17;
-        price.setMiddle((double) Math.round(value));
+        value = (double) Math.round(value);
+        if (value > 200) value = 200.0;
+        price.setMiddle(value);
         return price;
     }
 

@@ -1,4 +1,4 @@
-package munch.data.place.ml;
+package munch.data.place.collector;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -73,7 +73,7 @@ public abstract class DataCollector {
         int iterated = 0;
         Iterator<CorpusData> iterator = corpusClient.list("Sg.Munch.Place");
         while (iterator.hasNext()) {
-            if (++iterated % 100 == 0) logger.info("Iterated {} places", iterated);
+            if (++iterated % 100 == 0) logger.info("Iterated {} places, Processed {} places", iterated, processed);
             CorpusData data = iterator.next();
 
             DataGroup dataGroup = collectGroup(data.getCatalystId());
@@ -81,7 +81,7 @@ public abstract class DataCollector {
 
             put(dataGroup);
             Thread.sleep(4);
-            if (++processed % 100 == 0) logger.info("Processed {} places", processed);
+            processed++;
         }
         logger.info("Completed");
     }

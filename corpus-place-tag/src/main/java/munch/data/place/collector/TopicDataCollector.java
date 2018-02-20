@@ -1,9 +1,7 @@
-package munch.data.place.ml;
+package munch.data.place.collector;
 
 import com.google.common.base.Joiner;
 import munch.data.place.topic.TopicAnalysis;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -18,7 +16,6 @@ import java.util.Map;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class TopicDataCollector extends DataCollector {
-    private static final Logger logger = LoggerFactory.getLogger(TopicDataCollector.class);
 
     private final TopicAnalysis topicAnalysis;
 
