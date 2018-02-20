@@ -15,12 +15,13 @@ public abstract class AbstractCollector {
 
     public abstract List<CollectedText> collect(String placeId, List<CorpusData> list);
 
-    protected CollectedText mapField(CorpusData.Field field, CollectedText.From from) {
+    protected CollectedText mapField(CorpusData corpusData, CorpusData.Field field, CollectedText.From from) {
         String text = field.getValue();
         if (StringUtils.isBlank(text)) return null;
 
         CollectedText collectedText = new CollectedText();
         collectedText.setFrom(from);
+        collectedText.setCorpusData(corpusData);
         collectedText.setTexts(List.of(text));
         return collectedText;
     }

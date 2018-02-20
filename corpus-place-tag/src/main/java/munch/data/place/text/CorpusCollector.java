@@ -23,10 +23,12 @@ public final class CorpusCollector extends AbstractCollector {
     public List<CollectedText> collect(String placeId, List<CorpusData> list) {
         return list.stream()
                 // Not to collect from self
-                .filter(data -> !IGNORE_CORPUS.contains(data.getCorpusKey()))
-                .flatMap(data -> data.getFields().stream())
-                .filter(field -> field.getKey().equals(PlaceKey.description.getKey()))
-                .map(field -> mapField(field, CollectedText.From.Place))
+                .filter(data -> !IGNORE_CORPUS.contains(data.getCorpusName()))
+                .flatMap(data -> data.getFields()
+                        .stream()
+                        .filter(field -> field.getKey().equals(PlaceKey.description.getKey()))
+                        .map(field -> mapField(data, field, CollectedText.From.Place))
+                )
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

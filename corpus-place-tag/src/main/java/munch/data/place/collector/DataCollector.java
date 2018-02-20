@@ -111,6 +111,10 @@ public abstract class DataCollector {
             this.labels = labels;
         }
 
+        public List<CollectedText> getCollectedTexts() {
+            return collectedTexts;
+        }
+
         List<String> getTexts() {
             return collectedTexts.stream()
                     .flatMap(collectedText -> collectedText.getTexts().stream())

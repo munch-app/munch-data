@@ -1,6 +1,7 @@
 package munch.data.place.collector;
 
 import com.google.common.base.Joiner;
+import munch.data.place.text.CollectedText;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -22,8 +23,10 @@ public class TextDataCollector extends DataCollector {
 
 
     public void put(DataGroup group) throws IOException {
+        if (group.getCollectedTexts().size() == 1) {
+             if (group.getCollectedTexts().get(0).getFrom() == CollectedText.From.Place) return;
+        }
         List<String> texts = group.getTexts();
-        if (texts.size() == 1) return;
         csvWriter.printRecord(Joiner.on(" ").join(texts), group.getTags());
     }
 
