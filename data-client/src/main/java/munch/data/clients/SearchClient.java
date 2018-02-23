@@ -3,12 +3,16 @@ package munch.data.clients;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.searchbox.core.Search;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticMarshaller;
 import munch.data.structure.SearchResult;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by: Fuxing
@@ -76,5 +80,32 @@ public class SearchClient extends AbstractClient {
     public List<SearchResult> search(List<String> types, String text, int size) {
         JsonNode results = client.search(types, text, size);
         return marshaller.deserializeList(results);
+    }
+
+    /**
+     * @param map  (types, integer)
+     * @param text query for searching
+     * @return (types, List of SearchResult)
+     */
+    public Map<String, List<SearchResult>> multiSuggest(Map<String, Integer> map, String text) {
+        List<String> types = new ArrayList<>();
+        List<Search> searches = new ArrayList<>();
+
+        map.forEach((type, size) -> {
+            types.add(type);
+            searches.add(ElasticClient.createSearch(List.of(type), text, 0, size));
+        });
+
+
+        Map<String, List<SearchResult>> resultMap = new HashMap<>();
+
+        List<JsonNode> results = client.postMultiSearch(searches);
+        for (int i = 0; i < results.size(); i++) {
+            String type = types.get(i);
+            JsonNode result = results.get(i);
+            resultMap.put(type, marshaller.deserializeList(result));
+        }
+
+        return resultMap;
     }
 }
