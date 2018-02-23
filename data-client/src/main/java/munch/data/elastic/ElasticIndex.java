@@ -1,15 +1,14 @@
 package munch.data.elastic;
 
+import catalyst.utils.iterators.NestedIterator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.searchbox.client.JestClient;
-import io.searchbox.core.Delete;
-import io.searchbox.core.DocumentResult;
-import io.searchbox.core.Get;
-import io.searchbox.core.Index;
+import io.searchbox.core.*;
+import io.searchbox.params.Parameters;
 import munch.data.exceptions.ClusterBlockException;
 import munch.data.exceptions.ElasticException;
 import munch.data.structure.Container;
@@ -22,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created By: Fuxing Loh
@@ -118,6 +119,68 @@ public final class ElasticIndex {
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
+    }
+
+    /**
+     * @param type    data type to scroll
+     * @param timeout timeout in elastic time unit e.g. 1m
+     * @param size    size per batch
+     * @param <T>     data type
+     * @return Iterator of batch Data
+     */
+    public <T> Iterator<List<T>> scroll(String type, String timeout, int size) {
+        Search search = new Search.Builder("{\"query\":{\"term\":{\"dataType\":\"" + type + "\"}}, \"size\": " + size + "}")
+                .addIndex(ElasticMapping.INDEX_NAME)
+                .setParameter(Parameters.SCROLL, timeout)
+                .build();
+
+        try {
+            return new Iterator<>() {
+                JsonNode result = mapper.readTree(client.execute(search).getJsonString());
+                List<T> nextList = marshaller.deserializeList(result.path("hits").path("hits"));
+
+                @Override
+                public boolean hasNext() {
+                    if (nextList == null) {
+                        try {
+                            SearchScroll scroll = new SearchScroll.Builder(result.path("_scroll_id").asText(), timeout).build();
+                            result = mapper.readTree(client.execute(scroll).getJsonString());
+                            nextList = marshaller.deserializeList(result.path("hits").path("hits"));
+
+                            if (!nextList.isEmpty()) return true;
+
+                            ClearScroll clearScroll = new ClearScroll.Builder().addScrollId(result.path("_scroll_id").asText()).build();
+                            client.execute(clearScroll);
+                            return false;
+                        } catch (IOException e) {
+                            throw ElasticException.parse(e);
+                        }
+                    }
+
+                    return !nextList.isEmpty();
+                }
+
+                @Override
+                public List<T> next() {
+                    List<T> temp = nextList;
+                    nextList = null;
+                    return temp;
+                }
+            };
+
+        } catch (IOException e) {
+            throw ElasticException.parse(e);
+        }
+    }
+
+    /**
+     * @param type    type: Place, Container, Location, Tag
+     * @param timeout timeout different each batched request
+     * @param <T>     T data type
+     * @return Iterator of that Data
+     */
+    public <T> Iterator<T> scroll(String type, String timeout) {
+        return new NestedIterator<T, List<T>>(scroll(type, timeout, 20), List::iterator);
     }
 
     /**

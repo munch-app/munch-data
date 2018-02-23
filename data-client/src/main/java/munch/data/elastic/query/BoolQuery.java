@@ -257,7 +257,6 @@ public final class BoolQuery {
         return filter;
     }
 
-
     /**
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html
      *

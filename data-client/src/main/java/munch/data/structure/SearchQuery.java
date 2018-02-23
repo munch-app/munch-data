@@ -30,6 +30,7 @@ public final class SearchQuery {
     private Sort sort;
 
     private Trigger trigger;
+    private UserInfo userInfo;
 
     public Integer getFrom() {
         return from;
@@ -118,6 +119,14 @@ public final class SearchQuery {
 
     public void setTrigger(Trigger trigger) {
         this.trigger = trigger;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        this.userInfo = userInfo;
     }
 
     /**
@@ -362,6 +371,9 @@ public final class SearchQuery {
         }
     }
 
+    /**
+     * Trigger that user activated, not yet implemented
+     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Trigger {
         private int querySearch;
@@ -408,6 +420,58 @@ public final class SearchQuery {
                     ", placeClick=" + placeClick +
                     ", placeImpression=" + placeImpression +
                     ", placePosition=" + placePosition +
+                    '}';
+        }
+    }
+
+    /**
+     * User Info send from client
+     */
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static final class UserInfo {
+        private String day;
+        private String time; // HH:mm
+        private String latLng;
+
+        /**
+         * @return day of search
+         */
+        public String getDay() {
+            return day;
+        }
+
+        public void setDay(String day) {
+            this.day = day;
+        }
+
+        /**
+         * @return time of search
+         */
+        public String getTime() {
+            return time;
+        }
+
+        public void setTime(String time) {
+            this.time = time;
+        }
+
+        /**
+         * @return user location at search
+         */
+        public String getLatLng() {
+            return latLng;
+        }
+
+        public void setLatLng(String latLng) {
+            this.latLng = latLng;
+        }
+
+        @Override
+        public String toString() {
+            return "UserInfo{" +
+                    "day='" + day + '\'' +
+                    ", time='" + time + '\'' +
+                    ", latLng='" + latLng + '\'' +
                     '}';
         }
     }
