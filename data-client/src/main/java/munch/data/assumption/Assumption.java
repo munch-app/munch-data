@@ -15,7 +15,7 @@ public class Assumption {
     private final String tag;
     private final Consumer<SearchQuery> queryConsumer;
 
-    private Assumption(String token, String tag, Consumer<SearchQuery> queryConsumer) {
+    protected Assumption(String token, String tag, Consumer<SearchQuery> queryConsumer) {
         this.token = token;
         this.tag = tag;
         this.queryConsumer = queryConsumer;
