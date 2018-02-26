@@ -210,8 +210,8 @@ public final class ElasticIndex {
             }
 
             if (StringUtils.equals(jsonNode.path("result").asText(), "not_found")) {
-                if (validateNotFound) return;
-                throw new ElasticException(404, "Failed to put/delete/get object.");
+                if (validateNotFound) throw new ElasticException(404, "Failed to put/delete/get object.");
+
             }
 
             logger.warn("{}", jsonNode);
