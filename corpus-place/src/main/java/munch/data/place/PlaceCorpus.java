@@ -69,7 +69,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
      */
     @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
-        return corpusClient.list(corpusName);
+        return corpusClient.list("Sg.Munch.Place");
     }
 
     /**

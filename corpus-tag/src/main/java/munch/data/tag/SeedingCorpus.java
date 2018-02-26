@@ -43,14 +43,14 @@ public class SeedingCorpus extends CatalystEngine<CorpusData> {
     @Override
     protected void process(long cycleNo, CorpusData seedData, long processed) {
         // If Sg.Munch.Tag already exist, can skip, can never have more then 1 because key is catalystId
-        if (catalystClient.countCorpus(seedData.getCatalystId(), corpusName) > 0) return;
+        if (catalystClient.countCorpus(seedData.getCatalystId(), "Sg.Munch.Tag") > 0) return;
 
         // Put created Sg.Munch.Tag
         CorpusData data = new CorpusData(cycleNo);
         data.setCatalystId(seedData.getCatalystId());
         data.put(TagKey.updatedDate, "0");
 
-        corpusClient.put(corpusName, seedData.getCorpusKey(), data);
+        corpusClient.put("Sg.Munch.Tag", seedData.getCorpusKey(), data);
         counter.increment("Seeded");
         sleep(10);
     }

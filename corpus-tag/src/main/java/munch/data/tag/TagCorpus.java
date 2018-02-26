@@ -49,7 +49,7 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
-        return corpusClient.list(corpusName);
+        return corpusClient.list("Sg.Munch.Tag");
     }
 
     @Override
@@ -69,7 +69,7 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
 
                 retriable.loop(() -> {
                     tagClient.put(createTag(placeTag));
-                    corpusClient.put(corpusName, data.getCorpusKey(), data);
+                    corpusClient.put("Sg.Munch.Tag", data.getCorpusKey(), data);
                     counter.increment("Updated");
                 });
             }
@@ -77,7 +77,7 @@ public class TagCorpus extends CatalystEngine<CorpusData> {
             retriable.loop(() -> {
                 // To delete
                 tagClient.delete(data.getCorpusKey());
-                corpusClient.delete(corpusName, data.getCorpusKey());
+                corpusClient.delete("Sg.Munch.Tag", data.getCorpusKey());
                 counter.increment("Deleted");
             });
         }
