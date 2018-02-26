@@ -64,6 +64,19 @@ public class HourExtractor {
                     .collect(Collectors.toList());
         }
 
+        // Check if there is a positive days and negative days
+        if (times.size() == 1 && days.size() == 2) {
+            List<DaysToken> negativeDays = days.stream()
+                    .filter(daysToken -> !daysToken.positive)
+                    .collect(Collectors.toList());
+
+            if (negativeDays.size() == 1) {
+                return times.get(0).set.stream()
+                        .flatMap(range -> negativeDays.get(0).set.stream().map(range::toFields))
+                        .collect(Collectors.toList());
+            }
+        }
+
         if (times.size() == 1 && days.isEmpty()) {
             return times.get(0).set.stream()
                     .flatMap(range -> Arrays.stream(DayToken.daily()).map(range::toFields))

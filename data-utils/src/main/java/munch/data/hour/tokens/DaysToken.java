@@ -25,14 +25,16 @@ public class DaysToken {
     private static final List<DayToken> dayLoops = List.of(Mon, Tue, Wed, Thu, Fri, Sat, Sun,
             Mon, Tue, Wed, Thu, Fri, Sat, Sun);
 
+    public final boolean positive;
     public final Set<DayToken> set;
 
-    DaysToken(Set<DayToken> set) {
+    DaysToken(boolean positive, Set<DayToken> set) {
+        this.positive = positive;
         this.set = set;
     }
 
-    DaysToken(DayToken... days) {
-        this(Arrays.stream(days).collect(Collectors.toSet()));
+    DaysToken(boolean positive, DayToken... days) {
+        this(positive, Arrays.stream(days).collect(Collectors.toSet()));
     }
 
     /**
@@ -70,16 +72,16 @@ public class DaysToken {
                 if (day == end) break;
             }
         }
-        return new DaysToken(days);
+        return new DaysToken(true, days);
     }
 
     public static void parse(PatternTexts texts) {
-        texts.replace(PatternDaily, new DaysToken(Mon, Tue, Wed, Thu, Fri, Sat, Sun));
-        texts.replace(PatternWeekday, new DaysToken(Mon, Tue, Wed, Thu, Fri));
-        texts.replace(PatternWeekend, new DaysToken(Sat, Sun));
+        texts.replace(PatternDaily, new DaysToken(true, Mon, Tue, Wed, Thu, Fri, Sat, Sun));
+        texts.replace(PatternWeekday, new DaysToken(true, Mon, Tue, Wed, Thu, Fri));
+        texts.replace(PatternWeekend, new DaysToken(true, Sat, Sun));
 
         // Map all day to days
-        texts.replaceAll(obj -> obj instanceof DayToken ? new DaysToken((DayToken) obj) : obj);
+        texts.replaceAll(obj -> obj instanceof DayToken ? new DaysToken(true, (DayToken) obj) : obj);
 
         // Map all Day + Range + Day to days
         texts.replace(DaysToken.class, RangeToken.class, DaysToken.class, triple -> {
@@ -104,14 +106,14 @@ public class DaysToken {
 
         // Convert closed + days to reverse days
         texts.replace(ClosedToken.class, DaysToken.class, pair -> {
-            DaysToken days = new DaysToken(daily());
+            DaysToken days = new DaysToken(false, daily());
             days.remove((DaysToken) pair.getRight());
             return days;
         });
 
         // Convert days + closed to reverse days
         texts.replace(DaysToken.class, ClosedToken.class, pair -> {
-            DaysToken days = new DaysToken(daily());
+            DaysToken days = new DaysToken(false, daily());
             days.remove((DaysToken) pair.getLeft());
             return days;
         });

@@ -20,8 +20,19 @@ import java.util.stream.Collectors;
 @Singleton
 public final class HourParser extends AbstractParser<List<Place.Hour>> {
     private static final Logger logger = LoggerFactory.getLogger(HourParser.class);
-    private static final Comparator<Map.Entry<DayOpenClose, Long>> HOUR_COMPARATOR = hourComparator();
-    private static final Comparator<Place.Hour> DETERMINISTIC_COMPARATOR = deterministicComparator();
+    private static final Comparator<Map.Entry<DayOpenClose, Long>> HOUR_COMPARATOR;
+    private static final Comparator<Place.Hour> DETERMINISTIC_COMPARATOR;
+
+    static {
+        Comparator<Map.Entry<DayOpenClose, Long>> comparator = Comparator.comparingLong(Map.Entry::getValue);
+        comparator = comparator.reversed();
+        comparator = comparator.thenComparingInt(value -> value.getKey().hashCode());
+        HOUR_COMPARATOR = comparator;
+
+        DETERMINISTIC_COMPARATOR = Comparator.comparing(Place.Hour::getDay)
+                .thenComparing(Place.Hour::getOpen)
+                .thenComparing(Place.Hour::getClose);
+    }
 
     private static final List<String> RELIABLE_SOURCE = List.of("Global.Facebook.Place");
 
@@ -137,18 +148,5 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
         hours.addAll(corpusDataHour.getDays().get("sat").getPlaceHours("sat"));
         hours.addAll(corpusDataHour.getDays().get("sun").getPlaceHours("sun"));
         return hours;
-    }
-
-    private static Comparator<Map.Entry<DayOpenClose, Long>> hourComparator() {
-        Comparator<Map.Entry<DayOpenClose, Long>> comparator = Comparator.comparingLong(Map.Entry::getValue);
-        comparator = comparator.reversed();
-        comparator = comparator.thenComparingInt(value -> value.getKey().hashCode());
-        return comparator;
-    }
-
-    private static Comparator<Place.Hour> deterministicComparator() {
-        return Comparator.comparing(Place.Hour::getDay)
-                .thenComparing(Place.Hour::getOpen)
-                .thenComparing(Place.Hour::getClose);
     }
 }
