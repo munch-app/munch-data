@@ -40,6 +40,11 @@ public final class AssumedSearchQuery {
     }
 
     public static class TagToken extends Token {
+
+        public TagToken(String text) {
+            setText(text);
+        }
+
         @Override
         public String getType() {
             return "tag";
@@ -47,6 +52,10 @@ public final class AssumedSearchQuery {
     }
 
     public static class TextToken extends Token {
+        public TextToken(String text) {
+            setText(text);
+        }
+
         @Override
         public String getType() {
             return "text";
@@ -65,5 +74,19 @@ public final class AssumedSearchQuery {
         }
 
         public abstract String getType();
+
+        @Override
+        public String toString() {
+            return getType() + "[" + text + "]";
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "AssumedSearchQuery{" +
+                "text='" + text + '\'' +
+                ", tokens=" + tokens +
+                ", query=" + query +
+                '}';
     }
 }

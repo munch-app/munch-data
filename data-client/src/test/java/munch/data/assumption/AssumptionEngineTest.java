@@ -1,10 +1,14 @@
 package munch.data.assumption;
 
+import munch.data.structure.SearchQuery;
 import munch.data.utils.PatternSplit;
 import org.apache.commons.lang3.tuple.Triple;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by: Fuxing
@@ -13,6 +17,20 @@ import java.util.List;
  * Project: munch-data
  */
 class AssumptionEngineTest {
+
+    private AssumptionEngine assumptionEngine;
+
+    @BeforeEach
+    void setUp() {
+        assumptionEngine = new AssumptionEngine(new AssumptionDatabase(null){
+            @Override
+            public Map<String, Assumption> get() {
+                Map<String, Assumption> assumptionMap = new HashMap<>();
+                EXPLICIT_ASSUMPTION.forEach(assumption -> assumptionMap.put(assumption.getToken(), assumption));
+                return assumptionMap;
+            }
+        });
+    }
 
     @Test
     void engine() {
@@ -35,7 +53,19 @@ class AssumptionEngineTest {
     }
 
     @Test
-    void breakInto() {
+    void assume() {
+        System.out.println(assumptionEngine.assume(newSearchQuery(), "open now near me"));
+        System.out.println(assumptionEngine.assume(newSearchQuery(), "open now in Singapore"));
+        System.out.println(assumptionEngine.assume(newSearchQuery(), "open now in nearby me"));
+        System.out.println(assumptionEngine.assume(newSearchQuery(), "bars open now nearby"));
+        System.out.println(assumptionEngine.assume(newSearchQuery(), "drugs bars open now nearby"));
+    }
 
+    public SearchQuery newSearchQuery() {
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.setUserInfo(new SearchQuery.UserInfo());
+        searchQuery.getUserInfo().setDay("mon");
+        searchQuery.getUserInfo().setTime("08:30");
+        return searchQuery;
     }
 }

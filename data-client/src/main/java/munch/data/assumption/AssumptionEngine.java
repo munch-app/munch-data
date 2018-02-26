@@ -3,14 +3,12 @@ package munch.data.assumption;
 import com.google.common.base.Joiner;
 import munch.data.structure.SearchQuery;
 import munch.data.utils.PatternSplit;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -20,8 +18,8 @@ import java.util.Set;
  */
 @Singleton
 public final class AssumptionEngine {
-    public static final Set<String> STOP_WORD = Set.of("around", "near", "in", "at", ",", ".");
-    public static final PatternSplit TOKENIZE_PATTERN = PatternSplit.compile(" {1,}|,");
+    public static final Set<String> STOP_WORDS = Set.of("around", "near", "in", "at", "food");
+    public static final PatternSplit TOKENIZE_PATTERN = PatternSplit.compile(" {1,}|,|\\.");
     private final AssumptionDatabase database;
 
     @Inject
@@ -29,37 +27,82 @@ public final class AssumptionEngine {
         this.database = database;
     }
 
-    public AssumedSearchQuery assume(SearchQuery prevQuery, String text) {
-        Map<String, Assumption> assumptionMap = database.get();
-        text = text.trim();
-        return null;
-
+    AssumptionEngine(AssumptionDatabase database) {
+        this.database = database;
     }
 
-    private List<Object> tokenize(Map<String, Assumption> assumptionMap, String text) {
-        Assumption assumption = assumptionMap.get(text.toLowerCase());
-        if (assumption != null) return List.of(assumption);
+    public Optional<AssumedSearchQuery> assume(SearchQuery prevQuery, String text) {
+        Map<String, Assumption> assumptionMap = database.get();
+        text = text.trim();
+        List<Object> tokenList = tokenize(assumptionMap, text);
 
-        List<String> parts = TOKENIZE_PATTERN.splitRemoved(text);
-        for (int i = 2; i < parts.size() - 1; i++) {
-            for (Triple<String, String, String> combo : reverseSplitInto(parts, i)) {
-                List<Object> tokenized = tokenize(assumptionMap, combo.getMiddle());
-                if (tokenized.isEmpty()) continue;
+        if (tokenList.isEmpty()) return Optional.empty();
+        if (tokenList.size() == 1 && tokenList.get(0) instanceof String) return Optional.empty();
 
-                if (combo.getLeft() != null) {
-                    tokenized.addAll(0, tokenize(assumptionMap, combo.getLeft()));
-                }
-                if (combo.getRight() != null) {
-                    tokenized.addAll(tokenize(assumptionMap, combo.getRight()));
-                }
-                return tokenized;
+        List<AssumedSearchQuery.Token> assumedTokens = new ArrayList<>();
+        for (Object token : tokenList) {
+            if (token instanceof String) {
+                // Stopword checking
+                String textToken = (String) token;
+                if (!STOP_WORDS.contains(textToken)) return Optional.empty();
+                assumedTokens.add(new AssumedSearchQuery.TextToken(textToken));
+            } else {
+                Assumption assumption = (Assumption) token;
+                assumption.apply(prevQuery);
+                assumedTokens.add(new AssumedSearchQuery.TagToken(assumption.getTag()));
             }
         }
 
-        // Non Found
+        AssumedSearchQuery query = new AssumedSearchQuery();
+        query.setText(text);
+        query.setTokens(assumedTokens);
+        query.setQuery(prevQuery);
+        return Optional.of(query);
+    }
+
+    private List<Object> tokenize(Map<String, Assumption> assumptionMap, String text) {
+        if (StringUtils.isBlank(text)) return List.of();
+        Assumption assumption = assumptionMap.get(text.toLowerCase());
+        if (assumption != null) return List.of(assumption);
+
+
+        List<String> parts = TOKENIZE_PATTERN.splitRemoved(text);
+        for (int i = 2; i < parts.size() + 1; i++) {
+            for (Triple<String, String, String> combo : reverseSplitInto(parts, i)) {
+                assumption = assumptionMap.get(combo.getMiddle().toLowerCase());
+                if (assumption != null) {
+                    // Found Assumption
+                    List<Object> tokenList = new ArrayList<>();
+                    tokenList.add(assumption);
+                    if (combo.getLeft() != null) {
+                        tokenList.addAll(0, tokenize(assumptionMap, combo.getLeft()));
+                    }
+                    if (combo.getRight() != null) {
+                        tokenList.addAll(tokenize(assumptionMap, combo.getRight()));
+                    }
+                    return tokenList;
+                }
+            }
+        }
+
+        // Not Found
         return List.of(text);
     }
 
+    private void joinStrings(List<Object> tokens) {
+        ListIterator<Object> iterator = tokens.listIterator();
+        while (iterator.hasNext()) {
+            Object next = iterator.next();
+            if (next instanceof String && iterator.hasNext()) {
+                Object nextNext = iterator.next();
+                if (nextNext instanceof String) {
+                    iterator.remove();
+                    iterator.previous();
+                    iterator.set(next + " " + nextNext);
+                }
+            }
+        }
+    }
 
     public static List<Triple<String, String, String>> splitInto(List<String> parts, int join) {
         List<Triple<String, String, String>> joined = new ArrayList<>();

@@ -22,9 +22,25 @@ import java.util.function.Consumer;
 @Singleton
 @ImplementedBy(CachedAssumptionDatabase.class)
 public class AssumptionDatabase {
-    private static final List<Assumption> EXPLICIT_ASSUMPTION = List.of(
+    protected static final Consumer<SearchQuery> ASSUMPTION_OPEN_NOW = query -> {
+        if (query.getFilter() == null) query.setFilter(new SearchQuery.Filter());
+        SearchQuery.Filter.Hour hour = new SearchQuery.Filter.Hour();
+
+        hour.setName("Open Now");
+        hour.setDay(query.getUserInfo().getDay());
+        hour.setOpen(query.getUserInfo().getTime());
+        if (query.getUserInfo().getTime().startsWith("23:")) {
+            hour.setClose("23:59");
+        } else {
+            hour.setClose(SearchQuery.Filter.Hour.addMin(query.getUserInfo().getTime(), 30));
+        }
+        query.getFilter().setHour(hour);
+    };
+
+    protected static final List<Assumption> EXPLICIT_ASSUMPTION = List.of(
             // Location Assumption
             Assumption.of("nearby", "Nearby", applyLocation(null)),
+            Assumption.of("nearby me", "Nearby", applyLocation(null)),
             Assumption.of("near me", "Near Me", applyLocation(null)),
             Assumption.of("around me", "Around Me", applyLocation(null)),
             Assumption.of("singapore", "Singapore", applyLocation(LocationUtils.SINGAPORE)),
@@ -36,20 +52,9 @@ public class AssumptionDatabase {
             // Under 70 Dollars
 
             // Timing Assumption
-            Assumption.of("open now", "Open Now", query -> {
-                if (query.getFilter() == null) query.setFilter(new SearchQuery.Filter());
-                SearchQuery.Filter.Hour hour = new SearchQuery.Filter.Hour();
-
-                hour.setName("Open Now");
-                hour.setDay(query.getUserInfo().getDay());
-                hour.setOpen(query.getUserInfo().getTime());
-                if (query.getUserInfo().getTime().startsWith("23:")) {
-                    hour.setClose("23:59");
-                } else {
-                    hour.setClose(SearchQuery.Filter.Hour.addMin(query.getUserInfo().getTime(), 30));
-                }
-                query.getFilter().setHour(hour);
-            }),
+            // Add Open Now
+            Assumption.of("open now", "Open Now", ASSUMPTION_OPEN_NOW),
+//            Assumption.of("open", "Open Now", ASSUMPTION_OPEN_NOW), TODO
 
             // Tag Assumption
             Assumption.of("bar", "Bars & Pubs", applyTag("Bars & Pubs")),

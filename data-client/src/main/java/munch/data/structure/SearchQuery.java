@@ -327,8 +327,7 @@ public final class SearchQuery {
 
             public static String addMin(String time, int minutes) {
                 LocalTime localTime = LocalTime.parse(time, TIME_FORMATTER);
-                localTime.plus(minutes, ChronoUnit.MINUTES);
-                return localTime.format(TIME_FORMATTER);
+                return localTime.plus(minutes, ChronoUnit.MINUTES).format(TIME_FORMATTER);
             }
         }
 
