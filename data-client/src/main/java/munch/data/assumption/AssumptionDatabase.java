@@ -24,16 +24,14 @@ public class AssumptionDatabase {
             Assumption.of("near me", "Near Me", applyLocation(null)),
             Assumption.of("singapore", "Singapore", applyLocation(LocationUtils.SINGAPORE)),
             Assumption.of("anywhere", "Anywhere", applyLocation(LocationUtils.SINGAPORE)),
+            // TODO: Town, West, East, South, North, CBD
 
             // Price Range Assumption
             // Future: Cheap, Budget, Expensive
 
             // Timing Assumption
-            Assumption.of("open now", "Open Now", applyHour("Open Now", null, null)),
-            Assumption.of("breakfast", "Breakfast", applyHour("Breakfast", null, null)),
-            Assumption.of("lunch", "Lunch", applyHour("Lunch", null, null)),
-            Assumption.of("dinner", "Dinner", applyHour("Dinner", null, null)),
-            Assumption.of("supper", "Supper", applyHour("Supper", null, null))
+            // TODO For open now the timing
+            Assumption.of("open now", "Open Now", applyHour("Open Now", null, null))
 
             // Tag Assumption
     );
