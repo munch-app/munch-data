@@ -258,7 +258,7 @@ public final class ElasticClient {
         }
 
         // Match name if got query
-        ObjectNode match = root.putObject("match");
+        ObjectNode match = root.putObject("match_phrase_prefix");
         match.put("name", query);
         return root;
     }

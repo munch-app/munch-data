@@ -105,7 +105,7 @@ public final class ElasticIndex {
                     .id(createKey(type, key))
                     .build());
 
-            validateResult(result);
+            validateResult(true, result);
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
@@ -114,7 +114,7 @@ public final class ElasticIndex {
     public <T> T get(String type, String key) {
         try {
             DocumentResult result = client.execute(new Get.Builder(ElasticMapping.INDEX_NAME, createKey(type, key)).type("Data").build());
-            validateResult(result);
+            validateResult(false, result);
             return marshaller.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
             throw ElasticException.parse(e);
@@ -195,13 +195,13 @@ public final class ElasticIndex {
                     .type("Data")
                     .build());
 
-            validateResult(result);
+            validateResult(false, result);
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
     }
 
-    private void validateResult(DocumentResult result) {
+    private void validateResult(boolean validateNotFound, DocumentResult result) {
         if (result.getErrorMessage() != null) {
             JsonNode jsonNode = JsonUtils.readTree(result.getJsonString());
             String errorType = jsonNode.path("error").path("type").asText();
@@ -210,6 +210,7 @@ public final class ElasticIndex {
             }
 
             if (StringUtils.equals(jsonNode.path("result").asText(), "not_found")) {
+                if (validateNotFound) return;
                 throw new ElasticException(404, "Failed to put/delete/get object.");
             }
 
