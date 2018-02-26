@@ -1,4 +1,5 @@
 dependencies {
+    compile project(':data-utils')
     compile group: 'munch.restful', name: 'restful-core', version: restfulVersion
     compile group: 'catalyst', name: 'corpus-utils', version: ccVersion
     compile group: 'com.google.inject', name: 'guice', version: '4.1.0'

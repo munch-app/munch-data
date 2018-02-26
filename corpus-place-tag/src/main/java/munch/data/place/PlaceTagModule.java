@@ -9,6 +9,7 @@ import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.suggest.PredictTagModule;
 import munch.data.place.suggest.SuggestedTagCorpus;
+import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ public final class PlaceTagModule extends AbstractModule {
         EngineGroup.start(
                 injector.getInstance(SuggestedTagCorpus.class)
         );
+        ScheduledThreadUtils.shutdown();
 
         System.exit(0);
         logger.info("Corpus exit status: 0.");

@@ -2,14 +2,13 @@ package munch.data.place.parser.tag;
 
 import corpus.data.CorpusClient;
 import corpus.field.FieldUtils;
+import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -31,9 +30,7 @@ public final class GroupTagDatabase {
         this.corpusClient = corpusClient;
         sync();
 
-        ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
-        exec.scheduleAtFixedRate(this::sync, 24, 24, TimeUnit.HOURS);
-        Runtime.getRuntime().addShutdownHook(new Thread(exec::shutdownNow));
+        ScheduledThreadUtils.schedule(this::sync, 24, TimeUnit.HOURS);
     }
 
     /**

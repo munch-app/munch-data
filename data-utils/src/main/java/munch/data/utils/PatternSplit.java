@@ -45,6 +45,15 @@ public class PatternSplit {
     }
 
     /**
+     * @param input delimiter
+     * @return split with delimiter removed
+     */
+    public List<String> splitRemoved(CharSequence input) {
+        return split(input, 0, s -> null).stream()
+                .map(o -> (String) o).collect(Collectors.toList());
+    }
+
+    /**
      * @param input string input
      * @param limit limit
      * @return List of result object

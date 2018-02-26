@@ -9,6 +9,7 @@ import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
 import munch.data.place.parser.location.LocationParserModule;
+import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ public class PlaceModule extends AbstractModule {
     }
 
     public static void main(String[] args) throws InterruptedException {
+
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             logger.error("Uncaught Exceptions: ", e.getCause());
             System.exit(-1);
@@ -49,6 +51,7 @@ public class PlaceModule extends AbstractModule {
                 injector.getInstance(SeedCorpus.class),
                 injector.getInstance(PlaceCorpus.class)
         );
+        ScheduledThreadUtils.shutdown();
 
         logger.info("Corpus should shutdown.");
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {

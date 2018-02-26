@@ -13,6 +13,7 @@ import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.elastic.ElasticModule;
+import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,5 +55,6 @@ public class PlaceTrackingModule extends AbstractModule {
         EngineGroup.start(
                 injector.getInstance(PlaceTrackingCorpus.class)
         );
+        ScheduledThreadUtils.shutdown();
     }
 }

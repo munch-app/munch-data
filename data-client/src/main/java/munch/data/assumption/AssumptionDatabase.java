@@ -1,5 +1,6 @@
 package munch.data.assumption;
 
+import com.google.inject.ImplementedBy;
 import munch.data.clients.LocationUtils;
 import munch.data.elastic.ElasticIndex;
 import munch.data.structure.Container;
@@ -8,6 +9,7 @@ import munch.data.structure.SearchQuery;
 import munch.data.structure.Tag;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -17,23 +19,43 @@ import java.util.function.Consumer;
  * Time: 8:50 PM
  * Project: munch-data
  */
+@Singleton
+@ImplementedBy(CachedAssumptionDatabase.class)
 public class AssumptionDatabase {
     private static final List<Assumption> EXPLICIT_ASSUMPTION = List.of(
             // Location Assumption
             Assumption.of("nearby", "Nearby", applyLocation(null)),
             Assumption.of("near me", "Near Me", applyLocation(null)),
+            Assumption.of("around me", "Around Me", applyLocation(null)),
             Assumption.of("singapore", "Singapore", applyLocation(LocationUtils.SINGAPORE)),
             Assumption.of("anywhere", "Anywhere", applyLocation(LocationUtils.SINGAPORE)),
-            // TODO: Town, West, East, South, North, CBD
 
             // Price Range Assumption
             // Future: Cheap, Budget, Expensive
+            // From 50 to 60 Dollar
+            // Under 70 Dollars
 
             // Timing Assumption
-            // TODO For open now the timing
-            Assumption.of("open now", "Open Now", applyHour("Open Now", null, null))
+            Assumption.of("open now", "Open Now", query -> {
+                if (query.getFilter() == null) query.setFilter(new SearchQuery.Filter());
+                SearchQuery.Filter.Hour hour = new SearchQuery.Filter.Hour();
+
+                hour.setName("Open Now");
+                hour.setDay(query.getUserInfo().getDay());
+                hour.setOpen(query.getUserInfo().getTime());
+                if (query.getUserInfo().getTime().startsWith("23:")) {
+                    hour.setClose("23:59");
+                } else {
+                    hour.setClose(SearchQuery.Filter.Hour.addMin(query.getUserInfo().getTime(), 30));
+                }
+                query.getFilter().setHour(hour);
+            }),
 
             // Tag Assumption
+            Assumption.of("bar", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of("bars", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of("pub", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of("pubs", "Bars & Pubs", applyTag("Bars & Pubs"))
     );
 
     private final ElasticIndex elasticIndex;
@@ -90,18 +112,6 @@ public class AssumptionDatabase {
             if (query.getFilter().getTag().getPositives() == null)
                 query.getFilter().getTag().setPositives(new HashSet<>());
             query.getFilter().getTag().getPositives().add(tag);
-        };
-    }
-
-    public static Consumer<SearchQuery> applyHour(String tag, String open, String close) {
-        return query -> {
-            if (query.getFilter() == null) query.setFilter(new SearchQuery.Filter());
-            SearchQuery.Filter.Hour hour = new SearchQuery.Filter.Hour();
-            hour.setName(tag);
-            hour.setDay(query.getUserInfo().getDay());
-            hour.setOpen(open);
-            hour.setClose(close);
-            query.getFilter().setHour(hour);
         };
     }
 }

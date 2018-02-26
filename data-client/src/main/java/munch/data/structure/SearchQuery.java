@@ -3,6 +3,9 @@ package munch.data.structure;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
@@ -265,6 +268,8 @@ public final class SearchQuery {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Hour {
+            private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
             private String name;
 
             private String day;
@@ -318,6 +323,12 @@ public final class SearchQuery {
                         ", open='" + open + '\'' +
                         ", close='" + close + '\'' +
                         '}';
+            }
+
+            public static String addMin(String time, int minutes) {
+                LocalTime localTime = LocalTime.parse(time, TIME_FORMATTER);
+                localTime.plus(minutes, ChronoUnit.MINUTES);
+                return localTime.format(TIME_FORMATTER);
             }
         }
 

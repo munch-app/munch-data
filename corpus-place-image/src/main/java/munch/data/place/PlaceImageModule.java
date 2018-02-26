@@ -7,6 +7,7 @@ import corpus.CorpusModule;
 import corpus.data.DataModule;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.processor.ProcessorModule;
+import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,5 +36,7 @@ public final class PlaceImageModule extends AbstractModule {
 
         Injector injector = Guice.createInjector(new PlaceImageModule());
         injector.getInstance(PlaceImageCorpus.class).run();
+
+        ScheduledThreadUtils.shutdown();
     }
 }
