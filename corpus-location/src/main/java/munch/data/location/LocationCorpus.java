@@ -9,6 +9,7 @@ import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.FieldUtils;
 import munch.data.clients.LocationClient;
+import munch.data.exceptions.ElasticException;
 import munch.data.structure.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,12 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
         } else {
             retriable.loop(() -> {
                 // To delete
-                locationClient.delete(munchData.getCorpusKey());
+                try {
+                    locationClient.delete(munchData.getCorpusKey());
+                } catch (ElasticException e) {
+                    if (e.getCode() != 404) throw e;
+                }
+
                 corpusClient.delete("Sg.Munch.Location", munchData.getCorpusKey());
                 counter.increment("Deleted");
             });

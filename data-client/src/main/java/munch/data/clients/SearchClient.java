@@ -39,6 +39,7 @@ public class SearchClient extends AbstractClient {
      * @param text text query
      * @return List of SearchResult
      */
+    @Deprecated
     public List<SearchResult> suggest(String text, @Nullable String latLng, int size) {
         JsonNode results = client.suggest(List.of(), text, latLng, size);
         return marshaller.deserializeList(results);
@@ -52,6 +53,7 @@ public class SearchClient extends AbstractClient {
      * @param text  text query
      * @return List of SearchResult
      */
+    @Deprecated
     public List<SearchResult> suggest(List<String> types, String text, @Nullable String latLng, int size) {
         JsonNode results = client.suggest(types, text, latLng, size);
         return marshaller.deserializeList(results);
@@ -65,7 +67,7 @@ public class SearchClient extends AbstractClient {
      * @return List of SearchResult
      */
     public List<SearchResult> search(String text, int size) {
-        JsonNode results = client.search(List.of(), text, size);
+        JsonNode results = client.search(List.of(), text, 0, size);
         return marshaller.deserializeList(results);
     }
 
@@ -73,12 +75,13 @@ public class SearchClient extends AbstractClient {
      * Search all types given based on name
      *
      * @param types types to filter to
-     * @param size  size per list
      * @param text  text query
+     * @param from  start from
+     * @param size  size per list
      * @return List of SearchResult
      */
-    public List<SearchResult> search(List<String> types, String text, int size) {
-        JsonNode results = client.search(types, text, size);
+    public List<SearchResult> search(List<String> types, String text, int from, int size) {
+        JsonNode results = client.search(types, text, from, size);
         return marshaller.deserializeList(results);
     }
 
@@ -87,7 +90,7 @@ public class SearchClient extends AbstractClient {
      * @param text query for searching
      * @return (types, List of SearchResult)
      */
-    public Map<String, List<SearchResult>> multiSuggest(Map<String, Integer> map, String text) {
+    public Map<String, List<SearchResult>> multiSearch(Map<String, Integer> map, String text) {
         List<String> types = new ArrayList<>();
         List<Search> searches = new ArrayList<>();
 

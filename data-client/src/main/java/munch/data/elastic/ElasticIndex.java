@@ -195,7 +195,7 @@ public final class ElasticIndex {
                     .type("Data")
                     .build());
 
-            validateResult(false, result);
+            validateResult(true, result);
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }

@@ -111,8 +111,8 @@ public final class ElasticClient {
      * @param size size of location to search
      * @return list of hits
      */
-    public JsonNode search(List<String> types, String text, int size) {
-        Search search = createSearch(types, text, 0, size);
+    public JsonNode search(List<String> types, String text, int from, int size) {
+        Search search = createSearch(types, text, from, size);
 
         try {
             JsonNode result = mapper.readTree(client.execute(search).getJsonString());
