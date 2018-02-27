@@ -18,7 +18,7 @@ import java.util.*;
  */
 @Singleton
 public final class AssumptionEngine {
-    public static final Set<String> STOP_WORDS = Set.of("around", "near", "in", "at", "food");
+    public static final Set<String> STOP_WORDS = Set.of("around", "near", "in", "at", "food", "and", "or");
     public static final PatternSplit TOKENIZE_PATTERN = PatternSplit.compile(" {1,}|,|\\.");
     private final AssumptionDatabase database;
 
@@ -42,7 +42,7 @@ public final class AssumptionEngine {
         List<AssumedSearchQuery.Token> assumedTokens = new ArrayList<>();
         for (Object token : tokenList) {
             if (token instanceof String) {
-                // Stopword checking
+                // Stop-words checking
                 String textToken = (String) token;
                 if (!STOP_WORDS.contains(textToken)) return Optional.empty();
                 assumedTokens.add(new AssumedSearchQuery.TextToken(textToken));

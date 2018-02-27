@@ -67,38 +67,39 @@ public class SearchClient extends AbstractClient {
      * @return List of SearchResult
      */
     public List<SearchResult> search(String text, int size) {
-        JsonNode results = client.search(List.of(), text, 0, size);
+        JsonNode results = client.search(List.of(), text, null, 0, size);
         return marshaller.deserializeList(results);
     }
 
     /**
      * Search all types given based on name
      *
-     * @param types types to filter to
-     * @param text  text query
-     * @param from  start from
-     * @param size  size per list
+     * @param types  types to filter to
+     * @param text   text query
+     * @param latLng current user position
+     * @param from   start from
+     * @param size   size per list
      * @return List of SearchResult
      */
-    public List<SearchResult> search(List<String> types, String text, int from, int size) {
-        JsonNode results = client.search(types, text, from, size);
+    public List<SearchResult> search(List<String> types, String text, @Nullable String latLng, int from, int size) {
+        JsonNode results = client.search(types, text, latLng, from, size);
         return marshaller.deserializeList(results);
     }
 
     /**
-     * @param map  (types, integer)
-     * @param text query for searching
+     * @param map    (types, integer)
+     * @param text   query for searching
+     * @param latLng current user position
      * @return (types, List of SearchResult)
      */
-    public Map<String, List<SearchResult>> multiSearch(Map<String, Integer> map, String text) {
+    public Map<String, List<SearchResult>> multiSearch(Map<String, Integer> map, String text, @Nullable String latLng) {
         List<String> types = new ArrayList<>();
         List<Search> searches = new ArrayList<>();
 
         map.forEach((type, size) -> {
             types.add(type);
-            searches.add(ElasticClient.createSearch(List.of(type), text, 0, size));
+            searches.add(ElasticClient.createSearch(List.of(type), text, latLng, 0, size));
         });
-
 
         Map<String, List<SearchResult>> resultMap = new HashMap<>();
 

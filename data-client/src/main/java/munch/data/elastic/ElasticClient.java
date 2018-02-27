@@ -9,6 +9,7 @@ import io.searchbox.client.JestClient;
 import io.searchbox.core.Count;
 import io.searchbox.core.MultiSearch;
 import io.searchbox.core.Search;
+import munch.data.elastic.query.SortQuery;
 import munch.data.exceptions.ElasticException;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -111,8 +112,8 @@ public final class ElasticClient {
      * @param size size of location to search
      * @return list of hits
      */
-    public JsonNode search(List<String> types, String text, int from, int size) {
-        Search search = createSearch(types, text, from, size);
+    public JsonNode search(List<String> types, String text, @Nullable String latLng, int from, int size) {
+        Search search = createSearch(types, text, latLng, from, size);
 
         try {
             JsonNode result = mapper.readTree(client.execute(search).getJsonString());
@@ -213,7 +214,7 @@ public final class ElasticClient {
      * @param size  size
      * @return Search object for elasticsearch
      */
-    public static Search createSearch(List<String> types, String text, int from, int size) {
+    public static Search createSearch(List<String> types, String text, @Nullable String latLng, int from, int size) {
         ObjectNode bool = mapper.createObjectNode();
         bool.set("must", must(text));
         bool.set("filter", filter(types));
@@ -222,6 +223,12 @@ public final class ElasticClient {
         root.put("from", from);
         root.put("size", size);
         root.putObject("query").set("bool", bool);
+
+        if (StringUtils.isNotBlank(latLng)) {
+            ArrayNode sortArray = mapper.createArrayNode();
+            sortArray.add(SortQuery.sortDistance(latLng));
+            root.set("sort", sortArray);
+        }
 
         Search.Builder builder = new Search.Builder(JsonUtils.toString(root))
                 .addIndex(ElasticMapping.INDEX_NAME);

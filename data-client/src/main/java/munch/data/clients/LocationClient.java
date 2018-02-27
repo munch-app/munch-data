@@ -46,7 +46,7 @@ public class LocationClient extends AbstractClient {
      * @return list of Location
      */
     public List<Location> search(String text, int size) {
-        JsonNode results = elasticClient.search(List.of("Location"), text, 0, size);
+        JsonNode results = elasticClient.search(List.of("Location"), text, null, 0, size);
         return marshaller.deserializeList(results);
     }
 

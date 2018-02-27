@@ -37,7 +37,7 @@ public final class BoolQuery {
      */
     public JsonNode make(SearchQuery query) {
         ObjectNode bool = mapper.createObjectNode();
-        bool.set("must", must(query.getQuery()));
+        bool.set("must", must(null));
         bool.set("must_not", mustNot(query.getFilter()));
         bool.set("filter", filter(query));
         return bool;
@@ -51,22 +51,18 @@ public final class BoolQuery {
      */
     private JsonNode must(String query) {
         ObjectNode root = mapper.createObjectNode();
-
-        // Match all if query is blank
-        if (StringUtils.isBlank(query)) {
-            root.putObject("match_all");
-            return root;
-        }
-
-        // Match name if got query
-        ObjectNode multiMatch = root.putObject("multi_match");
-        multiMatch.put("query", query);
-        multiMatch.put("fuzziness", 1);
-        multiMatch.putArray("fields")
-                .add("name^5")
-                .add("tag.explicits^2")
-                .add("tag.implicits");
+        root.putObject("match_all");
         return root;
+//
+//        // Match name if got query
+//        ObjectNode multiMatch = root.putObject("multi_match");
+//        multiMatch.put("query", query);
+//        multiMatch.put("fuzziness", 1);
+//        multiMatch.putArray("fields")
+//                .add("name^5")
+//                .add("tag.explicits^2")
+//                .add("tag.implicits");
+//        return root;
     }
 
     /**

@@ -63,6 +63,7 @@ public final class SearchQuery {
      *
      * @return query string
      */
+    @Deprecated
     public String getQuery() {
         return query;
     }
