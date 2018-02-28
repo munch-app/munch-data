@@ -211,7 +211,7 @@ public final class ElasticClient {
      * @param types types to query against
      * @param text  text to query
      * @param from  from
-     * @param size  size
+     * @param size  size, Max (100)
      * @return Search object for elasticsearch
      */
     public static Search createSearch(List<String> types, String text, @Nullable String latLng, int from, int size) {
@@ -226,7 +226,7 @@ public final class ElasticClient {
 
         ObjectNode root = mapper.createObjectNode();
         root.put("from", from);
-        root.put("size", size);
+        root.put("size", size > 100 ? 100 : size);
         root.putObject("query").set("bool", bool);
 
         if (StringUtils.isNotBlank(latLng)) {
