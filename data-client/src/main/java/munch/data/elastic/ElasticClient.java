@@ -217,7 +217,11 @@ public final class ElasticClient {
     public static Search createSearch(List<String> types, String text, @Nullable String latLng, int from, int size) {
         ObjectNode bool = mapper.createObjectNode();
         bool.set("must", must(text));
-        bool.set("filter", filter(types));
+        if (types.size() == 1) {
+            bool.set("filter", filter(types));
+        } else if (types.size() > 1) {
+            bool.set("should", should(types));
+        }
 
         ObjectNode root = mapper.createObjectNode();
         root.put("from", from);
@@ -309,5 +313,18 @@ public final class ElasticClient {
                     .put("dataType", type);
         }
         return filterArray;
+    }
+
+    static JsonNode should(List<String> types) {
+        ArrayNode shouldArray = mapper.createArrayNode();
+        if (types == null) return shouldArray;
+
+        // Filtered Type
+        for (String type : types) {
+            shouldArray.addObject()
+                    .putObject("term")
+                    .put("dataType", type);
+        }
+        return shouldArray;
     }
 }
