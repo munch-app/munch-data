@@ -199,8 +199,6 @@ public class PlaceClient extends AbstractClient {
          * @return total possible results
          */
         public long count(SearchQuery query) {
-            validate(query);
-
             JsonNode boolNode = this.boolQuery.make(query);
             return client.postBoolCount(boolNode);
         }

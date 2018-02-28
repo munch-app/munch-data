@@ -14,6 +14,7 @@ public final class AssumedSearchQuery {
     private String text;
     private List<Token> tokens;
     private SearchQuery query;
+    private long resultCount;
 
     public String getText() {
         return text;
@@ -37,6 +38,17 @@ public final class AssumedSearchQuery {
 
     public void setQuery(SearchQuery query) {
         this.query = query;
+    }
+
+    /**
+     * @return resultCount of total possible results for this search query
+     */
+    public long getResultCount() {
+        return resultCount;
+    }
+
+    public void setResultCount(long resultCount) {
+        this.resultCount = resultCount;
     }
 
     public static class TagToken extends Token {

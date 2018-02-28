@@ -22,14 +22,23 @@ class AssumptionEngineTest {
 
     @BeforeEach
     void setUp() {
-        assumptionEngine = new AssumptionEngine(new AssumptionDatabase(null){
+        assumptionEngine = new AssumptionEngine(new AssumptionDatabase(null) {
             @Override
             public Map<String, Assumption> get() {
                 Map<String, Assumption> assumptionMap = new HashMap<>();
                 EXPLICIT_ASSUMPTION.forEach(assumption -> assumptionMap.put(assumption.getToken(), assumption));
                 return assumptionMap;
             }
-        });
+        }, null) {
+            @Override
+            protected AssumedSearchQuery createAssumedQuery(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+                AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
+                assumedSearchQuery.setText(text);
+                assumedSearchQuery.setTokens(assumedTokens);
+                assumedSearchQuery.setQuery(query);
+                return assumedSearchQuery;
+            }
+        };
     }
 
     @Test

@@ -1,6 +1,7 @@
 package munch.data.assumption;
 
 import com.google.common.base.Joiner;
+import munch.data.clients.PlaceClient;
 import munch.data.structure.SearchQuery;
 import munch.data.utils.PatternSplit;
 import org.apache.commons.lang3.StringUtils;
@@ -17,18 +18,22 @@ import java.util.*;
  * Project: munch-data
  */
 @Singleton
-public final class AssumptionEngine {
+public class AssumptionEngine {
     public static final Set<String> STOP_WORDS = Set.of("around", "near", "in", "at", "food", "and", "or");
     public static final PatternSplit TOKENIZE_PATTERN = PatternSplit.compile(" {1,}|,|\\.");
+
     private final AssumptionDatabase database;
+    private final PlaceClient.SearchClient searchClient;
 
     @Inject
-    public AssumptionEngine(CachedAssumptionDatabase database) {
+    public AssumptionEngine(CachedAssumptionDatabase database, PlaceClient.SearchClient searchClient) {
         this.database = database;
+        this.searchClient = searchClient;
     }
 
-    AssumptionEngine(AssumptionDatabase database) {
+    AssumptionEngine(AssumptionDatabase database, PlaceClient.SearchClient searchClient) {
         this.database = database;
+        this.searchClient = searchClient;
     }
 
     public Optional<AssumedSearchQuery> assume(SearchQuery prevQuery, String text) {
@@ -53,11 +58,16 @@ public final class AssumptionEngine {
             }
         }
 
-        AssumedSearchQuery query = new AssumedSearchQuery();
-        query.setText(text);
-        query.setTokens(assumedTokens);
-        query.setQuery(prevQuery);
-        return Optional.of(query);
+        return Optional.of(createAssumedQuery(text, assumedTokens, prevQuery));
+    }
+
+    protected AssumedSearchQuery createAssumedQuery(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+        AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
+        assumedSearchQuery.setText(text);
+        assumedSearchQuery.setTokens(assumedTokens);
+        assumedSearchQuery.setQuery(query);
+        assumedSearchQuery.setResultCount(searchClient.count(query));
+        return assumedSearchQuery;
     }
 
     private List<Object> tokenize(Map<String, Assumption> assumptionMap, String text) {
