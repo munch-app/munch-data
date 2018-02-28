@@ -244,9 +244,18 @@ public final class ElasticClient {
         int status = response.path("status").asInt();
         if (status == 200) return;
 
-        String type = response.path("type").asText();
-        String reason = response.path("reason").asText();
-        throw new ElasticException(status, type + ": " + reason);
+        parseError(status, response);
+        parseError(status, response.path("error").path("root_cause").path(0));
+        parseError(status, response.path("error"));
+        throw new ElasticException(status, JsonUtils.toString(response));
+    }
+
+    private static void parseError(int status, JsonNode error) {
+        String type = error.path("type").asText();
+        if (StringUtils.isNotBlank(type)) {
+            String reason = error.path("reason").asText();
+            throw new ElasticException(status, type + ": " + reason);
+        }
     }
 
     /**
