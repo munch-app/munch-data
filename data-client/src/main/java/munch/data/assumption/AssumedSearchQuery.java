@@ -13,7 +13,7 @@ import java.util.List;
 public final class AssumedSearchQuery {
     private String text;
     private List<Token> tokens;
-    private SearchQuery query;
+    private SearchQuery searchQuery;
     private long resultCount;
 
     public String getText() {
@@ -32,12 +32,12 @@ public final class AssumedSearchQuery {
         this.tokens = tokens;
     }
 
-    public SearchQuery getQuery() {
-        return query;
+    public SearchQuery getSearchQuery() {
+        return searchQuery;
     }
 
-    public void setQuery(SearchQuery query) {
-        this.query = query;
+    public void setSearchQuery(SearchQuery searchQuery) {
+        this.searchQuery = searchQuery;
     }
 
     /**
@@ -98,7 +98,7 @@ public final class AssumedSearchQuery {
         return "AssumedSearchQuery{" +
                 "text='" + text + '\'' +
                 ", tokens=" + tokens +
-                ", query=" + query +
+                ", searchQuery=" + searchQuery +
                 '}';
     }
 }

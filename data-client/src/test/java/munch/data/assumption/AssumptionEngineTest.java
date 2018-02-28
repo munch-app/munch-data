@@ -35,7 +35,7 @@ class AssumptionEngineTest {
                 AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
                 assumedSearchQuery.setText(text);
                 assumedSearchQuery.setTokens(assumedTokens);
-                assumedSearchQuery.setQuery(query);
+                assumedSearchQuery.setSearchQuery(query);
                 return assumedSearchQuery;
             }
         };

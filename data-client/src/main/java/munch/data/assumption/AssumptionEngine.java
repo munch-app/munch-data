@@ -65,7 +65,7 @@ public class AssumptionEngine {
         AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
         assumedSearchQuery.setText(text);
         assumedSearchQuery.setTokens(assumedTokens);
-        assumedSearchQuery.setQuery(query);
+        assumedSearchQuery.setSearchQuery(query);
         assumedSearchQuery.setResultCount(searchClient.count(query));
         return assumedSearchQuery;
     }
