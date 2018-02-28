@@ -7,12 +7,11 @@ import io.searchbox.core.Search;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticMarshaller;
 import munch.data.structure.SearchResult;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -98,7 +97,11 @@ public class SearchClient extends AbstractClient {
 
         map.forEach((type, size) -> {
             types.add(type);
-            searches.add(ElasticClient.createSearch(List.of(type), text, latLng, 0, size));
+            List<String> typeList = Arrays.stream(type.split(","))
+                    .map(StringUtils::trimToNull)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            searches.add(ElasticClient.createSearch(typeList, text, latLng, 0, size));
         });
 
         Map<String, List<SearchResult>> resultMap = new HashMap<>();
