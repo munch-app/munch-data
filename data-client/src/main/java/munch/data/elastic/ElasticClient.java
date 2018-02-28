@@ -220,7 +220,8 @@ public final class ElasticClient {
         if (types.size() == 1) {
             bool.set("filter", filter(types));
         } else if (types.size() > 1) {
-            bool.set("should", should(types));
+            bool.put("minimum_should_match", 1);
+            bool.set("should", filter(types));
         }
 
         ObjectNode root = mapper.createObjectNode();
@@ -313,18 +314,5 @@ public final class ElasticClient {
                     .put("dataType", type);
         }
         return filterArray;
-    }
-
-    static JsonNode should(List<String> types) {
-        ArrayNode shouldArray = mapper.createArrayNode();
-        if (types == null) return shouldArray;
-
-        // Filtered Type
-        for (String type : types) {
-            shouldArray.addObject()
-                    .putObject("term")
-                    .put("dataType", type);
-        }
-        return shouldArray;
     }
 }
