@@ -29,7 +29,7 @@ public final class NameNormalizer {
             new ReplacementGroup(Pattern.compile("pte\\.? *ltd\\.?", Pattern.CASE_INSENSITIVE), ""),
             new ReplacementGroup(Pattern.compile("private limited", Pattern.CASE_INSENSITIVE), ""),
 
-            new ReplacementGroup(Pattern.compile("&amp;", Pattern.CASE_INSENSITIVE), "&")
+            new ReplacementGroup(Pattern.compile("&amp;(amp;)?", Pattern.CASE_INSENSITIVE), "&")
     );
 
     /**

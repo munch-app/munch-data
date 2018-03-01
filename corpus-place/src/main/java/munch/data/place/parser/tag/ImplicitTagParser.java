@@ -8,10 +8,7 @@ import munch.data.structure.Place;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -29,13 +26,13 @@ public class ImplicitTagParser {
         this.locationDatabase = locationDatabase;
     }
 
-    public List<String> parse(Place place, List<CorpusData> list) {
+    public List<String> parse(Place place, Collection<String> explicitTags, List<CorpusData> list) {
         List<String> tags = new ArrayList<>();
 
         // Parse all information to add
         tags.addAll(parseLocation(place));
         tags.addAll(parseHour(place));
-        tags.addAll(place.getTag().getExplicits());
+        tags.addAll(explicitTags);
 
         return tags.stream()
                 .map(String::toLowerCase)

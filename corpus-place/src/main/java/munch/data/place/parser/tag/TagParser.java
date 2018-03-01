@@ -34,10 +34,12 @@ public final class TagParser extends AbstractParser<Place.Tag> {
      */
     @Override
     public Place.Tag parse(Place place, List<CorpusData> list) {
+        List<String> explicits = parseExplicits(list);
+        List<String> implicits = parseImplicits(place, explicits, list);
+
         Place.Tag tag = new Place.Tag();
-        tag.setExplicits(parseExplicits(list));
-        // Implicit Tag Must Run Later because it contains all Explicit Tags as well
-        tag.setImplicits(parseImplicits(place, list));
+        tag.setExplicits(explicits);
+        tag.setImplicits(implicits);
         return tag;
     }
 
@@ -65,8 +67,8 @@ public final class TagParser extends AbstractParser<Place.Tag> {
         }
     }
 
-    private List<String> parseImplicits(Place place, List<CorpusData> list) {
-        return implicitParser.parse(place, list);
+    private List<String> parseImplicits(Place place, Collection<String> explicitTags, List<CorpusData> list) {
+        return implicitParser.parse(place, explicitTags, list);
     }
 
     /**
