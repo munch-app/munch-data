@@ -56,7 +56,11 @@ public class AssumptionEngine {
             if (token instanceof String) {
                 // Stop-words checking
                 String textToken = (String) token;
-                if (!STOP_WORDS.contains(textToken)) return Optional.empty();
+                String[] parts = textToken.split(" +");
+                for (String part : parts) {
+                    // If any part is not stop word, return empty
+                    if (!STOP_WORDS.contains(part)) return Optional.empty();
+                }
                 assumedTokens.add(new AssumedSearchQuery.TextToken(textToken));
             } else {
                 Assumption assumption = (Assumption) token;

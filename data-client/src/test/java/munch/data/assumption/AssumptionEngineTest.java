@@ -68,6 +68,12 @@ class AssumptionEngineTest {
         System.out.println(assumptionEngine.assume(newSearchQuery(), "open now in nearby me"));
         System.out.println(assumptionEngine.assume(newSearchQuery(), "bars open now nearby"));
         System.out.println(assumptionEngine.assume(newSearchQuery(), "drugs bars open now nearby"));
+        System.out.println(assumptionEngine.assume(newSearchQuery(), "chinese food in nearby"));
+    }
+
+    @Test
+    void single() throws Exception {
+        System.out.println(assumptionEngine.assume(newSearchQuery(), "bars food in nearby"));
     }
 
     public SearchQuery newSearchQuery() {
