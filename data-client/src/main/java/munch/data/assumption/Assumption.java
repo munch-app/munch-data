@@ -11,14 +11,20 @@ import java.util.function.Consumer;
  * Project: munch-data
  */
 public class Assumption {
+    private final boolean explicit;
     private final String token;
     private final String tag;
     private final Consumer<SearchQuery> queryConsumer;
 
-    protected Assumption(String token, String tag, Consumer<SearchQuery> queryConsumer) {
+    protected Assumption(boolean explicit, String token, String tag, Consumer<SearchQuery> queryConsumer) {
+        this.explicit = explicit;
         this.token = token;
         this.tag = tag;
         this.queryConsumer = queryConsumer;
+    }
+
+    public boolean isExplicit() {
+        return explicit;
     }
 
     /**
@@ -43,6 +49,10 @@ public class Assumption {
     }
 
     public static Assumption of(String token, String tag, Consumer<SearchQuery> consumer) {
-        return new Assumption(token, tag, consumer);
+        return new Assumption(false, token, tag, consumer);
+    }
+
+    public static Assumption of(boolean explicit, String token, String tag, Consumer<SearchQuery> consumer) {
+        return new Assumption(explicit, token, tag, consumer);
     }
 }

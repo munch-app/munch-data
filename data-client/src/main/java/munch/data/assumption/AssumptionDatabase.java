@@ -39,12 +39,11 @@ public class AssumptionDatabase {
 
     protected static final List<Assumption> EXPLICIT_ASSUMPTION = List.of(
             // Location Assumption
-            Assumption.of("nearby", "Nearby", applyLocation(null)),
-            Assumption.of("nearby me", "Nearby", applyLocation(null)),
-            Assumption.of("near me", "Near Me", applyLocation(null)),
-            Assumption.of("around me", "Around Me", applyLocation(null)),
-            Assumption.of("singapore", "Singapore", applyLocation(LocationUtils.SINGAPORE)),
-            Assumption.of("anywhere", "Anywhere", applyLocation(LocationUtils.SINGAPORE)),
+            Assumption.of(true, "nearby", "Nearby", applyLocation(null)),
+            Assumption.of(true, "nearby me", "Nearby", applyLocation(null)),
+            Assumption.of(true, "near me", "Near Me", applyLocation(null)),
+            Assumption.of(true, "around me", "Around Me", applyLocation(null)),
+            Assumption.of(true, "anywhere", "Anywhere", applyLocation(LocationUtils.SINGAPORE)),
 
             // Price Range Assumption
             // Future: Cheap, Budget, Expensive
@@ -53,14 +52,14 @@ public class AssumptionDatabase {
 
             // Timing Assumption
             // Add Open Now
-            Assumption.of("open now", "Open Now", ASSUMPTION_OPEN_NOW),
+            Assumption.of(true, "open now", "Open Now", ASSUMPTION_OPEN_NOW),
 //            Assumption.of("open", "Open Now", ASSUMPTION_OPEN_NOW), TODO
 
             // Tag Assumption
-            Assumption.of("bar", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of("bars", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of("pub", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of("pubs", "Bars & Pubs", applyTag("Bars & Pubs"))
+            Assumption.of(true, "bar", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of(true, "bars", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of(true, "pub", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of(true, "pubs", "Bars & Pubs", applyTag("Bars & Pubs"))
     );
 
     private final ElasticIndex elasticIndex;

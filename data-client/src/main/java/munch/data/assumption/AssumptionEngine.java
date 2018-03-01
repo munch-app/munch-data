@@ -42,7 +42,14 @@ public class AssumptionEngine {
         List<Object> tokenList = tokenize(assumptionMap, text);
 
         if (tokenList.isEmpty()) return Optional.empty();
-        if (tokenList.size() == 1 && tokenList.get(0) instanceof String) return Optional.empty();
+        if (tokenList.size() == 1) {
+            // Only one token, check if token is explicit
+            Object token = tokenList.get(0);
+            if (token instanceof String) return Optional.empty();
+            if (token instanceof Assumption) {
+                if (!((Assumption) token).isExplicit()) return Optional.empty();
+            }
+        }
 
         List<AssumedSearchQuery.Token> assumedTokens = new ArrayList<>();
         for (Object token : tokenList) {
