@@ -36,6 +36,7 @@ public final class TagParser extends AbstractParser<Place.Tag> {
     public Place.Tag parse(Place place, List<CorpusData> list) {
         Place.Tag tag = new Place.Tag();
         tag.setExplicits(parseExplicits(list));
+        // Implicit Tag Must Run Later because it contains all Explicit Tags as well
         tag.setImplicits(parseImplicits(place, list));
         return tag;
     }

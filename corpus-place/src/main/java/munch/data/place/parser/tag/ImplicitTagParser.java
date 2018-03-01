@@ -35,6 +35,7 @@ public class ImplicitTagParser {
         // Parse all information to add
         tags.addAll(parseLocation(place));
         tags.addAll(parseHour(place));
+        tags.addAll(place.getTag().getExplicits());
 
         return tags.stream()
                 .map(String::toLowerCase)

@@ -53,16 +53,6 @@ public final class BoolQuery {
         ObjectNode root = mapper.createObjectNode();
         root.putObject("match_all");
         return root;
-//
-//        // Match name if got query
-//        ObjectNode multiMatch = root.putObject("multi_match");
-//        multiMatch.put("query", query);
-//        multiMatch.put("fuzziness", 1);
-//        multiMatch.putArray("fields")
-//                .add("name^5")
-//                .add("tag.explicits^2")
-//                .add("tag.implicits");
-//        return root;
     }
 
     /**
@@ -79,7 +69,7 @@ public final class BoolQuery {
 
         // Must not filters
         for (String tag : filter.getTag().getNegatives()) {
-            notArray.add(filterTerm("tag.explicits", tag.toLowerCase()));
+            notArray.add(filterTerm("tag.implicits", tag.toLowerCase()));
         }
         return notArray;
     }
@@ -102,7 +92,7 @@ public final class BoolQuery {
         // Filter to positive tags
         if (filter.getTag() != null && filter.getTag().getPositives() != null) {
             for (String tag : filter.getTag().getPositives()) {
-                filterArray.add(filterTerm("tag.explicits", tag.toLowerCase()));
+                filterArray.add(filterTerm("tag.implicits", tag.toLowerCase()));
             }
         }
 
@@ -147,31 +137,16 @@ public final class BoolQuery {
      */
     private Optional<JsonNode> filterHour(SearchQuery.Filter.Hour hour) {
         if (hour == null) return Optional.empty();
+        if (StringUtils.isAnyBlank(hour.getOpen(), hour.getClose(), hour.getDay())) return Optional.empty();
 
-        ObjectNode filter = mapper.createObjectNode();
-        ArrayNode should = filter.putObject("bool")
-                .putArray("should");
-
-        if (StringUtils.isNoneBlank(hour.getOpen(), hour.getClose())) {
-            // Open/Close time intersects
-            should.addObject()
-                    .putObject("range")
-                    .putObject("hour." + hour.getDay() + ".open_close")
-                    .put("relation", "intersects")
-                    .put("gte", ElasticMarshaller.serializeTime(hour.getOpen()))
-                    .put("lte", ElasticMarshaller.serializeTime(hour.getClose()));
-        }
-
-        // Might be broken if tag is more to implicits
-        if (StringUtils.isNotBlank(hour.getName()) &&
-                !hour.getName().equalsIgnoreCase("Open Now")) {
-            should.addObject()
-                    .putObject("term")
-                    .put("tag.explicits", hour.getName().toLowerCase());
-        }
-
-        if (should.size() == 0) return Optional.empty();
-        return Optional.of(filter);
+        ObjectNode rangeFilter = mapper.createObjectNode();
+        // Open/Close time intersects
+        rangeFilter.putObject("range")
+                .putObject("hour." + hour.getDay() + ".open_close")
+                .put("relation", "intersects")
+                .put("gte", ElasticMarshaller.serializeTime(hour.getOpen()))
+                .put("lte", ElasticMarshaller.serializeTime(hour.getClose()));
+        return Optional.of(rangeFilter);
     }
 
     /**

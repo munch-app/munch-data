@@ -545,7 +545,7 @@ public class Place implements SearchResult {
      * Both tags are applied when search with different weight
      * <p>
      * Explicits are visible tags
-     * Implicits are invisible tags
+     * Implicits are invisible tags (plus all visible tags), search on invisible to find everything
      * <p>
      * List is used instead to maintain order
      */
