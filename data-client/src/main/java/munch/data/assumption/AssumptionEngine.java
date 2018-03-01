@@ -19,7 +19,7 @@ import java.util.*;
  */
 @Singleton
 public class AssumptionEngine {
-    public static final Set<String> STOP_WORDS = Set.of("around", "near", "in", "at", "food", "and", "or");
+    public static final Set<String> STOP_WORDS = Set.of("around", "near", "in", "at", "food", "and", "or", "cuisine");
     public static final PatternSplit TOKENIZE_PATTERN = PatternSplit.compile(" {1,}|,|\\.");
 
     private final AssumptionDatabase database;

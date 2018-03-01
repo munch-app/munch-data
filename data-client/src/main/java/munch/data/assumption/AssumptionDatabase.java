@@ -88,7 +88,7 @@ public class AssumptionDatabase {
         Iterator<Tag> tags = elasticIndex.scroll("Tag", "2m");
         tags.forEachRemaining(tag -> {
             String token = tag.getName().toLowerCase();
-            assumptionMap.putIfAbsent(token, Assumption.of(token, tag.getName(), applyTag(token)));
+            assumptionMap.putIfAbsent(token, Assumption.of(token, tag.getName(), applyTag(tag.getName())));
         });
         return assumptionMap;
     }
