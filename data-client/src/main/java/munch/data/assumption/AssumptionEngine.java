@@ -52,6 +52,9 @@ public class AssumptionEngine {
         }
 
         List<AssumedSearchQuery.Token> assumedTokens = new ArrayList<>();
+        if (prevQuery.getFilter() == null) prevQuery.setFilter(new SearchQuery.Filter());
+        prevQuery.getFilter().setTag(new SearchQuery.Filter.Tag());
+
         for (Object token : tokenList) {
             if (token instanceof String) {
                 // Stop-words checking
