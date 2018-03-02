@@ -14,7 +14,8 @@ class NameNormalizerTest {
 
     @Test
     void name() throws Exception {
-        String name = nameNormalizer.normalize("Place &amp; at is good");
-        System.out.println(name);
+        System.out.println(nameNormalizer.normalize("Place &amp; at is good"));
+        System.out.println(nameNormalizer.normalize("Place &amp;Amp; at is good"));
+        System.out.println(nameNormalizer.normalize("Place &amp;Amp;Amp; at is good"));
     }
 }
