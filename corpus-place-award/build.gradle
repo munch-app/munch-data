@@ -1,0 +1,10 @@
+dependencies {
+    compile project(':data-client')
+    compile project(':client-collections')
+    compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+    compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
+}
+
+mainClassName = 'munch.data.place.PlaceTrackingModule'

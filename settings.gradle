@@ -2,6 +2,9 @@ rootProject.name = 'munch-data'
 
 // DynamoDB + Elasticsearch for Place, Location & Tag
 include 'data-client'
+include 'data-utils'
+
+include 'client-collections'
 
 include 'corpus-place'
 include 'corpus-place-image'
@@ -11,6 +14,6 @@ include 'corpus-tag'
 include 'corpus-location'
 include 'corpus-container'
 
-include 'data-utils'
 include 'corpus-place-tracking'
+include 'corpus-place-award'
 
