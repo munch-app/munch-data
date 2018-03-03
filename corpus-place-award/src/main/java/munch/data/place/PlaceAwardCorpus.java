@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import corpus.airtable.AirtableApi;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.PlaceClient;
-import munch.data.structure.Place;
 import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,19 +20,21 @@ import java.util.Iterator;
  * Project: munch-data
  */
 @Singleton
-public final class PlaceAwardCorpus extends CatalystEngine<Place> {
+public final class PlaceAwardCorpus extends CatalystEngine<AwardCollection> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceAwardCorpus.class);
 
 
     private final ObjectMapper mapper = JsonUtils.objectMapper;
     private final PlaceClient placeClient;
     private final AirtableApi.Table airtable;
+    private final AirtableDatabase airtableDatabase;
 
     @Inject
-    public PlaceAwardCorpus(PlaceClient placeClient, AirtableApi airtableApi) {
+    public PlaceAwardCorpus(PlaceClient placeClient, AirtableApi airtableApi, AirtableDatabase airtableDatabase) {
         super(logger);
         this.placeClient = placeClient;
         this.airtable = airtableApi.base("apphY7zE8Tdd525qO").table("New Place");
+        this.airtableDatabase = airtableDatabase;
     }
 
     @Override
@@ -43,16 +44,28 @@ public final class PlaceAwardCorpus extends CatalystEngine<Place> {
     }
 
     @Override
-    protected Iterator<Place> fetch(long cycleNo) {
-        return null;
+    protected Iterator<AwardCollection> fetch(long cycleNo) {
+        return airtableDatabase.list();
     }
 
     @Override
-    protected void doCycle(long cycleNo, Iterator<Place> iterator) {
+    protected void process(long cycleNo, AwardCollection awardCollection, long processed) {
+        awardCollection.getAwardPlaces().forEach(awardPlace -> {
+            awardPlace.tryLink((name, address) -> {
+                // Sleep Here
+                // Search and try to link all the places
+                return null;
+            });
+        });
 
-    }
+        // TODO
+        // Search if collection already exists, else create
+        // Collection must have unique Id to track unique
 
-    @Override
-    protected void process(long cycleNo, Place place, long processed) {
+        // Get Collection List:
+        // 1. delete those that should not be in the list
+        // 2. add those that are not in the list
+
+        // TODO Put Award Into Database, PlaceCard
     }
 }

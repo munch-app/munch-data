@@ -7,7 +7,7 @@ allprojects {
     group 'munch.data'
     version '2.5.0-SNAPSHOT'
     ext.restfulVersion = '1.3.2'
-    ext.ccVersion = '2.4.0-SNAPSHOT'
+    ext.ccVersion = '2.5.0-SNAPSHOT'
 
     sourceCompatibility = 1.9
     targetCompatibility = 1.9
