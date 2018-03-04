@@ -1,17 +1,27 @@
 package munch.data.place;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import corpus.airtable.AirtableApi;
+import com.google.common.collect.Lists;
 import corpus.engine.CatalystEngine;
-import munch.data.clients.PlaceClient;
-import munch.restful.core.JsonUtils;
+import munch.awards.PlaceAwardClient;
+import munch.collections.CollectionClient;
+import munch.collections.CollectionPlaceClient;
+import munch.collections.PlaceCollection;
+import munch.data.clients.SearchClient;
+import munch.data.location.PostalParser;
+import munch.data.place.matcher.NameNormalizer;
+import munch.data.structure.Place;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -22,25 +32,33 @@ import java.util.Iterator;
 @Singleton
 public final class PlaceAwardCorpus extends CatalystEngine<AwardCollection> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceAwardCorpus.class);
+    private static final String AWARD_USER_ID = "munch_award";
 
-
-    private final ObjectMapper mapper = JsonUtils.objectMapper;
-    private final PlaceClient placeClient;
-    private final AirtableApi.Table airtable;
+    private final SearchClient searchClient;
     private final AirtableDatabase airtableDatabase;
 
+    private final CollectionClient collectionClient;
+    private final CollectionPlaceClient collectionPlaceClient;
+    private final PlaceAwardClient placeAwardClient;
+
+    private final NameNormalizer nameNormalizer;
+
     @Inject
-    public PlaceAwardCorpus(PlaceClient placeClient, AirtableApi airtableApi, AirtableDatabase airtableDatabase) {
+    public PlaceAwardCorpus(SearchClient searchClient, AirtableDatabase airtableDatabase, CollectionClient collectionClient,
+                            CollectionPlaceClient collectionPlaceClient, PlaceAwardClient placeAwardClient, NameNormalizer nameNormalizer) {
         super(logger);
-        this.placeClient = placeClient;
-        this.airtable = airtableApi.base("apphY7zE8Tdd525qO").table("New Place");
+        this.searchClient = searchClient;
         this.airtableDatabase = airtableDatabase;
+        this.collectionClient = collectionClient;
+        this.collectionPlaceClient = collectionPlaceClient;
+        this.placeAwardClient = placeAwardClient;
+        this.nameNormalizer = nameNormalizer;
     }
 
     @Override
     protected Duration cycleDelay() {
-        // Sync every 12 hours
-        return Duration.ofHours(12);
+        // Sync every 18 hours
+        return Duration.ofHours(18);
     }
 
     @Override
@@ -52,20 +70,76 @@ public final class PlaceAwardCorpus extends CatalystEngine<AwardCollection> {
     protected void process(long cycleNo, AwardCollection awardCollection, long processed) {
         awardCollection.getAwardPlaces().forEach(awardPlace -> {
             awardPlace.tryLink((name, address) -> {
-                // Sleep Here
-                // Search and try to link all the places
-                return null;
+                sleep(1000);
+                name = nameNormalizer.normalize(name);
+                return search(name, address);
             });
         });
 
-        // TODO
-        // Search if collection already exists, else create
-        // Collection must have unique Id to track unique
+        String collectionId = new UUID(awardCollection.getCollectionId(), 0).toString();
+        // Always update PlaceCollection
+        PlaceCollection collection = new PlaceCollection();
+        collection.setUserId(AWARD_USER_ID);
+        collection.setCollectionId(collectionId);
+        collection.setSortKey(awardCollection.getCollectionId());
+        collection.setName(awardCollection.getCollectionName());
+        collectionClient.put(collection);
 
-        // Get Collection List:
-        // 1. delete those that should not be in the list
-        // 2. add those that are not in the list
+        // Award Place List
+        List<AwardCollection.AwardPlace> awardList = awardCollection.getAwardPlaces()
+                .stream()
+                .filter(awardPlace -> awardPlace.getMunchId() != null && AwardCollection.AwardPlace.STATUS_LINKED.equals(awardPlace.getStatus()))
+                .collect(Collectors.toList());
 
-        // TODO Put Award Into Database, PlaceCard
+        // Current Added Collection List
+        List<PlaceCollection.AddedPlace> addedList = Lists.newArrayList(collectionPlaceClient.list(AWARD_USER_ID, collectionId));
+        for (PlaceCollection.AddedPlace place : addedList) {
+            // Place to delete
+            if (notContains(awardList, place, (award, added) -> award.getMunchId().equals(added.getPlaceId()))) {
+                logger.info("Removed {} with id: {}", awardCollection.getCollectionName(), place.getPlaceId());
+                collectionPlaceClient.remove(AWARD_USER_ID, collectionId, place.getPlaceId());
+            }
+        }
+
+        for (AwardCollection.AwardPlace place : awardList) {
+            // Place to add
+            if (notContains(addedList, place, (added, award) -> award.getMunchId().equals(added.getPlaceId()))) {
+                logger.info("Added {} to {} with id: {}", awardCollection.getCollectionName(), place.getName(), place.getMunchId());
+                collectionPlaceClient.add(AWARD_USER_ID, collectionId, place.getMunchId());
+                placeAwardClient.put(place.getMunchId(), awardCollection.getCollectionId(), place.getAwardId(),
+                        awardCollection.getCollectionName());
+            }
+        }
+
+        sleep(15000);
+    }
+
+    private <L, R> boolean notContains(List<L> compareList, R compareObject, BiFunction<L, R, Boolean> compare) {
+        for (L left : compareList) {
+            if (compare.apply(left, compareObject)) return false;
+        }
+        return true;
+    }
+
+    @Nullable
+    private Place search(String name, String address) {
+        String postal = PostalParser.parse(address);
+        if (postal == null) return null;
+
+        List<Place> placeList = searchClient.search(List.of("Place"), name, null, 0, 100);
+        placeList = placeList.stream()
+                .filter(place -> place.getLocation().getPostal().equals(postal))
+                .filter(place -> nameNormalizer.equals(place.getName(), name))
+                .collect(Collectors.toList());
+
+        if (placeList.isEmpty()) {
+            logger.info("Conflict: Not Found for name: {}", name);
+            return null;
+        }
+        if (placeList.size() > 1) {
+            logger.info("Conflict: Multiple for name: {}", name);
+            return null;
+        }
+        return placeList.get(0);
     }
 }

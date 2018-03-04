@@ -29,11 +29,6 @@ public final class PlaceImageModule extends AbstractModule {
     }
 
     public static void main(String[] args) {
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            logger.error("Uncaught Exceptions: ", e.getCause());
-            System.exit(0);
-        });
-
         Injector injector = Guice.createInjector(new PlaceImageModule());
         injector.getInstance(PlaceImageCorpus.class).run();
 

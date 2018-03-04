@@ -28,10 +28,10 @@ public class PlaceAwardModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        install(new DynamoModule());
         install(new CorpusModule());
         install(new DataModule());
         install(new ElasticModule());
-        install(new DynamoModule());
 
         install(new AirtableModule(getAirtableKey()));
     }
@@ -46,11 +46,6 @@ public class PlaceAwardModule extends AbstractModule {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            logger.error("Uncaught Exceptions: ", e.getCause());
-            logger.error("Trace: {}", (Object) e.getStackTrace());
-        });
-
         Injector injector = Guice.createInjector(new PlaceAwardModule());
         EngineGroup.start(
                 injector.getInstance(PlaceAwardCorpus.class)

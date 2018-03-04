@@ -30,9 +30,6 @@ class HourParserTest {
     @BeforeEach
     void setUp() {
         System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            logger.error("Uncaught Exceptions: ", e.getCause());
-        });
 
         Injector injector = Guice.createInjector(new DataModule(), new CorpusModule());
         catalystClient = injector.getInstance(CatalystClient.class);

@@ -30,11 +30,6 @@ public class LocationModule extends AbstractModule {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            logger.error("Uncaught Exceptions: ", e.getCause());
-            System.exit(0);
-        });
-
         Injector injector = Guice.createInjector(new LocationModule());
 
         // Start the following corpus

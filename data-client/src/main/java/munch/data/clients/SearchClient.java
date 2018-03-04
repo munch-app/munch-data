@@ -65,7 +65,7 @@ public class SearchClient extends AbstractClient {
      * @param text text query
      * @return List of SearchResult
      */
-    public List<SearchResult> search(String text, int size) {
+    public <T extends SearchResult> List<T> search(String text, int size) {
         JsonNode results = client.search(List.of(), text, null, 0, size);
         return marshaller.deserializeList(results);
     }
@@ -80,7 +80,7 @@ public class SearchClient extends AbstractClient {
      * @param size   size per list
      * @return List of SearchResult
      */
-    public List<SearchResult> search(List<String> types, String text, @Nullable String latLng, int from, int size) {
+    public <T extends SearchResult> List<T> search(List<String> types, String text, @Nullable String latLng, int from, int size) {
         JsonNode results = client.search(types, text, latLng, from, size);
         return marshaller.deserializeList(results);
     }

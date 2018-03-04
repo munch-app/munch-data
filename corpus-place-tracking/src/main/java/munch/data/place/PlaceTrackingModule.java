@@ -46,11 +46,6 @@ public class PlaceTrackingModule extends AbstractModule {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            logger.error("Uncaught Exceptions: ", e.getCause());
-            logger.error("Trace: {}", (Object) e.getStackTrace());
-        });
-
         Injector injector = Guice.createInjector(new PlaceTrackingModule());
         EngineGroup.start(
                 injector.getInstance(PlaceTrackingCorpus.class)

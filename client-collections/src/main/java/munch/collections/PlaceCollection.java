@@ -63,7 +63,6 @@ public final class PlaceCollection {
 
     @NotNull(message = "Name cannot be empty.")
     @Size(min = 3, max = 100, message = "Name length must be more then 2 and less then 100.")
-    @Pattern(regexp = "^[\\p{L} .'-]+$", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Name contains illegal characters.")
     public String getName() {
         return name;
     }
@@ -74,7 +73,6 @@ public final class PlaceCollection {
 
     @Nullable
     @Size(min = 3, max = 500, message = "Description length must be more then 2 and less then 500.")
-    @Pattern(regexp = "^[\\p{L} .'-]+$", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Description contains illegal characters.")
     public String getDescription() {
         return description;
     }

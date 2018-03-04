@@ -46,7 +46,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofHours(1);
+        return Duration.ofHours(3);
     }
 
     @Override
@@ -58,7 +58,10 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData placeData, long processed) {
         String placeId = placeData.getCatalystId();
         // One week update once unless there is less then 3 images
-        if (!isDue(placeId)) return;
+        if (!isDue(placeId)) {
+            sleep(100);
+            return;
+        }
 
         List<CorpusData> dataList = new ArrayList<>();
         catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);

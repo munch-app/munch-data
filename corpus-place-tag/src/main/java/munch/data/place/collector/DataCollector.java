@@ -143,10 +143,6 @@ public abstract class DataCollector {
     }
 
     public static <T extends DataCollector> void run(Class<T> clazz) throws IOException, InterruptedException {
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            logger.error("Uncaught Exceptions: ", e.getCause());
-        });
-
         System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
 
         Injector injector = Guice.createInjector(new CorpusModule(), new DataModule(), new DynamoModule());

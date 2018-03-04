@@ -1,5 +1,7 @@
 package munch.data.place.matcher;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -71,5 +73,10 @@ public final class NameNormalizer {
         public String replace(String text) {
             return pattern.matcher(text).replaceAll(replacement);
         }
+    }
+
+    public boolean equals(String left, String right) {
+        if (StringUtils.isAnyBlank(left, right)) return false;
+        return StringUtils.equals(normalize(left), normalize(right));
     }
 }

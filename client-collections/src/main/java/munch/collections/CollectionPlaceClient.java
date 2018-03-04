@@ -1,5 +1,6 @@
 package munch.collections;
 
+import catalyst.utils.iterators.LastKeyIterator;
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.model.Select;
@@ -7,10 +8,7 @@ import com.amazonaws.services.dynamodbv2.model.Select;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static munch.collections.CollectionClient.validateUUID;
 
@@ -62,6 +60,15 @@ public final class CollectionPlaceClient {
         for (Item item : outcome) {
         }
         return outcome.getAccumulatedItemCount();
+    }
+
+    /**
+     * @param userId       userId
+     * @param collectionId collection
+     * @return Iterator of all AddedPlace
+     */
+    public Iterator<PlaceCollection.AddedPlace> list(String userId, String collectionId) {
+        return new LastKeyIterator<>(100, k -> list(userId, collectionId, k, 100), PlaceCollection.AddedPlace::getSortKey);
     }
 
     public List<PlaceCollection.AddedPlace> list(String userId, String collectionId, @Nullable Long maxSortKey, int size) {

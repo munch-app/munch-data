@@ -18,27 +18,22 @@ import java.util.function.BiFunction;
  */
 public final class AwardCollection {
     private final AirtableApi.Table table;
-    private final String uniqueId;
+
+    private final long uniqueId;
     private final String tableName;
     private final String collectionName;
-    private final String userId;
     private final List<AwardPlace> awardPlaces;
 
-    public AwardCollection(AirtableApi.Table table, String uniqueId, String tableName, String collectionName, String userId, List<AwardPlace> awardPlaces) {
+    public AwardCollection(AirtableApi.Table table, long collectionId, String tableName, String collectionName, List<AwardPlace> awardPlaces) {
         this.table = table;
-        this.uniqueId = uniqueId;
+        this.uniqueId = collectionId;
         this.tableName = tableName;
         this.collectionName = collectionName;
-        this.userId = userId;
         this.awardPlaces = awardPlaces;
     }
 
-    public String getUniqueId() {
+    public long getCollectionId() {
         return uniqueId;
-    }
-
-    public AirtableApi.Table getTable() {
-        return table;
     }
 
     public String getTableName() {
@@ -47,10 +42,6 @@ public final class AwardCollection {
 
     public String getCollectionName() {
         return collectionName;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     public List<AwardPlace> getAwardPlaces() {
@@ -62,20 +53,27 @@ public final class AwardCollection {
         public static final String STATUS_CONFLICT = "Conflict";
 
         private final String airtableId;
+
+        private final long awardId;
         private final String name;
         private final String address;
 
-        private String munchId;
         private String status;
+        private String munchId;
 
-        public AwardPlace(String airtableId, String name, String address) {
+        public AwardPlace(String airtableId, long awardId, String name, String address) {
             this.airtableId = airtableId;
+            this.awardId = awardId;
             this.name = name;
             this.address = address;
         }
 
         public String getAirtableId() {
             return airtableId;
+        }
+
+        public long getAwardId() {
+            return awardId;
         }
 
         public String getName() {

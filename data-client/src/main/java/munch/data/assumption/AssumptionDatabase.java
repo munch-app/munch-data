@@ -53,7 +53,6 @@ public class AssumptionDatabase {
             // Timing Assumption
             // Add Open Now
             Assumption.of(true, "open now", "Open Now", ASSUMPTION_OPEN_NOW),
-//            Assumption.of("open", "Open Now", ASSUMPTION_OPEN_NOW), TODO
 
             // Tag Assumption
             Assumption.of(true, "bar", "Bars & Pubs", applyTag("Bars & Pubs")),
