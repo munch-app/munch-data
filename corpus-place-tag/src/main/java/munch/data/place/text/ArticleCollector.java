@@ -52,7 +52,7 @@ public final class ArticleCollector extends AbstractCollector {
         // Suppose to be [""]
 
         Optional<JsonNode> optionalNode = FieldUtils.get(data, "Article.articleId")
-                .map(field -> documentClient.get(ARTICLE_TEXT, field.getValue()));
+                .map(field -> documentClient.get(ARTICLE_TEXT, field.getValue(), "0"));
 
         if (!optionalNode.isPresent()) return List.of();
 

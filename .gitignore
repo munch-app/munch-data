@@ -43,4 +43,5 @@ gradle-app.setting
 classes/
 */var/
 */tag-model/data/
+*/tag-model/service/model/
 *.pyc

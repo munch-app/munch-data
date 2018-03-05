@@ -9,7 +9,7 @@ from keras.layers import Dense, Activation, Dropout
 from keras.models import Sequential
 from keras.preprocessing import text
 
-data = pd.read_csv("data/tag-text-data-2.csv", encoding="utf-8")
+data = pd.read_csv("data/tag-text-data-3.csv", encoding="utf-8")
 data = data.sample(frac=1)
 print(data.head())
 
