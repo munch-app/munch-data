@@ -32,6 +32,8 @@ def predict(text):
         results = {}
         for idx, val in enumerate(prediction[0]):
             if val > 0.1:
-                results[text_labels.get(idx, None)] = val.item()
+                label = text_labels.get(idx, None)
+                if label:
+                    results[label] = val.item()
 
         return map_keys(results)

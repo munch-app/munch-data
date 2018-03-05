@@ -23,6 +23,12 @@ def handle_memory_error(error):
     return jsonify({'meta': {'code': 500, 'type': 'UnknownError'}}), 500
 
 
+@app.errorhandler(Exception)
+def handle_memory_error(error):
+    log.error('UnknownError', error)
+    return jsonify({'meta': {'code': 500, 'type': 'UnknownError'}}), 500
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return jsonify({'meta': {'code': 404}}), 404
