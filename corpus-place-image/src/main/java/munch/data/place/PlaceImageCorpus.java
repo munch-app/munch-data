@@ -93,7 +93,15 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
 
         // Select 3 food image if existing is less then 3, Sorted by Place.image, then score
         builder.supply(current -> current.size() < 3, stream -> stream
-                .filter(image -> !isExplicit(image) && image.isOutput("food", 0.75f))
+                .filter(image -> !isExplicit(image) && image.isOutput("food", 0.93f))
+                .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
+                        .thenComparingLong(ImageListBuilder::sortSize)
+                        .thenComparingDouble(ImageListBuilder::sortOutput)
+                ).limit(3));
+
+        // Select 3 food image again if existing is less then 3, Sorted by Place.image, then score
+        builder.supply(current -> current.size() < 3, stream -> stream
+                .filter(image -> !isExplicit(image) && image.isOutput("food", 0.8f))
                 .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
                         .thenComparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput)
@@ -101,7 +109,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
 
         // Select 1 place image, Sorted by Place.image, then score
         builder.supply(stream -> stream
-                .filter(image -> image.isOutput("place", 0.75f))
+                .filter(image -> image.isOutput("place", 0.8f))
                 .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
                         .thenComparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput)
