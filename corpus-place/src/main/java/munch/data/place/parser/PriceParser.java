@@ -2,7 +2,9 @@ package munch.data.place.parser;
 
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
+import corpus.utils.FieldCollector;
 import munch.data.structure.Place;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
@@ -22,9 +24,19 @@ public final class PriceParser extends AbstractParser<Place.Price> {
     @Nullable
     @Override
     public Place.Price parse(Place place, List<CorpusData> list) {
-        List<CorpusData.Field> fields = collect(list, PlaceKey.price);
-        List<Double> prices = fields.stream()
-                .map(PriceParser::clean)
+        FieldCollector fieldCollector = new FieldCollector(PlaceKey.price);
+        fieldCollector.addAll(list);
+
+        String priorityPrice = fieldCollector.collectMax(priorityCorpus);
+        if (priorityPrice != null) {
+            Double price = clean(priorityPrice);
+            if (price != null) {
+                return create(price);
+            }
+        }
+
+        List<Double> prices = fieldCollector.collectField().stream()
+                .map(field -> clean(field.getValue()))
                 .filter(Objects::nonNull)
                 .sorted(Double::compareTo)
                 .collect(Collectors.toList());
@@ -52,8 +64,9 @@ public final class PriceParser extends AbstractParser<Place.Price> {
     }
 
     @Nullable
-    public static Double clean(CorpusData.Field field) {
-        String value = field.getValue();
+    public static Double clean(String value) {
+        if (StringUtils.isBlank(value)) return null;
+
         String cleaned = value
                 .replace("$", "")
                 .replace(" ", "");
