@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.math.DoubleMath;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -24,9 +25,11 @@ public class Place implements SearchResult {
     // Basic
     private String name;
     private Set<String> allNames;
-    private String phone;
-    private String website;
     private String description;
+    private String phone;
+
+    private String menuUrl;
+    private String website;
 
     // One
     private Price price;
@@ -108,12 +111,29 @@ public class Place implements SearchResult {
      *
      * @return website url of place
      */
+    @Nullable
     public String getWebsite() {
         return website;
     }
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    /**
+     * Menu url must not exceed 2000 character.
+     * Trim if necessary
+     * http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+     *
+     * @return single url of where menu for the place is
+     */
+    @Nullable
+    public String getMenuUrl() {
+        return menuUrl;
+    }
+
+    public void setMenuUrl(String menuUrl) {
+        this.menuUrl = menuUrl;
     }
 
     /**
@@ -227,6 +247,7 @@ public class Place implements SearchResult {
                 Objects.equals(name, place.name) &&
                 Objects.equals(phone, place.phone) &&
                 Objects.equals(website, place.website) &&
+                Objects.equals(menuUrl, place.menuUrl) &&
                 Objects.equals(description, place.description) &&
                 Objects.equals(price, place.price) &&
                 Objects.equals(location, place.location) &&
@@ -240,7 +261,7 @@ public class Place implements SearchResult {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, version, name, phone, website, description, price, location, review, tag, hours, images, containers, createdDate, ranking);
+        return Objects.hash(id, version, name, phone, website, menuUrl, description, price, location, review, tag, hours, images, containers, createdDate, ranking);
     }
 
     @Override
@@ -250,6 +271,7 @@ public class Place implements SearchResult {
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", website='" + website + '\'' +
+                ", menuUrl='" + menuUrl + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", location=" + location +

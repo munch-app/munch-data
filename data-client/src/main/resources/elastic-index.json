@@ -53,6 +53,9 @@
         "website": {
           "enabled": false
         },
+        "menuUrl": {
+          "enabled": false
+        },
         "description": {
           "enabled": false
         },

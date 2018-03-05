@@ -35,8 +35,10 @@ public final class PlaceParser extends AbstractParser<Place> {
 
     private final NameParser nameParser;
     private final PhoneParser phoneParser;
-    private final WebsiteParser websiteParser;
     private final DescriptionParser descriptionParser;
+
+    private final WebsiteParser websiteParser;
+    private final MenuParser menuParser;
 
     private final PriceParser priceParser;
     private final LocationParser locationParser;
@@ -50,7 +52,7 @@ public final class PlaceParser extends AbstractParser<Place> {
 
     @Inject
     public PlaceParser(Config config, StatusParser statusParser, NameParser nameParser, PhoneParser phoneParser, WebsiteParser websiteParser, DescriptionParser descriptionParser,
-                       PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser, ReviewParser reviewParser, TagParser tagParser,
+                       MenuParser menuParser, PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser, ReviewParser reviewParser, TagParser tagParser,
                        HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
         this.priorityNames = ImmutableList.copyOf(config.getStringList("place.priority"));
         this.statusParser = statusParser;
@@ -58,6 +60,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         this.phoneParser = phoneParser;
         this.websiteParser = websiteParser;
         this.descriptionParser = descriptionParser;
+        this.menuParser = menuParser;
 
         this.priceParser = priceParser;
         this.locationParser = locationParser;
@@ -87,8 +90,10 @@ public final class PlaceParser extends AbstractParser<Place> {
         if (StringUtils.isBlank(place.getName())) return null;
         place.setAllNames(nameParser.parseAllNames(place, list));
         place.setPhone(phoneParser.parse(place, list));
-        place.setWebsite(websiteParser.parse(place, list));
         place.setDescription(descriptionParser.parse(place, list));
+
+        place.setWebsite(websiteParser.parse(place, list));
+        place.setMenuUrl(menuParser.parse(place, list));
 
         // LocationParser is mandatory
         place.setLocation(locationParser.parse(place, list));
