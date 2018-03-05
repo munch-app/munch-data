@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import munch.restful.client.RestfulClient;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ public final class PredictTagClient extends RestfulClient {
 
     public Map<String, Double> predict(List<String> texts) {
         String text = Joiner.on(" ").join(texts);
+        if (StringUtils.isBlank(text)) return Map.of();
+
         return predict(text);
     }
 
