@@ -11,6 +11,7 @@ import munch.data.dynamodb.DynamoModule;
 import munch.data.place.group.ExplicitTagParser;
 import munch.data.place.text.CollectedText;
 import munch.data.place.text.TextCollector;
+import munch.data.utils.ScheduledThreadUtils;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -149,5 +150,6 @@ public abstract class DataCollector {
         DataCollector collector = injector.getInstance(clazz);
         collector.run();
         collector.close();
+        ScheduledThreadUtils.shutdown();
     }
 }

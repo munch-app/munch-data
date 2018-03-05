@@ -31,7 +31,7 @@ public final class PlaceTagModule extends AbstractModule {
     }
 
     public static void main(String[] args) throws InterruptedException {
-       Injector injector = Guice.createInjector(new PlaceTagModule());
+        Injector injector = Guice.createInjector(new PlaceTagModule());
         EngineGroup.start(
                 injector.getInstance(SuggestedTagCorpus.class)
         );
