@@ -41,7 +41,7 @@ public abstract class AbstractAmalgamate {
      */
     public void add(List<CorpusData> insides, CorpusData placeData) {
         // Existing insides
-        long localCount = catalystClient.countCorpus(placeData.getCatalystId());
+        long insideCount = catalystClient.countCorpus(placeData.getCatalystId());
 
         search(placeData).forEachRemaining(result -> {
             CorpusData outside = corpusClient.get(result.getCorpusName(), result.getCorpusKey());
@@ -49,9 +49,10 @@ public abstract class AbstractAmalgamate {
             // If already inside, don't transfer either
             if (insides.contains(outside)) return;
             // If local count is smaller, don't transfer
-            if (localCount < catalystClient.countCorpus(outside.getCatalystId())) return;
+            long outsideCount = catalystClient.countCorpus(outside.getCatalystId());
+            if (insideCount < outsideCount) return;
 
-            // Move Data Over
+            // Move Data Over, From Outside Move to Inside
             corpusClient.patchCatalystId(outside.getCorpusName(), outside.getCorpusKey(), placeData.getCatalystId());
             logger.info("Patched corpusName: {}, corpusKey: {} to catalystId: {}",
                     outside.getCorpusName(), outside.getCorpusKey(), placeData.getCatalystId());

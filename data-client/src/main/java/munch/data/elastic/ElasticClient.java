@@ -113,7 +113,7 @@ public final class ElasticClient {
      * @return list of hits
      */
     public JsonNode search(List<String> types, String text, @Nullable String latLng, int from, int size) {
-        Search search = createSearch(types, text, latLng, from, size);
+        Search search = createSearch(types, "name", text, latLng, from, size);
 
         try {
             JsonNode result = mapper.readTree(client.execute(search).getJsonString());
@@ -207,6 +207,10 @@ public final class ElasticClient {
         }
     }
 
+    public static Search createSearch(List<String> types, String text, @Nullable String latLng, int from, int size) {
+        return createSearch(types, "name", text, latLng, from, size);
+    }
+
     /**
      * @param types types to query against
      * @param text  text to query
@@ -214,9 +218,9 @@ public final class ElasticClient {
      * @param size  size, Max (100)
      * @return Search object for elasticsearch
      */
-    public static Search createSearch(List<String> types, String text, @Nullable String latLng, int from, int size) {
+    public static Search createSearch(List<String> types, String field, String text, @Nullable String latLng, int from, int size) {
         ObjectNode bool = mapper.createObjectNode();
-        bool.set("must", must(text));
+        bool.set("must", must(field, text));
         if (types.size() == 1) {
             bool.set("filter", filter(types));
         } else if (types.size() > 1) {
@@ -269,7 +273,7 @@ public final class ElasticClient {
      * @param query query string
      * @return JsonNode must filter
      */
-    static JsonNode must(String query) {
+    static JsonNode must(String field, String query) {
         ObjectNode root = mapper.createObjectNode();
 
         // Match all if query is blank
@@ -280,7 +284,7 @@ public final class ElasticClient {
 
         // Match name if got query
         ObjectNode match = root.putObject("match_phrase_prefix");
-        match.put("name", query);
+        match.put(field, query);
         return root;
     }
 
