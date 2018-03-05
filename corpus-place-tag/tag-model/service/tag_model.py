@@ -14,7 +14,7 @@ with open('model/tag-tokenzier-y.pickle', 'rb') as handle:
 model = load_model('model/tag-model.h5')
 graph = tf.get_default_graph()
 
-tag_mapping = json.load(open('model/tag-text-mapping-1.json'))
+tag_mapping = json.load(open('model/tag-text-mapping.json'))
 tag_mapping = inv_map = {v: k for k, v in tag_mapping.items()}
 text_labels = {v: k for k, v in tokenizer_y.word_index.items()}
 
