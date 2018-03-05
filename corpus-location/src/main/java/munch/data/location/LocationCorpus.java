@@ -34,7 +34,7 @@ public class LocationCorpus extends CatalystEngine<CorpusData> {
     private static final Retriable retriable = new ExceptionRetriable(4);
     private static final WKTReader reader = new WKTReader();
 
-    private static final long dataVersion = 30;
+    private static final long dataVersion = 40;
 
     private final LocationClient locationClient;
 
