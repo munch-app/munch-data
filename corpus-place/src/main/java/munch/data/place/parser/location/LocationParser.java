@@ -10,6 +10,7 @@ import munch.data.structure.Place;
 import munch.data.utils.PatternSplit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 public final class LocationParser extends AbstractParser<Place.Location> {
     private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d+.*");
     private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
-    private static final PatternSplit ADDRESS_DIVIDER_PATTERN = PatternSplit.compile("([^a-z]|^)[a-z]");
+    private static final PatternSplit ADDRESS_DIVIDER_PATTERN = PatternSplit.compile("([^a-z']|^|[^a-z]')[a-z]");
 
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
@@ -151,14 +152,23 @@ public final class LocationParser extends AbstractParser<Place.Location> {
                             location.getCity() + " " + location.getPostal());
         }
         // If max contains - & # return it (UnitNumber)
-        if (address.contains("-") && address.contains("#")) return address;
+        if (address.contains("-") && address.contains("#") && address.contains(location.getPostal())) return address;
 
         // Else find any that contains - & # and return it (UnitNumber), else return max address
-        return collect(list, PlaceKey.Location.address).stream()
-                .map(CorpusData.Field::getValue)
-                .filter(text -> text.contains("-") && text.contains("#"))
+        return collectValue(list, PlaceKey.Location.address).stream()
+                .map(s -> Pair.of(s, rankAddress(s, location)))
+                .sorted((o1, o2) -> o2.getRight().compareTo(o1.getRight()))
                 .findAny()
+                .map(Pair::getLeft)
                 .orElse(address);
+    }
+
+    static long rankAddress(String address, Place.Location location) {
+        int ranking = 0;
+        if (address.contains(location.getPostal())) ranking += 1;
+        if (address.contains("-")) ranking += 1;
+        if (address.contains("#")) ranking += 1;
+        return ranking;
     }
 
     static String formatAddress(String address) {
