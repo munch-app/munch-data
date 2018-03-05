@@ -80,6 +80,7 @@ public final class PlaceAwardCorpus extends CatalystEngine<AwardCollection> {
         // Always update PlaceCollection
         PlaceCollection collection = new PlaceCollection();
         collection.setUserId(AWARD_USER_ID);
+        collection.setPrivacy(PlaceCollection.PRIVACY_PUBLIC);
         collection.setCollectionId(collectionId);
         collection.setSortKey(awardCollection.getCollectionId());
         collection.setName(awardCollection.getCollectionName());
@@ -107,7 +108,7 @@ public final class PlaceAwardCorpus extends CatalystEngine<AwardCollection> {
                 logger.info("Added {} to {} with id: {}", awardCollection.getCollectionName(), place.getName(), place.getMunchId());
                 collectionPlaceClient.add(AWARD_USER_ID, collectionId, place.getMunchId());
                 placeAwardClient.put(place.getMunchId(), awardCollection.getCollectionId(), place.getAwardId(),
-                        awardCollection.getCollectionName());
+                        awardCollection.getCollectionName(), AWARD_USER_ID);
             }
         }
 

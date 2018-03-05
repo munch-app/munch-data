@@ -80,6 +80,10 @@ public final class CollectionClient {
             attributeUpdateList.add(new AttributeUpdate("t").put(writeValue(collection.getThumbnail())));
         }
 
+        if (collection.getPrivacy() != null) {
+            attributeUpdateList.add(new AttributeUpdate("pr").put(writeValue(collection.getPrivacy())));
+        }
+
         attributeUpdateList.add(new AttributeUpdate("ud").put(System.currentTimeMillis()));
         attributeUpdateList.add(new AttributeUpdate("cd").put(collection.getCreatedDate().getTime()));
 
@@ -130,6 +134,7 @@ public final class CollectionClient {
         collection.setUserId(item.getString("u"));
         collection.setCollectionId(item.getString("c"));
         collection.setSortKey(item.getLong("s"));
+        collection.setPrivacy(item.getString("pr"));
 
         collection.setName(item.getString("n"));
         collection.setDescription(item.getString("d"));

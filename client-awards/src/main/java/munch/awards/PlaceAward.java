@@ -7,9 +7,18 @@ package munch.awards;
  * Project: munch-data
  */
 public class PlaceAward {
+    private String userId;
     private String collectionId;
     private String collectionAwardId;
     private String awardName;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     /**
      * @return collectionId, can be used to query CollectionPlaceClient

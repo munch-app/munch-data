@@ -50,11 +50,12 @@ public final class PlaceAwardClient {
         return addedPlaces;
     }
 
-    public void put(String placeId, long collectionId, long awardId, String awardName) {
+    public void put(String placeId, long collectionId, long awardId, String awardName, String userId) {
         Item item = new Item();
         item.with("p", placeId);
         item.with("ca", createCollectionAwardId(collectionId, awardId));
         item.with("n", awardName);
+        item.with("u", userId);
         table.putItem(item);
     }
 
@@ -79,10 +80,12 @@ public final class PlaceAwardClient {
         long collectionId = UUID.fromString(collectionAwardId).getMostSignificantBits();
         String collectionIdForCollectionClient = new UUID(collectionId, 0).toString();
         String awardName = item.getString("n");
+        String userId = item.getString("u");
 
         PlaceAward placeAward = new PlaceAward();
         placeAward.setAwardName(awardName);
         placeAward.setCollectionAwardId(collectionAwardId);
+        placeAward.setUserId(userId);
         placeAward.setCollectionId(collectionIdForCollectionClient);
         return placeAward;
     }

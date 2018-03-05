@@ -20,11 +20,14 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class PlaceCollection {
+    public static final String PRIVACY_PUBLIC = "public";
+    public static final String PRIVACY_PRIVATE = "private";
 
     private String userId;
     private String collectionId;
 
     private long sortKey;
+    private String privacy;
 
     private String name;
     private String description;
@@ -59,6 +62,16 @@ public final class PlaceCollection {
 
     public void setSortKey(long sortKey) {
         this.sortKey = sortKey;
+    }
+
+    @NotNull(message = "Internal Error (privacy)")
+    @Pattern(regexp = "^public|private", message = "Internal Error (collectionId)")
+    public String getPrivacy() {
+        return privacy;
+    }
+
+    public void setPrivacy(String privacy) {
+        this.privacy = privacy;
     }
 
     @NotNull(message = "Name cannot be empty.")
