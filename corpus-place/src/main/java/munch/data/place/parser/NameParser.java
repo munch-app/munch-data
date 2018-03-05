@@ -7,14 +7,13 @@ import corpus.utils.FieldCollector;
 import munch.data.place.matcher.NameNormalizer;
 import munch.data.structure.Place;
 import munch.data.utils.PatternSplit;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -70,12 +69,24 @@ public final class NameParser extends AbstractParser<String> {
         FieldCollector fieldCollector = new FieldCollector(PlaceKey.name);
         fieldCollector.addAll(list);
 
-        return fieldCollector.collect()
-                .stream()
-                .map(StringUtils::lowerCase)
-                .map(nameNormalizer::normalize)
-                .filter(this::validateName)
-                .collect(Collectors.toSet());
+        Set<String> names = new HashSet<>();
+        for (String collectedName : fieldCollector.collect()) {
+            collectedName = collectedName.toLowerCase();
+            String normalized = nameNormalizer.normalize(collectedName);
+            names.add(collectedName);
+            names.add(normalized);
+        }
+
+        names.addAll(getOtherCombination(place));
+        return names;
+    }
+
+    public Set<String> getOtherCombination(Place place) {
+        String name = place.getName().toLowerCase();
+        Set<String> combinations = new HashSet<>();
+        combinations.add(name.replace("'", ""));
+        combinations.add(name.replace(" ", ""));
+        return combinations;
     }
 
     /**

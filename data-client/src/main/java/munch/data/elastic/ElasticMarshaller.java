@@ -105,6 +105,7 @@ public final class ElasticMarshaller {
         // Root Node
         node.put("id", location.getId());
         node.put("name", location.getName());
+        node.putArray("allNames").add(location.getName());
         node.put("createdDate", location.getCreatedDate().getTime());
         node.put("updatedDate", location.getUpdatedDate().getTime());
 
@@ -136,6 +137,7 @@ public final class ElasticMarshaller {
         // Root Node
         node.put("id", tag.getId());
         node.put("name", tag.getName());
+        node.putArray("allNames").add(tag.getName());
 
         // Suggest Field
         ArrayNode inputs = mapper.createArrayNode();
@@ -149,6 +151,8 @@ public final class ElasticMarshaller {
     public ObjectNode serialize(Container container) {
         ObjectNode node = mapper.valueToTree(container);
         node.put("dataType", "Container");
+
+        node.putArray("allNames").add(container.getName());
 
         // Suggest Field
         ArrayNode inputs = mapper.createArrayNode();
