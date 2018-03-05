@@ -15,7 +15,9 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -25,6 +27,7 @@ import java.util.List;
  */
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
+    private static final AbstractKey[] TIMESTAMP_KEYS = new AbstractKey[]{AbstractKey.of("Article.timestamp")};
     private static final String version = "2018-02-05";
     private final List<String> priorityNames;
 
@@ -114,9 +117,20 @@ public final class PlaceParser extends AbstractParser<Place> {
      * @return earliest created date
      */
     private Date findCreatedDate(List<CorpusData> list) {
-        return list.stream()
-                .map(CorpusData::getCreatedDate)
-                .min(Date::compareTo)
+        Set<Long> timestamps = new HashSet<>();
+        for (CorpusData data : list) {
+            timestamps.add(data.getCreatedDate().getTime());
+            collect(data, TIMESTAMP_KEYS).forEach(field -> {
+                if (field.getValue().equals("0")) return;
+                try {
+                    timestamps.add(Long.parseLong(field.getValue()));
+                } catch (NumberFormatException ignored) {
+                }
+            });
+        }
+        return timestamps.stream()
+                .min(Long::compareTo)
+                .map(Date::new)
                 .orElseThrow(NullPointerException::new);
     }
 
