@@ -1,4 +1,4 @@
-package munch.awards;
+package munch.data.extended;
 
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
@@ -39,6 +39,7 @@ public final class PlaceAwardClient {
 
         // Set min, max place sort
         if (maxCollectionAwardId != null) {
+            // TODO lastEvaluatedKey
             query.withRangeKeyCondition(new RangeKeyCondition("ca").lt(maxCollectionAwardId));
         }
 
@@ -75,7 +76,7 @@ public final class PlaceAwardClient {
         return uuid.toString();
     }
 
-    private static PlaceAward fromItem(Item item) {
+    protected PlaceAward fromItem(Item item) {
         String collectionAwardId = item.getString("ca");
         long collectionId = UUID.fromString(collectionAwardId).getMostSignificantBits();
         String collectionIdForCollectionClient = new UUID(collectionId, 0).toString();

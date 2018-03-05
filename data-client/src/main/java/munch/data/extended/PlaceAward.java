@@ -1,4 +1,4 @@
-package munch.awards;
+package munch.data.extended;
 
 /**
  * Created by: Fuxing
@@ -6,7 +6,8 @@ package munch.awards;
  * Time: 9:41 PM
  * Project: munch-data
  */
-public class PlaceAward {
+public final class PlaceAward {
+
     private String userId;
     private String collectionId;
     private String collectionAwardId;

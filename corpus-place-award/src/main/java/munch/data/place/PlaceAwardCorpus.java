@@ -2,11 +2,11 @@ package munch.data.place;
 
 import com.google.common.collect.Lists;
 import corpus.engine.CatalystEngine;
-import munch.awards.PlaceAwardClient;
 import munch.collections.CollectionClient;
 import munch.collections.CollectionPlaceClient;
 import munch.collections.PlaceCollection;
 import munch.data.clients.SearchClient;
+import munch.data.extended.PlaceAwardClient;
 import munch.data.location.PostalParser;
 import munch.data.place.matcher.NameNormalizer;
 import munch.data.structure.Place;
@@ -107,8 +107,8 @@ public final class PlaceAwardCorpus extends CatalystEngine<AwardCollection> {
             if (notContains(addedList, place, (added, award) -> award.getMunchId().equals(added.getPlaceId()))) {
                 logger.info("Added {} to {} with id: {}", awardCollection.getCollectionName(), place.getName(), place.getMunchId());
                 collectionPlaceClient.add(AWARD_USER_ID, collectionId, place.getMunchId());
-                placeAwardClient.put(place.getMunchId(), awardCollection.getCollectionId(), place.getAwardId(),
-                        awardCollection.getCollectionName(), AWARD_USER_ID);
+//                placeAwardClient.put(place.getMunchId(), awardCollection.getCollectionId(), place.getAwardId(),
+//                        awardCollection.getCollectionName(), AWARD_USER_ID);
             }
         }
 

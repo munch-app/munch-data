@@ -1,7 +1,6 @@
 dependencies {
     compile project(':data-client')
     compile project(':client-collections')
-    compile project(':client-awards')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
     compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
 

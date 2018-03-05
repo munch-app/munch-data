@@ -16,5 +16,4 @@ include 'corpus-container'
 
 include 'corpus-place-tracking'
 include 'corpus-place-award'
-include 'client-awards'
 
