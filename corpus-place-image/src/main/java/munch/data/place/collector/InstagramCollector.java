@@ -35,6 +35,7 @@ public final class InstagramCollector extends AbstractCollector {
                     image.setUniqueId("instagram|" + media.getMediaId());
                     image.setFrom(CollectedImage.From.Instagram);
                     image.setSource("instagram");
+                    image.setImageKey(media.getMediaId());
                     image.setSourceId(media.getUserId());
                     image.setSourceName("@" + media.getUsername());
                     image.setImages(media.getImages());

@@ -37,10 +37,20 @@ public class ExtendedDataSync<T extends ExtendedData> {
      * @param incoming data iterator, must not contains any null
      */
     public void sync(String placeId, Iterator<T> incoming) {
+        Iterator<T> existing = dataClient.iterator(placeId);
+
+        // Check if incoming is empty, if empty, delete all existing
+        if (!incoming.hasNext()) {
+            existing.forEachRemaining(data -> delete(placeId, data));
+            return;
+        } else if (!existing.hasNext()) {
+            // Check if existing is empty, if empty add all incoming
+            incoming.forEachRemaining(data -> put(placeId, data));
+            return;
+        }
+
         Queue incomingQueue = new Queue();
         Queue existingQueue = new Queue();
-
-        Iterator<T> existing = dataClient.iterator(placeId);
         while (existing.hasNext() && incoming.hasNext()) {
             T in = incoming.next();
             T exist = existing.next();

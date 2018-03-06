@@ -31,6 +31,7 @@ public abstract class AbstractCollector {
         CollectedImage image = new CollectedImage();
         image.setFrom(from);
         image.setUniqueId(getUniqueId(imageField));
+        image.setImageKey(image.getImageKey());
         image.setSource(imageField.getSource());
         image.setSourceId(imageField.getSourceId());
         image.setSourceName(imageField.getSourceName());

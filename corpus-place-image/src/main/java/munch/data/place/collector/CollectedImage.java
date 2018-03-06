@@ -17,6 +17,7 @@ public class CollectedImage {
 
     private From from;
     private String uniqueId;
+    private String imageKey;
 
     private String source;
     private String sourceId;
@@ -37,6 +38,14 @@ public class CollectedImage {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getImageKey() {
+        return imageKey;
+    }
+
+    public void setImageKey(String imageKey) {
+        this.imageKey = imageKey;
     }
 
     public String getSource() {

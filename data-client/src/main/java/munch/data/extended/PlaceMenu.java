@@ -15,6 +15,10 @@ public final class PlaceMenu implements ExtendedData {
     private String sortKey;
     private String type;
 
+    private String source;
+    private String sourceName;
+    private String sourceId;
+
     private Map<String, String> thumbnail;
     private String url;
 
@@ -40,6 +44,30 @@ public final class PlaceMenu implements ExtendedData {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
     }
 
     /**
@@ -76,12 +104,15 @@ public final class PlaceMenu implements ExtendedData {
         PlaceMenu menu = (PlaceMenu) o;
         return Objects.equals(sortKey, menu.sortKey) &&
                 Objects.equals(type, menu.type) &&
+                Objects.equals(source, menu.source) &&
+                Objects.equals(sourceName, menu.sourceName) &&
+                Objects.equals(sourceId, menu.sourceId) &&
                 Objects.equals(thumbnail, menu.thumbnail) &&
                 Objects.equals(url, menu.url);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sortKey, type, thumbnail, url);
+        return Objects.hash(sortKey, type, source, sourceName, sourceId, thumbnail, url);
     }
 }

@@ -29,7 +29,7 @@ import java.util.Objects;
  * Time: 12:50 AM
  * Project: munch-data
  */
-abstract class ExtendedDataClient<T extends ExtendedData> {
+public abstract class ExtendedDataClient<T extends ExtendedData> {
     protected final Table table;
     protected final String hashKeyName;
     protected final String sortKeyName;
