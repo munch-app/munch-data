@@ -36,18 +36,18 @@ public class AssumptionEngine {
         this.searchClient = searchClient;
     }
 
-    public Optional<AssumedSearchQuery> assume(SearchQuery prevQuery, String text) {
+    public List<AssumedSearchQuery> assume(SearchQuery prevQuery, String text) {
         Map<String, Assumption> assumptionMap = database.get();
         text = text.trim();
         List<Object> tokenList = tokenize(assumptionMap, text);
 
-        if (tokenList.isEmpty()) return Optional.empty();
+        if (tokenList.isEmpty()) return List.of();
         if (tokenList.size() == 1) {
             // Only one token, check if token is explicit
             Object token = tokenList.get(0);
-            if (token instanceof String) return Optional.empty();
+            if (token instanceof String) return List.of();
             if (token instanceof Assumption) {
-                if (!((Assumption) token).isExplicit()) return Optional.empty();
+                if (!((Assumption) token).isExplicit()) return List.of();
             }
         }
 
@@ -62,7 +62,7 @@ public class AssumptionEngine {
                 String[] parts = textToken.split(" +");
                 for (String part : parts) {
                     // If any part is not stop word, return empty
-                    if (!STOP_WORDS.contains(part)) return Optional.empty();
+                    if (!STOP_WORDS.contains(part)) return List.of();
                 }
                 assumedTokens.add(new AssumedSearchQuery.TextToken(textToken));
             } else {
@@ -72,7 +72,7 @@ public class AssumptionEngine {
             }
         }
 
-        return Optional.of(createAssumedQuery(text, assumedTokens, prevQuery));
+        return List.of(createAssumedQuery(text, assumedTokens, prevQuery));
     }
 
     protected AssumedSearchQuery createAssumedQuery(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {

@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 /**
  * Created by: Fuxing
@@ -20,12 +20,16 @@ public class ExtendedDataSync<T extends ExtendedData> {
     private final ExtendedDataClient<T> dataClient;
 
     /**
-     * @param editSleep      sleep, edit sleep interval, (does not effect list operation)
-     * @param dataClient     data client for list, put & delete
+     * @param editSleep  sleep, edit sleep interval, (does not effect list operation)
+     * @param dataClient data client for list, put & delete
      */
     public ExtendedDataSync(Duration editSleep, ExtendedDataClient<T> dataClient) {
         this.editSleep = editSleep;
         this.dataClient = dataClient;
+    }
+
+    public void sync(String placeId, List<T> incomingList) {
+        sync(placeId, incomingList.iterator());
     }
 
     /**
@@ -64,20 +68,20 @@ public class ExtendedDataSync<T extends ExtendedData> {
         compare(placeId, incomingQueue, existingQueue);
 
         // All leftover existing get deleted
-        existingQueue.forEach((s, data) -> delete(placeId, s));
+        existingQueue.forEach((s, data) -> delete(placeId, data));
 
         // All leftover incoming get saved
         incomingQueue.forEach((s, data) -> put(placeId, data));
     }
 
-    private void apply(String placeId, T in, T exist) {
+    protected void apply(String placeId, T in, T exist) {
         if (in.equals(exist)) return;
 
         // If changed, override
         put(placeId, in);
     }
 
-    private void compare(String placeId, Map<String, T> incomingQueue, Map<String, T> existingQueue) {
+    protected void compare(String placeId, Map<String, T> incomingQueue, Map<String, T> existingQueue) {
         for (String sortKey : ImmutableSet.copyOf(incomingQueue.keySet())) {
             T exist = existingQueue.get(sortKey);
 
@@ -91,14 +95,14 @@ public class ExtendedDataSync<T extends ExtendedData> {
         }
     }
 
-    private void put(String placeId, T data) {
+    protected void put(String placeId, T data) {
         sleep();
         dataClient.put(placeId, data);
     }
 
-    private void delete(String placeId, String sortKey) {
+    protected void delete(String placeId, T data) {
         sleep();
-        dataClient.delete(placeId, sortKey);
+        dataClient.delete(placeId, data.getSortKey());
     }
 
     private void sleep() {

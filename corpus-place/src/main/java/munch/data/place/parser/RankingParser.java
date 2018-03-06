@@ -39,6 +39,9 @@ public final class RankingParser extends AbstractParser<Double> {
 
     private double getCorpusDataScore(CorpusData data) {
         switch (data.getCorpusName()) {
+            case "Sg.Munch.PlaceAward":
+                return 20;
+
             case "Global.Facebook.Place":
             case "Global.Instagram.Location":
                 return 10;

@@ -1,16 +1,21 @@
 package munch.data.extended;
 
+import java.util.Objects;
+
 /**
  * Created by: Fuxing
  * Date: 4/3/2018
  * Time: 9:41 PM
  * Project: munch-data
  */
-public final class PlaceAward {
+public final class PlaceAward implements ExtendedData {
 
+    // User Id & CollectionId point to where the collection is at in the collection API
     private String userId;
     private String collectionId;
-    private String collectionAwardId;
+
+    // Sort key is also the collection award id
+    private String sortKey;
     private String awardName;
 
     public String getUserId() {
@@ -32,15 +37,13 @@ public final class PlaceAward {
         this.collectionId = collectionId;
     }
 
-    /**
-     * @return CollectionAwardId
-     */
-    public String getCollectionAwardId() {
-        return collectionAwardId;
+    @Override
+    public String getSortKey() {
+        return sortKey;
     }
 
-    public void setCollectionAwardId(String collectionAwardId) {
-        this.collectionAwardId = collectionAwardId;
+    public void setSortKey(String sortKey) {
+        this.sortKey = sortKey;
     }
 
     /**
@@ -52,5 +55,26 @@ public final class PlaceAward {
 
     public void setAwardName(String awardName) {
         this.awardName = awardName;
+    }
+
+    @Override
+    public boolean equals(ExtendedData data) {
+        return equals((Object) data);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlaceAward that = (PlaceAward) o;
+        return Objects.equals(userId, that.userId) &&
+                Objects.equals(collectionId, that.collectionId) &&
+                Objects.equals(sortKey, that.sortKey) &&
+                Objects.equals(awardName, that.awardName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, collectionId, sortKey, awardName);
     }
 }

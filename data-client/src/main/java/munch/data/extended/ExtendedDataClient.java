@@ -34,16 +34,31 @@ abstract class ExtendedDataClient<T extends ExtendedData> {
     protected final String hashKeyName;
     protected final String sortKeyName;
 
+    /**
+     * @param table       table with expected data
+     * @param hashKeyName hashKeyName
+     * @param sortKeyName sortKeyName
+     */
     ExtendedDataClient(Table table, String hashKeyName, String sortKeyName) {
         this.table = table;
         this.hashKeyName = hashKeyName;
         this.sortKeyName = sortKeyName;
     }
 
+    /**
+     * Using default hashKeyName, 'p'
+     * Using default sortKeyName, 's'
+     *
+     * @param table table with expected data
+     */
     ExtendedDataClient(Table table) {
         this(table, "p", "s");
     }
 
+    /**
+     * @param placeId placeId
+     * @return Iterator with data with placeId
+     */
     public Iterator<T> iterator(String placeId) {
         Objects.requireNonNull(placeId);
 
@@ -55,6 +70,12 @@ abstract class ExtendedDataClient<T extends ExtendedData> {
         return Iterators.transform(collection.iterator(), this::fromItem);
     }
 
+    /**
+     * @param placeId     placeId
+     * @param lastSortKey lastSortKey to use as exclusive startKey
+     * @param size        size per entry
+     * @return List that match given query parameters
+     */
     public List<T> list(String placeId, String lastSortKey, int size) {
         Objects.requireNonNull(placeId);
 
@@ -75,6 +96,12 @@ abstract class ExtendedDataClient<T extends ExtendedData> {
         return list;
     }
 
+    /**
+     * This method put data into dynamo db by overriding them
+     *
+     * @param placeId placeId
+     * @param data    data to put
+     */
     public void put(String placeId, T data) {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(data);
@@ -82,6 +109,10 @@ abstract class ExtendedDataClient<T extends ExtendedData> {
         table.putItem(toItem(placeId, data));
     }
 
+    /**
+     * @param placeId placeId
+     * @param sortKey sortKey
+     */
     public void delete(String placeId, String sortKey) {
         Objects.requireNonNull(placeId);
         Objects.requireNonNull(sortKey);
@@ -89,6 +120,24 @@ abstract class ExtendedDataClient<T extends ExtendedData> {
         table.deleteItem(hashKeyName, placeId, sortKeyName, sortKey);
     }
 
+    /**
+     * Delete all the data in the placeId, hashKey
+     * Since dynamo db don't actually support deleting via hashKey
+     * This method actually iterator through all the items and delete them one by one
+     *
+     * @param placeId placeId
+     */
+    public void delete(String placeId) {
+        iterator(placeId).forEachRemaining(data -> {
+            delete(placeId, data.getSortKey());
+        });
+    }
+
+    /**
+     * @param placeId placeId
+     * @param sortKey sortKey
+     * @return Data request or null if cannot find
+     */
     @Nullable
     public T get(String placeId, String sortKey) {
         Item item = table.getItem(hashKeyName, placeId, sortKeyName, sortKey);

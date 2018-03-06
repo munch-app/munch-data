@@ -48,6 +48,7 @@ public class PlaceAwardModule extends AbstractModule {
     public static void main(String[] args) throws InterruptedException {
         Injector injector = Guice.createInjector(new PlaceAwardModule());
         EngineGroup.start(
+                injector.getInstance(AwardListCorpus.class),
                 injector.getInstance(PlaceAwardCorpus.class)
         );
         ScheduledThreadUtils.shutdown();
