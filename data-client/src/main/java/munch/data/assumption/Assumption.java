@@ -11,20 +11,30 @@ import java.util.function.Consumer;
  * Project: munch-data
  */
 public class Assumption {
-    private final boolean explicit;
+    public enum Type {
+        Location,
+        Tag,
+        Price,
+        Timing
+    }
+
+    private final Type type;
     private final String token;
     private final String tag;
     private final Consumer<SearchQuery> queryConsumer;
 
-    protected Assumption(boolean explicit, String token, String tag, Consumer<SearchQuery> queryConsumer) {
-        this.explicit = explicit;
+    protected Assumption(Type type, String token, String tag, Consumer<SearchQuery> queryConsumer) {
+        this.type = type;
         this.token = token;
         this.tag = tag;
         this.queryConsumer = queryConsumer;
     }
 
-    public boolean isExplicit() {
-        return explicit;
+    /**
+     * @return type used to identify which type of assumption is it
+     */
+    public Type getType() {
+        return type;
     }
 
     /**
@@ -48,11 +58,7 @@ public class Assumption {
         queryConsumer.accept(query);
     }
 
-    public static Assumption of(String token, String tag, Consumer<SearchQuery> consumer) {
-        return new Assumption(false, token, tag, consumer);
-    }
-
-    public static Assumption of(boolean explicit, String token, String tag, Consumer<SearchQuery> consumer) {
-        return new Assumption(explicit, token, tag, consumer);
+    public static Assumption of(Type type, String token, String tag, Consumer<SearchQuery> consumer) {
+        return new Assumption(type, token, tag, consumer);
     }
 }

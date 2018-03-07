@@ -2,6 +2,8 @@ package munch.data.structure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
+import munch.restful.core.JsonUtils;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +27,6 @@ public final class SearchQuery {
     private Integer from;
     private Integer size;
 
-    private String query;
     private String latLng;
     private Double radius;
 
@@ -49,27 +50,6 @@ public final class SearchQuery {
 
     public void setSize(Integer size) {
         this.size = size;
-    }
-
-    /**
-     * Data that affects query
-     * 1. Place Name
-     * 2. Location Name - Bishan
-     * 3. Amenities (A) - Wheelchair Friendly
-     * 4. Speciality (A) - Xiao Long Bao
-     * 5. Occasion (A) - Birthday Celebration
-     * 6. Establishment (A) - Restaurant
-     * 7. Cuisine (A) - Chinese
-     *
-     * @return query string
-     */
-    @Deprecated
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
     }
 
     /**
@@ -492,12 +472,16 @@ public final class SearchQuery {
         return "SearchQuery{" +
                 "from=" + from +
                 ", size=" + size +
-                ", query='" + query + '\'' +
                 ", latLng='" + latLng + '\'' +
                 ", radius=" + radius +
                 ", filter=" + filter +
                 ", sort=" + sort +
                 ", trigger=" + trigger +
                 '}';
+    }
+
+    public SearchQuery deepCopy(){
+        JsonNode node = JsonUtils.toTree(this);
+        return JsonUtils.toObject(node, SearchQuery.class);
     }
 }

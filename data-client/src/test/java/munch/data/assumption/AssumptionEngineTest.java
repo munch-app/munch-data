@@ -31,9 +31,10 @@ class AssumptionEngineTest {
             }
         }, null) {
             @Override
-            protected AssumedSearchQuery createAssumedQuery(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+            protected AssumedSearchQuery createAssumedQuery(String location, String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
                 AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
                 assumedSearchQuery.setText(text);
+                assumedSearchQuery.setLocation(location);
                 assumedSearchQuery.setTokens(assumedTokens);
                 assumedSearchQuery.setSearchQuery(query);
                 return assumedSearchQuery;

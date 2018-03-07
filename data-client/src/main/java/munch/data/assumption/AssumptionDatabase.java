@@ -39,11 +39,11 @@ public class AssumptionDatabase {
 
     protected static final List<Assumption> EXPLICIT_ASSUMPTION = List.of(
             // Location Assumption
-            Assumption.of(true, "nearby", "Nearby", applyLocation(null)),
-            Assumption.of(true, "nearby me", "Nearby", applyLocation(null)),
-            Assumption.of(true, "near me", "Near Me", applyLocation(null)),
-            Assumption.of(true, "around me", "Around Me", applyLocation(null)),
-            Assumption.of(true, "anywhere", "Anywhere", applyLocation(LocationUtils.SINGAPORE)),
+            Assumption.of(Assumption.Type.Location, "nearby", "Nearby", applyLocation(null)),
+            Assumption.of(Assumption.Type.Location, "nearby me", "Nearby", applyLocation(null)),
+            Assumption.of(Assumption.Type.Location, "near me", "Near Me", applyLocation(null)),
+            Assumption.of(Assumption.Type.Location, "around me", "Around Me", applyLocation(null)),
+            Assumption.of(Assumption.Type.Location, "anywhere", "Anywhere", applyLocation(LocationUtils.SINGAPORE)),
 
             // Price Range Assumption
             // Future: Cheap, Budget, Expensive
@@ -52,13 +52,13 @@ public class AssumptionDatabase {
 
             // Timing Assumption
             // Add Open Now
-            Assumption.of(true, "open now", "Open Now", ASSUMPTION_OPEN_NOW),
+            Assumption.of(Assumption.Type.Timing, "open now", "Open Now", ASSUMPTION_OPEN_NOW),
 
             // Tag Assumption
-            Assumption.of(true, "bar", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of(true, "bars", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of(true, "pub", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of(true, "pubs", "Bars & Pubs", applyTag("Bars & Pubs"))
+            Assumption.of(Assumption.Type.Tag, "bar", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of(Assumption.Type.Tag, "bars", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of(Assumption.Type.Tag, "pub", "Bars & Pubs", applyTag("Bars & Pubs")),
+            Assumption.of(Assumption.Type.Tag, "pubs", "Bars & Pubs", applyTag("Bars & Pubs"))
     );
 
     private final ElasticIndex elasticIndex;
@@ -75,19 +75,19 @@ public class AssumptionDatabase {
         Iterator<Container> containers = elasticIndex.scroll("Container", "2m");
         containers.forEachRemaining(container -> {
             String token = container.getName().toLowerCase();
-            assumptionMap.putIfAbsent(token, Assumption.of(token, container.getName(), applyContainer(container)));
+            assumptionMap.putIfAbsent(token, Assumption.of(Assumption.Type.Location, token, container.getName(), applyContainer(container)));
         });
 
         Iterator<Location> locations = elasticIndex.scroll("Location", "2m");
         locations.forEachRemaining(location -> {
             String token = location.getName().toLowerCase();
-            assumptionMap.putIfAbsent(token, Assumption.of(token, location.getName(), applyLocation(location)));
+            assumptionMap.putIfAbsent(token, Assumption.of(Assumption.Type.Location, token, location.getName(), applyLocation(location)));
         });
 
         Iterator<Tag> tags = elasticIndex.scroll("Tag", "2m");
         tags.forEachRemaining(tag -> {
             String token = tag.getName().toLowerCase();
-            assumptionMap.putIfAbsent(token, Assumption.of(token, tag.getName(), applyTag(tag.getName())));
+            assumptionMap.putIfAbsent(token, Assumption.of(Assumption.Type.Tag, token, tag.getName(), applyTag(tag.getName())));
         });
         return assumptionMap;
     }
