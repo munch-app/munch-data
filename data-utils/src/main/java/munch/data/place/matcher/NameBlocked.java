@@ -2,6 +2,7 @@ package munch.data.place.matcher;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import munch.data.price.PriceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
@@ -46,6 +47,7 @@ public final class NameBlocked {
         if (name.length() < 3) return true;
         if (isTiming(name)) return true;
         if (isPhone(name)) return true;
+        if (PriceUtils.isPrice(name)) return true;
         return blockedNames.contains(name);
     }
 
