@@ -51,35 +51,31 @@ public final class MenuProcessor {
         Map<String, String> images = processedImage.getImage().getImages();
         if (images.isEmpty()) return null;
 
-        try {
-            PlaceMenu menu = new PlaceMenu();
-            menu.setSortKey(getSortKey(processedImage));
+        PlaceMenu menu = new PlaceMenu();
+        menu.setSortKey(getSortKey(processedImage));
 
-            menu.setType(PlaceMenu.TYPE_IMAGE);
-            menu.setThumbnail(images);
-            menu.setUrl(getLargestImage(images));
+        menu.setType(PlaceMenu.TYPE_IMAGE);
+        menu.setThumbnail(images);
+        menu.setUrl(getLargestImage(images));
 
-            menu.setSource(processedImage.getImage().getSource());
-            menu.setSourceName(processedImage.getImage().getSourceName());
-            menu.setSourceId(processedImage.getImage().getSourceId());
-            return menu;
-        } catch (Exception e) {
-            logger.error("Exception while Parsing PlaceMenu: {}", processedImage);
-            throw e;
-        }
+        menu.setSource(processedImage.getImage().getSource());
+        menu.setSourceName(processedImage.getImage().getSourceName());
+        menu.setSourceId(processedImage.getImage().getSourceId());
+        return menu;
     }
 
     private String getSortKey(ProcessedImage processedImage) {
         Map.Entry<String, Float> max = processedImage.getFinnLabel().getMaxOutput();
         String source = Objects.requireNonNull(processedImage.getImage().getSource());
         String imageKey = Objects.requireNonNull(processedImage.getImage().getImageKey());
-        if (max.getValue() > 0.99) return "99_" + source + "_" + imageKey;
+        int percent = (int) (max.getValue() * 100);
+        if (percent > 99) return "99_" + source + "_" + imageKey;
 
-        int num = max.getValue().intValue() * 100;
-        if (num < 0) return "00_" + source + "_" + imageKey;
 
-        if (num % 10 == 0) return "0" + num + "_" + source + "_" + imageKey;
-        return num + "_" + source + "_" + imageKey;
+        if (percent < 0) return "00_" + source + "_" + imageKey;
+
+        if (percent % 10 == 0) return "0" + percent + "_" + source + "_" + imageKey;
+        return percent + "_" + source + "_" + imageKey;
     }
 
     private String getLargestImage(Map<String, String> images) {

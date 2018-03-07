@@ -28,4 +28,8 @@ public final class AwardListKey extends AbstractKey {
     public String getUUID(CorpusData data) {
         return new UUID(getLong(data), 0).toString();
     }
+
+    public static String toUUID(String collectionId) {
+        return new UUID(Long.parseLong(collectionId), 0).toString();
+    }
 }

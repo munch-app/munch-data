@@ -1,6 +1,7 @@
 package munch.data.assumption;
 
 import com.google.common.base.Joiner;
+import munch.data.clients.LocationUtils;
 import munch.data.clients.PlaceClient;
 import munch.data.structure.SearchQuery;
 import munch.data.utils.PatternSplit;
@@ -36,25 +37,18 @@ public class AssumptionEngine {
         this.searchClient = searchClient;
     }
 
-    public List<AssumedSearchQuery> assume(SearchQuery prevQuery, String text) {
+    public List<AssumedSearchQuery> assume(SearchQuery query, String text) {
         Map<String, Assumption> assumptionMap = database.get();
         text = text.trim();
         List<Object> tokenList = tokenize(assumptionMap, text);
 
+        // Validate
         if (tokenList.isEmpty()) return List.of();
         if (tokenList.size() == 1) {
             // Only one token, check if token is explicit
             Object token = tokenList.get(0);
             if (token instanceof String) return List.of();
-            if (token instanceof Assumption) {
-                if (!((Assumption) token).isExplicit()) return List.of();
-            }
         }
-
-        List<AssumedSearchQuery.Token> assumedTokens = new ArrayList<>();
-        if (prevQuery.getFilter() == null) prevQuery.setFilter(new SearchQuery.Filter());
-        prevQuery.getFilter().setTag(new SearchQuery.Filter.Tag());
-
         for (Object token : tokenList) {
             if (token instanceof String) {
                 // Stop-words checking
@@ -64,24 +58,144 @@ public class AssumptionEngine {
                     // If any part is not stop word, return empty
                     if (!STOP_WORDS.contains(part)) return List.of();
                 }
-                assumedTokens.add(new AssumedSearchQuery.TextToken(textToken));
-            } else {
-                Assumption assumption = (Assumption) token;
-                assumption.apply(prevQuery);
-                assumedTokens.add(new AssumedSearchQuery.TagToken(assumption.getTag()));
             }
         }
 
-        return List.of(createAssumedQuery(text, assumedTokens, prevQuery));
+        return createList(query, text, tokenList);
     }
 
-    protected AssumedSearchQuery createAssumedQuery(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+    private List<AssumedSearchQuery> createList(SearchQuery query, String text, List<Object> tokenList) {
+        List<AssumedSearchQuery.Token> assumedTokens = asToken(query, tokenList);
+        List<Assumption> assumptions = asAssumptions(tokenList);
+        query = createSearchQuery(query, assumptions);
+
+        String location = getLocation(tokenList);
+        if (location != null) return List.of(createAssumedQuery(location, text, assumedTokens, query));
+
+        List<AssumedSearchQuery> list = new ArrayList<>();
+        AssumedSearchQuery anywhere = createAnywhere(text, assumedTokens, query);
+        if (anywhere.getResultCount() == 0) return List.of();
+
+        createCurrent(text, assumedTokens, query).ifPresent(list::add);
+        createNearby(text, assumedTokens, query).ifPresent(list::add);
+        list.add(anywhere);
+        return list;
+    }
+
+    private AssumedSearchQuery createAnywhere(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+        query = query.deepCopy();
+        query.getFilter().setLocation(LocationUtils.SINGAPORE);
+        query.getFilter().setContainers(List.of());
+
+        assumedTokens = new ArrayList<>(assumedTokens);
+        assumedTokens.add(new AssumedSearchQuery.TagToken("Anywhere"));
+        return createAssumedQuery("Anywhere", text, assumedTokens, query);
+    }
+
+    private Optional<AssumedSearchQuery> createNearby(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+        if (query.getLatLng() == null) return Optional.empty();
+
+        query = query.deepCopy();
+        query.setRadius(LocationUtils.DEFAULT_RADIUS);
+        query.getFilter().setLocation(null);
+        query.getFilter().setContainers(List.of());
+
+        assumedTokens = new ArrayList<>(assumedTokens);
+        AssumedSearchQuery nearby = createAssumedQuery("Nearby", text, assumedTokens, query);
+        if (nearby.getResultCount() == 0) return Optional.empty();
+
+        // Check results count is 0
+        assumedTokens.add(new AssumedSearchQuery.TagToken("Nearby"));
+        return Optional.of(nearby);
+    }
+
+    private Optional<AssumedSearchQuery> createCurrent(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+        query = query.deepCopy();
+
+        if (LocationUtils.isAnywhere(query)) return Optional.empty();
+        String locationName = LocationUtils.getName(query, null);
+        if (locationName == null) return Optional.empty();
+
+        if (locationName.equalsIgnoreCase("singapore")) return Optional.empty();
+        if (locationName.equalsIgnoreCase("anywhere")) return Optional.empty();
+
+        assumedTokens = new ArrayList<>(assumedTokens);
+        assumedTokens.add(new AssumedSearchQuery.TextToken("in"));
+        assumedTokens.add(new AssumedSearchQuery.TagToken(locationName));
+        return Optional.of(createAssumedQuery(locationName, text, assumedTokens, query));
+    }
+
+    protected AssumedSearchQuery createAssumedQuery(String location, String text,
+                                                    List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
         AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
         assumedSearchQuery.setText(text);
+        assumedSearchQuery.setLocation(location);
+        assumedSearchQuery.setResultCount(searchClient.count(query));
+
         assumedSearchQuery.setTokens(assumedTokens);
         assumedSearchQuery.setSearchQuery(query);
-        assumedSearchQuery.setResultCount(searchClient.count(query));
         return assumedSearchQuery;
+    }
+
+    private static SearchQuery createSearchQuery(SearchQuery query, List<Assumption> assumptions) {
+        query = query.deepCopy();
+        for (Assumption assumption : assumptions) {
+            assumption.apply(query);
+        }
+        return query;
+    }
+
+    private static String getLocation(List<Object> tokenList) {
+        for (Object o : tokenList) {
+            if (o instanceof Assumption) {
+                Assumption assumption = (Assumption) o;
+                if (Assumption.Type.Location.equals(assumption.getType())) {
+                    return assumption.getTag();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static List<AssumedSearchQuery.Token> asToken(SearchQuery query, List<Object> tokenList) {
+        List<AssumedSearchQuery.Token> assumedTokens = new ArrayList<>(getTokens(query));
+        for (Object o : tokenList) {
+            if (o instanceof String) {
+                assumedTokens.add(new AssumedSearchQuery.TextToken((String) o));
+            } else {
+                assumedTokens.add(new AssumedSearchQuery.TagToken(((Assumption) o).getTag()));
+            }
+        }
+        return assumedTokens;
+    }
+
+    private static List<AssumedSearchQuery.Token> getTokens(SearchQuery query) {
+        SearchQuery.Filter filter = query.getFilter();
+        if (filter == null) return List.of();
+
+        List<AssumedSearchQuery.Token> assumedTokens = new ArrayList<>();
+        SearchQuery.Filter.Hour hour = query.getFilter().getHour();
+        if (hour != null && hour.getName() != null) {
+            assumedTokens.add(new AssumedSearchQuery.TagToken(hour.getName()));
+        }
+        SearchQuery.Filter.Tag tag = query.getFilter().getTag();
+        if (tag != null && tag.getPositives() != null) {
+            for (String tp : tag.getPositives()) {
+                assumedTokens.add(new AssumedSearchQuery.TagToken(tp));
+            }
+        }
+
+        return assumedTokens;
+    }
+
+    private static List<Assumption> asAssumptions(List<Object> tokenList) {
+        List<Assumption> tokens = new ArrayList<>();
+        for (Object o : tokenList) {
+            if (o instanceof Assumption) {
+                tokens.add((Assumption) o);
+            }
+        }
+        return tokens;
     }
 
     private List<Object> tokenize(Map<String, Assumption> assumptionMap, String text) {
@@ -111,21 +225,6 @@ public class AssumptionEngine {
 
         // Not Found
         return List.of(text);
-    }
-
-    private void joinStrings(List<Object> tokens) {
-        ListIterator<Object> iterator = tokens.listIterator();
-        while (iterator.hasNext()) {
-            Object next = iterator.next();
-            if (next instanceof String && iterator.hasNext()) {
-                Object nextNext = iterator.next();
-                if (nextNext instanceof String) {
-                    iterator.remove();
-                    iterator.previous();
-                    iterator.set(next + " " + nextNext);
-                }
-            }
-        }
     }
 
     public static List<Triple<String, String, String>> splitInto(List<String> parts, int join) {

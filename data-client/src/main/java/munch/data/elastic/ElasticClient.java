@@ -9,7 +9,6 @@ import io.searchbox.client.JestClient;
 import io.searchbox.core.Count;
 import io.searchbox.core.MultiSearch;
 import io.searchbox.core.Search;
-import munch.data.elastic.query.SortQuery;
 import munch.data.exceptions.ElasticException;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -113,7 +112,7 @@ public final class ElasticClient {
      * @return list of hits
      */
     public JsonNode search(List<String> types, String text, @Nullable String latLng, int from, int size) {
-        Search search = createSearch(types, "name", text, latLng, from, size);
+        Search search = createSearch(types, List.of("name"), text, latLng, from, size);
 
         try {
             JsonNode result = mapper.readTree(client.execute(search).getJsonString());
@@ -208,7 +207,7 @@ public final class ElasticClient {
     }
 
     public static Search createSearch(List<String> types, String text, @Nullable String latLng, int from, int size) {
-        return createSearch(types, "name", text, latLng, from, size);
+        return createSearch(types, List.of("name"), text, latLng, from, size);
     }
 
     /**
@@ -218,9 +217,9 @@ public final class ElasticClient {
      * @param size  size, Max (100)
      * @return Search object for elasticsearch
      */
-    public static Search createSearch(List<String> types, String field, String text, @Nullable String latLng, int from, int size) {
+    public static Search createSearch(List<String> types, List<String> fields, String text, @Nullable String latLng, int from, int size) {
         ObjectNode bool = mapper.createObjectNode();
-        bool.set("must", must(field, text));
+        bool.set("must", withFunctionScoreMust(latLng, must(fields, text)));
         if (types.size() == 1) {
             bool.set("filter", filter(types));
         } else if (types.size() > 1) {
@@ -232,12 +231,6 @@ public final class ElasticClient {
         root.put("from", from);
         root.put("size", size > 100 ? 100 : size);
         root.putObject("query").set("bool", bool);
-
-        if (StringUtils.isNotBlank(latLng)) {
-            ArrayNode sortArray = mapper.createArrayNode();
-            sortArray.add(SortQuery.sortDistance(latLng));
-            root.set("sort", sortArray);
-        }
 
         Search.Builder builder = new Search.Builder(JsonUtils.toString(root))
                 .addIndex(ElasticMapping.INDEX_NAME);
@@ -267,13 +260,35 @@ public final class ElasticClient {
         }
     }
 
+    static JsonNode withFunctionScoreMust(@Nullable String latLng, JsonNode must) {
+        ObjectNode root = mapper.createObjectNode();
+        ObjectNode function = root.putObject("function_score");
+        function.put("score_mode", "multiply");
+        function.set("query", must);
+        ArrayNode functions = function.putArray("functions");
+        functions.addObject()
+                .putObject("gauss")
+                .putObject("ranking")
+                .put("scale", "1000")
+                .put("origin", "2000");
+
+        if (latLng != null) {
+            functions.addObject()
+                    .putObject("gauss")
+                    .putObject("location.latLng")
+                    .put("scale", "3km")
+                    .put("origin", latLng);
+        }
+        return root;
+    }
+
     /**
      * Search with text on name
      *
      * @param query query string
      * @return JsonNode must filter
      */
-    static JsonNode must(String field, String query) {
+    static JsonNode must(List<String> fields, String query) {
         ObjectNode root = mapper.createObjectNode();
 
         // Match all if query is blank
@@ -282,9 +297,21 @@ public final class ElasticClient {
             return root;
         }
 
+        if (fields.size() == 1) {
+            // Match name if got query
+            ObjectNode match = root.putObject("match_phrase_prefix");
+            match.put(fields.get(0), query);
+            return root;
+        }
+
         // Match name if got query
-        ObjectNode match = root.putObject("match_phrase_prefix");
-        match.put(field, query);
+        ObjectNode match = root.putObject("multi_match");
+        match.put("query", query);
+        match.put("type", "phrase_prefix");
+        ArrayNode array = match.putArray("fields");
+        for (String field : fields) {
+            array.add(field);
+        }
         return root;
     }
 

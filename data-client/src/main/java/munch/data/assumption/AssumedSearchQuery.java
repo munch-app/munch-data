@@ -12,9 +12,11 @@ import java.util.List;
  */
 public final class AssumedSearchQuery {
     private String text;
+    private String location;
+    private long resultCount;
+
     private List<Token> tokens;
     private SearchQuery searchQuery;
-    private long resultCount;
 
     public String getText() {
         return text;
@@ -22,6 +24,14 @@ public final class AssumedSearchQuery {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public List<Token> getTokens() {

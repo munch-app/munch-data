@@ -28,9 +28,8 @@ public final class PlaceAwardKey extends AbstractKey {
         return Long.parseLong(getValueOrThrow(data));
     }
 
-    public static String getSortKey(CorpusData data) {
-        long collectionId = awardName.get(data)
-                .flatMap(field -> Optional.ofNullable(field.getMetadata()))
+    public static String getSortKey(CorpusData data, CorpusData.Field field) {
+        long collectionId = Optional.ofNullable(field.getMetadata())
                 .flatMap(map -> Optional.ofNullable(map.get("CollectionId")))
                 .map(Long::parseLong)
                 .orElseThrow(NullPointerException::new);
