@@ -73,18 +73,21 @@ public class AssumptionEngine {
         if (location != null) return List.of(createAssumedQuery(location, text, assumedTokens, query));
 
         List<AssumedSearchQuery> list = new ArrayList<>();
+        AssumedSearchQuery anywhere = createAnywhere(text, assumedTokens, query);
+        if (anywhere.getResultCount() == 0) return List.of();
+
         createCurrent(text, assumedTokens, query).ifPresent(list::add);
         createNearby(text, assumedTokens, query).ifPresent(list::add);
-        createAnywhere(text, assumedTokens, query).ifPresent(list::add);
+        list.add(anywhere);
         return list;
     }
 
-    private Optional<AssumedSearchQuery> createAnywhere(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
+    private AssumedSearchQuery createAnywhere(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
         query = query.deepCopy();
         query.getFilter().setLocation(LocationUtils.SINGAPORE);
         query.getFilter().setContainers(List.of());
 
-        return Optional.of(createAssumedQuery("Anywhere", text, assumedTokens, query));
+        return createAssumedQuery("Anywhere", text, assumedTokens, query);
     }
 
     private Optional<AssumedSearchQuery> createNearby(String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
@@ -111,10 +114,7 @@ public class AssumptionEngine {
         if (locationName.equalsIgnoreCase("singapore")) return Optional.empty();
         if (locationName.equalsIgnoreCase("anywhere")) return Optional.empty();
 
-        AssumedSearchQuery current = createAssumedQuery(locationName, text, assumedTokens, query);
-        if (current.getResultCount() == 0) return Optional.empty();
-        // Check results count is 0
-        return Optional.of(current);
+        return Optional.of(createAssumedQuery(locationName, text, assumedTokens, query));
     }
 
     protected AssumedSearchQuery createAssumedQuery(String location, String text,
