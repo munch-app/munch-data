@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,10 +91,8 @@ public final class BoolQuery {
         if (filter == null) return filterArray;
 
         // Filter to positive tags
-        if (filter.getTag() != null && filter.getTag().getPositives() != null) {
-            for (String tag : filter.getTag().getPositives()) {
-                filterArray.add(filterTerm("tag.implicits", tag.toLowerCase()));
-            }
+        if (filter.getTag() != null && filter.getTag().getPositives() != null && !filter.getTag().getPositives().isEmpty()) {
+            filterArray.add(filterTerms("tag.implicits", filter.getTag().getPositives()));
         }
 
         // Filter price
@@ -251,6 +250,20 @@ public final class BoolQuery {
     public static JsonNode filterTerm(String name, String text) {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("term").put(name, text);
+        return filter;
+    }
+
+    /**
+     * @param name  name of terms
+     * @param texts texts of terms
+     * @return JsonNode =  { "term" : { "name" : "text" } }
+     */
+    public static JsonNode filterTerms(String name, Collection<String> texts) {
+        ObjectNode filter = mapper.createObjectNode();
+        ArrayNode terms = filter.putObject("terms").putArray(name);
+        for (String text : texts) {
+            terms.add(text);
+        }
         return filter;
     }
 
