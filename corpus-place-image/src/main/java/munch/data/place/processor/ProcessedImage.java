@@ -43,4 +43,12 @@ public class ProcessedImage {
         if (!max.getKey().equals(label)) return false;
         return max.getValue() > min;
     }
+
+    @Override
+    public String toString() {
+        return "ProcessedImage{" +
+                "image=" + image +
+                ", finnLabel=" + finnLabel +
+                '}';
+    }
 }

@@ -63,8 +63,11 @@ public final class ImageProcessor {
      * @return parsed ProcessedI?mage
      */
     private ProcessedImage parse(CollectedImage collectedImage) {
-        String uniqueId = Objects.requireNonNull(collectedImage.getUniqueId());
-        JsonNode cache = documentClient.get(HASH_KEY, uniqueId);
+        String source = Objects.requireNonNull(collectedImage.getSource());
+        String imageKey = Objects.requireNonNull(collectedImage.getImageKey());
+        JsonNode cache = documentClient.get(HASH_KEY, source, imageKey);
+
+        // Initialized from JSON
         if (cache != null) return JsonUtils.toObject(cache, ProcessedImage.class);
 
         try {
@@ -73,7 +76,7 @@ public final class ImageProcessor {
             FinnLabel finnLabel = predict(collectedImage);
             if (finnLabel == null) return null;
             processedImage.setFinnLabel(finnLabel);
-            documentClient.put(HASH_KEY, uniqueId, JsonUtils.toTree(processedImage));
+            documentClient.put(HASH_KEY, source, imageKey, JsonUtils.toTree(processedImage));
             return processedImage;
         } catch (IllegalStateException e) {
             if (e.getMessage().equals("images is empty")) return null;
@@ -90,6 +93,7 @@ public final class ImageProcessor {
             logger.warn("Images not suppose to be empty, CollectedImage: {}", collectedImage);
             throw new IllegalStateException("images is empty");
         }
+
         String imageUrl = collectedImage.getImages().get("640x640");
         if (imageUrl == null) imageUrl = collectedImage.getImages().get("original");
         if (imageUrl == null) imageUrl = collectedImage.getImages().entrySet().iterator().next().getValue();

@@ -4,7 +4,6 @@ import corpus.data.CorpusData;
 import corpus.images.ImageField;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -24,28 +23,22 @@ public abstract class AbstractCollector {
             imageField = new ImageField(field);
         }
 
+        // Source is required for crediting owner
+        if (imageField.getSource() == null) return null;
+        if (imageField.getSourceId() == null) return null;
+        if (imageField.getSourceName() == null) return null;
+
         if (imageField.getImages() == null) return null;
         if (imageField.getImages().isEmpty()) return null;
 
         // Map CollectedImage
         CollectedImage image = new CollectedImage();
         image.setFrom(from);
-        image.setUniqueId(getUniqueId(imageField));
         image.setImageKey(imageField.getImageKey());
         image.setSource(imageField.getSource());
         image.setSourceId(imageField.getSourceId());
         image.setSourceName(imageField.getSourceName());
         image.setImages(imageField.getImages());
         return image;
-    }
-
-    private static String getUniqueId(ImageField imageField) {
-        Objects.requireNonNull(imageField.getImageKey());
-        if (imageField.getSource() != null) {
-            return imageField.getSource() + "|" + imageField.getImageKey();
-        } else {
-            Objects.requireNonNull(imageField.getBucket());
-            return imageField.getBucket() + "|" + imageField.getImageKey();
-        }
     }
 }

@@ -15,8 +15,9 @@ public class CollectedImage {
         Article
     }
 
+    // NOTE: CollectedImage data is cached, update document table if structure change or else it won't be updated
+
     private From from;
-    private String uniqueId;
     private String imageKey;
 
     private String source;
@@ -30,14 +31,6 @@ public class CollectedImage {
 
     public void setFrom(From from) {
         this.from = from;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
     }
 
     public String getImageKey() {
@@ -84,9 +77,10 @@ public class CollectedImage {
     public String toString() {
         return "CollectedImage{" +
                 "from=" + from +
-                ", uniqueId='" + uniqueId + '\'' +
+                ", imageKey='" + imageKey + '\'' +
                 ", source='" + source + '\'' +
                 ", sourceId='" + sourceId + '\'' +
+                ", sourceName='" + sourceName + '\'' +
                 ", images=" + images +
                 '}';
     }

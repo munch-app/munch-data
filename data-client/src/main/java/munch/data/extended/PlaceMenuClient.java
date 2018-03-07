@@ -28,6 +28,10 @@ public final class PlaceMenuClient extends ExtendedDataClient<PlaceMenu> {
         menu.setType(item.getString("type"));
         menu.setUrl(item.getString("url"));
         menu.setThumbnail(item.getMap("thumbnail"));
+
+        menu.setSource(item.getString("source"));
+        menu.setSourceId(item.getString("sourceId"));
+        menu.setSourceName(item.getString("sourceName"));
         return menu;
     }
 
@@ -44,6 +48,10 @@ public final class PlaceMenuClient extends ExtendedDataClient<PlaceMenu> {
         item.with("type", data.getType());
         item.with("url", data.getUrl());
         item.withMap("thumbnail", data.getThumbnail());
+
+        item.with("source", data.getSource());
+        item.with("sourceId", data.getSourceId());
+        item.with("sourceName", data.getSourceName());
         return item;
     }
 }

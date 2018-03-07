@@ -60,6 +60,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         // One week update once unless there is less then 3 images
         if (!isDue(placeId)) {
             sleep(100);
+            if (processed % 100 == 0) logger.info("Processed {} places", processed);
             return;
         }
 
@@ -70,14 +71,14 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         List<CollectedImage> collectedImages = imageCollector.collect(placeId, dataList);
         List<ProcessedImage> processedImages = imageProcessor.process(collectedImages);
 
+        // Put PlaceMenu collected from images
+        menuProcessor.put(placeId, processedImages);
+
         CorpusData imageData = new CorpusData(cycleNo);
         imageData.setCatalystId(placeId);
         imageData.getFields().addAll(selectImages(processedImages));
         imageData.put("Sg.Munch.PlaceImage.version", VERSION);
         corpusClient.put("Sg.Munch.PlaceImage", placeId, imageData);
-
-        // Put Menu Card collected from images
-        menuProcessor.put(placeId, processedImages);
 
         sleep(100);
         if (processed % 100 == 0) logger.info("Processed {} places", processed);
