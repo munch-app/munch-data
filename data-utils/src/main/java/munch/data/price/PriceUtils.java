@@ -1,5 +1,7 @@
 package munch.data.price;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,5 +33,10 @@ public final class PriceUtils {
             prices.add(matcher.group("price"));
         }
         return prices;
+    }
+
+    public static boolean isPrice(String text) {
+        if (StringUtils.isBlank(text)) return false;
+        return PricePattern.matcher(text.trim()).matches();
     }
 }

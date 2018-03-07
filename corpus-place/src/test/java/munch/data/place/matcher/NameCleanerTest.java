@@ -17,7 +17,7 @@ class NameCleanerTest {
 
     @Test
     void locationTrimming() throws Exception {
-        PatternSplit pattern = NameCleaner.LocationCleaner.PATTERN_LOCATION_JOINER;
+        PatternSplit pattern = LocationCleaner.PATTERN_LOCATION_JOINER;
 
         assertEquals(pattern.matcher("food at ").replaceAll(""), "food");
         assertEquals(pattern.matcher("food - ").replaceAll(""), "food");
@@ -46,7 +46,7 @@ class NameCleanerTest {
 
     @Test
     void locationCleaner() throws Exception {
-        NameCleaner.LocationCleaner cleaner = new NameCleaner.LocationCleaner();
+        LocationCleaner cleaner = new LocationCleaner();
         assertEquals(cleaner.clean("PastaJ @ Bishan"), "PastaJ");
     }
 }
