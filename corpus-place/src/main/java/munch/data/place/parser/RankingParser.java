@@ -34,6 +34,8 @@ public final class RankingParser extends AbstractParser<Double> {
         // Negative scores
         ranking += getNegative(place, list);
 
+        if (ranking < 0) return 0.0;
+        if (ranking > 2000) return 2000.0;
         return ranking;
     }
 

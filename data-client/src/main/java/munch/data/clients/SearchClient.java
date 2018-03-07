@@ -101,7 +101,7 @@ public class SearchClient extends AbstractClient {
                     .map(StringUtils::trimToNull)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            searches.add(ElasticClient.createSearch(typeList,"allNames", text, latLng, 0, size));
+            searches.add(ElasticClient.createSearch(typeList, List.of("name^2", "allNames"), text, latLng, 0, size));
         });
 
         Map<String, List<SearchResult>> resultMap = new HashMap<>();
