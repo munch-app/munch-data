@@ -8,7 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -20,15 +23,9 @@ import java.util.stream.Collectors;
 @Singleton
 public final class HourParser extends AbstractParser<List<Place.Hour>> {
     private static final Logger logger = LoggerFactory.getLogger(HourParser.class);
-    private static final Comparator<Map.Entry<DayOpenClose, Long>> HOUR_COMPARATOR;
     private static final Comparator<Place.Hour> DETERMINISTIC_COMPARATOR;
 
     static {
-        Comparator<Map.Entry<DayOpenClose, Long>> comparator = Comparator.comparingLong(Map.Entry::getValue);
-        comparator = comparator.reversed();
-        comparator = comparator.thenComparingInt(value -> value.getKey().hashCode());
-        HOUR_COMPARATOR = comparator;
-
         DETERMINISTIC_COMPARATOR = Comparator.comparing(Place.Hour::getDay)
                 .thenComparing(Place.Hour::getOpen)
                 .thenComparing(Place.Hour::getClose);
@@ -85,23 +82,26 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
      */
     private List<Place.Hour> collectDayMax(List<CorpusDataHour> corpusHours, String day) {
         List<DayOpenClose> openCloseList = new ArrayList<>();
+        int closedDays = 0;
 
         // Collect all open close for that day if its open
         for (CorpusDataHour corpusHour : corpusHours) {
             DayOpenClose openClose = corpusHour.getDays().get(day);
             if (openClose.isOpen()) openCloseList.add(openClose);
+            else closedDays++;
         }
 
         if (openCloseList.isEmpty()) return List.of();
+        if (closedDays > 3) return List.of();
 
-        if (openCloseList.size() == 1) {
+        if (openCloseList.size() == 1 && corpusHours.size() == 1) {
             // If only 1 source says its open
             // Return it if its open for longer or equal to 2 hour 30 minutes
             DayOpenClose openClose = openCloseList.get(0);
             if (openClose.openMinutes() < 150) return List.of();
             return openClose.getPlaceHours(day);
         } else {
-            final int required = openCloseList.size() / 2;
+            final int required = corpusHours.size() / 2;
             DayOpenClose openClose = new DayOpenClose();
 
             for (int i = 0; i < DayOpenClose.TOTAL_MINUTES; i++) {

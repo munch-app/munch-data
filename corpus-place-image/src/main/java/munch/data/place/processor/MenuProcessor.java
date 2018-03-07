@@ -50,6 +50,7 @@ public final class MenuProcessor {
     private PlaceMenu parse(ProcessedImage processedImage) {
         Map<String, String> images = processedImage.getImage().getImages();
         if (images.isEmpty()) return null;
+        if (images.containsKey("original")) return null;
 
         PlaceMenu menu = new PlaceMenu();
         menu.setSortKey(getSortKey(processedImage));
@@ -79,7 +80,7 @@ public final class MenuProcessor {
     }
 
     private String getLargestImage(Map<String, String> images) {
-        String url = images.get("original");
+        String url = images.get("1080x1080");
         if (url != null) return url;
 
         return images.entrySet().stream()
@@ -95,18 +96,6 @@ public final class MenuProcessor {
             return Integer.parseInt(wh[0]) * Integer.parseInt(wh[1]);
         } catch (NumberFormatException | NullPointerException | IndexOutOfBoundsException e) {
             return 0;
-        }
-    }
-
-    public static class ImageMenu {
-        private Map<String, String> images;
-
-        public Map<String, String> getImages() {
-            return images;
-        }
-
-        public void setImages(Map<String, String> images) {
-            this.images = images;
         }
     }
 }
