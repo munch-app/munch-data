@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public final class PlaceAward implements ExtendedData {
 
-    // User Id & CollectionId point to where the collection is at in the collection API
+    // UserId & CollectionId point to where the collection is at in the collection API
     private String userId;
     private String collectionId;
 

@@ -53,14 +53,14 @@ public final class PlaceAwardCorpus extends CatalystEngine<CorpusData> {
         this.dataSync = new ExtendedDataSync<>(Duration.ofSeconds(1), placeAwardClient) {
             @Override
             protected void put(String placeId, PlaceAward data) {
-                super.put(placeId, data);
                 collectionPlaceClient.add(data.getUserId(), data.getCollectionId(), placeId);
+                super.put(placeId, data);
             }
 
             @Override
             protected void delete(String placeId, PlaceAward data) {
-                super.delete(placeId, data);
                 collectionPlaceClient.remove(data.getUserId(), data.getCollectionId(), placeId);
+                super.delete(placeId, data);
             }
         };
 
@@ -162,13 +162,14 @@ public final class PlaceAwardCorpus extends CatalystEngine<CorpusData> {
         corpusClient.put("Sg.Munch.PlaceAward", data.getCorpusKey(), data);
         sleep(3000);
 
+        // Because of how syncing is done, Sg.Munch.PlaceAward must be unique
         List<PlaceAward> awardList = PlaceAwardKey.awardName.getAll(data)
                 .stream()
                 .map(field -> toPlaceAward(data, field))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        dataSync.sync(data.getCorpusKey(), awardList);
+        dataSync.sync(placeId, awardList);
     }
 
     private String getPlaceId(CorpusData data) {
@@ -183,9 +184,11 @@ public final class PlaceAwardCorpus extends CatalystEngine<CorpusData> {
     private PlaceAward toPlaceAward(CorpusData data, CorpusData.Field fieldData) {
         PlaceAward award = new PlaceAward();
         award.setUserId(fieldData.getMetadata().get("UserId"));
-        award.setCollectionId(fieldData.getMetadata().get("CollectionId"));
 
-        award.setSortKey(PlaceAwardKey.getSortKey(data));
+        String collectionId = fieldData.getMetadata().get("CollectionId");
+        award.setCollectionId(AwardListKey.toUUID(collectionId));
+
+        award.setSortKey(PlaceAwardKey.getSortKey(data, fieldData));
         award.setAwardName(fieldData.getValue());
 
         // Validate all not null

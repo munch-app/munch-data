@@ -68,13 +68,14 @@ public final class MenuProcessor {
         Map.Entry<String, Float> max = processedImage.getFinnLabel().getMaxOutput();
         String source = Objects.requireNonNull(processedImage.getImage().getSource());
         String imageKey = Objects.requireNonNull(processedImage.getImage().getImageKey());
-        if (max.getValue() > 99) return "99_" + source + "_" + imageKey;
+        int percent = (int) (max.getValue() * 100);
+        if (percent > 99) return "99_" + source + "_" + imageKey;
 
-        int num = max.getValue().intValue();
-        if (num < 0) return "00_" + source + "_" + imageKey;
 
-        if (num % 10 == 0) return "0" + num + "_" + source + "_" + imageKey;
-        return num + "_" + source + "_" + imageKey;
+        if (percent < 0) return "00_" + source + "_" + imageKey;
+
+        if (percent % 10 == 0) return "0" + percent + "_" + source + "_" + imageKey;
+        return percent + "_" + source + "_" + imageKey;
     }
 
     private String getLargestImage(Map<String, String> images) {
