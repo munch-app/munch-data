@@ -256,13 +256,13 @@ public final class BoolQuery {
     /**
      * @param name  name of terms
      * @param texts texts of terms
-     * @return JsonNode =  { "term" : { "name" : "text" } }
+     * @return JsonNode =  { "terms" : { "name" : "text" } }
      */
     public static JsonNode filterTerms(String name, Collection<String> texts) {
         ObjectNode filter = mapper.createObjectNode();
         ArrayNode terms = filter.putObject("terms").putArray(name);
         for (String text : texts) {
-            terms.add(text);
+            terms.add(text.toLowerCase());
         }
         return filter;
     }
