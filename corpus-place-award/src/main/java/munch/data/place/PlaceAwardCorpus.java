@@ -172,10 +172,12 @@ public final class PlaceAwardCorpus extends CatalystEngine<CorpusData> {
     }
 
     private String getPlaceId(CorpusData data) {
-        if (data.getCatalystId() == null) return null;
+        CorpusData remote = corpusClient.get("Sg.Munch.PlaceAward", data.getCorpusKey());
+        if (remote == null) return null;
 
-        if (!catalystClient.hasCorpus(data.getCatalystId(), "Sg.Munch.Place")) return null;
-        return data.getCatalystId();
+        String catalystId = remote.getCatalystId();
+        if (!catalystClient.hasCorpus(catalystId, "Sg.Munch.Place")) return null;
+        return catalystId;
     }
 
     private PlaceAward toPlaceAward(CorpusData data, CorpusData.Field fieldData) {
