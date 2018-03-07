@@ -64,3 +64,8 @@ service
 rating
 price
 feedback
+
+right
+left
+header-left
+header-right
