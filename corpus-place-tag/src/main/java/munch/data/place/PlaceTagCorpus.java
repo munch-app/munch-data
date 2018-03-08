@@ -4,9 +4,12 @@ import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.MetaKey;
 import corpus.field.PlaceKey;
+import munch.data.clients.PlaceClient;
 import munch.data.place.collector.TagCollector;
+import munch.data.place.collector.TimingTagCollector;
 import munch.data.place.group.PlaceTagCounter;
 import munch.data.place.group.PlaceTagDatabase;
+import munch.data.structure.Place;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +30,18 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
     private final TagCollector tagCollector;
     private final PlaceTagDatabase database;
+    private final PlaceClient placeClient;
+    private final TimingTagCollector timingTagCollector;
+
     private PlaceTagCounter counter;
 
     @Inject
-    public PlaceTagCorpus(TagCollector tagCollector, PlaceTagDatabase database) {
+    public PlaceTagCorpus(TagCollector tagCollector, PlaceTagDatabase database, PlaceClient placeClient, TimingTagCollector timingTagCollector) {
         super(logger);
         this.tagCollector = tagCollector;
         this.database = database;
+        this.placeClient = placeClient;
+        this.timingTagCollector = timingTagCollector;
     }
 
     @Override
@@ -81,6 +89,15 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         CorpusData data = new CorpusData(System.currentTimeMillis());
         data.put(MetaKey.version, "2018-03-08");
         data.getFields().addAll(TagKey.explicits.createFields(explicits));
+
+        implicits = new ArrayList<>(implicits);
+        // Collect timing tags
+        for (String timing : collectTimings(placeId)) {
+            if (!implicits.contains(timing)) {
+                implicits.add(timing);
+            }
+        }
+
         data.getFields().addAll(TagKey.implicits.createFields(implicits));
         data.getFields().addAll(TagKey.predicts.createFields(predicts));
         corpusClient.put("Sg.Munch.Place.Tag", placeId, data);
@@ -93,6 +110,13 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
             }
         }
         return false;
+    }
+
+    private Set<String> collectTimings(String placeId) {
+        Place place = placeClient.get(placeId);
+        if (place == null) return Set.of();
+
+        return timingTagCollector.get(place);
     }
 
     @Override
