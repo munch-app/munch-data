@@ -52,13 +52,7 @@ public class AssumptionDatabase {
 
             // Timing Assumption
             // Add Open Now
-            Assumption.of(Assumption.Type.Timing, "open now", "Open Now", ASSUMPTION_OPEN_NOW),
-
-            // Tag Assumption
-            Assumption.of(Assumption.Type.Tag, "bar", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of(Assumption.Type.Tag, "bars", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of(Assumption.Type.Tag, "pub", "Bars & Pubs", applyTag("Bars & Pubs")),
-            Assumption.of(Assumption.Type.Tag, "pubs", "Bars & Pubs", applyTag("Bars & Pubs"))
+            Assumption.of(Assumption.Type.Timing, "open now", "Open Now", ASSUMPTION_OPEN_NOW)
     );
 
     private final ElasticIndex elasticIndex;
@@ -88,6 +82,11 @@ public class AssumptionDatabase {
         tags.forEachRemaining(tag -> {
             String token = tag.getName().toLowerCase();
             assumptionMap.putIfAbsent(token, Assumption.of(Assumption.Type.Tag, token, tag.getName(), applyTag(tag.getName())));
+
+            // Tags that convert to another tag
+            for (String convert : tag.getConverts()) {
+                assumptionMap.putIfAbsent(token, Assumption.of(Assumption.Type.Tag, convert, tag.getName(), applyTag(tag.getName())));
+            }
         });
         return assumptionMap;
     }

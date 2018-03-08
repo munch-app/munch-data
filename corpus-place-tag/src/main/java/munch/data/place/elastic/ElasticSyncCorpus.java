@@ -53,6 +53,7 @@ public final class ElasticSyncCorpus extends CatalystEngine<PlaceTagGroup> {
         tag.setId(data.getRecordId());
         tag.setType(data.getType());
         tag.setName(data.getName());
+        tag.setConverts(data.getConverts());
         tagClient.put(tag);
 
         // Put created into Elastic

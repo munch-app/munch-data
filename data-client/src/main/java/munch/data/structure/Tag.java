@@ -1,7 +1,10 @@
 package munch.data.structure;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -16,6 +19,8 @@ public class Tag implements SearchResult {
 
     private String type;
     private String name;
+
+    private Set<String> converts;
 
     public String getId() {
         return id;
@@ -39,6 +44,16 @@ public class Tag implements SearchResult {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    // Not for external use
+    @JsonIgnore
+    public Set<String> getConverts() {
+        return converts;
+    }
+
+    public void setConverts(Set<String> converts) {
+        this.converts = converts;
     }
 
     @Override

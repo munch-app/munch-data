@@ -12,10 +12,7 @@ import munch.restful.core.exception.JsonException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -138,6 +135,7 @@ public final class ElasticMarshaller {
         node.put("id", tag.getId());
         node.put("name", tag.getName());
         node.put("type", tag.getType());
+        node.set("converts", JsonUtils.toTree(tag.getConverts()));
         node.putArray("allNames").add(tag.getName());
 
         // Suggest Field
@@ -243,7 +241,11 @@ public final class ElasticMarshaller {
         Tag tag = new Tag();
         tag.setId(node.get("id").asText());
         tag.setName(node.get("name").asText());
-        tag.setType(node.get("type").asText());
+        tag.setType(node.path("type").asText());
+        tag.setConverts(new HashSet<>());
+        for (JsonNode convert : node.path("converts")) {
+            tag.getConverts().add(convert.asText());
+        }
         return tag;
     }
 
