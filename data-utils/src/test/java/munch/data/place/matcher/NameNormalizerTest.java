@@ -17,5 +17,9 @@ class NameNormalizerTest {
         System.out.println(nameNormalizer.normalize("Place &amp; at is good"));
         System.out.println(nameNormalizer.normalize("Place &amp;Amp; at is good"));
         System.out.println(nameNormalizer.normalize("Place &amp;Amp;Amp; at is good"));
+
+        System.out.println(nameNormalizer.normalize("fiancé, ” “protégé,” and “cliché"));
+
+        System.out.println(nameNormalizer.normalize("á|â|à|é|ê|è|ë|ē|î|ï|ó|ô|ò|û|ù|ü|ÿ|ç"));
     }
 }
