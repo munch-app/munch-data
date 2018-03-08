@@ -30,11 +30,11 @@ public final class ImageParser extends AbstractParser<List<SourcedImage>> {
 
     private List<SourcedImage> collect(List<CorpusData> list) {
         return list.stream()
-                .filter(data -> data.getCorpusName().equals("Sg.Munch.PlaceImage"))
+                .filter(data -> data.getCorpusName().equals("Sg.Munch.Place.Image"))
                 .flatMap(data -> data.getFields().stream())
                 .filter(field -> field.getKey().equals("Place.image"))
                 .sorted(Comparator.comparingInt(field -> Integer.parseInt(field.getValue())))
-                .map(ImageField::new)
+                .map(ImageField::asImageField)
                 .map(field -> {
                     SourcedImage image = new SourcedImage();
                     image.setSource(field.getSource());

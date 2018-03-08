@@ -54,7 +54,9 @@ public final class RankingParser extends AbstractParser<Double> {
                 return 1;
 
             // Utility Corpus gives no ranking
-            case "Sg.Munch.PlaceImage":
+            case "Sg.Munch.PlaceImage": // Deprecated
+            case "Sg.Munch.Place.Image":
+            case "Sg.Munch.Place.Tag":
             case "Sg.MunchSheet.ConceptPlace":
                 return 0;
         }

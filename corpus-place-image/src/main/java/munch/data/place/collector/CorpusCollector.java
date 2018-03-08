@@ -5,6 +5,7 @@ import corpus.data.CorpusData;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -15,12 +16,13 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class CorpusCollector extends AbstractCollector {
+    private static final Set<String> BLOCKED_CORPUS = Set.of("Sg.Munch.Place.Image", "Sg.Munch.PlaceImage");
 
     @Override
     public List<CollectedImage> collect(String placeId, List<CorpusData> list) {
         return list.stream()
                 // Not to collect from self
-                .filter(data -> !data.getCorpusName().equals("Sg.Munch.PlaceImage"))
+                .filter(data -> !BLOCKED_CORPUS.contains(data.getCorpusName()))
                 .flatMap(data -> data.getFields().stream())
                 .filter(field -> field.getKey().equals("Place.image"))
                 .map(field -> mapField(field, CollectedImage.From.Place))

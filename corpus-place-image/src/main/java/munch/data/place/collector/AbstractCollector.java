@@ -16,18 +16,12 @@ public abstract class AbstractCollector {
     public abstract List<CollectedImage> collect(String placeId, List<CorpusData> list);
 
     protected CollectedImage mapField(CorpusData.Field field, CollectedImage.From from) {
-        ImageField imageField;
-        if (field instanceof ImageField) {
-            imageField = (ImageField) field;
-        } else {
-            imageField = new ImageField(field);
-        }
+        ImageField imageField = ImageField.asImageField(field);
 
-        // Source is required for crediting owner
+        // Required fields validation
+        // Cannot validate sourceId and sourceName because some data source don't provide those
         if (imageField.getSource() == null) return null;
-        if (imageField.getSourceId() == null) return null;
-        if (imageField.getSourceName() == null) return null;
-
+        if (imageField.getImageKey() == null) return null;
         if (imageField.getImages() == null) return null;
         if (imageField.getImages().isEmpty()) return null;
 

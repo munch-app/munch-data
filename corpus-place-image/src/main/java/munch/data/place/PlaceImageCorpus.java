@@ -3,6 +3,7 @@ package munch.data.place;
 import catalyst.utils.exception.DateCompareUtils;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
+import corpus.field.MetaKey;
 import corpus.field.PlaceKey;
 import corpus.images.ImageField;
 import munch.data.place.collector.CollectedImage;
@@ -77,8 +78,8 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         CorpusData imageData = new CorpusData(cycleNo);
         imageData.setCatalystId(placeId);
         imageData.getFields().addAll(selectImages(processedImages));
-        imageData.put("Sg.Munch.PlaceImage.version", VERSION);
-        corpusClient.put("Sg.Munch.PlaceImage", placeId, imageData);
+        imageData.put(MetaKey.version, VERSION);
+        corpusClient.put("Sg.Munch.Place.Image", placeId, imageData);
 
         sleep(100);
         if (processed % 100 == 0) logger.info("Processed {} places", processed);
@@ -153,7 +154,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
      * @return true if due for update
      */
     private boolean isDue(String placeId) {
-        CorpusData imageData = catalystClient.getCorpus(placeId, "Sg.Munch.PlaceImage");
+        CorpusData imageData = catalystClient.getCorpus(placeId, "Sg.Munch.Place.Image");
         if (imageData == null) return true;
         if (PlaceKey.image.getAll(imageData).size() < 3) {
             // If less then 3 photos, 1 day expiry date

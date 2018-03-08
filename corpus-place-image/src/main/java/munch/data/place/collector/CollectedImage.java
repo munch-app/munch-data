@@ -15,8 +15,6 @@ public class CollectedImage {
         Article
     }
 
-    // NOTE: CollectedImage data is cached, update document table if structure change or else it won't be updated
-
     private From from;
     private String imageKey;
 

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class ImageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
-    private static final String HASH_KEY = "Sg.Munch.PlaceImage.Finn-0.4.0";
+    private static final String HASH_KEY = "Sg.Munch.Place.Image.Finn-0.4.0";
     private static final Retriable retriable = new ExceptionRetriable(10);
 
 
@@ -63,25 +63,27 @@ public final class ImageProcessor {
      * @return parsed ProcessedI?mage
      */
     private ProcessedImage parse(CollectedImage collectedImage) {
+        FinnLabel finnLabel = cachedPredict(collectedImage);
+        if (finnLabel == null) return null;
+
+        ProcessedImage processedImage = new ProcessedImage();
+        processedImage.setImage(collectedImage);
+        processedImage.setFinnLabel(finnLabel);
+        return processedImage;
+    }
+
+    private FinnLabel cachedPredict(CollectedImage collectedImage) {
         String source = Objects.requireNonNull(collectedImage.getSource());
         String imageKey = Objects.requireNonNull(collectedImage.getImageKey());
+
         JsonNode cache = documentClient.get(HASH_KEY, source, imageKey);
+        if (cache != null) return JsonUtils.toObject(cache, FinnLabel.class);
 
-        // Initialized from JSON
-        if (cache != null) return JsonUtils.toObject(cache, ProcessedImage.class);
+        FinnLabel finnLabel = predict(collectedImage);
+        if (finnLabel == null) return null;
 
-        try {
-            ProcessedImage processedImage = new ProcessedImage();
-            processedImage.setImage(collectedImage);
-            FinnLabel finnLabel = predict(collectedImage);
-            if (finnLabel == null) return null;
-            processedImage.setFinnLabel(finnLabel);
-            documentClient.put(HASH_KEY, source, imageKey, JsonUtils.toTree(processedImage));
-            return processedImage;
-        } catch (IllegalStateException e) {
-            if (e.getMessage().equals("images is empty")) return null;
-            throw e;
-        }
+        documentClient.put(HASH_KEY, source, imageKey, JsonUtils.toTree(finnLabel));
+        return finnLabel;
     }
 
     /**
