@@ -7,7 +7,7 @@ import corpus.field.AbstractKey;
 import munch.data.place.parser.*;
 import munch.data.place.parser.hour.HourParser;
 import munch.data.place.parser.location.LocationParser;
-import munch.data.place.parser.tag.TagParser;
+import munch.data.place.parser.TagParser;
 import munch.data.structure.Place;
 import org.apache.commons.lang3.StringUtils;
 
