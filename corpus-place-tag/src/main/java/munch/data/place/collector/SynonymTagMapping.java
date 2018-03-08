@@ -29,15 +29,17 @@ public final class SynonymTagMapping {
     public SynonymTagMapping(PlaceTagDatabase database) {
         this.supplier = Suppliers.memoizeWithExpiration(() -> {
             Map<String, Set<PlaceTagGroup>> map = new HashMap<>();
+
             for (PlaceTagGroup group : database.getAll()) {
                 for (String synonym : group.getSynonyms()) {
-                    map.compute(synonym.toLowerCase(), (s, placeTagGroups) -> {
-                        if (placeTagGroups == null) placeTagGroups = new HashSet<>();
-                        placeTagGroups.add(group);
-                        return placeTagGroups;
+                    map.compute(synonym.toLowerCase(), (s, set) -> {
+                        if (set == null) set = new HashSet<>();
+                        set.add(group);
+                        return set;
                     });
                 }
             }
+
             return map;
         }, 1, TimeUnit.HOURS);
     }
@@ -45,7 +47,7 @@ public final class SynonymTagMapping {
     public Set<PlaceTagGroup> resolveAll(Set<String> tags) {
         Map<String, Set<PlaceTagGroup>> mapping = supplier.get();
         return tags.stream()
-                .flatMap(name -> mapping.get(name.toLowerCase()).stream())
+                .flatMap(name -> mapping.getOrDefault(name.toLowerCase(), Set.of()).stream())
                 .collect(Collectors.toSet());
     }
 }

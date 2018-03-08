@@ -63,7 +63,7 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
         List<CorpusData> dataList = new ArrayList<>();
-        corpusClient.list(data.getCatalystId()).forEachRemaining(dataList::add);
+        catalystClient.listCorpus(data.getCatalystId()).forEachRemaining(dataList::add);
 
         TagCollector.Group group = tagCollector.collect(dataList);
         List<String> explicits = group.collectExplicit();
@@ -81,12 +81,13 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
             countingTags.forEach(s -> counter.increment(s, "noImage"));
         }
 
-        sleep(100);
+        sleep(300);
         if (processed % 100 == 0) logger.info("Processed {}", processed);
     }
 
     public void persist(String placeId, List<String> explicits, List<String> implicits, List<String> predicts) {
         CorpusData data = new CorpusData(System.currentTimeMillis());
+        data.setCatalystId(placeId);
         data.put(MetaKey.version, "2018-03-08");
         data.getFields().addAll(TagKey.explicits.createFields(explicits));
 

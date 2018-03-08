@@ -8,6 +8,7 @@ import com.google.common.collect.HashBiMap;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
 import munch.restful.core.JsonUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,9 @@ public final class PlaceTagDatabase {
         table.select(Duration.ofSeconds(1)).forEachRemaining(airtableRecord -> {
             list.add(parse(airtableRecord));
         });
+        logger.info("Loaded {} TagGroup", list.size());
+        if (!list.isEmpty())
+            logger.info("Random Sample: {}", list.get(RandomUtils.nextInt(0, list.size())));
         return list;
     }
 
@@ -93,7 +97,7 @@ public final class PlaceTagDatabase {
     public List<String> tagsToIds(List<String> tags) {
         BiMap<String, String> map = biMapSupplier.get().inverse();
         return tags.stream()
-                .map(s-> map.get(s.toLowerCase()))
+                .map(s -> map.get(s.toLowerCase()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -101,7 +105,7 @@ public final class PlaceTagDatabase {
     public List<String> idsToTags(List<String> ids) {
         BiMap<String, String> map = biMapSupplier.get();
         return ids.stream()
-                .map(s-> map.get(s.toLowerCase()))
+                .map(s -> map.get(s.toLowerCase()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

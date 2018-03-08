@@ -71,6 +71,7 @@ public final class ElasticSyncCorpus extends CatalystEngine<PlaceTagGroup> {
         corpusClient.listBefore("Sg.Munch.Tag.Indexed", cycleNo).forEachRemaining(data -> {
             tagClient.delete(data.getCorpusKey());
             corpusClient.delete("Sg.Munch.Tag.Indexed", data.getCorpusKey());
+            counter.increment("Deleted");
         });
         super.deleteCycle(cycleNo);
     }

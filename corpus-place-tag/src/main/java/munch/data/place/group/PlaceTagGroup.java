@@ -1,5 +1,6 @@
 package munch.data.place.group;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -67,14 +68,24 @@ public final class PlaceTagGroup {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        PlaceTagGroup tag = (PlaceTagGroup) o;
-
-        return name.equals(tag.name);
+        PlaceTagGroup that = (PlaceTagGroup) o;
+        return Objects.equals(recordId, that.recordId);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return Objects.hash(recordId);
+    }
+
+    @Override
+    public String toString() {
+        return "PlaceTagGroup{" +
+                "recordId='" + recordId + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", order=" + order +
+                ", converts=" + converts +
+                ", synonyms=" + synonyms +
+                '}';
     }
 }

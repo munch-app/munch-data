@@ -57,13 +57,13 @@ public final class TagCollector {
      */
     private List<String> findTypes(Set<PlaceTagGroup> groupTags, Set<String> types, int limit) {
         return groupTags.stream()
-                .filter(groupTag -> types.contains(groupTag.getType()))
+                .filter(group -> types.contains(group.getType()))
                 // Sorted to highest order first
                 .sorted((o1, o2) -> Double.compare(o2.getOrder(), o1.getOrder()))
                 .limit(limit)
                 // Must be lowercase
                 .map(groupTag -> groupTag.getName().toLowerCase())
-                // Must be ordered
+                // Must be ordered so a list
                 .collect(Collectors.toList());
     }
 
@@ -75,13 +75,15 @@ public final class TagCollector {
         private Group(Iterator<CorpusData> iterator) {
             super(PlaceKey.tag);
             iterator.forEachRemaining(this::add);
-            this.all = ImmutableSet.copyOf(collect()
-                    .stream()
+            this.all = ImmutableSet.copyOf(collect().stream()
                     .map(s -> StringUtils.trimToNull(StringUtils.lowerCase(s)))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toSet()));
-            this.trusted = ImmutableSet.copyOf(collect(f -> CORPUS_NAME_TRUSTED.contains(f.getCorpusName()),
-                    s -> StringUtils.trimToNull(StringUtils.lowerCase(s))));
+                    .collect(Collectors.toSet())
+            );
+            this.trusted = ImmutableSet.copyOf(collect(
+                    f -> CORPUS_NAME_TRUSTED.contains(f.getCorpusName()),
+                    s -> StringUtils.trimToNull(StringUtils.lowerCase(s))
+            ));
             this.groups = synonymTagMapping.resolveAll(all);
         }
 
