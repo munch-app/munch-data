@@ -1,9 +1,8 @@
-package munch.data.place.suggest;
+package munch.data.place.predict;
 
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.PlaceCardClient;
-import munch.data.place.group.GroupTagDatabase;
 import munch.data.place.text.CollectedText;
 import munch.data.place.text.TextCollector;
 import munch.data.structure.PlaceJsonCard;
@@ -24,22 +23,20 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class SuggestedTagCorpus extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(SuggestedTagCorpus.class);
+public final class PredictTagCorpus extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(PredictTagCorpus.class);
 
     private final TextCollector textCollector;
 
     private final PlaceCardClient placeCardClient;
     private final PredictTagClient predictTagClient;
-    private final GroupTagDatabase groupTagDatabase;
 
     @Inject
-    public SuggestedTagCorpus(TextCollector textCollector, PlaceCardClient placeCardClient, PredictTagClient predictTagClient, GroupTagDatabase groupTagDatabase) {
+    public PredictTagCorpus(TextCollector textCollector, PlaceCardClient placeCardClient, PredictTagClient predictTagClient) {
         super(logger);
         this.textCollector = textCollector;
         this.placeCardClient = placeCardClient;
         this.predictTagClient = predictTagClient;
-        this.groupTagDatabase = groupTagDatabase;
     }
 
     @Override
@@ -90,10 +87,10 @@ public final class SuggestedTagCorpus extends CatalystEngine<CorpusData> {
 
         // Only map if > 0.3
         labels.forEach((key, value) -> {
-            if (value > 0.2) {
-                groupTagDatabase.resolve(key).ifPresent(tag -> {
-                    mapped.put(tag, value);
-                });
+            if (value > 0.5) {
+//                groupTagDatabase.resolve(key).ifPresent(tag -> {
+//                    mapped.put(tag, value);
+//                });
             }
         });
 

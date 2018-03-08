@@ -1,4 +1,4 @@
-package munch.data.place.suggest;
+package munch.data.place.predict;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;

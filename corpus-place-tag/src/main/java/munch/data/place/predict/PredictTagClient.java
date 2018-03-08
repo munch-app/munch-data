@@ -1,4 +1,4 @@
-package munch.data.place.suggest;
+package munch.data.place.predict;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

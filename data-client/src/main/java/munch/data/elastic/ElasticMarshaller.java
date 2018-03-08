@@ -137,6 +137,7 @@ public final class ElasticMarshaller {
         // Root Node
         node.put("id", tag.getId());
         node.put("name", tag.getName());
+        node.put("type", tag.getType());
         node.putArray("allNames").add(tag.getName());
 
         // Suggest Field
@@ -242,6 +243,7 @@ public final class ElasticMarshaller {
         Tag tag = new Tag();
         tag.setId(node.get("id").asText());
         tag.setName(node.get("name").asText());
+        tag.setType(node.get("type").asText());
         return tag;
     }
 

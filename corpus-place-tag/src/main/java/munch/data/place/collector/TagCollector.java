@@ -1,24 +1,20 @@
 package munch.data.place.collector;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import corpus.CorpusModule;
+import com.google.common.collect.ImmutableSet;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
-import corpus.data.DataModule;
 import corpus.field.PlaceKey;
 import corpus.utils.FieldCollector;
-import munch.data.dynamodb.DynamoModule;
-import munch.data.place.group.GroupTagDatabase;
-import munch.data.utils.ScheduledThreadUtils;
+import munch.data.place.group.PlaceTagGroup;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -29,70 +25,99 @@ import java.util.*;
 @Singleton
 public final class TagCollector {
     private static final Logger logger = LoggerFactory.getLogger(TagCollector.class);
+    private static final Set<String> CORPUS_NAME_TRUSTED = Set.of(
+            "Sg.MunchSheet.PlaceInfo2", "Sg.MunchSheet.FranchisePlace", "Sg.Munch.PlaceAward"
+    );
 
     protected final CorpusClient corpusClient;
     protected final CatalystClient catalystClient;
 
-    private final Map<String, Integer> tags = new HashMap<>();
-
-    private final GroupTagDatabase tagDatabase;
+    protected final SynonymTagMapping synonymTagMapping;
 
     @Inject
-    public TagCollector(CorpusClient corpusClient, CatalystClient catalystClient, GroupTagDatabase tagDatabase) {
+    public TagCollector(CorpusClient corpusClient, CatalystClient catalystClient, SynonymTagMapping synonymTagMapping) {
         this.corpusClient = corpusClient;
         this.catalystClient = catalystClient;
-        this.tagDatabase = tagDatabase;
+        this.synonymTagMapping = synonymTagMapping;
     }
 
-    public void run() throws IOException, InterruptedException {
-        int processed = 0;
-        int iterated = 0;
-        Iterator<CorpusData> iterator = corpusClient.list("Sg.Munch.Place");
-        while (iterator.hasNext()) {
-            if (++iterated % 100 == 0) logger.info("Iterated {} places, Processed {} places", iterated, processed);
-            CorpusData data = iterator.next();
+    public Group collect(String placeId) {
+        return new Group(catalystClient.listCorpus(placeId));
+    }
 
-            List<CorpusData> dataList = collect(data.getCatalystId());
-            if (dataList.isEmpty()) continue;
+    public Group collect(List<CorpusData> list) {
+        return new Group(list.iterator());
+    }
 
-            put(dataList);
-            Thread.sleep(5);
-            processed++;
+    /**
+     * @param groupTags group of tags to search in
+     * @param types     type to filter out
+     * @param limit     limit per type group
+     * @return lowercase groups of tags
+     */
+    private List<String> findTypes(Set<PlaceTagGroup> groupTags, Set<String> types, int limit) {
+        return groupTags.stream()
+                .filter(groupTag -> types.contains(groupTag.getType()))
+                // Sorted to highest order first
+                .sorted((o1, o2) -> Double.compare(o2.getOrder(), o1.getOrder()))
+                .limit(limit)
+                // Must be lowercase
+                .map(groupTag -> groupTag.getName().toLowerCase())
+                // Must be ordered
+                .collect(Collectors.toList());
+    }
+
+    public class Group extends FieldCollector {
+        private final Set<PlaceTagGroup> groups;
+        private final Set<String> all;
+        private final Set<String> trusted;
+
+        private Group(Iterator<CorpusData> iterator) {
+            super(PlaceKey.tag);
+            iterator.forEachRemaining(this::add);
+            this.all = ImmutableSet.copyOf(collect()
+                    .stream()
+                    .map(s -> StringUtils.trimToNull(StringUtils.lowerCase(s)))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet()));
+            this.trusted = ImmutableSet.copyOf(collect(f -> CORPUS_NAME_TRUSTED.contains(f.getCorpusName()),
+                    s -> StringUtils.trimToNull(StringUtils.lowerCase(s))));
+            this.groups = synonymTagMapping.resolveAll(all);
         }
-        logger.info("Completed");
-    }
 
-    public List<CorpusData> collect(String placeId) {
-        List<CorpusData> dataList = new ArrayList<>();
-        catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);
-        return dataList;
-    }
-
-    public void put(List<CorpusData> dataList) {
-        FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
-        fieldCollector.addAll(dataList);
-        for (String tag : fieldCollector.collect()) {
-            tags.compute(tag.toLowerCase(), (s, integer) -> {
-                if (integer == null) return 1;
-                return integer + 1;
-            });
+        public Set<String> collectAny() {
+            return all;
         }
-    }
 
-    public void close() {
-        // Print out all tags collected
-        tags.forEach((s, integer) -> {
-            System.out.println(tagDatabase.has(s) + "," + s + "," + integer);
-        });
-    }
+        public Set<String> collectTrusted() {
+            return trusted;
+        }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
+        public List<String> collectExplicit() {
+            List<String> collected = new ArrayList<>();
+            collected.addAll(findTypes(groups, Set.of("Cuisine"), 1));
+            collected.addAll(findTypes(groups, Set.of("Establishment"), 1));
+            collected.addAll(findTypes(groups, Set.of("Amenities", "Occasion"), 2));
+            return collected;
+        }
 
-        Injector injector = Guice.createInjector(new CorpusModule(), new DataModule(), new DynamoModule());
-        TagCollector collector = injector.getInstance(TagCollector.class);
-        collector.run();
-        collector.close();
-        ScheduledThreadUtils.shutdown();
+        public List<String> collectExplicitIds() {
+            return groups.stream()
+                    .filter(groupTag -> Set.of("Cuisine", "Establishment", "Amenities", "Occasion")
+                            .contains(groupTag.getType()))
+                    // Sorted to highest order first
+                    // Must be lowercase
+                    .map(PlaceTagGroup::getRecordId)
+                    // Must be ordered
+                    .collect(Collectors.toList());
+        }
+
+        public List<String> collectImplicit() {
+            return findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food"), 1000);
+        }
+
+        public List<String> collectPredict() {
+            return List.of();
+        }
     }
 }

@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Created to remove false positive from hour tokens
- * TODO: Not implemented yet due to the complexity of this structure
+ * FUTURE: Not implemented yet due to the complexity of this structure
  * <p>
  * Created by: Fuxing
  * Date: 14/2/18

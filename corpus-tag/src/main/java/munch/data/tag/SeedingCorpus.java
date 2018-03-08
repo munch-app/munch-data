@@ -31,11 +31,6 @@ public class SeedingCorpus extends CatalystEngine<CorpusData> {
     }
 
     @Override
-    protected long loadCycleNo() {
-        return System.currentTimeMillis();
-    }
-
-    @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
         return corpusClient.list("Sg.MunchSheet.PlaceTag");
     }

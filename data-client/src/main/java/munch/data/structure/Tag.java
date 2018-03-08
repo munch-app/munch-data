@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Tag implements SearchResult {
     private String id;
 
+    private String type;
     private String name;
 
     public String getId() {
@@ -22,6 +23,14 @@ public class Tag implements SearchResult {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getName() {

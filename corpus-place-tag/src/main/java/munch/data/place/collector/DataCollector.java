@@ -8,11 +8,9 @@ import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import corpus.data.DataModule;
 import munch.data.dynamodb.DynamoModule;
-import munch.data.place.group.ExplicitTagParser;
 import munch.data.place.text.CollectedText;
 import munch.data.place.text.TextCollector;
 import munch.data.utils.ScheduledThreadUtils;
-import munch.restful.core.JsonUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -23,7 +21,10 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,13 +42,12 @@ public abstract class DataCollector {
     protected CatalystClient catalystClient;
 
     protected TextCollector textCollector;
-    protected ExplicitTagParser tagParser;
+    protected TagCollector tagCollector;
 
     protected final FileWriter fileWriter;
     protected final CSVPrinter csvWriter;
 
     protected final String labelFileName;
-    protected final Map<String, String> labelMapping = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected DataCollector(String tagFileName, String labelFileName) throws IOException {
@@ -60,11 +60,11 @@ public abstract class DataCollector {
     }
 
     @Inject
-    public void inject(CorpusClient corpusClient, CatalystClient catalystClient, TextCollector textCollector, ExplicitTagParser tagParser) {
+    public void inject(CorpusClient corpusClient, CatalystClient catalystClient, TextCollector textCollector, TagCollector tagCollector) {
         this.corpusClient = corpusClient;
         this.catalystClient = catalystClient;
         this.textCollector = textCollector;
-        this.tagParser = tagParser;
+        this.tagCollector = tagCollector;
     }
 
     public abstract void put(DataGroup dataGroup) throws IOException;
@@ -96,7 +96,8 @@ public abstract class DataCollector {
         if (collectedTexts.isEmpty()) return null;
 
         // Put all output tags
-        List<String> labels = tagParser.getExplicits(dataList, 10);
+        TagCollector.Group group = tagCollector.collect(dataList);
+        List<String> labels = group.collectExplicitIds();
         labels.removeAll(BLOCKED_TAGS);
         if (labels.isEmpty()) return null;
 
@@ -125,11 +126,6 @@ public abstract class DataCollector {
 
         String getTags() {
             return labels.stream()
-                    .map(s -> labelMapping.computeIfAbsent(s, key -> key
-                            .toLowerCase()
-                            .replace(" ", "")
-                            .replace("&", "")
-                            .replace("-", "")))
                     .collect(Collectors.joining(" "));
         }
     }
@@ -138,9 +134,6 @@ public abstract class DataCollector {
         fileWriter.flush();
         fileWriter.close();
         csvWriter.close();
-
-        File file = new File(labelFileName);
-        JsonUtils.objectMapper.writeValue(file, labelMapping);
     }
 
     public static <T extends DataCollector> void run(Class<T> clazz) throws IOException, InterruptedException {
