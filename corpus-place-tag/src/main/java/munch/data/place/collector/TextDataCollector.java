@@ -17,8 +17,8 @@ public class TextDataCollector extends DataCollector {
 
     @Inject
     public TextDataCollector() throws IOException {
-        super("corpus-place-tag/tag-model/data/tag-text-data-4.csv",
-                "corpus-place-tag/tag-model/data/tag-text-mapping-4.json");
+        super("corpus-place-tag/tag-model/data/tag-text-data-5.csv",
+                "corpus-place-tag/tag-model/data/tag-text-mapping-5.json");
     }
 
 

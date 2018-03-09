@@ -103,13 +103,9 @@ public final class TagCollector {
             return collected;
         }
 
-        public List<String> collectExplicitIds() {
+        public List<PlaceTagGroup> collectGroups(Set<String> types) {
             return groups.stream()
-                    .filter(groupTag -> Set.of("Cuisine", "Establishment", "Amenities", "Occasion")
-                            .contains(groupTag.getType()))
-                    // Sorted to highest order first
-                    // Must be lowercase
-                    .map(PlaceTagGroup::getRecordId)
+                    .filter(groupTag -> types.contains(groupTag.getType()))
                     // Must be ordered
                     .collect(Collectors.toList());
         }

@@ -1,5 +1,6 @@
 package munch.data.place.collector;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import corpus.CorpusModule;
@@ -8,9 +9,11 @@ import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import corpus.data.DataModule;
 import munch.data.dynamodb.DynamoModule;
+import munch.data.place.group.PlaceTagGroup;
 import munch.data.place.text.CollectedText;
 import munch.data.place.text.TextCollector;
 import munch.data.utils.ScheduledThreadUtils;
+import munch.restful.core.JsonUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -21,10 +24,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
  */
 public abstract class DataCollector {
     private static final Set<String> BLOCKED_TAGS = Set.of("restaurant", "hawker", "halal", "coffeeshop");
+    private static final Set<String> ALLOWED_TYPES = Set.of("Cuisine", "Establishment", "Amenities", "Occasion"); // Add Food Type?
     private static final Logger logger = LoggerFactory.getLogger(DataCollector.class);
 
     // Clients Required
@@ -48,6 +49,7 @@ public abstract class DataCollector {
     protected final CSVPrinter csvWriter;
 
     protected final String labelFileName;
+    protected final Map<String, String> labelMapping = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected DataCollector(String tagFileName, String labelFileName) throws IOException {
@@ -97,20 +99,24 @@ public abstract class DataCollector {
 
         // Put all output tags
         TagCollector.Group group = tagCollector.collect(dataList);
-        List<String> labels = group.collectExplicitIds();
-        labels.removeAll(BLOCKED_TAGS);
-        if (labels.isEmpty()) return null;
+        List<PlaceTagGroup> groups = group.collectGroups(ALLOWED_TYPES);
+        List<String> labelIds = groups.stream()
+                .filter(g -> !BLOCKED_TAGS.contains(g.getName().toLowerCase()))
+                .peek(g -> labelMapping.put(g.getRecordId(), g.getName()))
+                .map(PlaceTagGroup::getRecordId)
+                .collect(Collectors.toList());
+        if (labelIds.isEmpty()) return null;
 
-        return new DataGroup(collectedTexts, labels);
+        return new DataGroup(collectedTexts, labelIds);
     }
 
     public class DataGroup {
         final List<CollectedText> collectedTexts;
-        final List<String> labels;
+        final List<String> labelIds;
 
-        DataGroup(List<CollectedText> collectedTexts, List<String> labels) {
+        DataGroup(List<CollectedText> collectedTexts, List<String> labelIds) {
             this.collectedTexts = collectedTexts;
-            this.labels = labels;
+            this.labelIds = labelIds;
         }
 
         public List<CollectedText> getCollectedTexts() {
@@ -125,8 +131,7 @@ public abstract class DataCollector {
         }
 
         String getTags() {
-            return labels.stream()
-                    .collect(Collectors.joining(" "));
+            return Joiner.on(" ").join(labelIds);
         }
     }
 
@@ -134,6 +139,9 @@ public abstract class DataCollector {
         fileWriter.flush();
         fileWriter.close();
         csvWriter.close();
+
+        File file = new File(labelFileName);
+        JsonUtils.objectMapper.writeValue(file, labelMapping);
     }
 
     public static <T extends DataCollector> void run(Class<T> clazz) throws IOException, InterruptedException {
