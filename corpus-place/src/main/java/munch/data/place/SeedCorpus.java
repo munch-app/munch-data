@@ -74,7 +74,7 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
         if (catalystClient.countCorpus(seedData.getCatalystId(), "Sg.Munch.Place") > 0) return;
 
         putPlaceData(seedData);
-        sleep(40);
+        sleep(30);
     }
 
     /**
