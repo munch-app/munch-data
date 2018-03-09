@@ -96,7 +96,10 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
 
         fields.put("Place.menuUrl", JsonUtils.toTree(place.getMenuUrl()));
         fields.put("Place.website", JsonUtils.toTree(place.getWebsite()));
-        fields.put("Place.price", JsonUtils.toTree(place.getPrice().getMiddle()));
+
+        if (place.getPrice() != null) {
+            fields.put("Place.price", JsonUtils.toTree(place.getPrice().getMiddle()));
+        }
 
         fields.put("Place.tags", JsonUtils.toTree(getTags(place)));
 
@@ -124,6 +127,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
     }
 
     private List<String> getTags(Place place) {
+        if (place.getTag() == null) return List.of();
         return place.getTag().getExplicits().stream()
                 .filter(s -> {
                     if (possiblePlaceTags.contains(s)) return true;

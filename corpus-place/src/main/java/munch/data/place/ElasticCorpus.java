@@ -58,7 +58,7 @@ abstract class ElasticCorpus extends CatalystEngine<CorpusData> {
         elasticClient.put(cycleNo, place);
         counter.increment("Put");
 
-        sleep(30);
+        sleep(20);
     }
 
     @Override
