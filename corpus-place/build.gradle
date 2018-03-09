@@ -2,6 +2,7 @@ dependencies {
     compile project(':data-client')
     compile project(':data-utils')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+    compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
 
     // Matcher
     // compile group: 'info.debatty', name: 'java-string-similarity', version: '0.23'

@@ -83,6 +83,7 @@ public final class BoolQuery {
         ArrayNode filterArray = mapper.createArrayNode();
         filterArray.add(filterTerm("dataType", "Place"));
 
+        // TODO Filter place to open, after restart place corpus session
         // Filter 'Container' else 'Location' else 'LatLng' else none
         filterLocation(searchQuery).ifPresent(filterArray::add);
 
@@ -253,6 +254,12 @@ public final class BoolQuery {
         return filter;
     }
 
+    public static JsonNode filterTerm(String name, boolean value) {
+        ObjectNode filter = mapper.createObjectNode();
+        filter.putObject("term").put(name, value);
+        return filter;
+    }
+
     /**
      * @param name  name of terms
      * @param texts texts of terms
@@ -276,6 +283,22 @@ public final class BoolQuery {
      * @return filter range json
      */
     public static JsonNode filterRange(String name, String operator, long value) {
+        ObjectNode filter = mapper.createObjectNode();
+        filter.putObject("range")
+                .putObject(name)
+                .put(operator, value);
+        return filter;
+    }
+
+    /**
+     * E.g. createdDate > 1000 is "createdDate", "gt", 1000
+     *
+     * @param name     name of field to filter
+     * @param operator operator in english form, e.g. gte, lt
+     * @param value    value to compare again
+     * @return filter range json
+     */
+    public static JsonNode filterRange(String name, String operator, double value) {
         ObjectNode filter = mapper.createObjectNode();
         filter.putObject("range")
                 .putObject(name)

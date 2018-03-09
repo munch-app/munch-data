@@ -21,6 +21,7 @@ import java.util.Set;
 public class Place implements SearchResult {
     private String id;
     private String version;
+    private boolean open;
 
     // Basic
     private String name;
@@ -67,6 +68,17 @@ public class Place implements SearchResult {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    /**
+     * @return whether a place is open
+     */
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 
     /**
@@ -244,6 +256,7 @@ public class Place implements SearchResult {
         return Double.compare(place.ranking, ranking) == 0 &&
                 Objects.equals(id, place.id) &&
                 Objects.equals(version, place.version) &&
+                Objects.equals(open, place.open) &&
                 Objects.equals(name, place.name) &&
                 Objects.equals(phone, place.phone) &&
                 Objects.equals(website, place.website) &&
@@ -261,18 +274,21 @@ public class Place implements SearchResult {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, version, name, phone, website, menuUrl, description, price, location, review, tag, hours, images, containers, createdDate, ranking);
+        return Objects.hash(id, version, open, name, phone, website, menuUrl, description, price, location, review, tag, hours, images, containers, createdDate, ranking);
     }
 
     @Override
     public String toString() {
         return "Place{" +
                 "id='" + id + '\'' +
+                ", version='" + version + '\'' +
+                ", open=" + open +
                 ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
-                ", website='" + website + '\'' +
-                ", menuUrl='" + menuUrl + '\'' +
+                ", allNames=" + allNames +
                 ", description='" + description + '\'' +
+                ", phone='" + phone + '\'' +
+                ", menuUrl='" + menuUrl + '\'' +
+                ", website='" + website + '\'' +
                 ", price=" + price +
                 ", location=" + location +
                 ", review=" + review +

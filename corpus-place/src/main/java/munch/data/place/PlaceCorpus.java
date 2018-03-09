@@ -7,7 +7,6 @@ import corpus.engine.CatalystEngine;
 import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
-import munch.data.exceptions.ElasticException;
 import munch.data.place.amalgamate.Amalgamate;
 import munch.data.structure.Place;
 import munch.restful.core.JsonUtils;
@@ -95,14 +94,14 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                 Place place = placeParser.parse(new Place(), list);
                 // Null = parsing failed
                 if (place == null) {
-                    deleteIf(placeData.getCorpusKey());
+                    updateStatusDelete(placeData.getCorpusKey());
                 } else {
                     putIf(place);
                     corpusClient.put("Sg.Munch.Place", place.getId(), createCorpusData(place));
                     count(list, place);
                 }
             } else {
-                deleteIf(placeData.getCorpusKey());
+                updateStatusDelete(placeData.getCorpusKey());
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
@@ -150,7 +149,6 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
             try {
                 retriable.loop(() -> placeClient.put(place));
                 // Data might have been added to deleted, remove from deleted list
-                corpusClient.delete("Sg.Munch.Place.Deleted", place.getId());
 
                 logger.info("Updated: updated: {} existing: {}",
                         JsonUtils.toString(place),
@@ -164,33 +162,29 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         }
     }
 
-    private void deleteIf(String placeId) {
+    private void updateStatusDelete(String placeId) {
         Objects.requireNonNull(placeId);
 
         // Delete if exist only
         Place existing = placeClient.get(placeId);
         if (existing != null) {
-            try {
-                retriable.loop(() -> placeClient.delete(placeId));
-                // Put data to delete list for tracking
-                corpusClient.put("Sg.Munch.Place.Deleted", existing.getId(), createCorpusData(existing));
+            // Place is already deleted.
+            if (!existing.isOpen()) return;
 
-                logger.info("Deleted: {}",
-                        JsonUtils.toString(existing)
-                );
-                counter.increment("Deleted");
-            } catch (ElasticException e) {
-                if (e.getCode() == 404) {
-                    logger.info("Already Deleted: {}",
-                            JsonUtils.toString(existing)
-                    );
-                }
-            }
+            existing.setOpen(false);
+            retriable.loop(() -> placeClient.put(existing));
 
+            // Put data to delete list for tracking
+            corpusClient.put("Sg.Munch.Place.Close", existing.getId(), createCorpusData(existing));
+
+            logger.info("Status: Close: {}", JsonUtils.toString(existing));
+            counter.increment("Deleted");
+        } else {
+            logger.warn("Existing Deleted, suppose to be processed by PlaceDeleteCorpus, placeId: {}", placeId);
         }
     }
 
-    private CorpusData createCorpusData(Place place) {
+    public static CorpusData createCorpusData(Place place) {
         // Put to corpus client
         CorpusData placeData = new CorpusData(System.currentTimeMillis());
         // Max name is put twice

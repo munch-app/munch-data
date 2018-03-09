@@ -32,6 +32,9 @@
         "type": {
           "type": "keyword"
         },
+        "open": {
+          "type": "boolean"
+        },
         "name": {
           "type": "text"
         },

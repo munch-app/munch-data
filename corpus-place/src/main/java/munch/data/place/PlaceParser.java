@@ -28,7 +28,7 @@ import java.util.Set;
 @Singleton
 public final class PlaceParser extends AbstractParser<Place> {
     private static final AbstractKey[] TIMESTAMP_KEYS = new AbstractKey[]{AbstractKey.of("Article.timestamp")};
-    private static final String version = "2018-02-05";
+    private static final String version = "2018-03-09";
     private final List<String> priorityNames;
 
     private final StatusParser statusParser;
@@ -84,6 +84,7 @@ public final class PlaceParser extends AbstractParser<Place> {
         place.setVersion(version);
 
         // Check if anyone blocked the status
+        // Stop maintaining once it is deleted
         if (!statusParser.parse(place, list)) return null;
 
         place.setName(nameParser.parse(place, list));
@@ -114,6 +115,7 @@ public final class PlaceParser extends AbstractParser<Place> {
 
         place.setCreatedDate(findCreatedDate(list));
         place.setUpdatedDate(new Date());
+        place.setOpen(true); // Any place that successfully parsed is valid
         return place;
     }
 

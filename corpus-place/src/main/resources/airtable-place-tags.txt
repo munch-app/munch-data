@@ -1,0 +1,315 @@
+Café
+Breakfast
+Lunch
+Dinner
+Supper
+Brunch
+Business Meal
+Scenic View
+Football Screening
+Birthdays
+Romantic
+Child-Friendly
+Large Group
+Halal
+Vegetarian Options
+Alcohol
+Healthy
+Vegetarian
+Pet-Friendly
+Live Music
+Vegan Options
+Al Fresco Dining
+Parking Available
+Work-Friendly
+Takeaway
+Vegan
+Wheelchair-Friendly
+WiFi
+Power Sockets
+Private Dining
+Budget
+Hawker
+Restaurant
+Bakery
+Drinks
+Dessert
+Snacks
+Cafe
+Bars & Pubs
+Fast Food
+BBQ
+Buffet
+High Tea
+Steamboat
+Fine Dining
+Bistro
+Coffeeshop
+Chinese
+Singaporean
+Western
+Japanese
+Italian
+Indian
+Malay Indonesian
+Cantonese
+Thai
+Korean
+Fusion
+Asian
+Hainanese
+English
+American
+Hong Kong
+Teochew
+French
+Burmese
+Taiwanese
+Vietnamese
+Shanghainese
+European
+Sze Chuan
+Mexican
+Spanish
+South Indian
+Nonya Peranakan
+Modern European
+Turkish
+Hakka
+Australian
+German
+Indonesian
+Mediterranean
+Hawaiian
+Middle Eastern
+Beijing
+North Indian
+Swiss
+Greek
+Iranian
+Belgian
+Cuban
+Irish
+Latin American
+Portuguese
+African
+Arabic
+Argentinean
+Bangladeshi
+Brazilian
+Cambodian
+Caribbean
+Dongbei
+Dutch
+Eurasian
+Foochow
+Fujian
+Hokkien
+Indochinese
+International
+Lebanese
+Mongolian
+Moroccan
+Pakistani
+Russian
+Filipino
+Coffee
+Cakes
+Tea
+Burger
+Spicy
+Pasta
+Pastry
+Salad
+Fried Chicken
+Sandwich
+Grilled Chicken
+Fruits
+Bread
+Pizza
+Soup
+Curry
+Cookies
+Steak
+Chicken Wing
+Grilled Fish
+Fish & Chips
+Bubble Tea
+Seafood
+Nasi Lemak
+Roast Chicken
+Croissant
+Laksa
+Sushi
+Grilled Lamb
+Hotdog Bun
+Curry Puff
+Cheese
+Waffles
+Char Siew Bao
+Kaya Toast
+Biryani
+Roast Duck
+Char Kuey Teow
+Pad Thai
+Xiao Long Bao
+Fried Fish
+Coffee Bun
+Ice Cream
+Dim Sum
+Fried Shrimp
+Soya Bean
+Porridge
+Sashimi
+Pancakes
+Curry Chicken
+Mee Siam
+Roast Pork
+Tom Yum
+Private Dinning
+Baked Rice
+Fried Rice
+Fruit Juice
+Siew Mai
+Grilled Pork
+Bak Chor Mee
+Mee Rebus
+Malaysian
+Fried Squid
+Soya Milk
+Pork Ribs
+Sausage
+Grilled Beef
+Tiramisu
+Donut
+Calamari
+Bento
+Prata
+Live Band
+Kueh Lapis
+Ayam Penyet
+Naan
+Quiche
+Ramen
+Crepe
+Pork Bun
+Claypot Rice
+Chicken
+Hotpot & Steamboat
+Chicken Rice
+Froyo
+Vegetarian-friendly
+Hotdog
+Crab
+Chocolate
+Curry Bun
+Durian
+Chicken Tenders
+Swiss Roll
+Duck Rice
+Milkshake
+Eclair
+Pho
+Chilli Crab
+Yakitori
+Smoothie
+Fishball Noodle
+Assam Laksa
+Pork Chop
+You Tiao
+Rendang
+Chai Tow Kway
+Hokkien Mee
+Escargot
+Churros
+Castella Cake
+Steamed Chicken
+Vegan
+Pork Belly
+Risotto
+Cupcake
+Rosti
+Smoked Duck
+Egg Tart
+Kushiyaki
+Wine
+Donburi
+Boat Noodle
+Frog Leg
+Popiah
+Mee Goreng
+Fajitas
+Poke Bowls
+Bak Kut Teh
+Mee Sua
+Mochi
+Beer
+Tacos
+Bibimbap
+Pie
+Braised Oxtail
+Takoyaki
+Portugese
+Banh Mi
+Apple Strudel
+Fried Pork
+Lobster
+Sharkfin Soup
+Tau Suan
+Cream Puff
+Chwee Kueh
+Roast Meat
+Roast Beef
+Maggie Goreng
+Stew
+Popcorn
+Foie Gras
+Yoghurt
+Murtabak
+Nasi Goreng
+Brioche
+Sake
+Gyoza
+Steamed Fish
+Fried Frog
+Grilled Deer
+Bir
+Braised Crocodile
+Beancurd
+Mookata
+Tortilla
+Burrito
+Dosa
+Thosai
+Filipino
+Braised Beef
+Butter Chicken
+Cheese Tart
+Braised Lamb
+Duck Confit
+Lemon Tart
+Udon
+Wanton Mee
+Otah
+Bagel
+Date
+Meatball
+Baguette
+Pretzel
+Shaved Ice
+Nonya
+Tonkatsu
+Ban Mian
+Oysters
+Gnocchi
+Satay
+Kebab
+Pork Chop Bun
+Smoked Salmon
+Norwegian
+British
+Bingsu
+Almond Paste
+Pubs & Bars
+Zi Char
+Congee
