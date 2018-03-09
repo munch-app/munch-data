@@ -61,7 +61,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
     @Override
     protected boolean preCycle(long cycleNo) {
         this.replaceSession = new AirtableReplaceSession(Duration.ofSeconds(2), table, (record, record2) -> {
-            return record.getField("Place.id").asText().equals(record.getField("Place.id").asText());
+            return record.getField("Place.id").asText().equals(record2.getField("Place.id").asText());
         }, (record, record2) -> {
             return record.getField("UpdatedDate").asText().equals(record2.getField("UpdatedDate").asText());
         });
