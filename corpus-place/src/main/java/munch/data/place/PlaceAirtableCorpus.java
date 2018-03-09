@@ -1,6 +1,7 @@
 package munch.data.place;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import corpus.airtable.AirtableApi;
@@ -90,7 +91,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
         fields.put("Place.status", JsonUtils.toTree(place.isOpen() ? "Open" : "Close"));
 
         fields.put("Place.name", JsonUtils.toTree(place.getName()));
-        fields.put("Place.allNames", JsonUtils.toTree(place.getAllNames()));
+        fields.put("Place.allNames", JsonUtils.toTree(Joiner.on("\n").join(place.getAllNames())));
         fields.put("Place.description", JsonUtils.toTree(place.getDescription()));
         fields.put("Place.phone", JsonUtils.toTree(place.getPhone()));
 
