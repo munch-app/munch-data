@@ -28,6 +28,9 @@ public final class TagCollector {
     private static final Set<String> CORPUS_NAME_TRUSTED = Set.of(
             "Sg.MunchSheet.PlaceInfo2", "Sg.MunchSheet.FranchisePlace", "Sg.Munch.PlaceAward"
     );
+    private static final Set<String> CORPUS_NAME_BLOCKED = Set.of(
+            "Sg.Munch.Place"
+    );
 
     protected final CorpusClient corpusClient;
     protected final CatalystClient catalystClient;
@@ -74,7 +77,10 @@ public final class TagCollector {
 
         private Group(Iterator<CorpusData> iterator) {
             super(PlaceKey.tag);
-            iterator.forEachRemaining(this::add);
+            iterator.forEachRemaining(data -> {
+                if (CORPUS_NAME_BLOCKED.contains(data.getCorpusName())) return;
+                add(data);
+            });
             this.all = ImmutableSet.copyOf(collect().stream()
                     .map(s -> StringUtils.trimToNull(StringUtils.lowerCase(s)))
                     .filter(Objects::nonNull)
