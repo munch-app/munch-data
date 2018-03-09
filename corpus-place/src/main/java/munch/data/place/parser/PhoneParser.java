@@ -32,7 +32,7 @@ public final class PhoneParser extends AbstractParser<String> {
 
         matcher = PHONE_1800_PATTERN.matcher(phone);
         if (matcher.matches()) {
-            return "1800" + matcher.group("g1") + " " + matcher.group("g2");
+            return "1800 " + matcher.group("g1") + " " + matcher.group("g2");
         }
 
         return null;
