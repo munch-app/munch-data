@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class PlaceTagDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PlaceTagDatabase.class);
-    private static final int MAX = 1200;
+    private static final int MAX = 5000;
 
     private final AirtableApi.Table table;
 
