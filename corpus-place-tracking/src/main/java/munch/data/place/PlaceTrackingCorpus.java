@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Iterators;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
+import corpus.airtable.AirtableReplaceSession;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.PlaceClient;
 import munch.data.elastic.query.BoolQuery;
@@ -61,31 +61,41 @@ public final class PlaceTrackingCorpus extends CatalystEngine<Place> {
 
     @Override
     protected void doCycle(long cycleNo, Iterator<Place> iterator) {
-        airtable.replace(Duration.ofSeconds(1), Iterators.transform(iterator, place -> {
-            Objects.requireNonNull(place);
+        AirtableReplaceSession session = new AirtableReplaceSession(Duration.ofSeconds(1), airtable, (record, record2) -> {
+            return record.getField("Place.id").asText().equals(record2.getField("Place.id").asText());
+        }, (record, record2) -> {
+            return record.getField("UpdatedDate").asText().equals(record2.getField("UpdatedDate").asText());
+        });
 
-            AirtableRecord record = new AirtableRecord();
-            Map<String, JsonNode> fields = new HashMap<>();
-            fields.put("Place.name", JsonUtils.toTree(place.getName()));
-            fields.put("Ranking", JsonUtils.toTree(place.getRanking()));
-            fields.put("Place.tag", JsonUtils.toTree(place.getTag().getExplicits().stream()
-                    .map(WordUtils::capitalizeFully)
-                    .collect(Collectors.joining(", "))));
-            fields.put("Place.Location.address", JsonUtils.toTree(place.getLocation().getAddress()));
-            fields.put("Place.description", JsonUtils.toTree(place.getDescription()));
-            fields.put("Place.website", JsonUtils.toTree(place.getWebsite()));
-            fields.put("Place.phone", JsonUtils.toTree(place.getPhone()));
-            fields.put("Place.image", JsonUtils.toTree(place.getImages().stream()
-                    .flatMap(sourcedImage -> sourcedImage.getImages().entrySet().stream())
-                    .max((o1, o2) -> o2.getKey().compareTo(o1.getKey()))
-                    .map(Map.Entry::getValue)
-                    .orElse("")));
-            fields.put("Place.id", JsonUtils.toTree(place.getId()));
-            fields.put("CreatedDate", JsonUtils.toTree(DATE_FORMAT.format(place.getCreatedDate())));
+        iterator.forEachRemaining(place -> {
+            session.put(parse(place));
+        });
 
-            record.setFields(fields);
-            return record;
-        }));
+        session.close();
+    }
+
+    private AirtableRecord parse(Place place) {
+        AirtableRecord record = new AirtableRecord();
+        Map<String, JsonNode> fields = new HashMap<>();
+        fields.put("Place.name", JsonUtils.toTree(place.getName()));
+        fields.put("Ranking", JsonUtils.toTree(place.getRanking()));
+        fields.put("Place.tag", JsonUtils.toTree(place.getTag().getExplicits().stream()
+                .map(WordUtils::capitalizeFully)
+                .collect(Collectors.joining(", "))));
+        fields.put("Place.Location.address", JsonUtils.toTree(place.getLocation().getAddress()));
+        fields.put("Place.description", JsonUtils.toTree(place.getDescription()));
+        fields.put("Place.website", JsonUtils.toTree(place.getWebsite()));
+        fields.put("Place.phone", JsonUtils.toTree(place.getPhone()));
+        fields.put("Place.image", JsonUtils.toTree(place.getImages().stream()
+                .flatMap(sourcedImage -> sourcedImage.getImages().entrySet().stream())
+                .max((o1, o2) -> o2.getKey().compareTo(o1.getKey()))
+                .map(Map.Entry::getValue)
+                .orElse("")));
+        fields.put("Place.id", JsonUtils.toTree(place.getId()));
+        fields.put("CreatedDate", JsonUtils.toTree(DATE_FORMAT.format(place.getCreatedDate())));
+        fields.put("UpdatedDate", JsonUtils.toTree(DATE_FORMAT.format(place.getUpdatedDate())));
+        record.setFields(fields);
+        return record;
     }
 
     @Override
@@ -106,7 +116,7 @@ public final class PlaceTrackingCorpus extends CatalystEngine<Place> {
         ArrayNode filterArray = mapper.createArrayNode();
         filterArray.add(BoolQuery.filterTerm("dataType", "Place"));
 
-        long beforeRange = System.currentTimeMillis() - Duration.ofDays(30).toMillis();
+        long beforeRange = System.currentTimeMillis() - Duration.ofDays(60).toMillis();
         filterArray.add(BoolQuery.filterRange("createdDate", "gte", beforeRange));
 
         // Filter Array
