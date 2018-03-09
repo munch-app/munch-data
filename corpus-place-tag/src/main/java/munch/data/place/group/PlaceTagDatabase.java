@@ -9,6 +9,7 @@ import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public final class PlaceTagDatabase {
     }
 
     private PlaceTagGroup parse(AirtableRecord airtableRecord) {
-        String name = airtableRecord.getField("Name").asText();
+        String name = StringUtils.trim(airtableRecord.getField("Name").asText());
 
         PlaceTagGroup group = new PlaceTagGroup(airtableRecord.getId(), name);
         group.setType(airtableRecord.getField("Type").asText());
