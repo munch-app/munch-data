@@ -95,6 +95,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                 // Null = parsing failed
                 if (place == null) {
                     updateStatusDelete(placeData.getCorpusKey());
+                    corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
                 } else {
                     putIf(place);
                     corpusClient.put("Sg.Munch.Place", place.getId(), createCorpusData(place));
