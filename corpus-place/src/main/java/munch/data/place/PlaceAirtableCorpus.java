@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceAirtableCorpus.class);
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // 2017-10-16T00:00:00.000Z
 
     private final PlaceClient placeClient;
     private final AirtableApi.Table table;

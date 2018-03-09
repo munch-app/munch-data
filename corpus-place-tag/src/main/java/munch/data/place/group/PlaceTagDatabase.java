@@ -44,8 +44,8 @@ public final class PlaceTagDatabase {
     }, 1, TimeUnit.HOURS);
 
     @Inject
-    public PlaceTagDatabase(AirtableApi table) {
-        this.table = table.base("appPeSSAEXOQtRTJj").table("Tag Group");
+    public PlaceTagDatabase(AirtableApi api) {
+        this.table = api.base("appPeSSAEXOQtRTJj").table("Tag Group");
     }
 
     public List<PlaceTagGroup> getAll() {

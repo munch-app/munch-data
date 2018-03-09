@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import corpus.CorpusModule;
+import corpus.airtable.AirtableModule;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
@@ -147,7 +148,8 @@ public abstract class DataCollector {
     public static <T extends DataCollector> void run(Class<T> clazz) throws IOException, InterruptedException {
         System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
 
-        Injector injector = Guice.createInjector(new CorpusModule(), new DataModule(), new DynamoModule());
+        String apiKey = System.getenv("MUNCH_AIRTABLE_API_KEY");
+        Injector injector = Guice.createInjector(new CorpusModule(), new DataModule(), new DynamoModule(), new AirtableModule(apiKey));
         DataCollector collector = injector.getInstance(clazz);
         collector.run();
         collector.close();
