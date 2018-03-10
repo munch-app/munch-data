@@ -32,7 +32,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d+.*");
     private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
     private static final PatternSplit ADDRESS_DIVIDER_PATTERN = PatternSplit.compile("([^a-z'’]|^|[^a-z]'’)[a-z]");
-    private static final Set<String> BLOCKED_UNIT_NUMBERS = Set.of("#-", "#", "-");
+    private static final Set<String> BLOCKED_UNIT_NUMBERS = Set.of("#-", "#", "-", "-#");
 
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
