@@ -14,7 +14,6 @@ include 'corpus-tag'
 include 'corpus-location'
 include 'corpus-container'
 
-include 'corpus-place-tracking'
 include 'corpus-place-award'
 include 'corpus-place-suggest'
 

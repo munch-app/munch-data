@@ -95,7 +95,6 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                 // Null = parsing failed
                 if (place == null) {
                     updateStatusDelete(placeData.getCorpusKey());
-                    corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
                 } else {
                     putIf(place);
                     corpusClient.put("Sg.Munch.Place", place.getId(), createCorpusData(place));
@@ -180,8 +179,6 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
 
             logger.info("Status: Close: {}", JsonUtils.toString(existing));
             counter.increment("Deleted");
-        } else {
-            logger.warn("Existing Deleted, suppose to be processed by PlaceDeleteCorpus, placeId: {}", placeId);
         }
     }
 
