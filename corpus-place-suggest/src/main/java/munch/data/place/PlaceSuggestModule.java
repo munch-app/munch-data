@@ -7,15 +7,21 @@ import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provides;
 import corpus.CorpusModule;
 import corpus.airtable.AirtableModule;
 import corpus.data.DataModule;
+import corpus.data.DocumentClient;
 import corpus.engine.EngineGroup;
+import corpus.images.ImageCachedClient;
+import corpus.images.ImageClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.elastic.ElasticModule;
 import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Singleton;
 
 /**
  * Created by: Fuxing
@@ -45,10 +51,16 @@ public class PlaceSuggestModule extends AbstractModule {
         return result.getParameter().getValue();
     }
 
+    @Provides
+    @Singleton
+    ImageCachedClient provideCachedClient(DocumentClient documentClient, ImageClient imageClient) {
+        return new ImageCachedClient("munch-ugc", documentClient, imageClient);
+    }
+
     public static void main(String[] args) throws InterruptedException {
         Injector injector = Guice.createInjector(new PlaceSuggestModule());
         EngineGroup.start(
-                // TODO
+                injector.getInstance(PlaceSuggestCorpus.class)
         );
         ScheduledThreadUtils.shutdown();
     }

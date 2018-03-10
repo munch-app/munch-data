@@ -101,7 +101,7 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
         return placeClient.getSearchClient().search(root);
     }
 
-    public List<Place> getBeforeRanking(int size, double ranking) {
+    public List<Place> getBeforeRanking(int size, double beforeRanking) {
         ObjectNode root = mapper.createObjectNode();
         root.put("from", 0);
         root.put("size", size);
@@ -111,7 +111,7 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
         ArrayNode filterArray = mapper.createArrayNode();
         filterArray.add(BoolQuery.filterTerm("dataType", "Place"));
         filterArray.add(BoolQuery.filterTerm("status", false));
-        filterArray.add(BoolQuery.filterRange("ranking", "lte", ranking));
+        filterArray.add(BoolQuery.filterRange("ranking", "lte", beforeRanking));
 
         // Filter Array
         boolQuery.set("filter", filterArray);
