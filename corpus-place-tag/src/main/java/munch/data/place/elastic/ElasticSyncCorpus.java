@@ -3,7 +3,6 @@ package munch.data.place.elastic;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.TagClient;
-import munch.data.elastic.ElasticIndex;
 import munch.data.place.group.PlaceTagDatabase;
 import munch.data.place.group.PlaceTagGroup;
 import munch.data.structure.Tag;
@@ -28,26 +27,18 @@ public final class ElasticSyncCorpus extends CatalystEngine<PlaceTagGroup> {
     private static final Logger logger = LoggerFactory.getLogger(ElasticSyncCorpus.class);
     private static final Set<String> ALLOWED = Set.of("Food", "Cuisine", "Establishment", "Amenities", "Occasion", "Timing");
 
-    private final ElasticIndex elasticIndex;
     private final PlaceTagDatabase database;
     private final TagClient tagClient;
 
     @Inject
-    public ElasticSyncCorpus(ElasticIndex elasticIndex, PlaceTagDatabase database, TagClient tagClient) {
+    public ElasticSyncCorpus(PlaceTagDatabase database, TagClient tagClient) {
         super(logger);
-        this.elasticIndex = elasticIndex;
         this.database = database;
         this.tagClient = tagClient;
     }
 
     @Override
     protected boolean preCycle(long cycleNo) {
-        elasticIndex.scroll("Tag", "1m").forEachRemaining(tag -> {
-            String id = ((Tag) tag).getId();
-            if (!id.startsWith("rec")) {
-                elasticIndex.delete("Tag", ((Tag) tag).getId());
-            }
-        });
         return super.preCycle(cycleNo);
     }
 
