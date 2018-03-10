@@ -105,13 +105,14 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
         fields.put("Place.tags", JsonUtils.toTree(getTags(place)));
 
         if (place.getReview() != null) {
-            fields.put("Place.Review.average", JsonUtils.toTree(place.getReview().getAverage()));
+            fields.put("Place.Review.average", JsonUtils.toTree(place.getReview().getAverage() * 100));
             fields.put("Place.Review.total", JsonUtils.toTree(place.getReview().getTotal()));
         }
 
-        fields.put("Count.hours", JsonUtils.toTree(place.getHours().size()));
+        fields.put("Contains.containers", JsonUtils.toTree(place.getContainers().size() > 0));
+        fields.put("Contains.hour", JsonUtils.toTree(place.getHours().size() > 0));
+        fields.put("Contains.images", JsonUtils.toTree(place.getImages().size() > 0));
         fields.put("Count.images", JsonUtils.toTree(place.getImages().size()));
-        fields.put("Count.containers", JsonUtils.toTree(place.getContainers().size()));
 
         fields.put("Place.Location.address", JsonUtils.toTree(place.getLocation().getAddress()));
         fields.put("Place.Location.postal", JsonUtils.toTree(place.getLocation().getPostal()));
