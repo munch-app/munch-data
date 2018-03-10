@@ -82,8 +82,8 @@ public final class BoolQuery {
     private JsonNode filter(SearchQuery searchQuery) {
         ArrayNode filterArray = mapper.createArrayNode();
         filterArray.add(filterTerm("dataType", "Place"));
+        filterArray.add(filterTerm("open", true));
 
-        // TODO Filter place to open, after restart place corpus session
         // Filter 'Container' else 'Location' else 'LatLng' else none
         filterLocation(searchQuery).ifPresent(filterArray::add);
 
