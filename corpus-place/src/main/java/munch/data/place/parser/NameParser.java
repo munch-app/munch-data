@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public final class NameParser extends AbstractParser<String> {
-    private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z']|^|[^a-z]')[a-z]");
+    private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z'’]|^|[^a-z]'’)[a-z]");
     private static final Pattern BLOCKED_PATTERN = Pattern.compile("stalls? [0-9]+", Pattern.CASE_INSENSITIVE);
 
     private final NameNormalizer nameNormalizer;
