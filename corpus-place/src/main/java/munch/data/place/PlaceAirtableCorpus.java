@@ -110,7 +110,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
         }
 
         fields.put("Contains.containers", JsonUtils.toTree(place.getContainers().size() > 0));
-        fields.put("Contains.hour", JsonUtils.toTree(place.getHours().size() > 0));
+        fields.put("Contains.hours", JsonUtils.toTree(place.getHours().size() > 0));
         fields.put("Contains.images", JsonUtils.toTree(place.getImages().size() > 0));
         fields.put("Count.images", JsonUtils.toTree(place.getImages().size()));
 
