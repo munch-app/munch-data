@@ -15,10 +15,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -31,6 +32,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d+.*");
     private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
     private static final PatternSplit ADDRESS_DIVIDER_PATTERN = PatternSplit.compile("([^a-z']|^|[^a-z]')[a-z]");
+    private static final Set<String> BLOCKED_UNIT_NUMBERS = Set.of("#-", "#", "-");
 
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
@@ -105,17 +107,20 @@ public final class LocationParser extends AbstractParser<Place.Location> {
      * @return find unit number, if cannot be found, try get from address
      */
     private String collectUnitNumber(List<CorpusData> list) {
-        String unitNumber = collectMax(list, PlaceKey.Location.unitNumber);
-        if (StringUtils.isNotBlank(unitNumber)) {
-            return cleanUnitNumber(unitNumber);
-        }
+        List<String> unitNumbers = new ArrayList<>();
 
-        List<String> unitNumbers = collect(list, PlaceKey.Location.address).stream()
+        collect(list, PlaceKey.Location.unitNumber).stream()
+                .map(CorpusData.Field::getValue)
+                .map(this::cleanUnitNumber)
+                .filter(Objects::nonNull)
+                .forEach(unitNumbers::add);
+
+        collect(list, PlaceKey.Location.address).stream()
                 .map(CorpusData.Field::getValue)
                 .map(this::parseUnitNumber)
                 .map(this::cleanUnitNumber)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .forEach(unitNumbers::add);
 
         return collectMax(unitNumbers);
     }
@@ -138,7 +143,9 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         unitNumber = unitNumber.replaceAll(" ", "");
         unitNumber = unitNumber.replaceAll("^,|,$", "");
         if (unitNumber.startsWith("#")) return unitNumber;
+        if (unitNumber.toLowerCase().startsWith("stall")) return unitNumber;
         if (unitNumber.isEmpty()) return null;
+        if (BLOCKED_UNIT_NUMBERS.contains(unitNumber.toLowerCase())) return null;
         return "#" + unitNumber.toUpperCase();
     }
 
