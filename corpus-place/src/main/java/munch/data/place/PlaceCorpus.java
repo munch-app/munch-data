@@ -8,6 +8,7 @@ import corpus.exception.NotFoundException;
 import corpus.field.PlaceKey;
 import munch.data.clients.PlaceClient;
 import munch.data.place.amalgamate.Amalgamate;
+import munch.data.place.parser.StatusParser;
 import munch.data.structure.Place;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,12 +45,15 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
     private final PlaceClient placeClient;
     private final PlaceParser placeParser;
 
+    private final StatusParser statusParser;
+
     @Inject
-    public PlaceCorpus(Amalgamate amalgamate, PlaceClient placeClient, PlaceParser placeParser) {
+    public PlaceCorpus(Amalgamate amalgamate, PlaceClient placeClient, PlaceParser placeParser, StatusParser statusParser) {
         super(logger);
         this.amalgamate = amalgamate;
         this.placeClient = placeClient;
         this.placeParser = placeParser;
+        this.statusParser = statusParser;
     }
 
     @Override
@@ -91,17 +95,26 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                     }
                 });
 
+                String placeId = placeData.getCorpusKey();
                 Place place = placeParser.parse(new Place(), list);
-                // Null = parsing failed
-                if (place == null) {
-                    updateStatusDelete(placeData.getCorpusKey());
-                } else {
-                    putIf(place);
-                    corpusClient.put("Sg.Munch.Place", place.getId(), createCorpusData(place));
-                    count(list, place);
+
+                switch (statusParser.parse(place, list)) {
+                    case Delete:
+                        updateStatusDelete(placeId);
+                        break;
+                    case Close:
+                        updateStatusClose(placeId);
+                        break;
+                    case Open:
+                        assert place != null;
+
+                        putIf(place);
+                        corpusClient.put("Sg.Munch.Place", placeId, createCorpusData(place));
+                        count(list, place);
+                        break;
                 }
             } else {
-                updateStatusDelete(placeData.getCorpusKey());
+                updateStatusClose(placeData.getCorpusKey());
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
@@ -162,7 +175,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
         }
     }
 
-    private void updateStatusDelete(String placeId) {
+    private void updateStatusClose(String placeId) {
         Objects.requireNonNull(placeId);
 
         // Delete if exist only
@@ -174,10 +187,24 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
             existing.setOpen(false);
             retriable.loop(() -> placeClient.put(existing));
 
-            // Put data to delete list for tracking
+            // Put data to close list for tracking
             corpusClient.put("Sg.Munch.Place.Close", existing.getId(), createCorpusData(existing));
-
             logger.info("Status: Close: {}", JsonUtils.toString(existing));
+            counter.increment("Deleted");
+        }
+    }
+
+    private void updateStatusDelete(String placeId) {
+        Objects.requireNonNull(placeId);
+
+        // Delete if exist only
+        Place existing = placeClient.get(placeId);
+        if (existing != null) {
+            retriable.loop(() -> placeClient.delete(placeId));
+
+            // Put data to delete list for tracking
+            corpusClient.put("Sg.Munch.Place.Delete", existing.getId(), createCorpusData(existing));
+            logger.info("Status: Delete: {}", JsonUtils.toString(existing));
             counter.increment("Deleted");
         }
     }

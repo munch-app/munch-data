@@ -31,8 +31,6 @@ public final class PlaceParser extends AbstractParser<Place> {
     private static final String version = "2018-03-09";
     private final List<String> priorityNames;
 
-    private final StatusParser statusParser;
-
     private final NameParser nameParser;
     private final PhoneParser phoneParser;
     private final DescriptionParser descriptionParser;
@@ -51,11 +49,10 @@ public final class PlaceParser extends AbstractParser<Place> {
     private final RankingParser rankingParser;
 
     @Inject
-    public PlaceParser(Config config, StatusParser statusParser, NameParser nameParser, PhoneParser phoneParser, WebsiteParser websiteParser, DescriptionParser descriptionParser,
+    public PlaceParser(Config config, NameParser nameParser, PhoneParser phoneParser, WebsiteParser websiteParser, DescriptionParser descriptionParser,
                        MenuParser menuParser, PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser, ReviewParser reviewParser, TagParser tagParser,
                        HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
         this.priorityNames = ImmutableList.copyOf(config.getStringList("place.priority"));
-        this.statusParser = statusParser;
         this.nameParser = nameParser;
         this.phoneParser = phoneParser;
         this.websiteParser = websiteParser;
@@ -82,10 +79,6 @@ public final class PlaceParser extends AbstractParser<Place> {
     public Place parse(Place place, List<CorpusData> list) {
         place.setId(list.get(0).getCatalystId());
         place.setVersion(version);
-
-        // Check if anyone blocked the status
-        // Stop maintaining once it is deleted
-        if (!statusParser.parse(place, list)) return null;
 
         place.setName(nameParser.parse(place, list));
         if (StringUtils.isBlank(place.getName())) return null;
