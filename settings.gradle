@@ -10,7 +10,6 @@ include 'corpus-place'
 include 'corpus-place-image'
 include 'corpus-place-tag'
 
-include 'corpus-tag'
 include 'corpus-location'
 include 'corpus-container'
 
