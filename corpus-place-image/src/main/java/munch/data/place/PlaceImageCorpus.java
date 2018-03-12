@@ -37,17 +37,20 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
 
     private final MenuProcessor menuProcessor;
 
+    private final AirtableCounter airtableCounter;
+
     @Inject
-    public PlaceImageCorpus(ImageCollector imageCollector, ImageProcessor imageProcessor, MenuProcessor menuProcessor) {
+    public PlaceImageCorpus(ImageCollector imageCollector, ImageProcessor imageProcessor, MenuProcessor menuProcessor, AirtableCounter airtableCounter) {
         super(logger);
         this.imageCollector = imageCollector;
         this.imageProcessor = imageProcessor;
         this.menuProcessor = menuProcessor;
+        this.airtableCounter = airtableCounter;
     }
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofHours(3);
+        return Duration.ofHours(16);
     }
 
     @Override
@@ -59,12 +62,25 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData placeData, long processed) {
         String placeId = placeData.getCatalystId();
         // One week update once unless there is less then 3 images
-        if (!isDue(placeId)) {
-            sleep(100);
-            if (processed % 100 == 0) logger.info("Processed {} places", processed);
-            return;
+        CorpusData imageData = catalystClient.getCorpus(placeId, "Sg.Munch.Place.Image");
+        if (isDue(imageData)) {
+            imageData = parse(placeId, cycleNo);
+            corpusClient.put("Sg.Munch.Place.Image", placeId, imageData);
         }
 
+        airtableCounter.add(imageData);
+
+        sleep(30);
+        if (processed % 100 == 0) logger.info("Processed {} places", processed);
+    }
+
+    @Override
+    protected void postCycle(long cycleNo) {
+        airtableCounter.finish(Duration.ofMillis(1000));
+        super.postCycle(cycleNo);
+    }
+
+    private CorpusData parse(String placeId, long cycleNo) {
         List<CorpusData> dataList = new ArrayList<>();
         catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);
 
@@ -80,9 +96,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         imageData.getFields().addAll(selectImages(processedImages));
         imageData.put(MetaKey.version, VERSION);
         corpusClient.put("Sg.Munch.Place.Image", placeId, imageData);
-
-        sleep(100);
-        if (processed % 100 == 0) logger.info("Processed {} places", processed);
+        return imageData;
     }
 
     private static List<ImageField> selectImages(List<ProcessedImage> processedImages) {
@@ -145,8 +159,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
      * @param placeId if place id is due
      * @return true if due for update
      */
-    private boolean isDue(String placeId) {
-        CorpusData imageData = catalystClient.getCorpus(placeId, "Sg.Munch.Place.Image");
+    private boolean isDue(CorpusData imageData) {
         if (imageData == null) return true;
         if (PlaceKey.image.getAll(imageData).size() < 3) {
             // If less then 3 photos, 1 day expiry date

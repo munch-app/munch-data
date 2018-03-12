@@ -21,6 +21,10 @@ public class CollectedImage {
     private String source;
     private String sourceId;
     private String sourceName;
+    private String sourceUrl;
+
+    private String sourceContentTitle;
+    private String sourceContentUrl;
     private Map<String, String> images;
 
     public From getFrom() {
@@ -61,6 +65,30 @@ public class CollectedImage {
 
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
+    }
+
+    public String getSourceContentTitle() {
+        return sourceContentTitle;
+    }
+
+    public void setSourceContentTitle(String sourceContentTitle) {
+        this.sourceContentTitle = sourceContentTitle;
+    }
+
+    public String getSourceContentUrl() {
+        return sourceContentUrl;
+    }
+
+    public void setSourceContentUrl(String sourceContentUrl) {
+        this.sourceContentUrl = sourceContentUrl;
     }
 
     public Map<String, String> getImages() {

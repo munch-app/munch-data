@@ -29,9 +29,15 @@ public abstract class AbstractCollector {
         CollectedImage image = new CollectedImage();
         image.setFrom(from);
         image.setImageKey(imageField.getImageKey());
+
         image.setSource(imageField.getSource());
         image.setSourceId(imageField.getSourceId());
         image.setSourceName(imageField.getSourceName());
+        image.setSourceUrl(imageField.getSourceUrl());
+
+        image.setSourceContentTitle(imageField.getSourceContentTitle());
+        image.setSourceContentUrl(imageField.getSourceContentUrl());
+
         image.setImages(imageField.getImages());
         return image;
     }

@@ -32,6 +32,10 @@ public final class PlaceMenuClient extends ExtendedDataClient<PlaceMenu> {
         menu.setSource(item.getString("source"));
         menu.setSourceId(item.getString("sourceId"));
         menu.setSourceName(item.getString("sourceName"));
+        menu.setSourceUrl(item.getString("sourceUrl"));
+
+        menu.setSourceContentTitle(item.getString("sourceContentTitle"));
+        menu.setSourceContentUrl(item.getString("sourceContentUrl"));
         return menu;
     }
 
@@ -52,6 +56,10 @@ public final class PlaceMenuClient extends ExtendedDataClient<PlaceMenu> {
         item.with("source", data.getSource());
         item.with("sourceId", data.getSourceId());
         item.with("sourceName", data.getSourceName());
+        item.with("sourceUrl", data.getSourceUrl());
+
+        item.with("sourceContentTitle", data.getSourceContentTitle());
+        item.with("sourceContentUrl", data.getSourceContentUrl());
         return item;
     }
 }

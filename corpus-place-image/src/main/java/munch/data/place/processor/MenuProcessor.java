@@ -62,6 +62,10 @@ public final class MenuProcessor {
         menu.setSource(processedImage.getImage().getSource());
         menu.setSourceName(processedImage.getImage().getSourceName());
         menu.setSourceId(processedImage.getImage().getSourceId());
+        menu.setSourceUrl(processedImage.getImage().getSourceUrl());
+
+        menu.setSourceContentTitle(processedImage.getImage().getSourceContentTitle());
+        menu.setSourceContentUrl(processedImage.getImage().getSourceContentUrl());
         return menu;
     }
 
