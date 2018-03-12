@@ -11,10 +11,13 @@ import java.util.Set;
  */
 public final class PlaceTagGroup {
     private final String recordId;
+    private final String name;
 
-    private String name;
     private String type;
     private double order;
+
+    private boolean searchable;
+    private boolean browsable;
 
     private Set<String> converts;
     private Set<String> synonyms;
@@ -30,6 +33,22 @@ public final class PlaceTagGroup {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isSearchable() {
+        return searchable;
+    }
+
+    public void setSearchable(boolean searchable) {
+        this.searchable = searchable;
+    }
+
+    public boolean isBrowsable() {
+        return browsable;
+    }
+
+    public void setBrowsable(boolean browsable) {
+        this.browsable = browsable;
     }
 
     public String getType() {

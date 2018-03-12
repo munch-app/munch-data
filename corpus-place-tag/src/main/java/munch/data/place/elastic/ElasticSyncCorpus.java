@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -25,7 +24,6 @@ import java.util.Set;
 @Singleton
 public final class ElasticSyncCorpus extends CatalystEngine<PlaceTagGroup> {
     private static final Logger logger = LoggerFactory.getLogger(ElasticSyncCorpus.class);
-    private static final Set<String> ALLOWED = Set.of("Food", "Cuisine", "Establishment", "Amenities", "Occasion", "Timing");
 
     private final PlaceTagDatabase database;
     private final TagClient tagClient;
@@ -55,7 +53,7 @@ public final class ElasticSyncCorpus extends CatalystEngine<PlaceTagGroup> {
     @Override
     protected void process(long cycleNo, PlaceTagGroup data, long processed) {
         if (StringUtils.isAnyBlank(data.getRecordId(), data.getType(), data.getName())) return;
-        if (!ALLOWED.contains(data.getType())) return;
+        if (!data.isSearchable()) return;
 
         Tag tag = new Tag();
         tag.setId(data.getRecordId());

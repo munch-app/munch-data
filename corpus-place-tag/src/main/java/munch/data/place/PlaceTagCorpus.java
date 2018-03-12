@@ -125,7 +125,7 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         counter.forEach((tag, map) -> {
             int total = map.getOrDefault("total", 0);
             int noImage = map.getOrDefault("noImage", 0);
-            database.put(tag, total, noImage, 0);
+            database.put(tag, total, noImage, 0, 0);
             sleep(3000);
         });
         this.counter = null;

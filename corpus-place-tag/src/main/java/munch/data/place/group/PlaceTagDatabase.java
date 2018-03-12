@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class PlaceTagDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PlaceTagDatabase.class);
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // 2017-10-16T00:00:00.000Z
     private static final int MAX = 5000;
 
     private final AirtableApi.Table table;
@@ -67,6 +70,9 @@ public final class PlaceTagDatabase {
         String name = StringUtils.trim(airtableRecord.getField("Name").asText());
 
         PlaceTagGroup group = new PlaceTagGroup(airtableRecord.getId(), name);
+        group.setSearchable(airtableRecord.getField("Searchable").asBoolean(false));
+        group.setBrowsable(airtableRecord.getField("Browsable").asBoolean(false));
+
         group.setType(airtableRecord.getField("Type").asText());
         group.setOrder(airtableRecord.getField("Order").asDouble(0.0));
         group.setConverts(toLowercaseSet(airtableRecord.getField("Converts")));
@@ -119,7 +125,7 @@ public final class PlaceTagDatabase {
      * @param withoutImages total linked to place without any images
      * @param predicted     total linked to place that are predicted
      */
-    public void put(String name, int total, int withoutImages, int predicted) {
+    public void put(String name, int total, int withoutImages, int predicted, int predictedUnique) {
         AirtableRecord record = new AirtableRecord();
         record.setId(findRecordId(name));
 
@@ -127,7 +133,9 @@ public final class PlaceTagDatabase {
             record.setFields(Map.of(
                     "Total Count", JsonUtils.toTree(total),
                     "Without Image Count", JsonUtils.toTree(withoutImages),
-                    "Predicted Count", JsonUtils.toTree(predicted)
+                    "Predicted Count", JsonUtils.toTree(predicted),
+                    "Predicted Unique Count", JsonUtils.toTree(predictedUnique),
+                    "UpdatedDate", JsonUtils.toTree(DATE_FORMAT.format(new Date()))
             ));
             table.patch(record);
             return;
@@ -143,7 +151,9 @@ public final class PlaceTagDatabase {
                 "Name", JsonUtils.toTree(WordUtils.capitalizeFully(name)),
                 "Total Count", JsonUtils.toTree(total),
                 "Without Image Count", JsonUtils.toTree(withoutImages),
-                "Predicted Count", JsonUtils.toTree(predicted)
+                "Predicted Count", JsonUtils.toTree(predicted),
+                "Predicted Unique Count", JsonUtils.toTree(predictedUnique),
+                "UpdatedDate", JsonUtils.toTree(DATE_FORMAT.format(new Date()))
         ));
         AirtableRecord postedRecord = table.post(record);
         all.add(parse(postedRecord));
