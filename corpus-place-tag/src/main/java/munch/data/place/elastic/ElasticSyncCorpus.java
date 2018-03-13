@@ -55,18 +55,18 @@ public final class ElasticSyncCorpus extends CatalystEngine<PlaceTagGroup> {
         if (StringUtils.isAnyBlank(data.getRecordId(), data.getType(), data.getName())) return;
         if (!data.isSearchable()) return;
 
+        // Put created into Elastic
+        CorpusData corpusData = new CorpusData(cycleNo);
+        corpusData.put("Tag.Indexed.name", data.getName());
+        corpusData.put("Tag.Indexed.type", data.getType());
+        corpusClient.put("Sg.Munch.Tag.Indexed", data.getRecordId(), corpusData);
+
         Tag tag = new Tag();
         tag.setId(data.getRecordId());
         tag.setType(data.getType());
         tag.setName(data.getName());
         tag.setConverts(data.getConverts());
         tagClient.put(tag);
-
-        // Put created into Elastic
-        CorpusData corpusData = new CorpusData(cycleNo);
-        corpusData.put("Tag.Indexed.name", data.getName());
-        corpusData.put("Tag.Indexed.type", data.getType());
-        corpusClient.put("Sg.Munch.Tag.Indexed", data.getRecordId(), corpusData);
 
         counter.increment("Indexed");
         sleep(10);

@@ -75,9 +75,9 @@ public final class LocationDatabase {
 
     private void sync() {
         List<LocationPolygon> locations = new ArrayList<>();
-        corpusClient.list("Sg.MunchSheet.LocationPolygon").forEachRemaining(data -> {
-            String name = FieldUtils.getValue(data, "LocationPolygon.name");
-            String polygon = FieldUtils.getValue(data, "LocationPolygon.polygon");
+        corpusClient.list("Sg.Munch.Location.Polygon").forEachRemaining(data -> {
+            String name = FieldUtils.getValue(data, "Location.name");
+            String polygon = FieldUtils.getValue(data, "Location.polygon");
             if (StringUtils.isAnyBlank(name, polygon)) return;
 
             try {
