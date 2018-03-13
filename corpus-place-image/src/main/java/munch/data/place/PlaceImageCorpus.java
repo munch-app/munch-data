@@ -70,7 +70,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
 
         airtableCounter.add(imageData);
 
-        sleep(30);
+        sleep(80);
         if (processed % 100 == 0) logger.info("Processed {} places", processed);
     }
 
@@ -156,14 +156,13 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     }
 
     /**
-     * @param placeId if place id is due
      * @return true if due for update
      */
     private boolean isDue(CorpusData imageData) {
         if (imageData == null) return true;
         if (PlaceKey.image.getAll(imageData).size() < 3) {
             // If less then 3 photos, 1 day expiry date
-            return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(1));
+            return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(2));
         }
         return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(7));
     }

@@ -6,7 +6,6 @@ import corpus.field.FieldUtils;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -17,24 +16,6 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class ArticleCollector extends AbstractCollector {
-    private static final Set<String> BLACKLIST_SOURCE_ID = Set.of(
-            "ieatishootipost.sg",
-            "ordinarypatrons.com",
-            "eatbook.sg",
-            "thesmartlocal.com",
-            "therantingpanda.com",
-            "rubbisheatrubbishgrow.com",
-            "thehalalfoodblog.com",
-            "hungryangmo.com",
-            "six-and-seven.com",
-            "allaboutceil.com",
-            "missneverfull.com",
-            "foodgem.sg",
-            "umakemehungry.com",
-            "sparklette.net",
-            "thebondingtool.com",
-            "alexischeong.com"
-    );
 
     @Override
     public List<CollectedImage> collect(String placeId, List<CorpusData> list) {
@@ -49,7 +30,6 @@ public final class ArticleCollector extends AbstractCollector {
 
     private boolean isArticle(CorpusData data) {
         if (!data.getCorpusName().equals("Global.MunchArticle.Article")) return false;
-        if (BLACKLIST_SOURCE_ID.contains(FieldUtils.getValue(data, "Article.templateId"))) return false;
         return FieldUtils.get(data, "Article.groupings")
                 .map(CorpusData.Field::getValue)
                 .filter(s -> s.equals("1"))

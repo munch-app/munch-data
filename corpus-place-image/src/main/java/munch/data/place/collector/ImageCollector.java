@@ -1,6 +1,7 @@
 package munch.data.place.collector;
 
 import corpus.data.CorpusData;
+import munch.data.place.AirtableDatabase;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,11 +21,14 @@ public final class ImageCollector {
     private final ArticleCollector articleCollector;
     private final InstagramCollector instagramCollector;
 
+    private final AirtableDatabase airtableDatabase;
+
     @Inject
-    public ImageCollector(CorpusCollector corpusCollector, ArticleCollector articleCollector, InstagramCollector instagramCollector) {
+    public ImageCollector(CorpusCollector corpusCollector, ArticleCollector articleCollector, InstagramCollector instagramCollector, AirtableDatabase airtableDatabase) {
         this.corpusCollector = corpusCollector;
         this.articleCollector = articleCollector;
         this.instagramCollector = instagramCollector;
+        this.airtableDatabase = airtableDatabase;
     }
 
     /**
@@ -37,6 +41,13 @@ public final class ImageCollector {
         collectedImages.addAll(articleCollector.collect(placeId, list));
         collectedImages.addAll(instagramCollector.collect(placeId, list));
 
+        // Remove images that are not approved from airtable
+        collectedImages.removeIf(this::toRemove);
+
         return collectedImages;
+    }
+
+    public boolean toRemove(CollectedImage image) {
+        return !airtableDatabase.allow(image.getSource(), image.getSourceId());
     }
 }
