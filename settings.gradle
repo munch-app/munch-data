@@ -15,4 +15,5 @@ include 'corpus-container'
 
 include 'corpus-place-award'
 include 'corpus-place-suggest'
+include 'corpus-search'
 
