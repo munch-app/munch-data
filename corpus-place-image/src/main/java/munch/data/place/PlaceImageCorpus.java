@@ -161,9 +161,9 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     private boolean isDue(CorpusData imageData) {
         if (imageData == null) return true;
         if (PlaceKey.image.getAll(imageData).size() < 3) {
-            // If less then 3 photos, 1 day expiry date
+            // If less then 3 photos, 2 day expiry date
             return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(2));
         }
-        return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(7));
+        return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(3));
     }
 }
