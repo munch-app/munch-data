@@ -66,6 +66,18 @@ public final class ContainerCorpus extends CorpusEngine<CorpusData> {
         return Iterators.transform(mapper.select(Duration.ofSeconds(1)), record -> {
             CorpusData data = new CorpusData("Sg.Munch.Location.Container", cycleNo);
             data.setFields(record.getFields());
+            ContainerKey.type.get(data).ifPresent(field -> {
+                switch (field.getValue()) {
+                    case "Area":
+                        data.put(ContainerKey.matching, "polygon");
+                        break;
+
+                    case "Hawker Centre":
+                    case "Shopping Mall":
+                        data.put(ContainerKey.matching, "postal");
+                        break;
+                }
+            });
 
             ContainerKey.id.get(data).ifPresentOrElse(field -> {
                 data.setCorpusKey(field.getValue());
