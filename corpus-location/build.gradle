@@ -1,8 +1,11 @@
 dependencies {
     compile project(':data-client')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+    compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
 
     compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
 }
 
-mainClassName = 'munch.data.location.LocationModule'
+mainClassName = 'munch.data.location.RootModule'

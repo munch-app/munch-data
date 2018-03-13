@@ -1,4 +1,4 @@
-package munch.data.container;
+package munch.data.location.container;
 
 import com.google.common.collect.ImmutableList;
 import corpus.data.CorpusData;

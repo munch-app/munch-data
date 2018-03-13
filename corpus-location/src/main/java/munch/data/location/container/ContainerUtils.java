@@ -1,15 +1,12 @@
-package munch.data.container;
+package munch.data.location.container;
 
 import corpus.data.CorpusData;
-import corpus.field.AbstractKey;
 import corpus.field.ContainerKey;
 import corpus.images.ImageField;
 import munch.data.structure.Container;
 import munch.data.structure.SourcedImage;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,18 +16,7 @@ import java.util.stream.Collectors;
  * Time: 11:27 AM
  * Project: munch-data
  */
-public final class MunchContainerKey extends AbstractKey {
-    public static final MunchContainerKey sourceCorpusName = new MunchContainerKey("sourceCorpusName", false);
-    public static final MunchContainerKey sourceCorpusKey = new MunchContainerKey("sourceCorpusKey", false);
-
-    private MunchContainerKey(String key, boolean multi) {
-        super("Sg.Munch.Container." + key, multi);
-    }
-
-    public boolean equal(CorpusData data, Date date, long dataVersion) {
-        String right = Long.toString(date.getTime() + dataVersion);
-        return StringUtils.equals(getValueOrThrow(data), right);
-    }
+public final class ContainerUtils {
 
     public static Container createContainer(CorpusData sourceData) {
         if (sourceData == null) return null;

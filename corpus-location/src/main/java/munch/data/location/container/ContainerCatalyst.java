@@ -1,4 +1,4 @@
-package munch.data.container;
+package munch.data.location.container;
 
 import catalyst.utils.exception.ExceptionRetriable;
 import catalyst.utils.exception.Retriable;
@@ -23,8 +23,8 @@ import java.util.function.Consumer;
  * Project: munch-corpus
  */
 @Singleton
-public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
-    private static final Logger logger = LoggerFactory.getLogger(ContainerPlaceCatalyst.class);
+public class ContainerCatalyst extends CatalystEngine<CorpusData> {
+    private static final Logger logger = LoggerFactory.getLogger(ContainerCatalyst.class);
     private static final Retriable retriable = new ExceptionRetriable(4);
 
     private final ContainerClient containerClient;
@@ -32,7 +32,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
     private PolygonMatcher polygonMatcher;
 
     @Inject
-    public ContainerPlaceCatalyst(ContainerClient containerClient) {
+    public ContainerCatalyst(ContainerClient containerClient) {
         super(logger);
         this.containerClient = containerClient;
     }
@@ -46,42 +46,22 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
     protected boolean preCycle(long cycleNo) {
         postalMatcher = new PostalMatcher();
         polygonMatcher = new PolygonMatcher();
-        corpusClient.list("Sg.Munch.Container").forEachRemaining(data -> {
-            CorpusData sourceData = getSourceData(data);
-            if (sourceData == null) {
-                // Remove
-                retriable.loop(() -> {
-                    containerClient.delete(data.getCorpusKey());
-                    corpusClient.delete("Sg.Munch.Container", data.getCorpusKey());
-                    counter.increment("Deleted");
-                });
-                return;
-            }
-
-            Container container = MunchContainerKey.createContainer(sourceData);
+        corpusClient.list("Sg.Munch.Location.Container").forEachRemaining(data -> {
+            Container container = ContainerUtils.createContainer(data);
             if (container == null) {
-                logger.info("Failed to Create Container: {}", sourceData);
+                logger.info("Failed to Create Container: {}", data);
                 counter.increment("Failure");
                 return;
             }
-            postalMatcher.put(sourceData, container);
-            polygonMatcher.put(sourceData, container);
+
+            postalMatcher.put(data, container);
+            polygonMatcher.put(data, container);
             counter.increment("Loaded PostalMatcher");
             sleep(10);
         });
 
         counter.print();
         return super.preCycle(cycleNo);
-    }
-
-    /**
-     * @param data local persisted tracker
-     * @return CorpusData
-     */
-    private CorpusData getSourceData(CorpusData data) {
-        String sourceCorpusName = MunchContainerKey.sourceCorpusName.getValueOrThrow(data);
-        String sourceCorpusKey = MunchContainerKey.sourceCorpusKey.getValueOrThrow(data);
-        return corpusClient.get(sourceCorpusName, sourceCorpusKey);
     }
 
     @Override
@@ -95,13 +75,13 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
         String postal = PlaceKey.Location.postal.getValueOrThrow(data);
 
         postalMatcher.find(postal, placeId, cycleNo).forEach(containerPlace -> {
-            corpusClient.put("Sg.Munch.ContainerPlace", placeId, containerPlace);
+            corpusClient.put("Sg.Munch.Location.ContainerPlace", placeId, containerPlace);
             counter.increment("Matched PostalMatcher");
         });
 
         PlaceKey.Location.latLng.getLatLng(data).ifPresent(latLng -> {
             polygonMatcher.find(latLng, placeId, cycleNo).forEach(containerPlace -> {
-                corpusClient.put("Sg.Munch.ContainerPlace", placeId, containerPlace);
+                corpusClient.put("Sg.Munch.Location.ContainerPlace", placeId, containerPlace);
                 counter.increment("Matched PostalMatcher");
             });
         });
@@ -129,7 +109,7 @@ public class ContainerPlaceCatalyst extends CatalystEngine<CorpusData> {
 
     @Override
     protected void deleteCycle(long cycleNo) {
-        super.deleteCycle(cycleNo);
+        corpusClient.deleteBefore("Sg.Munch.Location.ContainerPlace", cycleNo);
         corpusClient.deleteBefore("Sg.Munch.ContainerPlace", cycleNo);
     }
 }

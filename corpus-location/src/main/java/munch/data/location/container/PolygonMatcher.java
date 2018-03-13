@@ -1,4 +1,4 @@
-package munch.data.container;
+package munch.data.location.container;
 
 import catalyst.utils.LatLngUtils;
 import com.google.common.collect.ImmutableList;

@@ -1,27 +1,24 @@
 package munch.data.location;
 
-import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Date;
 
 /**
  * Created by: Fuxing
- * Date: 10/10/2017
- * Time: 3:48 AM
- * Project: munch-data
+ * Date: 4/10/17
+ * Time: 5:06 PM
+ * Project: munch-corpus
  */
-public class LocationKey extends AbstractKey {
+public final class LocationKey extends AbstractKey {
 
-    public static final LocationKey updatedDate = new LocationKey("updatedDate", false);
+    public static final LocationKey name = new LocationKey("name");
+    public static final LocationKey country = new LocationKey("country");
+    public static final LocationKey city = new LocationKey("city");
 
-    private LocationKey(String key, boolean multi) {
-        super("Sg.Munch.Location." + key, multi);
-    }
+    public static final LocationKey polygon = new LocationKey("polygon");
+    public static final LocationKey latLng = new LocationKey("latLng");
 
-    public boolean equal(CorpusData data, Date date, long dataVersion) {
-        String right = Long.toString(date.getTime() + dataVersion);
-        return StringUtils.equals(getValueOrThrow(data), right);
+
+    private LocationKey(String key) {
+        super("Location." + key, false);
     }
 }
