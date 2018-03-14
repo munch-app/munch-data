@@ -1,6 +1,5 @@
 package munch.data.place.collector;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusClient;
@@ -53,12 +52,12 @@ public final class TagCollector {
         this.synonymTagMapping = synonymTagMapping;
     }
 
-    public Group collect(String placeId) {
-        return new Group(placeId, Lists.newArrayList(catalystClient.listCorpus(placeId)));
+    public TagBuilder collect(String placeId) {
+        return new TagBuilder(placeId, Lists.newArrayList(catalystClient.listCorpus(placeId)));
     }
 
-    public Group collect(String placeId, List<CorpusData> list) {
-        return new Group(placeId, list);
+    public TagBuilder collect(String placeId, List<CorpusData> list) {
+        return new TagBuilder(placeId, list);
     }
 
     /**
@@ -79,56 +78,40 @@ public final class TagCollector {
                 .collect(Collectors.toList());
     }
 
-    public class Group extends FieldCollector {
-        public final Set<PlaceTagGroup> groups;
-        public final Set<String> all;
-        public final Set<String> trusted;
-
+    public class TagBuilder {
         private final String placeId;
         private final List<CorpusData> dataList;
 
-        private Group(String placeId, List<CorpusData> list) {
-            super(PlaceKey.tag);
+        private final Set<String> tags = new HashSet<>();
+
+        private TagBuilder(String placeId, List<CorpusData> list) {
             this.placeId = placeId;
             this.dataList = list;
+            list.removeIf(data -> CORPUS_NAME_BLOCKED.contains(data.getCorpusName()));
+        }
 
-            list.forEach(data -> {
-                if (CORPUS_NAME_BLOCKED.contains(data.getCorpusName())) return;
-                add(data);
-            });
-            this.all = ImmutableSet.copyOf(collect().stream()
+        public List<String> withAll() {
+            FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
+            List<String> collected = fieldCollector.collect().stream()
                     .map(s -> StringUtils.trimToNull(StringUtils.lowerCase(s)))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toSet())
-            );
-            this.trusted = ImmutableSet.copyOf(collect(
-                    f -> CORPUS_NAME_TRUSTED.contains(f.getCorpusName()),
-                    s -> StringUtils.trimToNull(StringUtils.lowerCase(s))
-            ));
-            this.groups = synonymTagMapping.resolveAll(all);
-        }
+                    .collect(Collectors.toList());
 
-        public Set<String> collectAny() {
-            return all;
-        }
-
-        public Set<String> collectTrusted() {
-            return trusted;
-        }
-
-        public List<String> collectExplicit() {
-            List<String> collected = new ArrayList<>();
-            collected.addAll(findTypes(groups, Set.of("Cuisine"), 1));
-            collected.addAll(findTypes(groups, Set.of("Establishment"), 1));
-            collected.addAll(findTypes(groups, Set.of("Amenities", "Occasion"), 2));
+            tags.addAll(collected);
             return collected;
         }
 
-        public List<String> collectImplicit() {
-            return findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food"), 1000);
+        public List<String> withTrusted() {
+            FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
+            List<String> collected = fieldCollector.collect(
+                    f -> CORPUS_NAME_TRUSTED.contains(f.getCorpusName()),
+                    s -> StringUtils.trimToNull(StringUtils.lowerCase(s)));
+
+            tags.addAll(collected);
+            return collected;
         }
 
-        public List<String> collectPredicted() {
+        public List<String> withPredicted(double moreThan) {
             List<CollectedText> collectedTexts = textCollector.collect(placeId, dataList);
             if (collectedTexts.isEmpty()) return List.of();
 
@@ -137,12 +120,42 @@ public final class TagCollector {
                     .collect(Collectors.toList());
 
             Map<String, Double> labels = predictTagClient.predict(texts);
-            if (labels.isEmpty()) return null;
+            if (labels.isEmpty()) return List.of();
 
-            return labels.entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0.75)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+            List<String> collected = new ArrayList<>();
+            labels.forEach((k, value) -> {
+                if (value > moreThan) {
+                    String tag = k.toLowerCase();
+                    tags.add(tag);
+                    collected.add(tag);
+                }
+            });
+
+            return collected;
+        }
+
+        public List<String> collectString() {
+            return new ArrayList<>(tags);
+        }
+
+        public Set<PlaceTagGroup> collectGroups() {
+            return synonymTagMapping.resolveAll(tags);
+        }
+
+        public List<String> collectExplicit() {
+            Set<PlaceTagGroup> groups = synonymTagMapping.resolveAll(tags);
+
+            List<String> collected = new ArrayList<>();
+            collected.addAll(findTypes(groups, Set.of("Cuisine"), 1));
+            collected.addAll(findTypes(groups, Set.of("Establishment"), 1));
+            collected.addAll(findTypes(groups, Set.of("Amenities", "Occasion"), 2));
+            return collected;
+        }
+
+        public List<String> collectImplicit() {
+            Set<PlaceTagGroup> groups = synonymTagMapping.resolveAll(tags);
+
+            return findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food"), 1000);
         }
     }
 }

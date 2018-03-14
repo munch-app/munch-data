@@ -1,8 +1,10 @@
 package munch.data.place.collector;
 
 import com.google.common.base.Joiner;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provides;
 import corpus.CorpusModule;
 import corpus.airtable.AirtableModule;
 import corpus.data.CatalystClient;
@@ -11,6 +13,7 @@ import corpus.data.CorpusData;
 import corpus.data.DataModule;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.group.PlaceTagGroup;
+import munch.data.place.predict.PredictTagClient;
 import munch.data.place.text.CollectedText;
 import munch.data.place.text.TextCollector;
 import munch.data.utils.ScheduledThreadUtils;
@@ -97,9 +100,9 @@ public abstract class DataCollector {
         if (collectedTexts.isEmpty()) return null;
 
         // Put all output tags
-        TagCollector.Group group = tagCollector.collect(placeId, dataList);
+        TagCollector.TagBuilder tagBuilder = tagCollector.collect(placeId, dataList);
 
-        List<String> labelIds = group.groups.stream()
+        List<String> labelIds = tagBuilder.collectGroups().stream()
                 .filter(PlaceTagGroup::isPredict)
                 .peek(g -> labelMapping.put(g.getRecordId(), g.getName()))
                 .map(PlaceTagGroup::getRecordId)
@@ -143,11 +146,27 @@ public abstract class DataCollector {
         JsonUtils.objectMapper.writeValue(file, labelMapping);
     }
 
-    public static <T extends DataCollector> void run(Class<T> clazz) throws IOException, InterruptedException {
-        System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
+    public static class CollectModule extends AbstractModule {
 
-        String apiKey = System.getenv("MUNCH_AIRTABLE_API_KEY");
-        Injector injector = Guice.createInjector(new CorpusModule(), new DataModule(), new DynamoModule(), new AirtableModule(apiKey));
+        @Override
+        protected void configure() {
+            System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
+
+            install(new CorpusModule());
+            install(new DataModule());
+            install(new DynamoModule());
+            install(new AirtableModule(System.getenv("MUNCH_AIRTABLE_API_KEY")));
+        }
+
+        @Provides
+        PredictTagClient provideClient() {
+            return new PredictTagClient("");
+        }
+    }
+
+    public static <T extends DataCollector> void run(Class<T> clazz) throws IOException, InterruptedException {
+
+        Injector injector = Guice.createInjector(new CollectModule());
         DataCollector collector = injector.getInstance(clazz);
         collector.run();
         collector.close();

@@ -66,27 +66,45 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         String placeId = data.getCorpusKey();
         List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(data.getCatalystId()));
 
-        TagCollector.Group group = tagCollector.collect(placeId, dataList);
-        List<String> explicits = group.collectExplicit();
-        List<String> implicits = group.collectImplicit();
-        List<String> predicts = group.collectPredicted();
-        persist(data.getCatalystId(), explicits, implicits, predicts);
 
-        Set<String> countingTags = new HashSet<>();
-        countingTags.addAll(group.collectTrusted());
-        countingTags.addAll(implicits);
+        TagCollector.TagBuilder tagBuilder = tagCollector.collect(placeId, dataList);
+        List<String> predicts = tagBuilder.withPredicted(0.75);
+        tagBuilder.withTrusted();
+        List<String> alls = tagBuilder.withAll();
 
-        // Counting Tags
-        countingTags.forEach(s -> counter.increment(s, "total"));
-        if (!hasImage(dataList)) {
-            countingTags.forEach(s -> counter.increment(s, "noImage"));
-        }
+
+        List<String> explicits = tagBuilder.collectExplicit();
+        List<String> implicits = tagBuilder.collectImplicit();
+        persist(placeId, explicits, implicits);
+
+        // TOTAL, TOTAL Without Image
+        // Predicted, Predicted Unique
+        updateCounting(hasImage(dataList), predicts, implicits, alls);
 
         sleep(300);
         if (processed % 100 == 0) logger.info("Processed {}", processed);
     }
 
-    public void persist(String placeId, List<String> explicits, List<String> implicits, List<String> predicts) {
+    private void updateCounting(boolean hasImage, List<String> predicts, List<String> implicits, List<String> alls) {
+        // Total Predicted
+        predicts.forEach(s -> {
+            counter.increment(s, "predicted");
+
+            if (!alls.contains(s)) {
+                counter.increment(s, "predictedUnique");
+            }
+        });
+
+        // Total
+        implicits.forEach(s -> counter.increment(s, "total"));
+
+        // Without Image
+        if (!hasImage) {
+            implicits.forEach(s -> counter.increment(s, "noImage"));
+        }
+    }
+
+    private void persist(String placeId, List<String> explicits, List<String> implicits) {
         CorpusData data = new CorpusData(System.currentTimeMillis());
         data.setCatalystId(placeId);
         data.put(MetaKey.version, "2018-03-08");
@@ -101,7 +119,6 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         }
 
         data.getFields().addAll(TagKey.implicits.createFields(implicits));
-        data.getFields().addAll(TagKey.predicts.createFields(predicts));
         corpusClient.put("Sg.Munch.Place.Tag", placeId, data);
     }
 
@@ -122,14 +139,15 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
     }
 
     @Override
-    protected void deleteCycle(long cycleNo) {
+    protected void postCycle(long cycleNo) {
         counter.forEach((tag, map) -> {
             int total = map.getOrDefault("total", 0);
             int noImage = map.getOrDefault("noImage", 0);
-            database.put(tag, total, noImage, 0, 0);
+            int predicted = map.getOrDefault("predicted", 0);
+            int predictedUnique = map.getOrDefault("predictedUnique", 0);
+            database.put(tag, total, noImage, predicted, predictedUnique);
             sleep(3000);
         });
         this.counter = null;
-        super.deleteCycle(cycleNo);
     }
 }
