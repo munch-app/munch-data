@@ -1,6 +1,7 @@
 package munch.data.place.collector;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -93,14 +94,14 @@ public abstract class DataCollector {
 
     @Nullable
     public DataGroup collectGroup(String placeId) {
-        List<CorpusData> dataList = new ArrayList<>();
-        catalystClient.listCorpus(placeId).forEachRemaining(dataList::add);
+        List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
 
         List<CollectedText> collectedTexts = textCollector.collect(placeId, dataList);
         if (collectedTexts.isEmpty()) return null;
 
         // Put all output tags
         TagCollector.TagBuilder tagBuilder = tagCollector.collect(placeId, dataList);
+        tagBuilder.withAll();
 
         List<String> labelIds = tagBuilder.collectGroups().stream()
                 .filter(PlaceTagGroup::isPredict)
@@ -160,7 +161,7 @@ public abstract class DataCollector {
 
         @Provides
         PredictTagClient provideClient() {
-            return new PredictTagClient("");
+            return new PredictTagClient("http://localhost:5000");
         }
     }
 

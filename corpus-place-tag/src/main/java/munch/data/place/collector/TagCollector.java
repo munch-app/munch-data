@@ -92,6 +92,7 @@ public final class TagCollector {
 
         public List<String> withAll() {
             FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
+            fieldCollector.addAll(dataList);
             List<String> collected = fieldCollector.collect().stream()
                     .map(s -> StringUtils.trimToNull(StringUtils.lowerCase(s)))
                     .filter(Objects::nonNull)
@@ -103,6 +104,7 @@ public final class TagCollector {
 
         public List<String> withTrusted() {
             FieldCollector fieldCollector = new FieldCollector(PlaceKey.tag);
+            fieldCollector.addAll(dataList);
             List<String> collected = fieldCollector.collect(
                     f -> CORPUS_NAME_TRUSTED.contains(f.getCorpusName()),
                     s -> StringUtils.trimToNull(StringUtils.lowerCase(s)));

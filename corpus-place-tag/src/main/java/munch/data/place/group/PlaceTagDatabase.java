@@ -144,7 +144,7 @@ public final class PlaceTagDatabase {
 
         List<PlaceTagGroup> all = getAll();
         if (all.size() >= MAX) {
-            logger.warn("There is equal or more then 1200 tags");
+            logger.warn("There is equal or more then 5000 tags");
             return;
         }
 

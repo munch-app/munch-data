@@ -26,14 +26,14 @@ train_tags = data['tags'][:train_size]
 test_posts = data['texts'][train_size:]
 test_tags = data['tags'][train_size:]
 
-max_words_x = 2000
-tokenize_x = text.Tokenizer(num_words=max_words_x, char_level=False)
+max_words_x = 2500
+tokenize_x = text.Tokenizer(num_words=max_words_x, char_level=False, lower=True)
 tokenize_x.fit_on_texts(train_posts)  # only fit on train
 x_train = tokenize_x.texts_to_matrix(train_posts)
 x_test = tokenize_x.texts_to_matrix(test_posts)
 
-max_words_y = 150
-tokenize_y = text.Tokenizer(num_words=max_words_y, char_level=False)
+max_words_y = 200
+tokenize_y = text.Tokenizer(num_words=max_words_y, char_level=False, lower=False)
 tokenize_y.fit_on_texts(train_tags)  # only fit on train
 y_train = tokenize_y.texts_to_matrix(train_tags)
 y_test = tokenize_y.texts_to_matrix(test_tags)
@@ -90,19 +90,19 @@ with open('data/model/tag-tokenzier-y.pickle', 'wb') as handle:
     pickle.dump(tokenize_y, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Here's how to generate a prediction on individual examples
-# text_labels = {v: k for k, v in tokenize_y.word_index.items()}
-#
-#
-# for i in range(10):
-#     print(test_posts.iloc[i][:100], "...")
-#     print('Actual label:' + test_tags.iloc[i])
-#
-#     results = {}
-#     prediction = model.predict(np.array([x_test[i]]))
-#     for idx, val in enumerate(prediction[0]):
-#         results[text_labels.get(idx, None)] = val
-#
-#     labels = sorted(((v, k) for k, v in results.items()), reverse=True)
-#     labels = list(filter(lambda t: t[0] > 0.1, labels))
-#     labels = ', '.join(map(lambda t: str(t[1]) + ": " + str(t[0]), labels[0:10]))
-#     print("Predicted label: " + labels + "\n")
+text_labels = {v: k for k, v in tokenize_y.word_index.items()}
+import numpy as np
+
+for i in range(10):
+    print(test_posts.iloc[i][:100], "...")
+    print('Actual label:' + test_tags.iloc[i])
+
+    results = {}
+    prediction = model.predict(np.array([x_test[i]]))
+    for idx, val in enumerate(prediction[0]):
+        results[text_labels.get(idx, None)] = val
+
+    labels = sorted(((v, k) for k, v in results.items()), reverse=True)
+    labels = list(filter(lambda t: t[0] > 0.1, labels))
+    labels = ', '.join(map(lambda t: str(t[1]) + ": " + str(t[0]), labels[0:10]))
+    print("Predicted label: " + labels + "\n")
