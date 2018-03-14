@@ -3,13 +3,13 @@ from __future__ import division
 from __future__ import print_function
 
 import pickle
-import numpy as np
+
 import pandas as pd
 from keras.layers import Dense, Activation, Dropout
 from keras.models import Sequential
 from keras.preprocessing import text
 
-data = pd.read_csv("data/tag-text-data-5.csv", encoding="utf-8")
+data = pd.read_csv("data/tag-text-data-6.csv", encoding="utf-8")
 data = data.sample(frac=1)
 print(data.head())
 
