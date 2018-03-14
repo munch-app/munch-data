@@ -12,7 +12,6 @@ import corpus.airtable.AirtableMapper;
 import corpus.data.CorpusData;
 import corpus.engine.CorpusEngine;
 import munch.data.clients.LocationClient;
-import munch.data.elastic.ElasticIndex;
 import munch.data.structure.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +36,11 @@ public final class LocationCorpus extends CorpusEngine<CorpusData> {
 
     private final AirtableMapper mapper;
     private final WKTReader reader = new WKTReader();
-    private final ElasticIndex elasticIndex;
     private final LocationClient locationClient;
 
     @Inject
-    public LocationCorpus(AirtableApi airtableApi, ElasticIndex elasticIndex, LocationClient locationClient) {
+    public LocationCorpus(AirtableApi airtableApi, LocationClient locationClient) {
         super(logger);
-        this.elasticIndex = elasticIndex;
         this.locationClient = locationClient;
         AirtableApi.Table table = airtableApi.base("appbCCXympYqlVyvU").table("Polygon");
         this.mapper = new AirtableMapper(table);
@@ -79,14 +76,6 @@ public final class LocationCorpus extends CorpusEngine<CorpusData> {
 
     @Override
     protected void deleteCycle(long cycleNo) {
-        // TODO Delete after first run
-        Iterator<Location> iterator = elasticIndex.scroll("Location", "2m");
-        iterator.forEachRemaining(location -> {
-            if (!location.getId().startsWith("rec")) {
-                locationClient.delete(location.getId());
-            }
-        });
-
         corpusClient.listBefore("Sg.Munch.Location.Polygon", cycleNo).forEachRemaining(data -> {
             locationClient.delete(data.getCorpusKey());
             corpusClient.delete("Sg.Munch.Location.Polygon", data.getCorpusKey());

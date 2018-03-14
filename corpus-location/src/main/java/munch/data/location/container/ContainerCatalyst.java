@@ -110,6 +110,5 @@ public class ContainerCatalyst extends CatalystEngine<CorpusData> {
     @Override
     protected void deleteCycle(long cycleNo) {
         corpusClient.deleteBefore("Sg.Munch.Location.ContainerPlace", cycleNo);
-        corpusClient.deleteBefore("Sg.Munch.ContainerPlace", cycleNo);
     }
 }

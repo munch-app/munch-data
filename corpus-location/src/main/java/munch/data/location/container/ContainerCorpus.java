@@ -14,7 +14,6 @@ import corpus.engine.CorpusEngine;
 import corpus.field.ContainerKey;
 import corpus.images.ImageCachedClient;
 import munch.data.clients.ContainerClient;
-import munch.data.elastic.ElasticIndex;
 import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +38,12 @@ public final class ContainerCorpus extends CorpusEngine<CorpusData> {
     private final WKTReader wktReader = new WKTReader();
 
     private final AirtableMapper mapper;
-    private final ElasticIndex elasticIndex;
     private final ContainerClient containerClient;
     private final AirtableApi.Table table;
 
     @Inject
-    public ContainerCorpus(AirtableApi airtableApi, ElasticIndex elasticIndex, ContainerClient containerClient, ImageCachedClient imageClient) {
+    public ContainerCorpus(AirtableApi airtableApi, ContainerClient containerClient, ImageCachedClient imageClient) {
         super(logger);
-        this.elasticIndex = elasticIndex;
         this.containerClient = containerClient;
 
         this.table = airtableApi.base("appbCCXympYqlVyvU").table("Container");
