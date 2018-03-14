@@ -18,6 +18,7 @@ public final class PlaceTagGroup {
 
     private boolean searchable;
     private boolean browsable;
+    private boolean predict;
 
     private Set<String> converts;
     private Set<String> synonyms;
@@ -49,6 +50,14 @@ public final class PlaceTagGroup {
 
     public void setBrowsable(boolean browsable) {
         this.browsable = browsable;
+    }
+
+    public boolean isPredict() {
+        return predict;
+    }
+
+    public void setPredict(boolean predict) {
+        this.predict = predict;
     }
 
     public String getType() {

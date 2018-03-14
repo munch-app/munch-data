@@ -72,6 +72,7 @@ public final class PlaceTagDatabase {
         PlaceTagGroup group = new PlaceTagGroup(airtableRecord.getId(), name);
         group.setSearchable(airtableRecord.getField("Searchable").asBoolean(false));
         group.setBrowsable(airtableRecord.getField("Browsable").asBoolean(false));
+        group.setPredict(airtableRecord.getField("Predict").asBoolean(false));
 
         group.setType(airtableRecord.getField("Type").asText());
         group.setOrder(airtableRecord.getField("Order").asDouble(0.0));

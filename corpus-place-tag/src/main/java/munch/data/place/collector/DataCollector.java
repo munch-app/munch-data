@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 public abstract class DataCollector {
-    private static final Set<String> BLOCKED_TAGS = Set.of("restaurant", "hawker", "halal", "coffeeshop");
-    private static final Set<String> ALLOWED_TYPES = Set.of("Cuisine", "Establishment", "Amenities", "Occasion"); // Add Food Type?
     private static final Logger logger = LoggerFactory.getLogger(DataCollector.class);
 
     // Clients Required
@@ -100,9 +98,9 @@ public abstract class DataCollector {
 
         // Put all output tags
         TagCollector.Group group = tagCollector.collect(dataList);
-        List<PlaceTagGroup> groups = group.collectGroups(ALLOWED_TYPES);
-        List<String> labelIds = groups.stream()
-                .filter(g -> !BLOCKED_TAGS.contains(g.getName().toLowerCase()))
+
+        List<String> labelIds = group.groups.stream()
+                .filter(PlaceTagGroup::isPredict)
                 .peek(g -> labelMapping.put(g.getRecordId(), g.getName()))
                 .map(PlaceTagGroup::getRecordId)
                 .collect(Collectors.toList());

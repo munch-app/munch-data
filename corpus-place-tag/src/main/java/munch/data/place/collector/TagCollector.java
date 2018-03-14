@@ -71,9 +71,9 @@ public final class TagCollector {
     }
 
     public class Group extends FieldCollector {
-        private final Set<PlaceTagGroup> groups;
-        private final Set<String> all;
-        private final Set<String> trusted;
+        public final Set<PlaceTagGroup> groups;
+        public final Set<String> all;
+        public final Set<String> trusted;
 
         private Group(Iterator<CorpusData> iterator) {
             super(PlaceKey.tag);
@@ -109,18 +109,11 @@ public final class TagCollector {
             return collected;
         }
 
-        public List<PlaceTagGroup> collectGroups(Set<String> types) {
-            return groups.stream()
-                    .filter(groupTag -> types.contains(groupTag.getType()))
-                    // Must be ordered
-                    .collect(Collectors.toList());
-        }
-
         public List<String> collectImplicit() {
             return findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food"), 1000);
         }
 
-        public List<String> collectPredict() {
+        public List<String> collectPredicted() {
             return List.of();
         }
     }

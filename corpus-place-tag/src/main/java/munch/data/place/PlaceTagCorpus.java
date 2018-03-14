@@ -68,7 +68,7 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         TagCollector.Group group = tagCollector.collect(dataList);
         List<String> explicits = group.collectExplicit();
         List<String> implicits = group.collectImplicit();
-        List<String> predicts = group.collectPredict();
+        List<String> predicts = group.collectPredicted();
         persist(data.getCatalystId(), explicits, implicits, predicts);
 
         Set<String> countingTags = new HashSet<>();
