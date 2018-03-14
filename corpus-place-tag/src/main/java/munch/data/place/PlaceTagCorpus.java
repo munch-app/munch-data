@@ -1,5 +1,6 @@
 package munch.data.place;
 
+import com.google.common.collect.Lists;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.MetaKey;
@@ -62,10 +63,10 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
-        List<CorpusData> dataList = new ArrayList<>();
-        catalystClient.listCorpus(data.getCatalystId()).forEachRemaining(dataList::add);
+        String placeId = data.getCorpusKey();
+        List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(data.getCatalystId()));
 
-        TagCollector.Group group = tagCollector.collect(dataList);
+        TagCollector.Group group = tagCollector.collect(placeId, dataList);
         List<String> explicits = group.collectExplicit();
         List<String> implicits = group.collectImplicit();
         List<String> predicts = group.collectPredicted();

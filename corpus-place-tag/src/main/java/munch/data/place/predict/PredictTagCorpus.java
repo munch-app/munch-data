@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
+@Deprecated
 public final class PredictTagCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PredictTagCorpus.class);
 

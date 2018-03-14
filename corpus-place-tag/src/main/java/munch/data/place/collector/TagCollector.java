@@ -1,12 +1,16 @@
 package munch.data.place.collector;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.utils.FieldCollector;
 import munch.data.place.group.PlaceTagGroup;
+import munch.data.place.predict.PredictTagClient;
+import munch.data.place.text.CollectedText;
+import munch.data.place.text.TextCollector;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,22 +38,27 @@ public final class TagCollector {
 
     protected final CorpusClient corpusClient;
     protected final CatalystClient catalystClient;
+    protected final TextCollector textCollector;
+
+    protected final PredictTagClient predictTagClient;
 
     protected final SynonymTagMapping synonymTagMapping;
 
     @Inject
-    public TagCollector(CorpusClient corpusClient, CatalystClient catalystClient, SynonymTagMapping synonymTagMapping) {
+    public TagCollector(CorpusClient corpusClient, CatalystClient catalystClient, TextCollector textCollector, PredictTagClient predictTagClient, SynonymTagMapping synonymTagMapping) {
         this.corpusClient = corpusClient;
         this.catalystClient = catalystClient;
+        this.textCollector = textCollector;
+        this.predictTagClient = predictTagClient;
         this.synonymTagMapping = synonymTagMapping;
     }
 
     public Group collect(String placeId) {
-        return new Group(catalystClient.listCorpus(placeId));
+        return new Group(placeId, Lists.newArrayList(catalystClient.listCorpus(placeId)));
     }
 
-    public Group collect(List<CorpusData> list) {
-        return new Group(list.iterator());
+    public Group collect(String placeId, List<CorpusData> list) {
+        return new Group(placeId, list);
     }
 
     /**
@@ -75,9 +84,15 @@ public final class TagCollector {
         public final Set<String> all;
         public final Set<String> trusted;
 
-        private Group(Iterator<CorpusData> iterator) {
+        private final String placeId;
+        private final List<CorpusData> dataList;
+
+        private Group(String placeId, List<CorpusData> list) {
             super(PlaceKey.tag);
-            iterator.forEachRemaining(data -> {
+            this.placeId = placeId;
+            this.dataList = list;
+
+            list.forEach(data -> {
                 if (CORPUS_NAME_BLOCKED.contains(data.getCorpusName())) return;
                 add(data);
             });
@@ -114,7 +129,20 @@ public final class TagCollector {
         }
 
         public List<String> collectPredicted() {
-            return List.of();
+            List<CollectedText> collectedTexts = textCollector.collect(placeId, dataList);
+            if (collectedTexts.isEmpty()) return List.of();
+
+            List<String> texts = collectedTexts.stream()
+                    .flatMap(collectedText -> collectedText.getTexts().stream())
+                    .collect(Collectors.toList());
+
+            Map<String, Double> labels = predictTagClient.predict(texts);
+            if (labels.isEmpty()) return null;
+
+            return labels.entrySet().stream()
+                    .filter(entry -> entry.getValue() > 0.75)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
         }
     }
 }

@@ -97,7 +97,7 @@ public abstract class DataCollector {
         if (collectedTexts.isEmpty()) return null;
 
         // Put all output tags
-        TagCollector.Group group = tagCollector.collect(dataList);
+        TagCollector.Group group = tagCollector.collect(placeId, dataList);
 
         List<String> labelIds = group.groups.stream()
                 .filter(PlaceTagGroup::isPredict)
