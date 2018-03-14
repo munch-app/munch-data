@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class ImageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
-    private static final String HASH_KEY = "Sg.Munch.Place.Image.Finn-0.4.0";
+    private static final String HASH_KEY = "Sg.Munch.Place.Image.Finn-0.4.2";
     private static final Retriable retriable = new ExceptionRetriable(10);
 
 
