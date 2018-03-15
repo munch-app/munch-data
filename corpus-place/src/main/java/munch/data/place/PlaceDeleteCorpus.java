@@ -54,7 +54,8 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
         // Track data that are older then 6 months
         // Track data that are below a certain ranking
         return Iterators.concat(
-                getExpirePlace(1000, Duration.ofDays(30 * 6)).iterator(),
+                // 30 * 6
+                getExpirePlace(1000, Duration.ofDays(1)).iterator(),
                 getBeforeRanking(1000, 500).iterator()
         );
     }

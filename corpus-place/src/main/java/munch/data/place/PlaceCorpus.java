@@ -114,7 +114,7 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                         break;
                 }
             } else {
-                updateStatusClose(placeData.getCorpusKey());
+                updateStatusDelete(placeData.getCorpusKey());
                 corpusClient.delete(placeData.getCorpusName(), placeData.getCorpusKey());
             }
 
