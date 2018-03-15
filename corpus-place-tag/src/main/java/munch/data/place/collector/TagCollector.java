@@ -150,7 +150,7 @@ public final class TagCollector {
             List<String> collected = new ArrayList<>();
             collected.addAll(findTypes(groups, Set.of("Cuisine"), 1));
             collected.addAll(findTypes(groups, Set.of("Establishment"), 1));
-            collected.addAll(findTypes(groups, Set.of("Amenities", "Occasion"), 2));
+            collected.addAll(findTypes(groups, Set.of("Amenities", "Occasion"), 1));
             return collected;
         }
 
