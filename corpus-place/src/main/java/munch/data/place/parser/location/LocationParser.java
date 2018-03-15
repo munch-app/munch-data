@@ -163,16 +163,26 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         if (address.contains("-") && address.contains("#") && address.contains(location.getPostal())) return address;
         if (location.getUnitNumber() == null) return address;
 
-        List<String> parts = COMMA_PATTERN.split(address);
-        for (int i = parts.size() - 1; i >= 0; i--) {
-            String addressPart = parts.get(i);
-            if (addressPart.toLowerCase().startsWith("singapore")) {
-                parts.add(i, location.getUnitNumber());
-                return Joiner.on(", ").join(parts);
-            }
-        }
+        // Else find any that contains - & # and return it (UnitNumber), else return max address
+        return collectValue(list, PlaceKey.Location.address).stream()
+                .filter(LocationParser::hasUnitNumber)
+                .findAny()
+                .orElseGet(() -> {
+                    // Still no unit number found
+                    List<String> parts = COMMA_PATTERN.split(address);
+                    for (int i = parts.size() - 1; i >= 0; i--) {
+                        if (parts.get(i).toLowerCase().startsWith("singapore")) {
+                            parts.add(i, location.getUnitNumber());
+                            return Joiner.on(", ").join(parts);
+                        }
+                    }
 
-        return address;
+                    return address;
+                });
+    }
+
+    static boolean hasUnitNumber(String address) {
+        return address.contains("#") && address.contains("-");
     }
 
     static long rankAddress(String address, Place.Location location) {
