@@ -20,7 +20,10 @@ text_labels = {v: k for k, v in tokenizer_y.word_index.items()}
 
 
 def map_keys(index_dict):
-    return dict([(tag_mapping.get(k), v) for k, v in index_dict.items()])
+    results = dict([(tag_mapping.get(k), v) for k, v in index_dict.items()])
+    # Remove None Key
+    results.pop(None, None)
+    return results
 
 
 def predict(text):
@@ -36,5 +39,4 @@ def predict(text):
                 if label:
                     results[label] = val.item()
 
-        results = map_keys(results)
-        return results
+        return map_keys(results)
