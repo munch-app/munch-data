@@ -182,7 +182,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     }
 
     static boolean hasUnitNumber(String address) {
-        return address.contains("#") && address.contains("-");
+        return address.contains("#");
     }
 
     static long rankAddress(String address, Place.Location location) {
