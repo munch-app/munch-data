@@ -10,7 +10,6 @@ import munch.data.structure.Place;
 import munch.data.utils.PatternSplit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -33,6 +32,8 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private static final PatternSplit DIVIDER_PATTERN = PatternSplit.compile("(?<!-) (?!-)");
     private static final PatternSplit ADDRESS_DIVIDER_PATTERN = PatternSplit.compile("([^a-z'’]|^|[^a-z]'’)[a-z]");
     private static final Set<String> BLOCKED_UNIT_NUMBERS = Set.of("#-", "#", "-", "-#");
+
+    private static final PatternSplit COMMA_PATTERN = PatternSplit.compile(", *");
 
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
@@ -155,19 +156,23 @@ public final class LocationParser extends AbstractParser<Place.Location> {
             // If address don't exist, create one
             return Joiner.on(", ")
                     .skipNulls()
-                    .join(location.getUnitNumber(), location.getStreet(),
+                    .join(location.getStreet(), location.getUnitNumber(),
                             location.getCity() + " " + location.getPostal());
         }
         // If max contains - & # return it (UnitNumber)
         if (address.contains("-") && address.contains("#") && address.contains(location.getPostal())) return address;
+        if (location.getUnitNumber() == null) return address;
 
-        // Else find any that contains - & # and return it (UnitNumber), else return max address
-        return collectValue(list, PlaceKey.Location.address).stream()
-                .map(s -> Pair.of(s, rankAddress(s, location)))
-                .sorted((o1, o2) -> o2.getRight().compareTo(o1.getRight()))
-                .findAny()
-                .map(Pair::getLeft)
-                .orElse(address);
+        List<String> parts = COMMA_PATTERN.split(address);
+        for (int i = parts.size() - 1; i >= 0; i--) {
+            String addressPart = parts.get(i);
+            if (addressPart.toLowerCase().startsWith("singapore")) {
+                parts.add(i, location.getUnitNumber());
+                return Joiner.on(", ").join(parts);
+            }
+        }
+
+        return address;
     }
 
     static long rankAddress(String address, Place.Location location) {
