@@ -13,7 +13,6 @@ import java.util.List;
 public final class AssumedSearchQuery {
     private String text;
     private String location;
-    private long resultCount;
 
     private List<Token> tokens;
     private SearchQuery searchQuery;
@@ -48,17 +47,6 @@ public final class AssumedSearchQuery {
 
     public void setSearchQuery(SearchQuery searchQuery) {
         this.searchQuery = searchQuery;
-    }
-
-    /**
-     * @return resultCount of total possible results for this search query
-     */
-    public long getResultCount() {
-        return resultCount;
-    }
-
-    public void setResultCount(long resultCount) {
-        this.resultCount = resultCount;
     }
 
     public static class TagToken extends Token {

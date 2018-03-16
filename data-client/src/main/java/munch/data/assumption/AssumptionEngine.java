@@ -2,7 +2,6 @@ package munch.data.assumption;
 
 import com.google.common.base.Joiner;
 import munch.data.clients.LocationUtils;
-import munch.data.clients.PlaceClient;
 import munch.data.structure.SearchQuery;
 import munch.data.utils.PatternSplit;
 import org.apache.commons.lang3.StringUtils;
@@ -24,17 +23,14 @@ public class AssumptionEngine {
     public static final PatternSplit TOKENIZE_PATTERN = PatternSplit.compile(" {1,}|,|\\.");
 
     private final AssumptionDatabase database;
-    private final PlaceClient.SearchClient searchClient;
 
     @Inject
-    public AssumptionEngine(CachedAssumptionDatabase database, PlaceClient.SearchClient searchClient) {
+    public AssumptionEngine(CachedAssumptionDatabase database) {
         this.database = database;
-        this.searchClient = searchClient;
     }
 
-    AssumptionEngine(AssumptionDatabase database, PlaceClient.SearchClient searchClient) {
+    AssumptionEngine(AssumptionDatabase database) {
         this.database = database;
-        this.searchClient = searchClient;
     }
 
     public List<AssumedSearchQuery> assume(SearchQuery query, String text) {
@@ -74,7 +70,7 @@ public class AssumptionEngine {
 
         List<AssumedSearchQuery> list = new ArrayList<>();
         AssumedSearchQuery anywhere = createAnywhere(text, assumedTokens, query);
-        if (anywhere.getResultCount() == 0) return List.of();
+//        if (anywhere.getResultCount() == 0) return List.of();
 
         createCurrent(text, assumedTokens, query).ifPresent(list::add);
         createNearby(text, assumedTokens, query).ifPresent(list::add);
@@ -102,7 +98,7 @@ public class AssumptionEngine {
 
         assumedTokens = new ArrayList<>(assumedTokens);
         AssumedSearchQuery nearby = createAssumedQuery("Nearby", text, assumedTokens, query);
-        if (nearby.getResultCount() == 0) return Optional.empty();
+//        if (nearby.getResultCount() == 0) return Optional.empty();
 
         // Check results count is 0
         assumedTokens.add(new AssumedSearchQuery.TagToken("Nearby"));
@@ -130,7 +126,6 @@ public class AssumptionEngine {
         AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
         assumedSearchQuery.setText(text);
         assumedSearchQuery.setLocation(location);
-        assumedSearchQuery.setResultCount(searchClient.count(query));
 
         assumedSearchQuery.setTokens(assumedTokens);
         assumedSearchQuery.setSearchQuery(query);
