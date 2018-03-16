@@ -103,7 +103,8 @@ public final class PlaceCorpus extends CatalystEngine<CorpusData> {
                         updateStatusDelete(placeId);
                         break;
                     case Close:
-                        updateStatusClose(placeId);
+                        updateStatusDelete(placeId);
+                        // TODO: Better closed tracker
                         break;
                     case Open:
                         assert place != null;

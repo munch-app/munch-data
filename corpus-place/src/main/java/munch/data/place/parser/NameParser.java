@@ -26,6 +26,8 @@ public final class NameParser extends AbstractParser<String> {
     private static final PatternSplit NAME_DIVIDER_PATTERN = PatternSplit.compile("([^a-z'’]|^|[^a-z]'’)[a-z]");
     private static final Pattern BLOCKED_PATTERN = Pattern.compile("stalls? [0-9]+", Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern ALPHA_ONLY_PATTERN = Pattern.compile("[^A-Za-z0-9 ]", Pattern.CASE_INSENSITIVE);
+
     private final NameNormalizer nameNormalizer;
 
     @Inject
@@ -84,7 +86,7 @@ public final class NameParser extends AbstractParser<String> {
     public Set<String> getOtherCombination(Place place) {
         String name = place.getName().toLowerCase();
         Set<String> combinations = new HashSet<>();
-        combinations.add(name.replace("'", ""));
+        combinations.add(ALPHA_ONLY_PATTERN.matcher(name).replaceAll(""));
         combinations.add(name.replace(" ", ""));
         return combinations;
     }
