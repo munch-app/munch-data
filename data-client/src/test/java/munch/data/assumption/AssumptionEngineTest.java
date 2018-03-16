@@ -29,17 +29,7 @@ class AssumptionEngineTest {
                 EXPLICIT_ASSUMPTION.forEach(assumption -> assumptionMap.put(assumption.getToken(), assumption));
                 return assumptionMap;
             }
-        }, null) {
-            @Override
-            protected AssumedSearchQuery createAssumedQuery(String location, String text, List<AssumedSearchQuery.Token> assumedTokens, SearchQuery query) {
-                AssumedSearchQuery assumedSearchQuery = new AssumedSearchQuery();
-                assumedSearchQuery.setText(text);
-                assumedSearchQuery.setLocation(location);
-                assumedSearchQuery.setTokens(assumedTokens);
-                assumedSearchQuery.setSearchQuery(query);
-                return assumedSearchQuery;
-            }
-        };
+        });
     }
 
     @Test
