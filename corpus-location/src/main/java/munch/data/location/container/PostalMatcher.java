@@ -71,7 +71,7 @@ public final class PostalMatcher {
         public CorpusData createPlace(String catalystId, long cycleNo) {
             matchedPlaces++;
 
-            CorpusData data = new CorpusData("Sg.Munch.ContainerPlace", catalystId, cycleNo);
+            CorpusData data = new CorpusData("Sg.Munch.Location.ContainerPlace", catalystId, cycleNo);
             data.setCatalystId(catalystId);
             data.setFields(fields);
             return data;

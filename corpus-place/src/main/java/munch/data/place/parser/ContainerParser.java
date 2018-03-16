@@ -23,7 +23,7 @@ public final class ContainerParser extends AbstractParser<List<Place.Container>>
 
     @Override
     public List<Place.Container> parse(Place place, List<CorpusData> list) {
-        List<CorpusData> containerPlaces = findAll(list, "Sg.Munch.ContainerPlace");
+        List<CorpusData> containerPlaces = findAll(list, "Sg.Munch.Location.ContainerPlace");
 
         return containerPlaces.stream().map(data -> {
             Place.Container container = new Place.Container();
