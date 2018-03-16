@@ -134,13 +134,14 @@ public final class CollectionClient {
         collection.setUserId(item.getString("u"));
         collection.setCollectionId(item.getString("c"));
         collection.setSortKey(item.getLong("s"));
-        collection.setPrivacy(item.getString("pr"));
+        String pr = item.getString("pr");
+        collection.setPrivacy(pr == null ? "public" : pr);
 
         collection.setName(item.getString("n"));
         collection.setDescription(item.getString("d"));
         if (item.hasAttribute("pc")) {
             collection.setCount(item.getLong("pc"));
-        }else {
+        } else {
             collection.setCount(0L);
         }
 

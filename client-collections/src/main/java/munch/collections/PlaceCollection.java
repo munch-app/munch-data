@@ -65,7 +65,7 @@ public final class PlaceCollection {
     }
 
     @NotNull(message = "Internal Error (privacy)")
-    @Pattern(regexp = "^public|private", message = "Internal Error (collectionId)")
+    @Pattern(regexp = "^public|private", message = "Internal Error (privacy)")
     public String getPrivacy() {
         return privacy;
     }

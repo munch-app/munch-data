@@ -64,8 +64,6 @@ public final class AirtableCounter {
                 post.getFields().put("Status", JsonUtils.toTree("Allow"));
                 table.post(post);
             });
-
-            session.put(record);
         });
         session.close();
 
