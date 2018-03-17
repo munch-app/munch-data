@@ -10,11 +10,11 @@ import java.util.List;
  * Time: 6:43 PM
  * Project: munch-data
  */
-public final class AssumedSearchQuery {
+public final class AssumptionQuery {
     private String text;
     private String location;
 
-    private List<Token> tokens;
+    private List<AssumptionToken> tokens;
     private SearchQuery searchQuery;
 
     public String getText() {
@@ -33,11 +33,11 @@ public final class AssumedSearchQuery {
         this.location = location;
     }
 
-    public List<Token> getTokens() {
+    public List<AssumptionToken> getTokens() {
         return tokens;
     }
 
-    public void setTokens(List<Token> tokens) {
+    public void setTokens(List<AssumptionToken> tokens) {
         this.tokens = tokens;
     }
 
@@ -47,48 +47,6 @@ public final class AssumedSearchQuery {
 
     public void setSearchQuery(SearchQuery searchQuery) {
         this.searchQuery = searchQuery;
-    }
-
-    public static class TagToken extends Token {
-
-        public TagToken(String text) {
-            setText(text);
-        }
-
-        @Override
-        public String getType() {
-            return "tag";
-        }
-    }
-
-    public static class TextToken extends Token {
-        public TextToken(String text) {
-            setText(text);
-        }
-
-        @Override
-        public String getType() {
-            return "text";
-        }
-    }
-
-    public static abstract class Token {
-        private String text;
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public abstract String getType();
-
-        @Override
-        public String toString() {
-            return getType() + "[" + text + "]";
-        }
     }
 
     @Override
