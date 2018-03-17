@@ -85,6 +85,11 @@ public class SearchClient extends AbstractClient {
         return marshaller.deserializeList(results);
     }
 
+    public <T extends SearchResult> List<T> search(Search search) {
+        JsonNode results = client.search(search);
+        return marshaller.deserializeList(results);
+    }
+
     /**
      * @param map    (types, integer)
      * @param text   query for searching

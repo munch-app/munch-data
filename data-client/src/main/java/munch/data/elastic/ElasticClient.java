@@ -113,7 +113,10 @@ public final class ElasticClient {
      */
     public JsonNode search(List<String> types, String text, @Nullable String latLng, int from, int size) {
         Search search = createSearch(types, List.of("name"), text, latLng, from, size);
+        return search(search);
+    }
 
+    public JsonNode search(Search search) {
         try {
             JsonNode result = mapper.readTree(client.execute(search).getJsonString());
             JsonNode hits = result.path("hits");
