@@ -91,7 +91,7 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
         ObjectNode boolQuery = mapper.createObjectNode();
         ArrayNode filterArray = mapper.createArrayNode();
         filterArray.add(BoolQuery.filterTerm("dataType", "Place"));
-        filterArray.add(BoolQuery.filterTerm("status", false));
+        filterArray.add(BoolQuery.filterTerm("open", false));
 
         long beforeRange = System.currentTimeMillis() - duration.toMillis();
         filterArray.add(BoolQuery.filterRange("updatedDate", "lte", beforeRange));
@@ -111,7 +111,7 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
         ObjectNode boolQuery = mapper.createObjectNode();
         ArrayNode filterArray = mapper.createArrayNode();
         filterArray.add(BoolQuery.filterTerm("dataType", "Place"));
-        filterArray.add(BoolQuery.filterTerm("status", false));
+        filterArray.add(BoolQuery.filterTerm("open", false));
         filterArray.add(BoolQuery.filterRange("ranking", "lte", beforeRanking));
 
         // Filter Array
