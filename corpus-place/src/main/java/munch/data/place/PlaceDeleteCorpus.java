@@ -5,7 +5,6 @@ import catalyst.utils.exception.Retriable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Iterators;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.PlaceClient;
 import munch.data.elastic.query.BoolQuery;
@@ -53,11 +52,7 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
     protected Iterator<Place> fetch(long cycleNo) {
         // Track data that are older then 6 months
         // Track data that are below a certain ranking
-        return Iterators.concat(
-                // 30 * 6
-                getExpirePlace(1000, Duration.ofDays(1)).iterator(),
-                getBeforeRanking(1000, 500).iterator()
-        );
+        return getExpirePlace(1000).iterator();
     }
 
     @Override
@@ -82,7 +77,7 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
         }
     }
 
-    public List<Place> getExpirePlace(int size, Duration duration) {
+    public List<Place> getExpirePlace(int size) {
         ObjectNode root = mapper.createObjectNode();
         root.put("from", 0);
         root.put("size", size);
@@ -92,27 +87,6 @@ public final class PlaceDeleteCorpus extends CatalystEngine<Place> {
         ArrayNode filterArray = mapper.createArrayNode();
         filterArray.add(BoolQuery.filterTerm("dataType", "Place"));
         filterArray.add(BoolQuery.filterTerm("open", false));
-
-        long beforeRange = System.currentTimeMillis() - duration.toMillis();
-        filterArray.add(BoolQuery.filterRange("updatedDate", "lte", beforeRange));
-
-        // Filter Array
-        boolQuery.set("filter", filterArray);
-        root.putObject("query").set("bool", boolQuery);
-        return placeClient.getSearchClient().search(root);
-    }
-
-    public List<Place> getBeforeRanking(int size, double beforeRanking) {
-        ObjectNode root = mapper.createObjectNode();
-        root.put("from", 0);
-        root.put("size", size);
-
-        // Bool
-        ObjectNode boolQuery = mapper.createObjectNode();
-        ArrayNode filterArray = mapper.createArrayNode();
-        filterArray.add(BoolQuery.filterTerm("dataType", "Place"));
-        filterArray.add(BoolQuery.filterTerm("open", false));
-        filterArray.add(BoolQuery.filterRange("ranking", "lte", beforeRanking));
 
         // Filter Array
         boolQuery.set("filter", filterArray);
