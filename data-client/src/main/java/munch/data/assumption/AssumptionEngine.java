@@ -158,7 +158,10 @@ public class AssumptionEngine {
             if (o instanceof String) {
                 assumedTokens.add(new TextAssumptionToken((String) o));
             } else {
-                assumedTokens.add(new TagAssumptionToken(((Assumption) o).getTag()));
+                TagAssumptionToken token = new TagAssumptionToken(((Assumption) o).getTag());
+                if (!assumedTokens.contains(token)){
+                    assumedTokens.add(token);
+                }
             }
         }
         return assumedTokens;

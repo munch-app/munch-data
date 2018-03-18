@@ -15,4 +15,6 @@ public class TextAssumptionToken extends AssumptionToken {
     public String getType() {
         return "text";
     }
+
+
 }
