@@ -170,10 +170,13 @@ public final class LocationParser extends AbstractParser<Place.Location> {
                 .orElseGet(() -> {
                     // Still no unit number found
                     List<String> parts = COMMA_PATTERN.split(address);
+                    parts.removeIf(StringUtils::isBlank);
                     for (int i = parts.size() - 1; i >= 0; i--) {
                         if (parts.get(i).toLowerCase().startsWith("singapore")) {
                             parts.add(i, location.getUnitNumber());
-                            return Joiner.on(", ").join(parts);
+                            return Joiner.on(", ")
+                                    .skipNulls()
+                                    .join(parts);
                         }
                     }
 
