@@ -85,7 +85,8 @@ public class AssumptionDatabase {
 
             // Tags that convert to another tag
             for (String convert : tag.getConverts()) {
-                assumptionMap.putIfAbsent(token, Assumption.of(Assumption.Type.Tag, convert, tag.getName(), applyTag(tag.getName())));
+                convert = convert.toLowerCase();
+                assumptionMap.putIfAbsent(convert, Assumption.of(Assumption.Type.Tag, convert, tag.getName(), applyTag(tag.getName())));
             }
         });
         return assumptionMap;
