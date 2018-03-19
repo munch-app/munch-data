@@ -3,10 +3,7 @@ package munch.data.place;
 import com.fasterxml.jackson.databind.JsonNode;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableMapper;
-import corpus.airtable.field.CollaboratorMapper;
-import corpus.airtable.field.DefaultMapper;
-import corpus.airtable.field.ImageMapper;
-import corpus.airtable.field.RenameMapper;
+import corpus.airtable.field.*;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.images.ImageCachedClient;
@@ -43,8 +40,9 @@ public final class SuggestMapper extends AirtableMapper {
         map.put("Place.status", SuggestMapper::parseStatus);
         map.put("Endorsed By", RenameMapper.to("Suggest.endorsedBy", new CollaboratorMapper()));
 
-        map.put("Place.image", new ImageMapper(imageClient));
+        map.put("Place.image", new AttachmentMapper(imageClient));
         map.put("Place.rawHours", SuggestMapper::parseHours);
+        map.put("Place.tag", DefaultMapper.INSTANCE);
         map.put("Place.price", DefaultMapper.INSTANCE);
         map.put("Place.phone", DefaultMapper.INSTANCE);
         map.put("Place.website", DefaultMapper.INSTANCE);
