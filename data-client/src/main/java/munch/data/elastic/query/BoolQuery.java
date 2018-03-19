@@ -38,7 +38,7 @@ public final class BoolQuery {
      */
     public JsonNode make(SearchQuery query) {
         ObjectNode bool = mapper.createObjectNode();
-        bool.set("must", must(null));
+        bool.set("must", mustMatchAll());
         bool.set("must_not", mustNot(query.getFilter()));
         bool.set("filter", filter(query));
         return bool;
@@ -47,10 +47,9 @@ public final class BoolQuery {
     /**
      * Search with text on name
      *
-     * @param query query string
      * @return JsonNode must filter
      */
-    private JsonNode must(String query) {
+    public static JsonNode mustMatchAll() {
         ObjectNode root = mapper.createObjectNode();
         root.putObject("match_all");
         return root;

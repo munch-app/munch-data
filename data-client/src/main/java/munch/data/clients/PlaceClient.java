@@ -189,8 +189,8 @@ public class PlaceClient extends AbstractClient {
             JsonNode boolNode = this.boolQuery.make(query);
             JsonNode sortNode = this.sortQuery.make(query);
             JsonNode result = client.postBoolSearch(query.getFrom(), query.getSize(), boolNode, sortNode);
-            JsonNode hits = result.path("hits");
 
+            JsonNode hits = result.path("hits");
             return marshaller.deserializeList(hits.path("hits"));
         }
 
@@ -209,6 +209,7 @@ public class PlaceClient extends AbstractClient {
          */
         public List<Place> search(JsonNode node) {
             JsonNode result = client.postSearch(node);
+
             JsonNode hits = result.path("hits");
             return marshaller.deserializeList(hits.path("hits"));
         }

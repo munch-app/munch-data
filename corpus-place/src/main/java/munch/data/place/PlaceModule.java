@@ -60,7 +60,6 @@ public class PlaceModule extends AbstractModule {
                 injector.getInstance(ElasticSpatialCorpus.class),
                 injector.getInstance(SeedCorpus.class),
                 injector.getInstance(PlaceCorpus.class),
-                injector.getInstance(PlaceDeleteCorpus.class),
                 injector.getInstance(PlaceAirtableCorpus.class)
         );
         ScheduledThreadUtils.shutdown();
