@@ -113,7 +113,7 @@ public final class TagCollector {
             return collected;
         }
 
-        public List<String> withPredicted(double moreThan) {
+        public List<String> withPredicted() {
             List<CollectedText> collectedTexts = textCollector.collect(placeId, dataList);
             if (collectedTexts.isEmpty()) return List.of();
 
@@ -126,7 +126,7 @@ public final class TagCollector {
 
             List<String> collected = new ArrayList<>();
             labels.forEach((k, value) -> {
-                if (value > moreThan) {
+                if (synonymTagMapping.isPredictable(k, value)) {
                     String tag = k.toLowerCase();
                     tags.add(tag);
                     collected.add(tag);

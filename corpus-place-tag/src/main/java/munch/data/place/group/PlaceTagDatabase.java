@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("Guava")
 @Singleton
 public final class PlaceTagDatabase {
+    private static final double DEFAULT_PREDICT_MIN_VALUE = 0.75;
     private static final Logger logger = LoggerFactory.getLogger(PlaceTagDatabase.class);
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // 2017-10-16T00:00:00.000Z
     private static final int MAX = 5000;
@@ -73,6 +74,8 @@ public final class PlaceTagDatabase {
         group.setSearchable(airtableRecord.getField("Searchable").asBoolean(false));
         group.setBrowsable(airtableRecord.getField("Browsable").asBoolean(false));
         group.setPredict(airtableRecord.getField("Predict").asBoolean(false));
+
+        group.setPredictMinPercent(airtableRecord.getField("Predict Min Percent").asDouble(DEFAULT_PREDICT_MIN_VALUE));
 
         group.setType(airtableRecord.getField("Type").asText());
         group.setOrder(airtableRecord.getField("Order").asDouble(0.0));

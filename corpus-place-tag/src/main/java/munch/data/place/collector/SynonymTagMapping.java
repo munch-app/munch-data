@@ -50,4 +50,20 @@ public final class SynonymTagMapping {
                 .flatMap(name -> mapping.getOrDefault(name.toLowerCase(), Set.of()).stream())
                 .collect(Collectors.toSet());
     }
+
+    public boolean isPredictable(String tag, double value) {
+        tag = tag.toLowerCase();
+
+        Map<String, Set<PlaceTagGroup>> mapping = supplier.get();
+        Set<PlaceTagGroup> groups = mapping.get(tag);
+        if (groups.isEmpty()) return false;
+
+        for (PlaceTagGroup group : groups) {
+            if (group.getName().equalsIgnoreCase(tag)) {
+                return group.getPredictMinPercent() < value;
+            }
+        }
+
+        return false;
+    }
 }

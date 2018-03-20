@@ -68,7 +68,7 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
 
         TagCollector.TagBuilder tagBuilder = tagCollector.collect(placeId, dataList);
-        List<String> predicts = tagBuilder.withPredicted(0.75);
+        List<String> predicts = tagBuilder.withPredicted();
         tagBuilder.withTrusted();
         List<String> alls = tagBuilder.withAll();
 

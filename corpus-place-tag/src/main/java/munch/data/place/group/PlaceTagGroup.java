@@ -20,6 +20,8 @@ public final class PlaceTagGroup {
     private boolean browsable;
     private boolean predict;
 
+    private double predictMinPercent;
+
     private Set<String> converts;
     private Set<String> synonyms;
 
@@ -58,6 +60,14 @@ public final class PlaceTagGroup {
 
     public void setPredict(boolean predict) {
         this.predict = predict;
+    }
+
+    public double getPredictMinPercent() {
+        return predictMinPercent;
+    }
+
+    public void setPredictMinPercent(double predictMinPercent) {
+        this.predictMinPercent = predictMinPercent;
     }
 
     public String getType() {
