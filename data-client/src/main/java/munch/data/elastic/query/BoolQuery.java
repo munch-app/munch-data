@@ -91,8 +91,10 @@ public final class BoolQuery {
         if (filter == null) return filterArray;
 
         // Filter to positive tags
-        if (filter.getTag() != null && filter.getTag().getPositives() != null && !filter.getTag().getPositives().isEmpty()) {
-            filterArray.add(filterTerms("tag.implicits", filter.getTag().getPositives()));
+        if (filter.getTag() != null && filter.getTag().getPositives() != null) {
+            for (String tag : filter.getTag().getPositives()) {
+                filterArray.add(filterTerm("tag.implicits", tag.toLowerCase()));
+            }
         }
 
         // Filter price
