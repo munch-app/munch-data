@@ -34,6 +34,8 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private static final Set<String> BLOCKED_UNIT_NUMBERS = Set.of("#-", "#", "-", "-#");
 
     private static final PatternSplit COMMA_PATTERN = PatternSplit.compile(", *");
+    private static final Pattern COMMA_SEQ_PATTERN = Pattern.compile(", *,");
+    private static final Pattern COMMA_PRE_POST_PATTERN = Pattern.compile("^,|,$");
 
     private final LandmarkDatabase landmarkDatabase;
     private final LocationClient locationClient;
@@ -141,8 +143,8 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     public String cleanUnitNumber(String unitNumber) {
         if (unitNumber == null) return null;
 
-        unitNumber = unitNumber.replaceAll(" ", "");
-        unitNumber = unitNumber.replaceAll("^,|,$", "");
+        unitNumber = unitNumber.replace(" ", "");
+        unitNumber = COMMA_PRE_POST_PATTERN.matcher(unitNumber).replaceAll("");
         if (unitNumber.startsWith("#")) return unitNumber;
         if (unitNumber.toLowerCase().startsWith("stall")) return unitNumber;
         if (unitNumber.isEmpty()) return null;
@@ -152,7 +154,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
 
     private String collectAddress(Place.Location location, List<CorpusData> list) {
         String address = collectMax(list, PlaceKey.Location.address);
-        if (address == null) {
+        if (StringUtils.isBlank(address)) {
             // If address don't exist, create one
             return Joiner.on(", ")
                     .skipNulls()
@@ -161,7 +163,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
         }
         // If max contains - & # return it (UnitNumber)
         if (address.contains("-") && address.contains("#") && address.contains(location.getPostal())) return address;
-        if (location.getUnitNumber() == null) return address;
+        if (StringUtils.isBlank(location.getUnitNumber())) return address;
 
         // Else find any that contains - & # and return it (UnitNumber), else return max address
         return collectValue(list, PlaceKey.Location.address).stream()
@@ -199,6 +201,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     static String formatAddress(String address) {
         address = address.toLowerCase();
         address = address.replace("\n", ""); // Line Break is not allowed
+        address = COMMA_SEQ_PATTERN.matcher(address).replaceAll(", ");
         List<Object> split = ADDRESS_DIVIDER_PATTERN.split(address, 0, String::toUpperCase);
         return Joiner.on("").join(split);
     }
