@@ -5,10 +5,10 @@ import corpus.field.PlaceKey;
 import munch.data.structure.Place;
 import munch.data.website.DomainBlocked;
 import munch.data.website.WebsiteNormalizer;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -46,11 +46,8 @@ public class WebsiteParser extends AbstractParser<String> {
     }
 
     protected boolean isBlocked(String website) {
-        try {
-            String domain = WebsiteNormalizer.getDomain(website);
-            return domainBlocked.isBlocked(domain);
-        } catch (MalformedURLException e) {
-            return false;
-        }
+        String domain = WebsiteNormalizer.getDomain(website);
+        if (StringUtils.isBlank(domain)) return true;
+        return domainBlocked.isBlocked(domain);
     }
 }

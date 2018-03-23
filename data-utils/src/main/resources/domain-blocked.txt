@@ -30,3 +30,12 @@ twitch.tv
 t.co
 bing.com
 g.co
+honestbee.sg
+honestbee.com
+foodora.com
+foodpanda.com
+foodpanda.sg
+deliveroo.com.sg
+deliveroo.com
+uber.com
+ubereats.com

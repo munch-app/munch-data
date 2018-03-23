@@ -18,8 +18,15 @@ public class WebsiteNormalizer {
         return "http://" + url;
     }
 
-    public static String getDomain(String website) throws MalformedURLException {
-        URL url = new URL(website);
-        return url.getHost();
+    /**
+     * @param website website
+     * @return domain of website, also the host
+     */
+    public static String getDomain(String website) {
+        try {
+            return new URL(website).getHost();
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 }
