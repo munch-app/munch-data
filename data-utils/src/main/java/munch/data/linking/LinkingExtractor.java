@@ -2,9 +2,15 @@ package munch.data.linking;
 
 import munch.data.website.WebsiteNormalizer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 
 import javax.inject.Singleton;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,16 +35,32 @@ public final class LinkingExtractor {
         map.put("chope.co", chopePlatform);
         map.put("cho.pe", chopePlatform);
 
+        QuandooPlatform quandooPlatform = new QuandooPlatform();
+        map.put("quandoo.com", quandooPlatform);
+        map.put("quandoo.sg", quandooPlatform);
+
+        map.put("instagram.com", new InstagramPlatform());
+        map.put("google.com", new GooglePlatform());
+        map.put("burpple.com", new BurpplePlatform());
+        map.put("foursquare.com", new FoursquarePlatform());
+        map.put("hungrygowhere.com", new HungrygowherePlatform());
+
+        map.put("yelp.com", new YelpPlatform());
+        map.put("zomato.com", new ZomatoPlatform());
+
+        map.put("oddle.com", new OddlePlatform());
+        map.put("eatigo.com", new EatigoPlatform());
+        map.put("foodpanda.sg", new FoodPandaPlatform());
+
+        HonestBeePlatform honestBeePlatform = new HonestBeePlatform();
+        map.put("honestbee.com", honestBeePlatform);
+        map.put("honestbee.sg", honestBeePlatform);
+
+        map.put("deliveroo.com.sg", new DeliverooPlatform());
+        map.put("ubereats.com", new UberEatsPlatform());
 
         PLATFORMS = map;
     }
-
-
-    // eatigo.com
-    // foodpanda
-    // honestbee
-    // deliveroo
-    // ubereats.com
 
     /**
      * @param url url
@@ -79,9 +101,8 @@ public final class LinkingExtractor {
 
         @Override
         public String get(String url) {
-            // https://book.chope.co/booking?rid=rafflesgrill1509rfg&source=sethlui
-            // TODO
-            return null;
+            String id = getQueryString(url, "rid");
+            return "chope.co/booking/" + id;
         }
     }
 
@@ -125,7 +146,7 @@ public final class LinkingExtractor {
 
     }
 
-    public static class FoodpandaPlatform implements Platform {
+    public static class FoodPandaPlatform implements Platform {
 
     }
 
@@ -143,5 +164,19 @@ public final class LinkingExtractor {
 
     public interface Platform {
         String get(String url);
+
+        default String getQueryString(String url, String name) {
+            try {
+                List<NameValuePair> params = URLEncodedUtils.parse(new URI(url), Charset.forName("UTF-8"));
+                for (NameValuePair param : params) {
+                    if (param.getName().equals(name)) {
+                        return param.getValue();
+                    }
+                }
+                return null;
+            } catch (URISyntaxException e) {
+                return null;
+            }
+        }
     }
 }
