@@ -3,11 +3,13 @@ package munch.data.place.parser;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import munch.data.structure.Place;
+import munch.data.website.DomainBlocked;
+import munch.data.website.WebsiteNormalizer;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.net.MalformedURLException;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Created by: Fuxing
@@ -17,8 +19,13 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public class WebsiteParser extends AbstractParser<String> {
-    protected static final Pattern HTTP_PATTERN = Pattern.compile("^https?://.*", Pattern.CASE_INSENSITIVE);
-    protected static final Set<String> BLOCKED_HOST = Set.of("facebook.com", "instagram.com", "fb.com", "google.com", "burpple.com", "foursquare.com", "hungrygowhere.com", "yelp.com", "zomato.com", "oddle.com", "eatigo.com", "chope.com", "cho.pe");
+
+    private final DomainBlocked domainBlocked;
+
+    @Inject
+    public WebsiteParser(DomainBlocked domainBlocked) {
+        this.domainBlocked = domainBlocked;
+    }
 
     @Override
     public String parse(Place place, List<CorpusData> list) {
@@ -28,20 +35,22 @@ public class WebsiteParser extends AbstractParser<String> {
         return search(websites);
     }
 
-    protected static String search(List<String> urls) {
+    protected String search(List<String> urls) {
         for (String url : urls) {
+            url = WebsiteNormalizer.normalize(url);
             if (isBlocked(url)) continue;
-            if (HTTP_PATTERN.matcher(url).matches()) return url;
-            return "http://" + url;
+
+            return url;
         }
         return null;
     }
 
-    protected static boolean isBlocked(String website) {
-        website = website.toLowerCase();
-        for (String host : BLOCKED_HOST) {
-            if (website.contains(host)) return true;
+    protected boolean isBlocked(String website) {
+        try {
+            String domain = WebsiteNormalizer.getDomain(website);
+            return domainBlocked.isBlocked(domain);
+        } catch (MalformedURLException e) {
+            return false;
         }
-        return false;
     }
 }

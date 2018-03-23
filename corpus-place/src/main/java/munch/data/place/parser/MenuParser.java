@@ -3,7 +3,9 @@ package munch.data.place.parser;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import munch.data.structure.Place;
+import munch.data.website.DomainBlocked;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
@@ -15,6 +17,11 @@ import java.util.List;
  */
 @Singleton
 public class MenuParser extends WebsiteParser {
+
+    @Inject
+    public MenuParser(DomainBlocked domainBlocked) {
+        super(domainBlocked);
+    }
 
     @Override
     public String parse(Place place, List<CorpusData> list) {
