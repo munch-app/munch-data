@@ -33,11 +33,15 @@ public final class DomainBlocked {
      */
     public boolean isBlocked(String domain) {
         if (domain == null || domain.length() < 4) return true;
-        return blockedDomains.contains(getTLD(domain));
+        return blockedDomains.contains(getTLDFromDomain(domain));
     }
 
     public static String getTLD(String url) {
         String domain = WebsiteNormalizer.getDomain(url);
+        return getTLDFromDomain(domain);
+    }
+
+    public static String getTLDFromDomain(String domain) {
         if (domain == null) return null;
 
         int periods = StringUtils.countMatches(domain, '.');
