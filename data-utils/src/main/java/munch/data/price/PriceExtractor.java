@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * Time: 6:29 PM
  * Project: munch-data
  */
-public final class PriceExtractor {
+public class PriceExtractor {
     private static final Pattern PricePattern = Pattern.compile("\\$(?<price>[0-9]{1,3}(\\.[0-9]{1,2})?)");
 
     public static List<Double> extract(String text) {

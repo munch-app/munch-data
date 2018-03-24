@@ -27,7 +27,7 @@ public enum DayToken {
     static final PatternSplit PatternSat = PatternSplit.compile("\\b(sat|saturdays?)\\b", Pattern.CASE_INSENSITIVE);
     static final PatternSplit PatternSun = PatternSplit.compile("\\b(sun|sundays?)\\b", Pattern.CASE_INSENSITIVE);
     static final PatternSplit PatternPh = PatternSplit.compile("\\b(ph|public holidays?|holidays?)\\b", Pattern.CASE_INSENSITIVE);
-    static final PatternSplit PatternEvePh = PatternSplit.compile("\\b(eveph|eve of (ph|public holidays?|holidays?))\\b", Pattern.CASE_INSENSITIVE);
+    static final PatternSplit PatternEvePh = PatternSplit.compile("\\b(public holidays? eve|eveph|eve of (ph|public holidays?|holidays?))\\b", Pattern.CASE_INSENSITIVE);
 
     public static void parse(PatternTexts texts) {
         texts.replace(PatternMon, Mon);

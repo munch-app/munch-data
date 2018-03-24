@@ -2,6 +2,7 @@ package munch.data.website;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,6 +33,20 @@ public final class DomainBlocked {
      */
     public boolean isBlocked(String domain) {
         if (domain == null || domain.length() < 4) return true;
-        return blockedDomains.contains(domain);
+        return blockedDomains.contains(getTLD(domain));
+    }
+
+    public static String getTLD(String url) {
+        String domain = WebsiteNormalizer.getDomain(url);
+        if (domain == null) return null;
+
+        int periods = StringUtils.countMatches(domain, '.');
+        if (periods < 2) return domain;
+
+        if (domain.endsWith(".com.sg")) return domain;
+
+        String[] parts = domain.split("\\.");
+        if (parts.length < 2) return domain;
+        return parts[parts.length - 2] + "." + parts[parts.length - 1];
     }
 }

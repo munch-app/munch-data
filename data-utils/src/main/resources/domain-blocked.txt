@@ -3,6 +3,7 @@ instagram.com
 fb.com
 google.com
 burpple.com
+pinterest.com
 foursquare.com
 hungrygowhere.com
 yelp.com
@@ -39,3 +40,4 @@ deliveroo.com.sg
 deliveroo.com
 uber.com
 ubereats.com
+themeforest.net

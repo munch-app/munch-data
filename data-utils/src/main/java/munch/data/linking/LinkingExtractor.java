@@ -1,6 +1,7 @@
 package munch.data.linking;
 
 import com.google.common.base.Splitter;
+import munch.data.website.DomainBlocked;
 import munch.data.website.WebsiteNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
@@ -10,7 +11,9 @@ import javax.inject.Singleton;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by: Fuxing
@@ -19,7 +22,7 @@ import java.util.*;
  * Project: munch-data
  */
 @Singleton
-public final class LinkingExtractor {
+public class LinkingExtractor {
     private static final Map<String, Platform> PLATFORMS;
 
     static {
@@ -67,31 +70,22 @@ public final class LinkingExtractor {
      */
     public String extract(String url) {
         url = WebsiteNormalizer.normalize(url);
-        String tld = getTLD(url);
+        String tld = DomainBlocked.getTLD(url);
 
         if (StringUtils.isBlank(tld)) return null;
-        return PLATFORMS.get(tld).parse(url);
-    }
+        Platform platform = PLATFORMS.get(tld);
+        if (platform == null) return null;
 
-    public String getTLD(String url) {
-        String domain = WebsiteNormalizer.getDomain(url);
-        if (domain == null) return null;
-
-        int periods = StringUtils.countMatches(domain, '.');
-        if (periods < 2) return domain;
-
-        if (domain.endsWith(".com.sg")) return domain;
-
-        String[] parts = domain.split("\\.");
-        if (parts.length < 2) return domain;
-        return parts[parts.length - 2] + "." + parts[parts.length - 1];
+        return platform.parse(url);
     }
 
     public static class FacebookPlatform implements Platform {
 
         @Override
         public String parse(String url) {
-            return "facebook.com/place/" + getPath(url, 0);
+            String path = getPath(url, 0);
+            if (StringUtils.isBlank(path)) return null;
+            return "facebook.com/place/" + path;
         }
     }
 
@@ -100,6 +94,7 @@ public final class LinkingExtractor {
         @Override
         public String parse(String url) {
             String id = getQueryString(url, "rid");
+            if (StringUtils.isBlank(id)) return null;
             return "chope.co/booking/" + id;
         }
     }
