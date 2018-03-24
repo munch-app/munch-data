@@ -85,7 +85,7 @@ public class LinkingExtractor {
         public String parse(String url) {
             String path = getPath(url, 0);
             if (StringUtils.isBlank(path)) return null;
-            return "facebook.com/place/" + path;
+            return "facebook.com/" + path;
         }
     }
 
