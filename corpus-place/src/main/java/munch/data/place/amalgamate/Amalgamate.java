@@ -34,6 +34,7 @@ public final class Amalgamate {
 
     private final Set<String> names;
     private final Set<String> seedNames;
+    private final Set<String> fixedNames;
 
     @Inject
     public Amalgamate(Config config, CorpusClient corpusClient, CatalystClient catalystClient,
@@ -49,6 +50,7 @@ public final class Amalgamate {
         builder.addAll(config.getStringList("place.spatial"));
         this.names = builder.build();
         this.seedNames = ImmutableSet.copyOf(config.getStringList("place.seed"));
+        this.fixedNames = ImmutableSet.copyOf(config.getStringList("place.fixed"));
     }
 
     /**
@@ -77,6 +79,9 @@ public final class Amalgamate {
         ListIterator<CorpusData> listIterator = treeList.listIterator();
         while (listIterator.hasNext()) {
             CorpusData outside = listIterator.next();
+            // Corpus Data is fixed, cannot be removed
+            if (isFixed(outside)) continue;
+
             List<CorpusData> insides = new ArrayList<>(treeList);
             insides.remove(outside);
 
@@ -93,6 +98,14 @@ public final class Amalgamate {
 
         // No seeded data in the list
         return hasSeed(treeList);
+    }
+
+    /**
+     * @param data data to check if its fixed
+     * @return true if corpus data cannot be removed
+     */
+    private boolean isFixed(CorpusData data) {
+        return fixedNames.contains(data.getCorpusName());
     }
 
     /**
