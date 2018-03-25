@@ -3,10 +3,12 @@ package munch.data.place.text;
 import corpus.data.CorpusData;
 import munch.corpus.instagram.InstagramMedia;
 import munch.corpus.instagram.InstagramMediaClient;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -31,11 +33,15 @@ public final class InstagramCollector extends AbstractCollector {
         List<InstagramMedia> mediaList = instagramMediaClient.listByPlace(placeId, null, null, 20);
         return mediaList.stream()
                 .map(media -> {
+                    String caption = media.getCaption();
+                    if (StringUtils.isBlank(caption)) return null;
+
                     CollectedText text = new CollectedText();
                     text.setFrom(CollectedText.From.Instagram);
-                    text.setTexts(List.of(media.getCaption()));
+                    text.setTexts(List.of(caption));
                     return text;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 }
