@@ -41,3 +41,4 @@ deliveroo.com
 uber.com
 ubereats.com
 themeforest.net
+tinypic.com

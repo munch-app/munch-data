@@ -1,5 +1,7 @@
 package munch.data.website;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +11,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,13 +47,21 @@ public final class DomainBlocked {
     public static String getTLDFromDomain(String domain) {
         if (domain == null) return null;
 
-        int periods = StringUtils.countMatches(domain, '.');
-        if (periods < 2) return domain;
+        // If only 1 period mean its root domain
+        if (StringUtils.countMatches(domain, '.') < 2) return domain;
 
-        if (domain.endsWith(".com.sg")) return domain;
+        List<String> parts = Splitter.on('.').splitToList(domain);
 
-        String[] parts = domain.split("\\.");
-        if (parts.length < 2) return domain;
-        return parts[parts.length - 2] + "." + parts[parts.length - 1];
+        int size = parts.size();
+        if (parts.get(size - 2).equals("com")) {
+            if (size == 3) return domain;
+            return Joiner.on('.').join(
+                    parts.get(size - 3),
+                    parts.get(size - 2),
+                    parts.get(size - 1)
+            );
+        }
+
+        return Joiner.on('.').join(parts.get(size - 2), parts.get(size - 1));
     }
 }

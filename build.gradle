@@ -83,7 +83,6 @@ buildscript {
         }
     }
     dependencies {
-        // TODO Change to 4+ after com restart
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.6+"
         classpath 'com.bmuschko:gradle-docker-plugin:3.0.12'
     }

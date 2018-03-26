@@ -1,18 +1,13 @@
 package munch.data.linking;
 
-import com.google.common.base.Splitter;
 import munch.data.website.DomainBlocked;
 import munch.data.website.WebsiteNormalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,12 +40,18 @@ public class LinkingExtractor {
         map.put("google.com", new GooglePlatform());
         map.put("burpple.com", new BurpplePlatform());
         map.put("foursquare.com", new FoursquarePlatform());
-        map.put("hungrygowhere.com", new HungrygowherePlatform());
 
-        map.put("yelp.com", new YelpPlatform());
+        HungrygowherePlatform hungrygowherePlatform = new HungrygowherePlatform();
+        map.put("hungrygowhere.com", hungrygowherePlatform);
+        map.put("hungrygowhere.my", hungrygowherePlatform);
+
+        YelpPlatform yelpPlatform = new YelpPlatform();
+        map.put("yelp.com", yelpPlatform);
+        map.put("yelp.com.sg", yelpPlatform);
+
         map.put("zomato.com", new ZomatoPlatform());
 
-        map.put("oddle.com", new OddlePlatform());
+        map.put("oddle.me", new OddlePlatform());
         map.put("eatigo.com", new EatigoPlatform());
         map.put("foodpanda.sg", new FoodPandaPlatform());
 
@@ -61,6 +62,8 @@ public class LinkingExtractor {
         map.put("deliveroo.com.sg", new DeliverooPlatform());
         map.put("ubereats.com", new UberEatsPlatform());
 
+        map.put("feastbump.com", new FeastBumpPlatform());
+
         PLATFORMS = map;
     }
 
@@ -68,6 +71,7 @@ public class LinkingExtractor {
      * @param url url
      * @return unique link to place, this is not url
      */
+    @Nullable
     public String extract(String url) {
         url = WebsiteNormalizer.normalize(url);
         String tld = DomainBlocked.getTLD(url);
@@ -76,187 +80,12 @@ public class LinkingExtractor {
         Platform platform = PLATFORMS.get(tld);
         if (platform == null) return null;
 
-        return platform.parse(url);
-    }
 
-    public static class FacebookPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            String path = getPath(url, 0);
-            if (StringUtils.isBlank(path)) return null;
-            return "facebook.com/" + path;
-        }
-    }
-
-    public static class ChopePlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            String id = getQueryString(url, "rid");
-            if (StringUtils.isBlank(id)) return null;
-            return "chope.co/booking/" + id;
-        }
-    }
-
-    public static class InstagramPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
+        try {
+            return platform.parse(new Platform.PlatformUrl(url));
+        } catch (URISyntaxException e) {
             return null;
         }
     }
 
-    public static class GooglePlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class BurpplePlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class FoursquarePlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class QuandooPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class HungrygowherePlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class YelpPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class ZomatoPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class OddlePlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class EatigoPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class FoodPandaPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class HonestBeePlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public static class DeliverooPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-
-    }
-
-    public static class UberEatsPlatform implements Platform {
-
-        @Override
-        public String parse(String url) {
-            return null;
-        }
-    }
-
-    public interface Platform {
-        String parse(String url);
-
-        /**
-         * @param url  url
-         * @param name name of query string
-         * @return query string
-         */
-        default String getQueryString(String url, String name) {
-            try {
-                List<NameValuePair> params = URLEncodedUtils.parse(new URI(url), Charset.forName("UTF-8"));
-                for (NameValuePair param : params) {
-                    if (param.getName().equals(name)) {
-                        return param.getValue();
-                    }
-                }
-                return null;
-            } catch (URISyntaxException e) {
-                return null;
-            }
-        }
-
-        /**
-         * @param url url
-         * @return path, e.g. http://munchapp.co/name, /name will be returned
-         */
-        default String getPath(String url) {
-            try {
-                return new URI(url).getPath();
-            } catch (URISyntaxException e) {
-                return null;
-            }
-        }
-
-        /**
-         * @param url   url
-         * @param index index of path
-         * @return path fragment, index of path
-         */
-        default String getPath(String url, int index) {
-            String path = getPath(url);
-
-            List<String> paths = Splitter.on("/").omitEmptyStrings().splitToList(path);
-            if (paths.size() > index) return paths.get(index);
-            return null;
-        }
-    }
 }
