@@ -30,6 +30,14 @@ public final class DomainBlocked {
         this.blockedDomains = ImmutableSet.copyOf(Resources.readLines(url, Charset.forName("UTF-8")));
     }
 
+    public boolean isBlockedUrl(String url) {
+        return isBlocked(getTLD(url));
+    }
+
+    public boolean isBlockedImageUrl(String url) {
+        return isBlocked(getTLD(url));
+    }
+
     /**
      * @param domain domain
      * @return whether domain is blocked

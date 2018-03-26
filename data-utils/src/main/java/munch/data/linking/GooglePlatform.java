@@ -10,6 +10,7 @@ public class GooglePlatform implements Platform {
 
     @Override
     public String parse(PlatformUrl url) {
+        // https://www.citynomads.com/restaurant-review-merci-marcel-brings-french-communal-dining-tiong-bahru-singapore/
         return null;
     }
 }

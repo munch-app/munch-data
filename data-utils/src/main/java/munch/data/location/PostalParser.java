@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public final class PostalParser {
 
     private static final Pattern PostalPattern = Pattern.compile("(singapore|sg|s|pore)([ \n(])*(?<postal>[0-9]{5,6})", Pattern.CASE_INSENSITIVE);
-    private static final Pattern Trailing = Pattern.compile("(?<postal>\\b[0-9]{6}\\b|\\b[0-9]{5}^)");
+    private static final Pattern Trailing = Pattern.compile("(?<postal>\\b[0-9]{6}\\b|\\b[0-9]{5}$)");
 
     /**
      * @param text address with postal
