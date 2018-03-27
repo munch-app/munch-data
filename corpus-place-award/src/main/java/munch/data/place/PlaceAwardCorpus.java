@@ -15,7 +15,7 @@ import munch.collections.CollectionPlaceClient;
 import munch.data.extended.ExtendedDataSync;
 import munch.data.extended.PlaceAward;
 import munch.data.extended.PlaceAwardClient;
-import munch.data.location.PostalParser;
+import munch.data.location.SingaporeCityParser;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -115,7 +115,7 @@ public final class PlaceAwardCorpus extends CatalystEngine<CorpusData> {
         String address = PlaceKey.Location.address.getValue(data);
         if (address == null) return;
 
-        String postal = PostalParser.parse(address);
+        String postal = SingaporeCityParser.parsePostal(address);
         if (postal == null) {
             AirtableRecord record = new AirtableRecord();
             record.setId(data.getCorpusKey());

@@ -3,12 +3,15 @@ package munch.data.place;
 import com.fasterxml.jackson.databind.JsonNode;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableMapper;
-import corpus.airtable.field.*;
+import corpus.airtable.field.AttachmentMapper;
+import corpus.airtable.field.CollaboratorMapper;
+import corpus.airtable.field.DefaultMapper;
+import corpus.airtable.field.RenameMapper;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import corpus.images.ImageCachedClient;
 import munch.data.hour.HourExtractor;
-import munch.data.location.PostalParser;
+import munch.data.location.SingaporeCityParser;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
@@ -58,7 +61,7 @@ public final class SuggestMapper extends AirtableMapper {
         String text = value.asText();
         if (StringUtils.isBlank(text)) return List.of();
 
-        String postal = PostalParser.parse(text);
+        String postal = SingaporeCityParser.parsePostal(text);
         if (postal == null) return List.of();
         return List.of(PlaceKey.Location.address.createField(text), PlaceKey.Location.postal.createField(postal));
     }
