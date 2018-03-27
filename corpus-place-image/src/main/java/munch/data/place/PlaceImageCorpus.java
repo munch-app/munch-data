@@ -29,7 +29,6 @@ import java.util.*;
 @Singleton
 public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceImageCorpus.class);
-    private static final Set<String> EXPLICIT_SOURCES = Set.of("munch-franchise", "munch-place-info");
 
     private static final String VERSION = "2018-01-31";
     private final ImageCollector imageCollector;
@@ -93,46 +92,10 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
 
         CorpusData imageData = new CorpusData(cycleNo);
         imageData.setCatalystId(placeId);
-        imageData.getFields().addAll(selectImages(processedImages));
+        imageData.getFields().addAll(parse(ImageListBuilder.select(processedImages)));
         imageData.put(MetaKey.version, VERSION);
         corpusClient.put("Sg.Munch.Place.Image", placeId, imageData);
         return imageData;
-    }
-
-    private static List<ImageField> selectImages(List<ProcessedImage> processedImages) {
-        ImageListBuilder builder = new ImageListBuilder(processedImages);
-        // Select from explicit sources first
-        builder.supply(stream -> stream
-                .filter(PlaceImageCorpus::isExplicit)
-                .sorted(Comparator.comparingLong(ImageListBuilder::sortSize)
-                        .thenComparingDouble(ImageListBuilder::sortOutput)));
-
-        // Select 3 food image if existing is less then 3, Sorted by Place.image, then score
-        builder.supply(current -> current.size() < 3, stream -> stream
-                .filter(image -> !isExplicit(image) && image.isOutput("food", 0.8f))
-                .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
-                        .thenComparingLong(ImageListBuilder::sortSize)
-                        .thenComparingDouble(ImageListBuilder::sortOutput)
-                ).limit(3));
-
-        // Select 1 place image, Sorted by Place.image, then score
-        builder.supply(stream -> stream
-                .filter(image -> image.isOutput("place", 0.8f))
-                .sorted(Comparator.comparingInt(ImageListBuilder::sortFrom)
-                        .thenComparingLong(ImageListBuilder::sortSize)
-                        .thenComparingDouble(ImageListBuilder::sortOutput)
-                ).limit(1));
-
-        return parse(builder.collect());
-    }
-
-    /**
-     * @param image processed image
-     * @return true if source of image is explicit
-     */
-    private static boolean isExplicit(ProcessedImage image) {
-        if (image.getImage().getSource() == null) return false;
-        return EXPLICIT_SOURCES.contains(image.getImage().getSource());
     }
 
     /**

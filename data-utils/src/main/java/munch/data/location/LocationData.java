@@ -7,6 +7,8 @@ package munch.data.location;
  * Project: munch-data
  */
 public final class LocationData {
+    private String rawText;
+
     private String address;
     private String street;
     private String unitNumber;

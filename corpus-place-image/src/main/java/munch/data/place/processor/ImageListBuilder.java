@@ -1,11 +1,7 @@
 package munch.data.place.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by: Fuxing
@@ -14,42 +10,64 @@ import java.util.stream.Stream;
  * Project: munch-data
  */
 public final class ImageListBuilder {
-    private List<ProcessedImage> imageList;
+    private static final Pattern X_PATTERN = Pattern.compile("[xX]");
+    private static final Set<String> MUNCH_SOURCE = Set.of("munch-franchise", "munch-concept");
 
-    private List<ProcessedImage> finalList = new ArrayList<>();
+    private List<ProcessedImage> imageList;
 
     public ImageListBuilder(List<ProcessedImage> imageList) {
         this.imageList = imageList;
     }
 
-    public void supply(Predicate<List<ProcessedImage>> predicate, Function<Stream<ProcessedImage>, Stream<ProcessedImage>> function) {
-        if (predicate.test(finalList)) {
-            supply(function);
+    public List<ProcessedImage> select() {
+        List<ProcessedImage> images = new ArrayList<>();
+
+        imageList.stream()
+                .filter(image -> image.isOutput("food", 0.8f))
+                .sorted(Comparator.comparingInt(ImageListBuilder::sortFromSource)
+                        .thenComparingLong(ImageListBuilder::sortSize)
+                        .thenComparingDouble(ImageListBuilder::sortOutput))
+                .limit(3)
+                .forEach(images::add);
+
+        if (!imageList.isEmpty() && !MUNCH_SOURCE.contains(imageList.get(0).getImage().getSource())) {
+            // Remove all image that is not created through Munch
+            images.removeIf(image -> MUNCH_SOURCE.contains(image.getImage().getSource()));
         }
-    }
 
-    public void supply(Function<Stream<ProcessedImage>, Stream<ProcessedImage>> function) {
-        function.apply(imageList.stream()).forEach(image -> finalList.add(image));
-    }
+        imageList.stream()
+                .filter(image -> image.isOutput("place", 0.8f))
+                .sorted(Comparator.comparingInt(ImageListBuilder::sortFromSource)
+                        .thenComparingLong(ImageListBuilder::sortSize)
+                        .thenComparingDouble(ImageListBuilder::sortOutput))
+                .limit(1)
+                .forEach(images::add);
 
-    public List<ProcessedImage> collect() {
-        return finalList;
+        return images;
     }
 
     /**
      * @param image image
      * @return int for comparing
      */
-    public static int sortFrom(ProcessedImage image) {
+    private static int sortFromSource(ProcessedImage image) {
         switch (image.getImage().getFrom()) {
-            case Place:
-                return 0;
             case Instagram:
-                return 1;
+                return 100;
             case Article:
-                return 2;
+                return 200;
+            case Place:
             default:
-                return 10;
+                switch (image.getImage().getSource()) {
+                    case "munch-place-info":
+                        return 310;
+                    case "munch-franchise":
+                        return 320;
+                    case "munch-concept":
+                        return 330;
+                    default:
+                        return 340;
+                }
         }
     }
 
@@ -57,17 +75,36 @@ public final class ImageListBuilder {
      * @param image image
      * @return float for comparing
      */
-    public static float sortOutput(ProcessedImage image) {
+    private static float sortOutput(ProcessedImage image) {
         float value = image.getFinnLabel().getMaxOutput().getValue();
         return 1.0f - value;
     }
 
-    public static long sortSize(ProcessedImage image) {
+    private static long sortSize(ProcessedImage image) {
+        long size = 0;
         Map<String, String> images = image.getImage().getImages();
-        if (images.containsKey("1080x1080")) return 0;
-        if (images.containsKey("640x640")) return 1;
-        if (images.containsKey("320x320")) return 2;
-        if (images.containsKey("150x150")) return 3;
-        return 10;
+        for (String key : images.keySet()) {
+            size += parseKey(key);
+        }
+        return Long.MAX_VALUE - size;
+    }
+
+    private static long parseKey(String key) {
+        try {
+            String[] x = X_PATTERN.split(key);
+            if (x.length == 2) return Long.parseLong(x[0]) * Long.parseLong(x[1]);
+        } catch (NumberFormatException | NullPointerException ignored) {
+        }
+        return 0;
+    }
+
+    /**
+     * Select images
+     *
+     * @param imageList image list
+     * @return List ProcessedImage
+     */
+    public static List<ProcessedImage> select(List<ProcessedImage> imageList) {
+        return new ImageListBuilder(imageList).select();
     }
 }
