@@ -2,6 +2,7 @@ package munch.data.location;
 
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import java.util.List;
 
 /**
  * Created by: Fuxing
@@ -10,12 +11,17 @@ import javax.inject.Singleton;
  * Project: munch-data
  */
 @Singleton
-public final class LibpostalParser implements CityParser {
+public final class LibpostalParser extends CityParser {
 
     @Nullable
     @Override
     public LocationData parse(String text) {
-        // TODO connect api
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public LocationData parse(List<String> tokens) {
         return null;
     }
 

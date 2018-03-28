@@ -2,10 +2,7 @@ package munch.data.location;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -15,21 +12,22 @@ import java.util.Optional;
  */
 @Singleton
 public final class LocationParser {
-    private final List<CityParser> cityParsers = List.of(
-            new SingaporeCityParser()
-    );
+    private final List<CityParser> cityParsers;
 
-    private final StreetSuffixDatabase suffixDatabase;
+    private final AddressGrouping grouping;
     private final LibpostalParser libpostalParser;
 
     @Inject
-    public LocationParser(StreetSuffixDatabase suffixDatabase, LibpostalParser libpostalParser) {
-        this.suffixDatabase = suffixDatabase;
+    public LocationParser(AddressGrouping grouping, LibpostalParser libpostalParser, StreetSuffixDatabase suffixDatabase) {
+        this.grouping = grouping;
         this.libpostalParser = libpostalParser;
+        this.cityParsers = List.of(
+                new SingaporeCityParser(suffixDatabase)
+        );
     }
 
     public LocationData parse(String text) {
-        List<String> groups = constructGroups(text);
+        Set<List<String>> groups = grouping.group(text);
         // Try parse with explicit parser first
         for (CityParser cityParser : cityParsers) {
             Optional<LocationData> data = tryParse(groups, cityParser);
@@ -41,28 +39,11 @@ public final class LocationParser {
     }
 
     /**
-     * @param text text to break up and construct likely address lines
-     * @return List of likely address
-     */
-    public List<String> constructGroups(String text) {
-        // TODO chop up parts into tokens & construct
-        // Known Prefix: Address: Location: Direction:
-        // Known Suffix:
-        // Known Prefix & Suffix: \t\n & -|–|—|:|@|\|
-
-        // Extract Known Parts & mark them
-        // Unit Number, [Suffix], Postcode, Country, City, House Number
-
-        // Find Parts to Focus On then move back and forward to finalize
-        return List.of();
-    }
-
-    /**
      * @param groups to try parse
      * @param parser to use
      * @return Optional LocationData
      */
-    public Optional<LocationData> tryParse(List<String> groups, CityParser parser) {
+    public Optional<LocationData> tryParse(Collection<List<String>> groups, CityParser parser) {
         return groups.stream()
                 .map(parser::parse)
                 .filter(Objects::nonNull)

@@ -1,6 +1,11 @@
 package munch.data.location;
 
+import munch.data.utils.PatternSplit;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by: Fuxing
@@ -8,12 +13,47 @@ import javax.annotation.Nullable;
  * Time: 1:38 AM
  * Project: munch-data
  */
-public interface CityParser {
+public abstract class CityParser {
+    PatternSplit WHITESPACE_PATTERN = PatternSplit.compile(",? +");
 
     /**
-     * @param text text to parse
+     * @param text to parse
      * @return LocationData if found
      */
     @Nullable
-    LocationData parse(String text);
+    public LocationData parse(String text) {
+        text = StringUtils.lowerCase(text);
+        return parse(WHITESPACE_PATTERN.split(text));
+    }
+
+    /**
+     * @param tokens in text to parse
+     * @return LocationData if found
+     */
+    @Nullable
+    abstract LocationData parse(List<String> tokens);
+
+    /**
+     * @param tokens        tokens to try parse
+     * @param parseFunction parse function
+     * @return Token parsed
+     */
+    protected static String parse(List<String> tokens, Function<String, String> parseFunction) {
+        for (String token : tokens) {
+            String apply = parseFunction.apply(token);
+            if (apply != null) return apply;
+        }
+
+        return null;
+    }
+
+    protected static String has(List<String> tokens, String... compares) {
+        for (String compare : compares) {
+            if (tokens.contains(compare)) {
+                return compare;
+            }
+        }
+
+        return null;
+    }
 }

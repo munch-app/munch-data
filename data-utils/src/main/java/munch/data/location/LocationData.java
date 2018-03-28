@@ -1,5 +1,7 @@
 package munch.data.location;
 
+import java.util.List;
+
 /**
  * Created by: Fuxing
  * Date: 27/3/2018
@@ -7,7 +9,7 @@ package munch.data.location;
  * Project: munch-data
  */
 public final class LocationData {
-    private final String rawText;
+    private final List<String> tokens;
 
     private String address;
     private String street;
@@ -20,12 +22,12 @@ public final class LocationData {
     private String postal;
     private String latLng;
 
-    public LocationData(String rawText) {
-        this.rawText = rawText;
+    public LocationData(List<String> tokens) {
+        this.tokens = tokens;
     }
 
-    public String getRawText() {
-        return rawText;
+    public List<String> getTokens() {
+        return tokens;
     }
 
     public String getAddress() {
@@ -105,5 +107,19 @@ public final class LocationData {
         if (postal != null) accuracy++;
         if (latLng != null) accuracy++;
         return accuracy;
+    }
+
+    @Override
+    public String toString() {
+        return "LocationData{" +
+                "address='" + address + '\'' +
+                ", street='" + street + '\'' +
+                ", unitNumber='" + unitNumber + '\'' +
+                ", neighbourhood='" + neighbourhood + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                ", postal='" + postal + '\'' +
+                ", latLng='" + latLng + '\'' +
+                '}';
     }
 }

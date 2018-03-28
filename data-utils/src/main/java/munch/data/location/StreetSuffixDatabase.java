@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,8 +34,15 @@ public final class StreetSuffixDatabase {
      * @return whether is it a suffix
      */
     public boolean is(String name) {
-        if (StringUtils.isBlank(name)) return true;
+        if (StringUtils.isBlank(name)) return false;
 
         return names.contains(name.toLowerCase());
+    }
+
+    public String find(List<String> tokens) {
+        for (String token : tokens) {
+            if (is(token)) return token;
+        }
+        return null;
     }
 }

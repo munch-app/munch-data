@@ -1,8 +1,14 @@
 package munch.data.location;
 
+import com.google.common.base.Joiner;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,18 +18,103 @@ import java.util.regex.Pattern;
  * Time: 1:38 AM
  * Project: munch-data
  */
-public final class SingaporeCityParser implements CityParser {
+@Singleton
+public final class SingaporeCityParser extends CityParser {
 
     private static final Pattern PostalPattern = Pattern.compile("(singapore|sg|s|pore)([ \n(])*(?<postal>[0-9]{5,6})", Pattern.CASE_INSENSITIVE);
     private static final Pattern Trailing = Pattern.compile("(?<postal>\\b[0-9]{6}\\b|\\b[0-9]{5}$)");
 
+    private static final Pattern StreetNumberPattern = Pattern.compile("[0-9]{1,4}[a-z]?");
+    private static final Pattern UnitNumberPattern = Pattern.compile("[0-9]{1,2}-[0-9]{1,5}");
+
+    private final StreetSuffixDatabase suffixDatabase;
+
+    @Inject
+    public SingaporeCityParser(StreetSuffixDatabase suffixDatabase) {
+        this.suffixDatabase = suffixDatabase;
+    }
+
     @Nullable
     @Override
-    public LocationData parse(String text) {
-        /*
-        Unit|Vocab + Ending Postal
-        Full Postal
-         */
+    public LocationData parse(List<String> tokens) {
+        LocationData data = new LocationData(tokens);
+        data.setPostal(parse(tokens, SingaporeCityParser::parsePostalToken));
+        data.setStreet(parseStreetToken(tokens));
+        data.setUnitNumber(parseUnitNumberToken(tokens));
+        data.setCity(has(tokens, "singapore", "sg"));
+        data.setCountry(data.getCity());
+
+        if (data.getPostal() != null) {
+            if (data.getCity() != null) return data;
+            if (data.getStreet() != null) return data;
+            if (data.getUnitNumber() != null) return data;
+        }
+
+        if (data.getUnitNumber() != null && data.getStreet() != null) return data;
+        return null;
+    }
+
+    private static String parsePostalToken(String text) {
+        if (StringUtils.isBlank(text)) return null;
+
+        if (NumberUtils.isDigits(text)) {
+            if (text.length() >= 5 && text.length() <= 6) return text;
+        }
+
+        Matcher matcher = PostalPattern.matcher(text);
+        if (matcher.find()) {
+            String postal = matcher.group("postal");
+            if (postal != null) return postal;
+        }
+
+        return null;
+    }
+
+    private static String parseUnitNumberToken(List<String> tokens) {
+        int stallStage = 0;
+
+        for (String token : tokens) {
+            if (StringUtils.isBlank(token)) continue;
+            if (token.contains("#") && token.contains("-")) return token;
+            if (UnitNumberPattern.matcher(token).matches()) return token;
+
+            if (token.equalsIgnoreCase("stall")) {
+                stallStage = 1;
+                continue;
+            }
+
+            if (stallStage == 1) {
+                if (token.equalsIgnoreCase("no")) {
+                    stallStage = 2;
+                    continue;
+                }
+                if (NumberUtils.isDigits(token)) return token;
+            } else if (stallStage == 2) {
+                if (NumberUtils.isDigits(token)) return token;
+            }
+
+            stallStage = 0;
+        }
+        return null;
+    }
+
+    private String parseStreetToken(List<String> tokens) {
+        List<String> streetTokens = new ArrayList<>();
+        for (String token : tokens) {
+            if (StreetNumberPattern.matcher(token).matches()) {
+                streetTokens.clear();
+                streetTokens.add(token);
+                continue;
+            }
+
+            if (!streetTokens.isEmpty()) {
+                streetTokens.add(token);
+
+                if (streetTokens.size() < 8 && suffixDatabase.is(token)) {
+                    return Joiner.on("").join(streetTokens);
+                }
+            }
+        }
 
         return null;
     }
@@ -47,5 +138,4 @@ public final class SingaporeCityParser implements CityParser {
 
         return postal;
     }
-    // TODO implement
 }
