@@ -64,5 +64,13 @@ class LocationParserTest {
 
         print("Jalan Bukit Merah Blk 6 Stall No 01-143, Singapore 150006");
         print("Jalan Bukit Merah Blk 6 Stall No 143, Singapore 150006");
+        print("Singapore 150006.");
+        print("(Singapore 150006)");
+        print("'Singapore 150006'");
+    }
+
+    @Test
+    void single() {
+        print("(Singapore 150006)");
     }
 }

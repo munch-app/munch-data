@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 /**
  * Created by: Fuxing
@@ -14,7 +15,10 @@ import java.util.function.Function;
  * Project: munch-data
  */
 public abstract class CityParser {
-    PatternSplit WHITESPACE_PATTERN = PatternSplit.compile(",? +");
+    // TODO []():;'"@\\n\\r-={}|\/<>
+    // |\\n\\r|\\r\\n|\\n|\\r|-|–|—|:|@|\||\\
+    public static Pattern REPLACE_SPACE_PATTERN = Pattern.compile("\\\\n|\\\\r|\\\\t");
+    public static PatternSplit WHITESPACE_PATTERN = PatternSplit.compile("[,.()'\"]?( +|$)|( +|^)[,.()'\"]");
 
     /**
      * @param text to parse
@@ -22,7 +26,6 @@ public abstract class CityParser {
      */
     @Nullable
     public LocationData parse(String text) {
-        text = StringUtils.lowerCase(text);
         return parse(WHITESPACE_PATTERN.split(text));
     }
 
@@ -32,6 +35,13 @@ public abstract class CityParser {
      */
     @Nullable
     abstract LocationData parse(List<String> tokens);
+
+    public static List<String> parseTokens(String text) {
+        text = StringUtils.lowerCase(text);
+        text = REPLACE_SPACE_PATTERN.matcher(text).replaceAll(" ");
+
+        return WHITESPACE_PATTERN.split(text);
+    }
 
     /**
      * @param tokens        tokens to try parse

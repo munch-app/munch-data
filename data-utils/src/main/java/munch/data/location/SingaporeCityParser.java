@@ -38,7 +38,7 @@ public final class SingaporeCityParser extends CityParser {
     @Override
     public LocationData parse(List<String> tokens) {
         LocationData data = new LocationData(tokens);
-        data.setPostal(parse(tokens, SingaporeCityParser::parsePostalToken));
+        data.setPostal(parsePostalToken(tokens));
         data.setStreet(parseStreetToken(tokens));
         data.setUnitNumber(parseUnitNumberToken(tokens));
         data.setCity(has(tokens, "singapore", "sg"));
@@ -54,19 +54,23 @@ public final class SingaporeCityParser extends CityParser {
         return null;
     }
 
-    private static String parsePostalToken(String text) {
-        if (StringUtils.isBlank(text)) return null;
+    private static String parsePostalToken(List<String> tokens) {
+        for (String token : tokens) {
+            if (StringUtils.isBlank(token)) continue;
+            if (NumberUtils.isDigits(token) && token.length() >= 5 && token.length() <= 6) return token;
 
-        if (NumberUtils.isDigits(text)) {
-            if (text.length() >= 5 && text.length() <= 6) return text;
-        }
-
-        Matcher matcher = PostalPattern.matcher(text);
-        if (matcher.find()) {
-            String postal = matcher.group("postal");
+            String postal = findGroup(PostalPattern, token, "postal");
             if (postal != null) return postal;
         }
+        return null;
+    }
 
+    private static String findGroup(Pattern pattern, String text, String name) {
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            String group = matcher.group(name);
+            if (group != null) return group;
+        }
         return null;
     }
 
@@ -126,15 +130,11 @@ public final class SingaporeCityParser extends CityParser {
     public static String parsePostal(String text) {
         if (StringUtils.isBlank(text)) return null;
 
-        String postal = null;
-        // Full postal match
-        Matcher matcher = PostalPattern.matcher(text);
-        if (matcher.find()) postal = matcher.group("postal");
+        String postal = findGroup(PostalPattern, text, "postal");
         if (postal != null) return postal;
 
-        // Else find only number match or trailing match
-        matcher = Trailing.matcher(text);
-        if (matcher.find()) postal = matcher.group("postal");
+        postal = findGroup(Trailing, text, "postal");
+        if (postal != null) return postal;
 
         return postal;
     }

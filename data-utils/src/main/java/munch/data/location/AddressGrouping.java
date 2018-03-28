@@ -1,6 +1,5 @@
 package munch.data.location;
 
-import munch.data.utils.PatternSplit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -21,7 +20,6 @@ public final class AddressGrouping {
         Postal
     }
 
-    private static final PatternSplit WHITESPACE_PATTERN = PatternSplit.compile(",? +");
 
     private final Set<String> KNOWN_PREFIX = Set.of("address:", "location:", "direction:", "address", "location", "direction", ":");
     private final StreetSuffixDatabase suffixDatabase;
@@ -32,7 +30,7 @@ public final class AddressGrouping {
     }
 
     public Set<List<String>> group(String text) {
-        List<String> tokens = WHITESPACE_PATTERN.split(text.toLowerCase());
+        List<String> tokens = CityParser.WHITESPACE_PATTERN.split(text.toLowerCase());
 
         Set<List<String>> groups = new HashSet<>();
 
