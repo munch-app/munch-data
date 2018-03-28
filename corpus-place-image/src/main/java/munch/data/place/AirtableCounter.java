@@ -65,7 +65,15 @@ public final class AirtableCounter {
                 table.post(post);
             });
         });
-        session.close();
+
+        session.forEachRemaining(record -> {
+            record.setFields(Map.of(
+                    "First Image Count", JsonUtils.toTree(0),
+                    "Total Image Count", JsonUtils.toTree(0)
+            ));
+
+            table.patch(record);
+        });
 
         sourceMap = new HashMap<>();
     }
