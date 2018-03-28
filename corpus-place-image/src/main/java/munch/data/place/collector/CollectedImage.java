@@ -12,7 +12,8 @@ public class CollectedImage {
     public enum From {
         Place,
         Instagram,
-        Article
+        ArticleFullPage, // Single article talking about a single place
+        ArticleListPage  // Single article talking about multiple place
     }
 
     private From from;

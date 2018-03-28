@@ -54,7 +54,7 @@ public final class ImageListBuilder {
         switch (image.getImage().getFrom()) {
             case Instagram:
                 return 100;
-            case Article:
+            case ArticleFullPage:
                 return 200;
             case Place:
             default:
@@ -68,6 +68,8 @@ public final class ImageListBuilder {
                     default:
                         return 340;
                 }
+            case ArticleListPage:
+                return 400;
         }
     }
 
