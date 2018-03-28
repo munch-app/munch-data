@@ -33,6 +33,8 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     private static final PatternSplit ADDRESS_DIVIDER_PATTERN = PatternSplit.compile("([^a-z'’]|^|[^a-z]'’)[a-z]");
     private static final Set<String> BLOCKED_UNIT_NUMBERS = Set.of("#-", "#", "-", "-#");
 
+    private static final Pattern UNIT_PATTERN = Pattern.compile(".*[0-9]+-[0-9]+.*");
+
     private static final PatternSplit COMMA_PATTERN = PatternSplit.compile(", *");
     private static final Pattern COMMA_SEQ_PATTERN = Pattern.compile(", *,");
     private static final Pattern COMMA_PRE_POST_PATTERN = Pattern.compile("^,|,$");
@@ -162,7 +164,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
                             location.getCity() + " " + location.getPostal());
         }
         // If max contains - & # return it (UnitNumber)
-        if (address.contains("-") && address.contains("#") && address.contains(location.getPostal())) return address;
+        if (hasUnitNumber(address) && address.contains(location.getPostal())) return address;
         if (StringUtils.isBlank(location.getUnitNumber())) return address;
 
         // Else find any that contains - & # and return it (UnitNumber), else return max address
@@ -187,15 +189,7 @@ public final class LocationParser extends AbstractParser<Place.Location> {
     }
 
     static boolean hasUnitNumber(String address) {
-        return address.contains("#");
-    }
-
-    static long rankAddress(String address, Place.Location location) {
-        int ranking = 0;
-        if (address.contains(location.getPostal())) ranking += 1;
-        if (address.contains("-")) ranking += 1;
-        if (address.contains("#")) ranking += 1;
-        return ranking;
+        return UNIT_PATTERN.matcher(address).matches();
     }
 
     static String formatAddress(String address) {
