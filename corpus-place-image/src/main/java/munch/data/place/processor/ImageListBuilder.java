@@ -53,23 +53,23 @@ public final class ImageListBuilder {
     private static int sortFromSource(ProcessedImage image) {
         switch (image.getImage().getFrom()) {
             case Instagram:
-                return 100;
-            case ArticleFullPage:
                 return 200;
+            case ArticleFullPage:
+                return 300;
             case Place:
             default:
                 switch (image.getImage().getSource()) {
                     case "munch-place-info":
-                        return 310;
+                        return 100;
                     case "munch-franchise":
-                        return 320;
+                        return 420;
                     case "munch-concept":
-                        return 330;
+                        return 430;
                     default:
-                        return 340;
+                        return 440;
                 }
             case ArticleListPage:
-                return 400;
+                return 500;
         }
     }
 
