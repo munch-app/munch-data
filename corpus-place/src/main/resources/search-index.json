@@ -2,14 +2,18 @@
   "mappings": {
     "_default_": {
       "properties": {
-        "name": {
-          "type": "text"
+        "cycleNo": {
+          "type": "long"
         },
-        "postal": {
-          "type": "keyword"
-        },
-        "latLng": {
-          "type": "geo_point"
+        "field": {
+          "properties": {
+            "place_location_latlng": {
+              "type": "geo_point"
+            },
+            "place_location_postal": {
+              "type": "keyword"
+            }
+          }
         }
       }
     }

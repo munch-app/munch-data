@@ -67,7 +67,7 @@ public final class ElasticModule extends AbstractModule {
     @Provides
     @Singleton
     @Named("munch.data.place.jest")
-    JestClient provideClient(Config config) throws InterruptedException {
+    JestClient provideClient(Config config) {
         String url = config.getString("services.elastic.url");
         WaitFor.host(url, Duration.ofSeconds(180));
 

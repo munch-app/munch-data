@@ -30,8 +30,6 @@ public class ElasticCorpusTest extends AbstractModule {
         Injector injector = Guice.createInjector(new ElasticCorpusTest());
 
         // Start the following corpus
-        EngineGroup.start(
-                injector.getInstance(ElasticSpatialCorpus.class)
-        );
+        EngineGroup.start();
     }
 }

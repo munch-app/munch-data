@@ -56,8 +56,6 @@ public class PlaceModule extends AbstractModule {
 
         // Start the following corpus
         EngineGroup.start(
-                injector.getInstance(ElasticPostalCorpus.class),
-                injector.getInstance(ElasticSpatialCorpus.class),
                 injector.getInstance(SeedCorpus.class),
                 injector.getInstance(PlaceCorpus.class),
                 injector.getInstance(PlaceAirtableCorpus.class)

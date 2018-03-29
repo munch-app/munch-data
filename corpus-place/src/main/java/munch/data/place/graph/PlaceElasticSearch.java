@@ -4,6 +4,7 @@ import corpus.data.CorpusData;
 import munch.data.place.graph.matcher.MatcherManager;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Set;
 
 /**
@@ -12,13 +13,11 @@ import java.util.Set;
  * Time: 8:07 PM
  * Project: munch-data
  */
+@Singleton
 public final class PlaceElasticSearch {
 
     private final Set<String> requiredFields;
 
-    /**
-     * @param matcherManager matcher manager
-     */
     @Inject
     public PlaceElasticSearch(MatcherManager matcherManager) {
         this.requiredFields = matcherManager.getRequiredFields();

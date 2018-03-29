@@ -6,7 +6,6 @@ import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
-import munch.data.place.amalgamate.Amalgamate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,8 +67,8 @@ public final class SeedCorpus extends CatalystEngine<CorpusData> {
      */
     @Override
     protected void process(long cycleNo, CorpusData seedData, long processed) {
-        // Check CorpusData data is valid
-        if (!Amalgamate.isValid(seedData)) return;
+//        // Check CorpusData data is valid
+//        if (!Amalgamate.isValid(seedData)) return;
         // If Sg.Munch.Place already exist, can skip, can never have more then 1 because key is catalystId
         if (catalystClient.countCorpus(seedData.getCatalystId(), "Sg.Munch.Place") > 0) return;
 

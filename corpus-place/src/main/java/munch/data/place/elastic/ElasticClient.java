@@ -3,18 +3,22 @@ package munch.data.place.elastic;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import corpus.data.CorpusData;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.DeleteByQuery;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
+import munch.data.place.graph.matcher.MatcherManager;
 import munch.restful.core.JsonUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -22,24 +26,27 @@ import java.util.List;
  * Time: 2:49 AM
  * Project: munch-data
  */
-public abstract class ElasticClient {
+@Singleton
+public class ElasticClient {
     protected static final ObjectMapper mapper = JsonUtils.objectMapper;
 
-    protected final String index;
-    private JestClient client;
-
-    protected ElasticClient(String index) {
-        this.index = index;
-    }
+    private final JestClient client;
+    private final Set<String> requiredFields;
 
     @Inject
-    void inject(@Named("munch.data.place.jest") JestClient client) {
+    public ElasticClient(@Named("munch.data.place.jest") JestClient client, MatcherManager matcherManager) {
         this.client = client;
+        this.requiredFields = matcherManager.getRequiredFields();
     }
 
-    public void put(long cycleNo, ElasticPlace place) {
+    public void put(long cycleNo, CorpusData corpusData) {
         ObjectNode node = mapper.createObjectNode();
         node.put("cycleNo", cycleNo);
+
+        ObjectNode fieldNode = node.putObject("field");
+        for (CorpusData.Field field : corpusData.getFields()) {
+
+        }
 
         node.set("name", mapper.valueToTree(place.getName()));
         node.set("postal", mapper.valueToTree(place.getPostal()));
@@ -47,10 +54,8 @@ public abstract class ElasticClient {
 
         try {
             String json = mapper.writeValueAsString(node);
-            client.execute(new Index.Builder(json)
-                    .index(index)
-                    .type(place.getCorpusName())
-                    .id(place.getCorpusKey())
+            client.execute(new Index.Builder(json).index("graph")
+                    .type(corpusData.getCorpusName()).id(corpusData.getCorpusKey())
                     .build());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -67,7 +72,7 @@ public abstract class ElasticClient {
         try {
             String json = mapper.writeValueAsString(root);
             client.execute(new DeleteByQuery.Builder(json)
-                    .addIndex(index)
+                    .addIndex("graph")
                     .setParameter("conflicts", "proceed")
                     .build());
         } catch (IOException e) {
@@ -75,10 +80,9 @@ public abstract class ElasticClient {
         }
     }
 
-    protected List<ElasticPlace> search(JsonNode node) {
+    protected List<CorpusData> search(JsonNode node) {
         try {
-            Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node))
-                    .addIndex(index);
+            Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node)).addIndex("graph");
             JsonNode result = mapper.readTree(client.execute(builder.build()).getJsonString());
             return deserializeList(result.path("hits").path("hits"));
         } catch (IOException e) {
@@ -86,31 +90,30 @@ public abstract class ElasticClient {
         }
     }
 
-    private static List<ElasticPlace> deserializeList(JsonNode results) {
-        if (results.isMissingNode()) return Collections.emptyList();
-        List<ElasticPlace> list = new ArrayList<>();
+    private static List<CorpusData> deserializeList(JsonNode results) {
+        if (results.isMissingNode()) return List.of();
+        List<CorpusData> list = new ArrayList<>();
+
         for (JsonNode result : results) {
-            ElasticPlace place = new ElasticPlace();
+            CorpusData place = new CorpusData();
             place.setCorpusName(result.path("_type").asText());
             place.setCorpusKey(result.path("_id").asText());
-            place.setName(deserializeStrings(result.path("_source").path("name")));
-            place.setPostal(deserializeStrings(result.path("_source").path("postal")));
-            place.setLatLng(result.path("_source").path("latLng").asText());
+
+            JsonNode source = result.path("_source");
+
+            place.setName(deserializeStrings(source.path("name")));
+            place.setPostal(deserializeStrings(source.path("postal")));
+            place.setLatLng(source.path("latLng").asText());
             list.add(place);
         }
         return list;
     }
 
-    private static List<String> deserializeStrings(JsonNode results) {
-        if (results.isArray()) {
-            List<String> strings = new ArrayList<>();
-            for (JsonNode result : results) {
-                strings.add(result.asText());
-            }
-            return strings;
-        } else if (results.isValueNode()) {
-            return Collections.singletonList(results.asText());
-        }
-        return Collections.emptyList();
+    private static List<CorpusData.Field> toFields() {
+
+    }
+
+    private static List<CorpusData.Field> toNodes() {
+
     }
 }
