@@ -111,6 +111,10 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
             field.setSource(image.getImage().getSource());
             field.setSourceId(image.getImage().getSourceId());
             field.setSourceName(image.getImage().getSourceName());
+            field.setSourceUrl(image.getImage().getSourceUrl());
+
+            field.setSourceContentTitle(image.getImage().getSourceContentTitle());
+            field.setSourceContentUrl(image.getImage().getSourceContentUrl());
             field.setImages(image.getImage().getImages());
             fieldList.add(field);
         }
