@@ -5,6 +5,9 @@
         "cycleNo": {
           "type": "long"
         },
+        "treeSize": {
+          "type": "long"
+        },
         "fields": {
           "properties": {
             "place_location_latlng": {

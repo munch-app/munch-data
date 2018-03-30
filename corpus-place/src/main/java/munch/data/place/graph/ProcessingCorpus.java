@@ -10,6 +10,7 @@ import munch.data.place.elastic.ElasticClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
@@ -63,8 +64,6 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
-        elasticClient.put(cycleNo, data);
-
         String placeId = data.getCatalystId();
         PlaceTree placeTree = placeDatabase.get(placeId);
         List<CorpusData> dataList = list(placeId);
@@ -73,17 +72,20 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
             // If PlaceTree Already exists: search and maintain
             if (!buildTree(placeId, placeTree, dataList)) {
                 // Failed to build tree, try rebuilding
-                if (!tryBuildTree(placeId, dataList)) {
-                    // Failed at rebuilding, remove from database
+                placeTree = tryBuildTree(placeId, dataList);
+
+                // Failed at rebuilding, remove from database
+                if (placeTree == null) {
                     logger.info("Failed rebuilding PlaceTree: {}", placeId);
                     placeDatabase.delete(placeId);
                 }
             }
         } else {
             // PlaceTree don't exists: try seed
-            // Put if seeded
-            tryBuildTree(placeId, dataList);
+            placeTree = tryBuildTree(placeId, dataList);
         }
+
+        elasticClient.put(cycleNo, data, placeTree);
 
         // Max 30 graph per sec?
         sleep(10);
@@ -102,16 +104,17 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
     /**
      * @param placeId  catalyst id
      * @param dataList list of possible tree
-     * @return if tree is build successfully
+     * @return PlaceTree that got created
      */
-    private boolean tryBuildTree(String placeId, List<CorpusData> dataList) {
+    @Nullable
+    private PlaceTree tryBuildTree(String placeId, List<CorpusData> dataList) {
         for (CorpusData data : dataList) {
             PlaceTree placeTree = new PlaceTree(data);
             // Return if successfully build tree
-            if (buildTree(placeId, placeTree, dataList)) return true;
+            if (buildTree(placeId, placeTree, dataList)) return placeTree;
         }
 
-        return false;
+        return null;
     }
 
     /**

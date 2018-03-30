@@ -72,6 +72,18 @@ public class PlaceTree {
         this.trees = trees;
     }
 
+    /**
+     * @return size if place tree
+     */
+    @JsonIgnore
+    public int getSize() {
+        int size = 1;
+        for (PlaceTree tree : trees) {
+            size += tree.getSize();
+        }
+        return size;
+    }
+
     @JsonIgnore
     public Set<String> getCorpusNames() {
         Set<String> names = new HashSet<>();
@@ -91,12 +103,14 @@ public class PlaceTree {
         return false;
     }
 
+    @JsonIgnore
     public List<CorpusData> getCorpusDataList() {
         List<CorpusData> list = new ArrayList<>();
         findCorpusDataList(list, this);
         return list;
     }
 
+    @JsonIgnore
     public Map<String, List<CorpusData.Field>> getFieldsMap() {
         Map<String, List<CorpusData.Field>> fieldMap = new HashMap<>();
         findFields(fieldMap, this);

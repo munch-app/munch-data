@@ -9,6 +9,7 @@ import io.searchbox.client.JestClient;
 import io.searchbox.core.DeleteByQuery;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
+import munch.data.place.graph.PlaceTree;
 import munch.data.place.graph.matcher.MatcherManager;
 import munch.restful.core.JsonUtils;
 
@@ -40,9 +41,10 @@ public final class ElasticClient {
         this.requiredFields = matcherManager.getRequiredFields();
     }
 
-    public void put(long cycleNo, CorpusData corpusData) {
+    public void put(long cycleNo, CorpusData corpusData, PlaceTree placeTree) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("cycleNo", cycleNo);
+        node.put("treeSize", placeTree == null ? 0 : placeTree.getSize());
         node.set("fields", toNodes(corpusData.getFields()));
 
         try {
@@ -97,6 +99,17 @@ public final class ElasticClient {
         }
     }
 
+    public List<CorpusData> search(PlaceTree tree, JsonNode... filters) {
+        ArrayNode arrayNode = objectMapper.createArrayNode();
+        arrayNode.add(filterRange("treeSize", "lte", tree.getSize()));
+
+        for (JsonNode filter : filters) {
+            arrayNode.add(filter);
+        }
+
+        return search(createQuery(0, 1000, arrayNode));
+    }
+
     private List<CorpusData.Field> toFields(JsonNode fields) {
         List<CorpusData.Field> fieldList = new ArrayList<>();
         fields.fields().forEachRemaining(entry -> {
@@ -140,6 +153,14 @@ public final class ElasticClient {
         return filter;
     }
 
+    public static JsonNode filterRange(String fieldName, String comparator, long value) {
+        ObjectNode filter = objectMapper.createObjectNode();
+        filter.putObject("range")
+                .putObject(fieldName.replace('.', '_'))
+                .put(comparator, value);
+        return filter;
+    }
+
     public static JsonNode filterTerm(String fieldName, String value) {
         ObjectNode filter = objectMapper.createObjectNode();
         filter.putObject("term")
@@ -147,19 +168,14 @@ public final class ElasticClient {
         return filter;
     }
 
-    public static JsonNode createQuery(int from, int size, JsonNode... filters) {
+    public static JsonNode createQuery(int from, int size, ArrayNode filters) {
         ObjectNode root = objectMapper.createObjectNode();
 
-        ArrayNode filterNodes = root.put("from", from)
+        root.put("from", from)
                 .put("size", size)
                 .putObject("query")
                 .putObject("bool")
-                .putArray("filter");
-
-        for (JsonNode filter : filters) {
-            filterNodes.add(filter);
-        }
-
+                .set("filter", filters);
         return root;
     }
 }
