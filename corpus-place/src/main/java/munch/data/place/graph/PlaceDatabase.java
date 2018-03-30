@@ -34,7 +34,7 @@ import javax.inject.Singleton;
 @Singleton
 public class PlaceDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PlaceDatabase.class);
-    private static final String TABLE_NAME = "Sg.Munch.Place.Tree";
+    private static final String TABLE_NAME = "Sg.Munch.Place.Tree.V2";
 
     private static final Retriable retriable = new ExceptionRetriable(4);
 
@@ -58,7 +58,7 @@ public class PlaceDatabase {
      */
     @Nullable
     public PlaceTree get(String placeId) {
-        JsonNode node = documentClient.get("Sg.Munch.Place.Tree.V2", placeId, "0");
+        JsonNode node = documentClient.get(TABLE_NAME, placeId, "0");
         if (node == null) return null;
 
         return JsonUtils.toObject(node.get("tree"), PlaceTree.class);

@@ -1,5 +1,6 @@
 package munch.data.place.graph;
 
+import com.google.common.base.Joiner;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import munch.data.place.graph.linker.LinkerManager;
@@ -62,9 +63,8 @@ public final class PlaceGraph {
 
         // Try link and remove all unlinked data
         for (CorpusData right : linkedSet) {
-            if (!tryLink(placeId, placeTree, right)) {
-                actionList.add(Action.unlinked(right));
-            }
+            boolean linked = tryLink(placeId, placeTree, right);
+            actionList.add(Action.of(linked, right));
         }
 
         // Collected search result
@@ -75,19 +75,28 @@ public final class PlaceGraph {
         // Try link and persist all linked data
         for (CorpusData right : searchedSet) {
             if (tryLink(placeId, placeTree, right)) {
-                actionList.add(Action.linked(right));
+                actionList.add(Action.of(true, right));
             }
         }
 
         if (!actionList.isEmpty()) {
-            logger.info("Applying {} Actions for PlaceGraph id: {}", actionList.size(), placeId);
+            List<String> appliedActions = new ArrayList<>();
             for (Action action : actionList) {
                 if (action.link) {
-                    corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                    if (!action.data.getCatalystId().equalsIgnoreCase(placeId)) {
+                        appliedActions.add("t");
+                        action.data.setCatalystId(placeId);
+                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                    }
                 } else {
-                    corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
+                    if (action.data != null) {
+                        appliedActions.add("f");
+                        action.data.setCatalystId(null);
+                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
+                    }
                 }
             }
+            logger.info("Applied {} of {} Actions for PlaceGraph id: {}, Actions: {}", appliedActions.size(), actionList.size(), placeId, Joiner.on(' ').join(appliedActions));
         }
 
         // Check whether it can be seeded
@@ -151,12 +160,8 @@ public final class PlaceGraph {
             this.data = data;
         }
 
-        public static Action linked(CorpusData data) {
-            return new Action(true, data);
-        }
-
-        public static Action unlinked(CorpusData data) {
-            return new Action(false, data);
+        public static Action of(boolean link, CorpusData data) {
+            return new Action(link, data);
         }
     }
 }

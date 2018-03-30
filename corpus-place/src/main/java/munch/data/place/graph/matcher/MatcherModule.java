@@ -23,5 +23,7 @@ public class MatcherModule extends AbstractModule {
         searcherBinder.addBinding().to(PhoneMatcher.class);
         searcherBinder.addBinding().to(SpatialMatcher.class);
         searcherBinder.addBinding().to(LocationMatcher.class);
+
+        // TODO Website Matcher & Linking Matcher
     }
 }
