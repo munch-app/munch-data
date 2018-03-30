@@ -1,7 +1,7 @@
 package munch.data.place.graph.matcher;
 
 import corpus.data.CorpusData;
-import munch.data.place.graph.PlaceElasticSearch;
+import munch.data.place.elastic.ElasticClient;
 import munch.data.place.graph.PlaceTree;
 
 import javax.inject.Inject;
@@ -28,11 +28,11 @@ public final class MatcherManager {
 
     private final Set<String> requiredFields;
 
-    private final PlaceElasticSearch elasticSearch;
+    private final ElasticClient elasticClient;
 
     @Inject
-    public MatcherManager(PlaceElasticSearch elasticSearch) {
-        this.elasticSearch = elasticSearch;
+    public MatcherManager(ElasticClient elasticClient) {
+        this.elasticClient = elasticClient;
         this.requiredFields = matcherList.stream()
                 .flatMap(matcher -> matcher.requiredFields().stream())
                 .collect(Collectors.toSet());
@@ -66,7 +66,7 @@ public final class MatcherManager {
     public Set<CorpusData> search(PlaceTree placeTree) {
         Set<CorpusData> corpusDataSet = new HashSet<>();
         for (Searcher searcher : searcherList) {
-            corpusDataSet.addAll(searcher.search(elasticSearch, placeTree));
+            corpusDataSet.addAll(searcher.search(elasticClient, placeTree));
         }
         return corpusDataSet;
     }

@@ -6,7 +6,6 @@ import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
 import munch.data.place.elastic.ElasticClient;
-import munch.data.place.elastic.ElasticPlace;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;

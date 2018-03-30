@@ -5,7 +5,7 @@
         "cycleNo": {
           "type": "long"
         },
-        "field": {
+        "fields": {
           "properties": {
             "place_location_latlng": {
               "type": "geo_point"

@@ -9,8 +9,6 @@ import corpus.data.CorpusData;
 import corpus.data.DataModule;
 import corpus.field.PlaceKey;
 import munch.data.place.elastic.ElasticModule;
-import munch.data.place.elastic.ElasticPlace;
-import munch.data.place.elastic.SpatialClient;
 import munch.data.place.matcher.NameMatcher;
 import munch.data.place.matcher.SpatialMatcher;
 import org.junit.jupiter.api.BeforeEach;

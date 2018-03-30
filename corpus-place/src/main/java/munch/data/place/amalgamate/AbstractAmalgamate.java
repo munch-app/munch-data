@@ -3,7 +3,6 @@ package munch.data.place.amalgamate;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
-import munch.data.place.elastic.ElasticPlace;
 import munch.data.place.matcher.NameMatcher;
 import org.slf4j.Logger;
 

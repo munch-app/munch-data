@@ -7,10 +7,13 @@ import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import corpus.CorpusModule;
 import corpus.airtable.AirtableModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
+import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
 import munch.data.place.parser.location.LocationParserModule;
@@ -61,15 +64,10 @@ public class PlaceModule extends AbstractModule {
                 injector.getInstance(PlaceAirtableCorpus.class)
         );
         ScheduledThreadUtils.shutdown();
+        injector.getInstance(JestClient.class).shutdownClient();
+        injector.getInstance(Key.get(JestClient.class, Names.named("munch.data.place.jest"))).shutdownClient();
 
         logger.info("Corpus should shutdown.");
-        Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
-            logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));
-        });
-
-        System.exit(-1);
-        logger.info("Corpus system exit.");
-
         Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
             logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));
         });

@@ -40,21 +40,15 @@ public final class ElasticModule extends AbstractModule {
         Thread.sleep(1500);
 
         logger.info("Creating index");
-        createIndex(client, "postal");
-        createIndex(client, "spatial");
+        createIndex(client);
 
         Thread.sleep(3000);
     }
 
-    @Inject
-    void configureShutdown(@Named("munch.data.place.jest") JestClient client) {
-        Runtime.getRuntime().addShutdownHook(new Thread(client::shutdownClient));
-    }
-
-    private static void createIndex(JestClient client, String indexName) throws IOException {
+    private static void createIndex(JestClient client) throws IOException {
         URL url = Resources.getResource("search-index.json");
         String json = Resources.toString(url, Charset.forName("UTF-8"));
-        JestResult result = client.execute(new CreateIndex.Builder(indexName).settings(json).build());
+        JestResult result = client.execute(new CreateIndex.Builder("graph").settings(json).build());
         logger.info("Created index result: {}", result.getJsonString());
     }
 

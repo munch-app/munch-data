@@ -4,6 +4,7 @@ import catalyst.utils.iterators.NestedIterator;
 import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
+import munch.data.place.elastic.ElasticClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,15 +26,15 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
 
     private final List<String> corpus;
 
-    private final PlaceElasticSearch elasticSearch;
+    private final ElasticClient elasticClient;
     private final PlaceDatabase placeDatabase;
     private final PlaceGraph placeGraph;
 
     @Inject
-    public ProcessingCorpus(Config config, PlaceElasticSearch elasticSearch, PlaceDatabase placeDatabase, PlaceGraph placeGraph) {
+    public ProcessingCorpus(Config config, ElasticClient elasticClient, PlaceDatabase placeDatabase, PlaceGraph placeGraph) {
         super(logger);
         this.corpus = config.getStringList("graph.corpus");
-        this.elasticSearch = elasticSearch;
+        this.elasticClient = elasticClient;
         this.placeDatabase = placeDatabase;
         this.placeGraph = placeGraph;
     }
@@ -52,7 +53,7 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
-        elasticSearch.put(data);
+        elasticClient.put(cycleNo, data);
 
         String placeId = data.getCatalystId();
         PlaceTree placeTree = placeDatabase.get(placeId);
@@ -71,5 +72,14 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
             // Put if seeded
             if (placeTree != null) placeDatabase.put(placeTree);
         }
+
+        // Max 30 graph per sec?
+        sleep(10);
+    }
+
+    @Override
+    protected void deleteCycle(long cycleNo) {
+        elasticClient.deleteBefore(cycleNo);
+        super.deleteCycle(cycleNo);
     }
 }

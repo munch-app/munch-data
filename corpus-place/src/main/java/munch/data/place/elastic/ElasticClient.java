@@ -2,6 +2,7 @@ package munch.data.place.elastic;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import corpus.data.CorpusData;
 import io.searchbox.client.JestClient;
@@ -16,9 +17,9 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -27,8 +28,8 @@ import java.util.Set;
  * Project: munch-data
  */
 @Singleton
-public class ElasticClient {
-    protected static final ObjectMapper mapper = JsonUtils.objectMapper;
+public final class ElasticClient {
+    private static final ObjectMapper objectMapper = JsonUtils.objectMapper;
 
     private final JestClient client;
     private final Set<String> requiredFields;
@@ -40,20 +41,12 @@ public class ElasticClient {
     }
 
     public void put(long cycleNo, CorpusData corpusData) {
-        ObjectNode node = mapper.createObjectNode();
+        ObjectNode node = objectMapper.createObjectNode();
         node.put("cycleNo", cycleNo);
-
-        ObjectNode fieldNode = node.putObject("field");
-        for (CorpusData.Field field : corpusData.getFields()) {
-
-        }
-
-        node.set("name", mapper.valueToTree(place.getName()));
-        node.set("postal", mapper.valueToTree(place.getPostal()));
-        node.put("latLng", place.getLatLng());
+        node.set("fields", toNodes(corpusData.getFields()));
 
         try {
-            String json = mapper.writeValueAsString(node);
+            String json = objectMapper.writeValueAsString(node);
             client.execute(new Index.Builder(json).index("graph")
                     .type(corpusData.getCorpusName()).id(corpusData.getCorpusKey())
                     .build());
@@ -63,14 +56,14 @@ public class ElasticClient {
     }
 
     public void deleteBefore(long cycleNo) {
-        ObjectNode root = mapper.createObjectNode();
+        ObjectNode root = objectMapper.createObjectNode();
         root.putObject("query")
                 .putObject("range")
                 .putObject("cycleNo")
                 .put("lt", cycleNo);
 
         try {
-            String json = mapper.writeValueAsString(root);
+            String json = objectMapper.writeValueAsString(root);
             client.execute(new DeleteByQuery.Builder(json)
                     .addIndex("graph")
                     .setParameter("conflicts", "proceed")
@@ -80,40 +73,93 @@ public class ElasticClient {
         }
     }
 
-    protected List<CorpusData> search(JsonNode node) {
+    private List<CorpusData> search(JsonNode node) {
         try {
-            Search.Builder builder = new Search.Builder(mapper.writeValueAsString(node)).addIndex("graph");
-            JsonNode result = mapper.readTree(client.execute(builder.build()).getJsonString());
-            return deserializeList(result.path("hits").path("hits"));
+            Search.Builder builder = new Search.Builder(objectMapper.writeValueAsString(node)).addIndex("graph");
+            JsonNode result = objectMapper.readTree(client.execute(builder.build()).getJsonString());
+            JsonNode hits = result.path("hits").path("hits");
+
+            if (hits.isMissingNode()) return List.of();
+
+            List<CorpusData> dataList = new ArrayList<>();
+            for (JsonNode hit : hits) {
+                String corpusName = hit.path("_type").asText();
+                String corpusKey = hit.path("_id").asText();
+                long cycleNo = hit.path("_source").path("cycleNo").asLong();
+
+                CorpusData data = new CorpusData(corpusName, corpusKey, cycleNo);
+                data.setFields(toFields(hit.path("_source").path("fields")));
+                dataList.add(data);
+            }
+            return dataList;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static List<CorpusData> deserializeList(JsonNode results) {
-        if (results.isMissingNode()) return List.of();
-        List<CorpusData> list = new ArrayList<>();
+    private List<CorpusData.Field> toFields(JsonNode fields) {
+        List<CorpusData.Field> fieldList = new ArrayList<>();
+        fields.fields().forEachRemaining(entry -> {
+            String key = entry.getKey().replace('_', '.');
+            if (entry.getValue().isArray()) {
+                for (JsonNode node : entry.getValue()) {
+                    fieldList.add(new CorpusData.Field(key, node.asText()));
+                }
+            } else {
+                fieldList.add(new CorpusData.Field(key, entry.getValue().asText()));
+            }
+        });
 
-        for (JsonNode result : results) {
-            CorpusData place = new CorpusData();
-            place.setCorpusName(result.path("_type").asText());
-            place.setCorpusKey(result.path("_id").asText());
+        return fieldList;
+    }
 
-            JsonNode source = result.path("_source");
+    private JsonNode toNodes(List<CorpusData.Field> fields) {
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        fields.stream()
+                .filter(field -> requiredFields.contains(field.getKey()))
+                .collect(Collectors.toMap(CorpusData.Field::getKey, CorpusData.Field::getValue))
+                .forEach((key, values) -> {
+                    objectNode.set(key.replace('.', '_'), objectMapper.valueToTree(values));
+                });
 
-            place.setName(deserializeStrings(source.path("name")));
-            place.setPostal(deserializeStrings(source.path("postal")));
-            place.setLatLng(source.path("latLng").asText());
-            list.add(place);
+        return objectNode;
+    }
+
+    /**
+     * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-distance-query.html
+     *
+     * @param latLng latLng center
+     * @param metres metres in distance
+     * @return JsonNode = { "geo_distance": { "distance": "1km", "location.latLng": "-1,2"}}
+     */
+    public static JsonNode filterDistance(String fieldName, String latLng, double metres) {
+        ObjectNode filter = objectMapper.createObjectNode();
+        filter.putObject("geo_distance")
+                .put("distance", metres + "m")
+                .put(fieldName.replace('.', '_'), latLng);
+        return filter;
+    }
+
+    public static JsonNode filterTerm(String fieldName, String value) {
+        ObjectNode filter = objectMapper.createObjectNode();
+        filter.putObject("term")
+                .put(fieldName, value);
+        return filter;
+    }
+
+    public static JsonNode createQuery(int from, int size, JsonNode... filters) {
+        ObjectNode root = objectMapper.createObjectNode();
+
+        ArrayNode filterNodes = root.put("from", from)
+                .put("size", size)
+                .putObject("query")
+                .putObject("bool")
+                .putArray("filter");
+
+        for (JsonNode filter : filters) {
+            filterNodes.add(filter);
         }
-        return list;
-    }
 
-    private static List<CorpusData.Field> toFields() {
-
-    }
-
-    private static List<CorpusData.Field> toNodes() {
-
+        return root;
     }
 }
