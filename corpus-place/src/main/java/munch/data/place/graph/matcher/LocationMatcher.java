@@ -7,6 +7,7 @@ import corpus.utils.FieldCollector;
 import munch.data.place.elastic.ElasticClient;
 import munch.data.place.graph.PlaceTree;
 
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
  * Time: 10:29 PM
  * Project: munch-data
  */
+@Singleton
 public final class LocationMatcher implements Matcher, Searcher {
 
     @Override

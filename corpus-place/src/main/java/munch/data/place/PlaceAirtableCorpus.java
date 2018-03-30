@@ -47,7 +47,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
     public PlaceAirtableCorpus(PlaceClient placeClient, AirtableApi airtableApi) throws IOException {
         super(logger);
         this.placeClient = placeClient;
-        this.table = airtableApi.base("appJ5aqNU0ergMEf7").table("Place");
+        this.table = airtableApi.base("appIpnSUoqQqpOwF3").table("Place");
 
         URL url = Resources.getResource("airtable-place-tags.txt");
         this.possiblePlaceTags = ImmutableSet.copyOf(Resources.readLines(url, Charset.forName("UTF-8")));

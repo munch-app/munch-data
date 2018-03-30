@@ -6,8 +6,10 @@ import munch.data.place.graph.PlaceTree;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -17,50 +19,16 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class MatcherManager {
-    private final List<Matcher> matcherList;
-    private final List<Searcher> searcherList;
+    private final Set<Matcher> matchers;
+    private final Set<Searcher> searchers;
 
-    private final Set<String> requiredFields;
     private final ElasticClient elasticClient;
 
     @Inject
-    public MatcherManager(ElasticClient elasticClient,
-                          SpatialMatcher spatialMatcher, LocationMatcher locationMatcher,
-                          PhoneMatcher phoneMatcher, NameMatcher nameMatcher) {
+    public MatcherManager(ElasticClient elasticClient, Set<Matcher> matchers, Set<Searcher> searchers) {
         this.elasticClient = elasticClient;
-
-        this.matcherList = List.of(
-                phoneMatcher,
-                nameMatcher,
-                spatialMatcher,
-                locationMatcher
-        );
-
-        this.searcherList = List.of(
-                phoneMatcher,
-                spatialMatcher,
-                locationMatcher
-        );
-
-        this.requiredFields = matcherList.stream()
-                .flatMap(matcher -> matcher.requiredFields().stream())
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * @return fields required for matcher
-     */
-    public Set<String> getRequiredFields() {
-        return requiredFields;
-    }
-
-    /**
-     * @param field to normalize
-     */
-    public void normalizeFields(CorpusData.Field field) {
-        for (Searcher searcher : searcherList) {
-            searcher.normalize(field);
-        }
+        this.matchers = matchers;
+        this.searchers = searchers;
     }
 
     /**
@@ -72,7 +40,7 @@ public final class MatcherManager {
     public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
         Map<String, Integer> map = new HashMap<>();
 
-        for (Matcher matcher : matcherList) {
+        for (Matcher matcher : matchers) {
             map.putAll(matcher.match(placeId, left, right));
         }
         return map;
@@ -84,7 +52,7 @@ public final class MatcherManager {
      */
     public Set<CorpusData> search(PlaceTree placeTree) {
         Set<CorpusData> corpusDataSet = new HashSet<>();
-        for (Searcher searcher : searcherList) {
+        for (Searcher searcher : searchers) {
             corpusDataSet.addAll(searcher.search(elasticClient, placeTree));
         }
         return corpusDataSet;

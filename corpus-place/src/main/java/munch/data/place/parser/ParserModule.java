@@ -1,4 +1,4 @@
-package munch.data.place.parser.location;
+package munch.data.place.parser;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -15,7 +15,7 @@ import java.time.Duration;
  * Time: 10:06 PM
  * Project: munch-corpus
  */
-public class LocationParserModule extends AbstractModule {
+public class ParserModule extends AbstractModule {
 
     @Override
     protected void configure() {

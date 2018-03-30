@@ -15,9 +15,10 @@ import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
 import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
-import munch.data.place.elastic.ElasticModule;
+import munch.data.place.elastic.GraphElasticModule;
 import munch.data.place.graph.ProcessingCorpus;
-import munch.data.place.parser.location.LocationParserModule;
+import munch.data.place.graph.matcher.MatcherModule;
+import munch.data.place.parser.ParserModule;
 import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,14 @@ public class PlaceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        install(new ElasticModule());
         install(new CorpusModule());
         install(new DataModule());
         install(new DynamoModule());
         install(new munch.data.elastic.ElasticModule());
 
-        install(new LocationParserModule());
+        install(new GraphElasticModule());
+        install(new ParserModule());
+        install(new MatcherModule());
 
         install(new AirtableModule(getAirtableKey()));
     }

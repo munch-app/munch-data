@@ -8,6 +8,7 @@ import corpus.utils.FieldCollector;
 import munch.data.place.elastic.ElasticClient;
 import munch.data.place.graph.PlaceTree;
 
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.Set;
  * Time: 10:53 PM
  * Project: munch-data
  */
+@Singleton
 public final class SpatialMatcher implements Matcher, Searcher {
     public static final double MAX_DISTANCE = 200.0; // Metres
 

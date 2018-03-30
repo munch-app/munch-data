@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class PlaceClient extends AbstractClient {
-    public static final String DYNAMO_TABLE_NAME = "munch-data2.Place";
+    public static final String DYNAMO_TABLE_NAME = "munch-data3.Place";
 
     private final ElasticIndex elasticIndex;
     private final SearchClient searchClient;

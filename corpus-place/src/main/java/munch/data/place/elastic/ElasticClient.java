@@ -10,7 +10,6 @@ import io.searchbox.core.DeleteByQuery;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import munch.data.place.graph.PlaceTree;
-import munch.data.place.graph.matcher.MatcherManager;
 import munch.restful.core.JsonUtils;
 
 import javax.inject.Inject;
@@ -19,7 +18,6 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -32,19 +30,19 @@ public final class ElasticClient {
     private static final ObjectMapper objectMapper = JsonUtils.objectMapper;
 
     private final JestClient client;
-    private final MatcherManager matcherManager;
+    private final ElasticMarshaller marshaller;
 
     @Inject
-    public ElasticClient(@Named("munch.data.place.jest") JestClient client, MatcherManager matcherManager) {
+    public ElasticClient(@Named("munch.data.place.jest") JestClient client, ElasticMarshaller marshaller) {
         this.client = client;
-        this.matcherManager = matcherManager;
+        this.marshaller = marshaller;
     }
 
     public void put(long cycleNo, CorpusData corpusData, PlaceTree placeTree) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("cycleNo", cycleNo);
         node.put("treeSize", placeTree == null ? 0 : placeTree.getSize());
-        node.set("fields", toNodes(corpusData.getFields()));
+        node.set("fields", marshaller.toNodes(corpusData.getFields()));
 
         try {
             String json = objectMapper.writeValueAsString(node);
@@ -89,7 +87,7 @@ public final class ElasticClient {
                 long cycleNo = hit.path("_source").path("cycleNo").asLong();
 
                 CorpusData data = new CorpusData(corpusName, corpusKey, cycleNo);
-                data.setFields(toFields(hit.path("_source").path("fields")));
+                data.setFields(marshaller.toFields(hit.path("_source").path("fields")));
                 dataList.add(data);
             }
             return dataList;
@@ -107,35 +105,6 @@ public final class ElasticClient {
         }
 
         return search(createQuery(0, 1000, arrayNode));
-    }
-
-    private List<CorpusData.Field> toFields(JsonNode fields) {
-        List<CorpusData.Field> fieldList = new ArrayList<>();
-        fields.fields().forEachRemaining(entry -> {
-            String key = entry.getKey().replace('_', '.');
-            if (entry.getValue().isArray()) {
-                for (JsonNode node : entry.getValue()) {
-                    fieldList.add(new CorpusData.Field(key, node.asText()));
-                }
-            } else {
-                fieldList.add(new CorpusData.Field(key, entry.getValue().asText()));
-            }
-        });
-
-        return fieldList;
-    }
-
-    private JsonNode toNodes(List<CorpusData.Field> fields) {
-        ObjectNode objectNode = objectMapper.createObjectNode();
-        fields.stream()
-                .filter(field -> matcherManager.getRequiredFields().contains(field.getKey()))
-                .peek(matcherManager::normalizeFields)
-                .collect(Collectors.toMap(CorpusData.Field::getKey, CorpusData.Field::getValue))
-                .forEach((key, values) -> {
-                    objectNode.set(key.replace('.', '_'), objectMapper.valueToTree(values));
-                });
-
-        return objectNode;
     }
 
     /**
