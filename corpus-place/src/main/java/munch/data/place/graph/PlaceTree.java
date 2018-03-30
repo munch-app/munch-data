@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
 import corpus.field.FieldUtils;
+import corpus.utils.FieldCollector;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -118,15 +119,16 @@ public class PlaceTree {
     }
 
     @JsonIgnore
-    public List<CorpusData.Field> getFields(String key) {
+    public List<CorpusData.Field> getFields(AbstractKey key) {
         List<CorpusData.Field> fields = new ArrayList<>();
-        findFields(fields, key, this);
+        findFields(fields, key.getKey(), this);
         return fields;
     }
 
-    @JsonIgnore
-    public List<CorpusData.Field> getFields(AbstractKey key) {
-        return getFields(key.getKey());
+    public FieldCollector getFieldCollector(AbstractKey key) {
+        FieldCollector fieldCollector = new FieldCollector(key);
+        collectFields(fieldCollector, this);
+        return fieldCollector;
     }
 
     @JsonIgnore
@@ -178,6 +180,14 @@ public class PlaceTree {
 
         for (PlaceTree tree : placeTree.getTrees()) {
             findCorpusDataList(list, tree);
+        }
+    }
+
+    private static void collectFields(FieldCollector fieldCollector, PlaceTree placeTree) {
+        fieldCollector.add(placeTree.getCorpusData());
+
+        for (PlaceTree tree : placeTree.getTrees()) {
+            collectFields(fieldCollector, tree);
         }
     }
 }

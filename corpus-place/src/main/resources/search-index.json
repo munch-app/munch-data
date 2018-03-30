@@ -10,10 +10,13 @@
         },
         "fields": {
           "properties": {
-            "place_location_latlng": {
+            "Place_Location_latLng": {
               "type": "geo_point"
             },
-            "place_location_postal": {
+            "Place_Location_postal": {
+              "type": "keyword"
+            },
+            "Place_phone": {
               "type": "keyword"
             }
           }

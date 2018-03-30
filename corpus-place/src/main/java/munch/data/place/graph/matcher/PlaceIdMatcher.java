@@ -3,6 +3,7 @@ package munch.data.place.graph.matcher;
 import corpus.data.CorpusData;
 import corpus.field.FieldUtils;
 
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import java.util.Set;
  * Time: 8:15 PM
  * Project: munch-data
  */
+@Singleton
 public final class PlaceIdMatcher implements Matcher {
 
     @Override

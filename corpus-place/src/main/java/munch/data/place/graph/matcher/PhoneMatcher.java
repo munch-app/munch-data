@@ -2,13 +2,16 @@ package munch.data.place.graph.matcher;
 
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
+import corpus.utils.FieldCollector;
 import munch.data.place.elastic.ElasticClient;
 import munch.data.place.graph.PlaceTree;
 import munch.data.place.parser.PhoneParser;
 
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -16,17 +19,26 @@ import java.util.Set;
  * Time: 11:10 PM
  * Project: munch-data
  */
-public class PhoneMatcher implements Matcher, Searcher {
+@Singleton
+public final class PhoneMatcher implements Matcher, Searcher {
 
     @Override
     public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
-        List<String> leftPhones = PlaceKey.phone.getAllValue(left);
-        List<String> rightPhones = PlaceKey.phone.getAllValue(right);
+        List<String> leftPhones = PlaceKey.phone.getAllValue(left).stream()
+                .map(PhoneParser::normalize)
+                .collect(Collectors.toList());
+        List<String> rightPhones = PlaceKey.phone.getAllValue(right).stream()
+                .map(PhoneParser::normalize)
+                .collect(Collectors.toList());
 
         if (leftPhones.isEmpty() || rightPhones.isEmpty()) return Map.of();
 
-        // TODO Parse to match, Can be negative
-        return null;
+        for (String rightPhone : rightPhones) {
+            if (!leftPhones.contains(rightPhone)) {
+                return Map.of("Place.phone", -1);
+            }
+        }
+        return Map.of("Place.phone", 1);
     }
 
     @Override
@@ -36,12 +48,11 @@ public class PhoneMatcher implements Matcher, Searcher {
 
     @Override
     public List<CorpusData> search(ElasticClient elasticClient, PlaceTree placeTree) {
-        List<CorpusData.Field> fields = placeTree.getFields(PlaceKey.phone);
-        if (fields.isEmpty()) return List.of();
+        FieldCollector fieldCollector = placeTree.getFieldCollector(PlaceKey.phone);
+        String phone = fieldCollector.collectMax();
+        if (phone == null) return List.of();
 
-
-
-        return elasticClient.search(placeTree, ElasticClient.filterTerm("Place.phone", ""));
+        return elasticClient.search(placeTree, ElasticClient.filterTerm("Place.phone", phone));
     }
 
     @Override

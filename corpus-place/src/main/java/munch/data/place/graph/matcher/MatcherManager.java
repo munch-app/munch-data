@@ -17,21 +17,27 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class MatcherManager {
-    private final List<Matcher> matcherList = List.of(
-            new PlaceIdMatcher(),
-            new PhoneMatcher()
-    );
-
-    private final List<Searcher> searcherList = List.of(
-            new PhoneMatcher()
-    );
+    private final List<Matcher> matcherList;
+    private final List<Searcher> searcherList;
 
     private final Set<String> requiredFields;
     private final ElasticClient elasticClient;
 
     @Inject
-    public MatcherManager(ElasticClient elasticClient) {
+    public MatcherManager(ElasticClient elasticClient,
+                          PlaceIdMatcher placeIdMatcher, PhoneMatcher phoneMatcher, NameMatcher nameMatcher) {
         this.elasticClient = elasticClient;
+
+        this.matcherList = List.of(
+                placeIdMatcher,
+                phoneMatcher,
+                nameMatcher
+        );
+
+        this.searcherList = List.of(
+                phoneMatcher
+        );
+
         this.requiredFields = matcherList.stream()
                 .flatMap(matcher -> matcher.requiredFields().stream())
                 .collect(Collectors.toSet());

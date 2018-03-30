@@ -129,7 +129,7 @@ public final class ElasticClient {
         ObjectNode objectNode = objectMapper.createObjectNode();
         fields.stream()
                 .filter(field -> matcherManager.getRequiredFields().contains(field.getKey()))
-                .peek(field -> matcherManager.normalizeFields(field))
+                .peek(matcherManager::normalizeFields)
                 .collect(Collectors.toMap(CorpusData.Field::getKey, CorpusData.Field::getValue))
                 .forEach((key, values) -> {
                     objectNode.set(key.replace('.', '_'), objectMapper.valueToTree(values));
