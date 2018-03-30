@@ -6,7 +6,7 @@ import com.google.inject.Injector;
 import corpus.CorpusModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
-import munch.data.place.elastic.ElasticModule;
+import munch.data.place.elastic.GraphElasticModule;
 
 /**
  * Created by: Fuxing
@@ -18,7 +18,7 @@ public class ElasticCorpusTest extends AbstractModule {
 
     @Override
     protected void configure() {
-        install(new ElasticModule());
+        install(new GraphElasticModule());
         install(new CorpusModule());
         install(new DataModule());
     }
