@@ -20,6 +20,7 @@ public final class PostalNameLinker implements Linker {
     public boolean link(Map<String, Integer> matchers, CorpusData left, CorpusData right) {
         int name = matchers.getOrDefault("Place.name", 0);
         int postal = matchers.getOrDefault("Place.Location.postal", 0);
+        // City?
         return name >= 1 && postal >= 1;
     }
 }

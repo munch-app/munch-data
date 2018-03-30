@@ -108,6 +108,7 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         CorpusData data = new CorpusData(System.currentTimeMillis());
         data.setCatalystId(placeId);
         data.put(MetaKey.version, "2018-03-08");
+        data.put(PlaceKey.id, placeId);
         data.getFields().addAll(TagKey.explicits.createFields(explicits));
 
         implicits = new ArrayList<>(implicits);

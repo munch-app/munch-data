@@ -94,6 +94,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         imageData.setCatalystId(placeId);
         imageData.getFields().addAll(parse(ImageListBuilder.select(processedImages)));
         imageData.put(MetaKey.version, VERSION);
+        imageData.put(PlaceKey.id, placeId);
         corpusClient.put("Sg.Munch.Place.Image", placeId, imageData);
         return imageData;
     }
