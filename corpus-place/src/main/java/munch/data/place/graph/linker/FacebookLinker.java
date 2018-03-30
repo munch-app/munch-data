@@ -16,7 +16,7 @@ import java.util.Map;
 public class FacebookLinker implements Linker {
     @Override
     public String getName() {
-        return "facebook_linker";
+        return "FacebookLinker";
     }
 
     @Override

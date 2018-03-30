@@ -18,6 +18,7 @@ import java.util.Optional;
 @Singleton
 public final class LinkerManager {
     private final List<Linker> linkers = List.of(
+            new PlaceIdLinker(),
             new FacebookLinker()
     );
 

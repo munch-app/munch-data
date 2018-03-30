@@ -26,5 +26,6 @@ public interface Searcher extends Matcher {
     /**
      * @param field to normalize before being indexed
      */
-    void normalize(CorpusData.Field field);
+    default void normalize(CorpusData.Field field){
+    }
 }

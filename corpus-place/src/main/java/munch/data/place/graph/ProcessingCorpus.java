@@ -1,11 +1,11 @@
 package munch.data.place.graph;
 
 import catalyst.utils.iterators.NestedIterator;
+import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
-import munch.data.place.PlaceParser;
 import munch.data.place.elastic.ElasticClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,18 +35,15 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
     private final PlaceGraph placeGraph;
     private final PlaceDatabase placeDatabase;
 
-    private final PlaceParser placeParser;
-
-
     @Inject
-    public ProcessingCorpus(Config config, CatalystClient catalystClient, ElasticClient elasticClient, PlaceDatabase placeDatabase, PlaceGraph placeGraph, PlaceParser placeParser) {
+    public ProcessingCorpus(Config config, CatalystClient catalystClient, ElasticClient elasticClient,
+                            PlaceDatabase placeDatabase, PlaceGraph placeGraph) {
         super(logger);
         this.corpus = config.getStringList("graph.corpus");
         this.catalystClient = catalystClient;
         this.elasticClient = elasticClient;
         this.placeDatabase = placeDatabase;
         this.placeGraph = placeGraph;
-        this.placeParser = placeParser;
     }
 
     @Override
@@ -66,7 +62,7 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
     protected void process(long cycleNo, CorpusData data, long processed) {
         String placeId = data.getCatalystId();
         PlaceTree placeTree = placeDatabase.get(placeId);
-        List<CorpusData> dataList = list(placeId);
+        List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
 
         if (placeTree != null) {
             // If PlaceTree Already exists: search and maintain
@@ -90,15 +86,6 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
         // Max 30 graph per sec?
         sleep(10);
         if (processed % 1000 == 0) logger.info("Processed {} Data", processed);
-    }
-
-    private List<CorpusData> list(String placeId) {
-        List<CorpusData> list = new ArrayList<>();
-        catalystClient.listCorpus(placeId).forEachRemaining(corpusData -> {
-            if (corpusData.getCorpusName().equals("Sg.Munch.Place")) return;
-            list.add(corpusData);
-        });
-        return list;
     }
 
     /**

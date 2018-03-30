@@ -14,10 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -77,6 +74,14 @@ public final class PlaceParser {
     @Nullable
     public Place parse(String placeId, PlaceTree placeTree, boolean decay) {
         List<CorpusData> list = placeTree.getCorpusDataList();
+        // Remove Sg.Munch.Place from influencing Parser
+        Iterator<CorpusData> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().getCorpusName().equals("Sg.Munch.Place")) {
+                iterator.remove();
+                break;
+            }
+        }
 
         Place place = new Place();
         place.setId(placeId);

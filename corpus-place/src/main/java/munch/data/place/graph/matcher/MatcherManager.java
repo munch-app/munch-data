@@ -25,17 +25,21 @@ public final class MatcherManager {
 
     @Inject
     public MatcherManager(ElasticClient elasticClient,
-                          PlaceIdMatcher placeIdMatcher, PhoneMatcher phoneMatcher, NameMatcher nameMatcher) {
+                          SpatialMatcher spatialMatcher, LocationMatcher locationMatcher,
+                          PhoneMatcher phoneMatcher, NameMatcher nameMatcher) {
         this.elasticClient = elasticClient;
 
         this.matcherList = List.of(
-                placeIdMatcher,
                 phoneMatcher,
-                nameMatcher
+                nameMatcher,
+                spatialMatcher,
+                locationMatcher
         );
 
         this.searcherList = List.of(
-                phoneMatcher
+                phoneMatcher,
+                spatialMatcher,
+                locationMatcher
         );
 
         this.requiredFields = matcherList.stream()
