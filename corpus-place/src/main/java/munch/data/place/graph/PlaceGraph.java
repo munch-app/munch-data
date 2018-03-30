@@ -79,25 +79,8 @@ public final class PlaceGraph {
             }
         }
 
-        if (!actionList.isEmpty()) {
-            List<String> appliedActions = new ArrayList<>();
-            for (Action action : actionList) {
-                if (action.link) {
-                    if (!action.data.getCatalystId().equalsIgnoreCase(placeId)) {
-                        appliedActions.add("t");
-                        action.data.setCatalystId(placeId);
-                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
-                    }
-                } else {
-                    if (action.data != null) {
-                        appliedActions.add("f");
-                        action.data.setCatalystId(null);
-                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
-                    }
-                }
-            }
-            logger.info("Applied {} of {} Actions for PlaceGraph id: {}, Actions: {}", appliedActions.size(), actionList.size(), placeId, Joiner.on(' ').join(appliedActions));
-        }
+        // Apply the actions
+        applyActions(placeId, actionList);
 
         // Check whether it can be seeded
         return seederManager.trySeed(placeTree);
@@ -146,6 +129,31 @@ public final class PlaceGraph {
 
         // No link found
         return false;
+    }
+
+    private void applyActions(String placeId, List<Action> actionList) {
+        if (!actionList.isEmpty()) {
+            List<String> appliedActions = new ArrayList<>();
+            for (Action action : actionList) {
+                if (action.link) {
+                    if (!placeId.equals(action.data.getCatalystId())) {
+                        appliedActions.add("t");
+                        action.data.setCatalystId(placeId);
+                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                    }
+                } else {
+                    if (action.data.getCatalystId() != null) {
+                        appliedActions.add("f");
+                        action.data.setCatalystId(null);
+                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
+                    }
+                }
+            }
+
+            if (appliedActions.size() != 0) {
+                logger.info("Applied {} of {} Actions for PlaceGraph id: {}, Actions: {}", appliedActions.size(), actionList.size(), placeId, Joiner.on(' ').join(appliedActions));
+            }
+        }
     }
 
     /**
