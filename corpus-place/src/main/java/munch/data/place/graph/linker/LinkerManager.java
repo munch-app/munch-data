@@ -19,7 +19,9 @@ import java.util.Optional;
 public final class LinkerManager {
     private final List<Linker> linkers = List.of(
             new PlaceIdLinker(),
-            new FacebookLinker()
+            new FacebookLinker(),
+            new PostalNameLinker(),
+            new SpatialNameLinker()
     );
 
     private final Map<String, Linker> linkerMap;
