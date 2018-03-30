@@ -27,11 +27,13 @@ public final class PhoneMatcher implements Matcher, Searcher {
         List<String> leftPhones = PlaceKey.phone.getAllValue(left).stream()
                 .map(PhoneParser::normalize)
                 .collect(Collectors.toList());
+        if (leftPhones.isEmpty()) return Map.of();
+
         List<String> rightPhones = PlaceKey.phone.getAllValue(right).stream()
                 .map(PhoneParser::normalize)
                 .collect(Collectors.toList());
 
-        if (leftPhones.isEmpty() || rightPhones.isEmpty()) return Map.of();
+        if (rightPhones.isEmpty()) return Map.of();
 
         for (String rightPhone : rightPhones) {
             if (!leftPhones.contains(rightPhone)) {
