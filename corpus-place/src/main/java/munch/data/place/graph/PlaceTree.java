@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import corpus.data.CorpusData;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -75,6 +76,18 @@ public class PlaceTree {
         Set<String> names = new HashSet<>();
         findCorpusNames(names, this);
         return names;
+    }
+
+    @JsonIgnore
+    public boolean updateReference(List<CorpusData> dataList) {
+        for (CorpusData data : dataList) {
+            if (data.getCorpusName().equals(corpusData.getCorpusName()) &&
+                    data.getCorpusKey().equals(corpusData.getCorpusKey())) {
+                setCorpusData(data);
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void findCorpusNames(Set<String> names, PlaceTree placeTree) {

@@ -1,7 +1,9 @@
 package munch.data.place.graph;
 
 import catalyst.utils.iterators.NestedIterator;
+import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
+import corpus.data.CatalystClient;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import munch.data.place.elastic.ElasticClient;
@@ -26,14 +28,17 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
 
     private final List<String> corpus;
 
+    private final CatalystClient catalystClient;
+
     private final ElasticClient elasticClient;
     private final PlaceDatabase placeDatabase;
     private final PlaceGraph placeGraph;
 
     @Inject
-    public ProcessingCorpus(Config config, ElasticClient elasticClient, PlaceDatabase placeDatabase, PlaceGraph placeGraph) {
+    public ProcessingCorpus(Config config, CatalystClient catalystClient, ElasticClient elasticClient, PlaceDatabase placeDatabase, PlaceGraph placeGraph) {
         super(logger);
         this.corpus = config.getStringList("graph.corpus");
+        this.catalystClient = catalystClient;
         this.elasticClient = elasticClient;
         this.placeDatabase = placeDatabase;
         this.placeGraph = placeGraph;
@@ -57,24 +62,42 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
 
         String placeId = data.getCatalystId();
         PlaceTree placeTree = placeDatabase.get(placeId);
+        List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
 
         if (placeTree != null) {
             // If PlaceTree Already exists: search and maintain
-            placeTree = placeGraph.search(placeId, placeTree);
+            placeTree = placeGraph.search(placeId, placeTree, dataList);
 
-            // Delegate result
+            // Persist tree updates
             if (placeTree != null) placeDatabase.put(placeTree);
-            else placeDatabase.delete(placeId);
+            else {
+                // PlaceTree corrupted, try rebuilding
+                placeTree = buildTree(placeId, dataList);
+                if (placeTree != null) placeDatabase.put(placeTree);
+                else placeDatabase.delete(placeId);
+            }
         } else {
             // PlaceTree don't exists: try seed
-            placeTree = placeGraph.search(placeId, new PlaceTree(data));
-
             // Put if seeded
+            placeTree = buildTree(placeId, dataList);
             if (placeTree != null) placeDatabase.put(placeTree);
         }
 
         // Max 30 graph per sec?
         sleep(10);
+    }
+
+    /**
+     * @param placeId  catalyst id
+     * @param dataList list of possible tree
+     * @return PlaceTree if found
+     */
+    private PlaceTree buildTree(String placeId, List<CorpusData> dataList) {
+        for (CorpusData data : dataList) {
+            PlaceTree placeTree = placeGraph.search(placeId, new PlaceTree(data), dataList);
+            if (placeTree != null) return placeTree;
+        }
+        return null;
     }
 
     @Override
