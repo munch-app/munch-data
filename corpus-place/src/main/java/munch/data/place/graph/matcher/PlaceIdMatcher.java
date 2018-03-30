@@ -15,13 +15,12 @@ import java.util.Set;
 public final class PlaceIdMatcher implements Matcher {
 
     @Override
-    public Map<String, Integer> match(CorpusData left, CorpusData right) {
-        // TODO since its from CatalystId
-        String leftPlaceId = FieldUtils.getValue(left, "Place.id");
+    public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
         String rightPlaceId = FieldUtils.getValue(right, "Place.id");
-        if (leftPlaceId == null) return Map.of();
-        if (!leftPlaceId.equals(rightPlaceId)) return Map.of();
+        if (rightPlaceId == null) return Map.of();
+        if (!placeId.equals(rightPlaceId)) return Map.of();
 
+        // Whether to track Place.id that are wrong?
         return Map.of("Place.id", 1);
     }
 

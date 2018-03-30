@@ -51,7 +51,7 @@ public final class PlaceGraph {
         // Validate existing tree, remove those that don't belong
         insideSet.add(placeTree.getCorpusData());
         for (PlaceTree right : placeTree.getTrees()) {
-            validate(placeTree.getCorpusData(), right, dataList, insideSet);
+            validate(placeId, placeTree.getCorpusData(), right, dataList, insideSet);
         }
 
         List<Action> actionList = new ArrayList<>();
@@ -62,7 +62,7 @@ public final class PlaceGraph {
 
         // Try link and remove all unlinked data
         for (CorpusData right : linkedSet) {
-            if (!tryLink(placeTree, right)) {
+            if (!tryLink(placeId, placeTree, right)) {
                 actionList.add(Action.unlinked(right));
             }
         }
@@ -74,7 +74,7 @@ public final class PlaceGraph {
 
         // Try link and persist all linked data
         for (CorpusData right : searchedSet) {
-            if (tryLink(placeTree, right)) {
+            if (tryLink(placeId, placeTree, right)) {
                 actionList.add(Action.linked(right));
             }
         }
@@ -100,17 +100,17 @@ public final class PlaceGraph {
      * @param dataList  for updating reference
      * @param insideSet to collect data in place tree
      */
-    private void validate(CorpusData left, PlaceTree right, List<CorpusData> dataList, Set<CorpusData> insideSet) {
+    private void validate(String placeId, CorpusData left, PlaceTree right, List<CorpusData> dataList, Set<CorpusData> insideSet) {
         // Failed to find reference
         if (!right.updateReference(dataList)) return;
 
-        Map<String, Integer> matcher = matcherManager.match(left, right.getCorpusData());
+        Map<String, Integer> matcher = matcherManager.match(placeId, left, right.getCorpusData());
         if (linkerManager.validate(right.getLinkerName(), matcher, left, right.getCorpusData())) {
             insideSet.add(right.getCorpusData());
 
             // Validate all again
             for (PlaceTree innerRight : right.getTrees()) {
-                validate(right.getCorpusData(), innerRight, dataList, insideSet);
+                validate(placeId, right.getCorpusData(), innerRight, dataList, insideSet);
             }
         }
     }
@@ -120,8 +120,8 @@ public final class PlaceGraph {
      * @param right entering corpus data
      * @return whether successfully linked
      */
-    private boolean tryLink(PlaceTree left, CorpusData right) {
-        Map<String, Integer> matcher = matcherManager.match(left.getCorpusData(), right);
+    private boolean tryLink(String placeId, PlaceTree left, CorpusData right) {
+        Map<String, Integer> matcher = matcherManager.match(placeId, left.getCorpusData(), right);
         Optional<String> linked = linkerManager.link(matcher, left.getCorpusData(), right);
 
         // Manage to find a link
@@ -132,7 +132,7 @@ public final class PlaceGraph {
 
         // Nested find link (Pre-order)
         for (PlaceTree innerLeft : left.getTrees()) {
-            if (tryLink(innerLeft, right)) return true;
+            if (tryLink(placeId, innerLeft, right)) return true;
         }
 
         // No link found

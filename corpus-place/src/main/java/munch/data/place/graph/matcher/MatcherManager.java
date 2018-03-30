@@ -46,15 +46,16 @@ public final class MatcherManager {
     }
 
     /**
-     * @param left  corpus data
-     * @param right corpus data
+     * @param placeId is id of place
+     * @param left    corpus data
+     * @param right   corpus data
      * @return matcher result
      */
-    public Map<String, Integer> match(CorpusData left, CorpusData right) {
+    public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
         Map<String, Integer> map = new HashMap<>();
 
         for (Matcher matcher : matcherList) {
-            map.putAll(matcher.match(left, right));
+            map.putAll(matcher.match(placeId, left, right));
         }
         return map;
     }

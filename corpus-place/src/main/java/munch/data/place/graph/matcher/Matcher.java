@@ -18,10 +18,12 @@ public interface Matcher {
      * @param right corpus data
      * @return Map of score, can be negative
      */
-    Map<String, Integer> match(CorpusData left, CorpusData right);
+    Map<String, Integer> match(String placeId, CorpusData left, CorpusData right);
 
     /**
      * @return fields required for matching
      */
     Set<String> requiredFields();
+
+    // TODO Normalize fields
 }
