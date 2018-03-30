@@ -23,12 +23,12 @@ public final class TrustedSeeder implements Seeder {
      * @return true if tree contains a trusted source
      */
     @Override
-    public boolean trySeed(PlaceTree placeTree) {
+    public Result trySeed(PlaceTree placeTree) {
         for (String corpusName : placeTree.getCorpusNames()) {
-            if (TRUSTED_SEEDER.contains(corpusName)) return true;
+            if (TRUSTED_SEEDER.contains(corpusName)) return Result.Seed;
         }
 
-        return false;
+        return Result.Proceed;
     }
 
 }

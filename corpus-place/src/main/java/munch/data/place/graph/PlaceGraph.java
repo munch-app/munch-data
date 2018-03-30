@@ -4,11 +4,11 @@ import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import munch.data.place.graph.linker.LinkerManager;
 import munch.data.place.graph.matcher.MatcherManager;
+import munch.data.place.graph.seeder.Seeder;
 import munch.data.place.graph.seeder.SeederManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
@@ -40,14 +40,13 @@ public final class PlaceGraph {
     /**
      * @param placeId   to search
      * @param placeTree to validate
-     * @return PlaceTree if can be seeded, or null
+     * @return Seeder result
      */
-    @Nullable
-    public PlaceTree search(String placeId, PlaceTree placeTree, List<CorpusData> dataList) {
+    public Seeder.Result search(String placeId, PlaceTree placeTree, List<CorpusData> dataList) {
         Set<CorpusData> insideSet = new HashSet<>();
 
         // End if failed to find seed reference
-        if (!placeTree.updateReference(dataList)) return null;
+        if (!placeTree.updateReference(dataList)) return Seeder.Result.Proceed;
 
         // Validate existing tree, remove those that don't belong
         insideSet.add(placeTree.getCorpusData());
@@ -92,8 +91,7 @@ public final class PlaceGraph {
         }
 
         // Check whether it can be seeded
-        if (seederManager.trySeed(placeTree)) return placeTree;
-        return null;
+        return seederManager.trySeed(placeTree);
     }
 
     /**

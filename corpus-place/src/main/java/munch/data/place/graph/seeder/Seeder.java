@@ -9,11 +9,18 @@ import munch.data.place.graph.PlaceTree;
  * Project: munch-data
  */
 public interface Seeder {
+    enum Result {
+        Seed,       // Can be seeded
+        Block,      // Remove from database
+        Decayed,    // Data has decayed, mark as deleted
+        Proceed,    // No conclusion, move to next seeder
+    }
+
 
     /**
      * @param placeTree tree to try seed
      * @return whether successfully seeded
      */
-    boolean trySeed(PlaceTree placeTree);
+    Result trySeed(PlaceTree placeTree);
 
 }

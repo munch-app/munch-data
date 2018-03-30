@@ -12,6 +12,7 @@ import java.util.List;
  */
 public final class SeederManager {
     private final List<Seeder> seederList = List.of(
+            new ValidationSeeder(),
             new TrustedSeeder()
     );
 
@@ -19,10 +20,19 @@ public final class SeederManager {
      * @param placeTree tree to try seed
      * @return whether it is successfully seeded
      */
-    public boolean trySeed(PlaceTree placeTree) {
+    public Seeder.Result trySeed(PlaceTree placeTree) {
         for (Seeder seeder : seederList) {
-            if (seeder.trySeed(placeTree)) return true;
+            Seeder.Result result = seeder.trySeed(placeTree);
+            switch (result) {
+                case Seed:
+                case Block:
+                case Decayed:
+                    return result;
+                case Proceed:
+            }
         }
-        return false;
+
+        // Default to block
+        return Seeder.Result.Block;
     }
 }

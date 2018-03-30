@@ -1,13 +1,13 @@
 package munch.data.place;
 
-import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
 import corpus.data.CorpusData;
 import corpus.field.AbstractKey;
+import corpus.field.MetaKey;
+import corpus.utils.FieldCollector;
+import munch.data.place.graph.PlaceTree;
 import munch.data.place.parser.*;
 import munch.data.place.parser.hour.HourParser;
 import munch.data.place.parser.location.LocationParser;
-import munch.data.place.parser.TagParser;
 import munch.data.structure.Place;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,10 +26,9 @@ import java.util.Set;
  * Project: munch-data
  */
 @Singleton
-public final class PlaceParser extends AbstractParser<Place> {
-    private static final AbstractKey[] TIMESTAMP_KEYS = new AbstractKey[]{AbstractKey.of("Article.timestamp")};
-    private static final String version = "2018-03-09";
-    private final List<String> priorityNames;
+public final class PlaceParser {
+    private static final AbstractKey[] TIMESTAMP_KEYS = new AbstractKey[]{AbstractKey.of("Article.timestamp"), MetaKey.createdDate};
+    private static final String version = "2018-03-30";
 
     private final NameParser nameParser;
     private final PhoneParser phoneParser;
@@ -49,10 +48,9 @@ public final class PlaceParser extends AbstractParser<Place> {
     private final RankingParser rankingParser;
 
     @Inject
-    public PlaceParser(Config config, NameParser nameParser, PhoneParser phoneParser, WebsiteParser websiteParser, DescriptionParser descriptionParser,
-                       MenuParser menuParser, PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser, ReviewParser reviewParser, TagParser tagParser,
-                       HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
-        this.priorityNames = ImmutableList.copyOf(config.getStringList("place.priority"));
+    public PlaceParser(NameParser nameParser, PhoneParser phoneParser, WebsiteParser websiteParser, DescriptionParser descriptionParser,
+                       MenuParser menuParser, PriceParser priceParser, LocationParser locationParser, ContainerParser containerParser,
+                       ReviewParser reviewParser, TagParser tagParser, HourParser hourParser, ImageParser imageParser, RankingParser rankingParser) {
         this.nameParser = nameParser;
         this.phoneParser = phoneParser;
         this.websiteParser = websiteParser;
@@ -71,13 +69,17 @@ public final class PlaceParser extends AbstractParser<Place> {
     }
 
     /**
-     * @param list list of CorpusData to use
+     * @param placeId   id of place
+     * @param placeTree data
+     * @param decay     whether data has decayed
      * @return Parsed Place, null if parsing failed
      */
-    @Override
     @Nullable
-    public Place parse(Place place, List<CorpusData> list) {
-        place.setId(list.get(0).getCatalystId());
+    public Place parse(String placeId, PlaceTree placeTree, boolean decay) {
+        List<CorpusData> list = placeTree.getCorpusDataList();
+
+        Place place = new Place();
+        place.setId(placeId);
         place.setVersion(version);
 
         place.setName(nameParser.parse(place, list));
@@ -108,7 +110,7 @@ public final class PlaceParser extends AbstractParser<Place> {
 
         place.setCreatedDate(findCreatedDate(list));
         place.setUpdatedDate(new Date());
-        place.setOpen(true); // Any place that successfully parsed is valid
+        place.setOpen(!decay);
         return place;
     }
 
@@ -118,25 +120,25 @@ public final class PlaceParser extends AbstractParser<Place> {
      */
     private Date findCreatedDate(List<CorpusData> list) {
         Set<Long> timestamps = new HashSet<>();
-        for (CorpusData data : list) {
-            timestamps.add(data.getCreatedDate().getTime());
-            collect(data, TIMESTAMP_KEYS).forEach(field -> {
-                if (field.getValue().equals("0")) return;
-                try {
-                    timestamps.add(Long.parseLong(field.getValue()));
-                } catch (NumberFormatException ignored) {
-                }
-            });
-        }
+
+        // Collect all created date
+        list.forEach(data -> timestamps.add(data.getCreatedDate().getTime()));
+
+        // Collect timestamp keys
+        FieldCollector fieldCollector = new FieldCollector(TIMESTAMP_KEYS);
+        fieldCollector.addAll(list);
+        fieldCollector.collect().stream()
+                .filter(s -> StringUtils.isNotBlank(s) && !s.equals("0"))
+                .forEach(s -> {
+                    try {
+                        timestamps.add(Long.parseLong(s));
+                    } catch (NumberFormatException ignored) {
+                    }
+                });
+
         return timestamps.stream()
                 .min(Long::compareTo)
                 .map(Date::new)
                 .orElseThrow(NullPointerException::new);
-    }
-
-    @Nullable
-    @Override
-    protected String collectMax(List<CorpusData> list, AbstractKey... keys) {
-        return collectMax(list, priorityNames, keys);
     }
 }

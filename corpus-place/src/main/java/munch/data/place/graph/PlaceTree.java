@@ -2,10 +2,11 @@ package munch.data.place.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import corpus.data.CorpusData;
+import corpus.field.AbstractKey;
+import corpus.field.FieldUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Created by: Fuxing
@@ -90,10 +91,79 @@ public class PlaceTree {
         return false;
     }
 
+    public List<CorpusData> getCorpusDataList() {
+        List<CorpusData> list = new ArrayList<>();
+        findCorpusDataList(list, this);
+        return list;
+    }
+
+    public Map<String, List<CorpusData.Field>> getFieldsMap() {
+        Map<String, List<CorpusData.Field>> fieldMap = new HashMap<>();
+        findFields(fieldMap, this);
+        return fieldMap;
+    }
+
+    @JsonIgnore
+    public List<CorpusData.Field> getFields(String key) {
+        List<CorpusData.Field> fields = new ArrayList<>();
+        findFields(fields, key, this);
+        return fields;
+    }
+
+    @JsonIgnore
+    public List<CorpusData.Field> getFields(AbstractKey key) {
+        return getFields(key.getKey());
+    }
+
+    @JsonIgnore
+    public boolean predicateFirstField(Predicate<CorpusData.Field> predicate) {
+        return predicateFirstField(predicate, this);
+    }
+
     private static void findCorpusNames(Set<String> names, PlaceTree placeTree) {
         names.add(placeTree.getCorpusData().getCorpusName());
         for (PlaceTree tree : placeTree.getTrees()) {
             findCorpusNames(names, tree);
+        }
+    }
+
+    private static void findFields(List<CorpusData.Field> fields, String key, PlaceTree placeTree) {
+        fields.addAll(FieldUtils.getAll(placeTree.getCorpusData(), key));
+        for (PlaceTree tree : placeTree.getTrees()) {
+            findFields(fields, key, tree);
+        }
+    }
+
+    private static void findFields(Map<String, List<CorpusData.Field>> fieldMap, PlaceTree placeTree) {
+        for (CorpusData.Field field : placeTree.getCorpusData().getFields()) {
+            fieldMap.compute(field.getKey(), (s, fields) -> {
+                if (fields == null) fields = new ArrayList<>();
+                fields.add(field);
+                return fields;
+            });
+        }
+
+        for (PlaceTree tree : placeTree.getTrees()) {
+            findFields(fieldMap, tree);
+        }
+    }
+
+    private static boolean predicateFirstField(Predicate<CorpusData.Field> predicate, PlaceTree placeTree) {
+        for (CorpusData.Field field : placeTree.getCorpusData().getFields()) {
+            if (predicate.test(field)) return true;
+        }
+
+        for (PlaceTree tree : placeTree.getTrees()) {
+            if (predicateFirstField(predicate, tree)) return true;
+        }
+        return false;
+    }
+
+    private static void findCorpusDataList(List<CorpusData> list, PlaceTree placeTree) {
+        list.add(placeTree.getCorpusData());
+
+        for (PlaceTree tree : placeTree.getTrees()) {
+            findCorpusDataList(list, tree);
         }
     }
 }

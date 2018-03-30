@@ -16,6 +16,7 @@ import corpus.engine.EngineGroup;
 import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.ElasticModule;
+import munch.data.place.graph.ProcessingCorpus;
 import munch.data.place.parser.location.LocationParserModule;
 import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
@@ -59,8 +60,7 @@ public class PlaceModule extends AbstractModule {
 
         // Start the following corpus
         EngineGroup.start(
-                injector.getInstance(SeedCorpus.class),
-                injector.getInstance(PlaceCorpus.class),
+                injector.getInstance(ProcessingCorpus.class),
                 injector.getInstance(PlaceAirtableCorpus.class)
         );
         ScheduledThreadUtils.shutdown();
