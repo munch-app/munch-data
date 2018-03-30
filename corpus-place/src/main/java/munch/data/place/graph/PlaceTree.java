@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 public class PlaceTree {
     private String linkerName;
     private CorpusData corpusData;
-    private Set<PlaceTree> trees = Set.of();
+    private Set<PlaceTree> trees = new HashSet<>();
 
     /**
      * @param corpusData corpus data as seed

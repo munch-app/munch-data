@@ -62,6 +62,6 @@ public final class ValidationSeeder implements Seeder {
         // Postal is blocked
         return fields.stream()
                 .map(CorpusData.Field::getValue)
-                .anyMatch(postalSet::contains);
+                .noneMatch(postalSet::contains);
     }
 }

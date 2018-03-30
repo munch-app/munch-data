@@ -58,7 +58,7 @@ public class PlaceDatabase {
      */
     @Nullable
     public PlaceTree get(String placeId) {
-        JsonNode node = documentClient.get("Sg.Munch.Place.Tree", placeId, "0");
+        JsonNode node = documentClient.get("Sg.Munch.Place.Tree.V2", placeId, "0");
         if (node == null) return null;
 
         return JsonUtils.toObject(node.get("tree"), PlaceTree.class);
@@ -71,7 +71,7 @@ public class PlaceDatabase {
      */
     public void put(String placeId, PlaceTree placeTree, boolean decayed) {
         ObjectNode node = JsonUtils.objectMapper.createObjectNode();
-        node.set("tree", JsonUtils.toTree(placeId));
+        node.set("tree", JsonUtils.toTree(placeTree));
         documentClient.put(TABLE_NAME, placeId, "0", node);
 
         Place place = placeParser.parse(placeId, placeTree, decayed);

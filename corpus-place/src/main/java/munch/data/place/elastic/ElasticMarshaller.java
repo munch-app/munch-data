@@ -74,7 +74,7 @@ public final class ElasticMarshaller {
         fields.stream()
                 .filter(field -> getRequiredFields().contains(field.getKey()))
                 .peek(this::normalizeFields)
-                .collect(Collectors.toMap(CorpusData.Field::getKey, CorpusData.Field::getValue))
+                .collect(Collectors.groupingBy(CorpusData.Field::getKey, Collectors.mapping(CorpusData.Field::getValue, Collectors.toList())))
                 .forEach((key, values) -> {
                     objectNode.set(key.replace('.', '_'), objectMapper.valueToTree(values));
                 });

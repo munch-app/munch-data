@@ -78,7 +78,10 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
         String placeId = data.getCatalystId();
 
         Place place = placeClient.get(placeId);
-        if (place == null) return;
+        if (place == null) {
+            sleep(200);
+            return;
+        }
 
         AirtableRecord record = parse(place);
         replaceSession.put(record);
