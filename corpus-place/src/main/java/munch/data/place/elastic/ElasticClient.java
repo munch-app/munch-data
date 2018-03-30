@@ -19,7 +19,6 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,12 +32,12 @@ public final class ElasticClient {
     private static final ObjectMapper objectMapper = JsonUtils.objectMapper;
 
     private final JestClient client;
-    private final Set<String> requiredFields;
+    private final MatcherManager matcherManager;
 
     @Inject
     public ElasticClient(@Named("munch.data.place.jest") JestClient client, MatcherManager matcherManager) {
         this.client = client;
-        this.requiredFields = matcherManager.getRequiredFields();
+        this.matcherManager = matcherManager;
     }
 
     public void put(long cycleNo, CorpusData corpusData, PlaceTree placeTree) {
@@ -129,7 +128,8 @@ public final class ElasticClient {
     private JsonNode toNodes(List<CorpusData.Field> fields) {
         ObjectNode objectNode = objectMapper.createObjectNode();
         fields.stream()
-                .filter(field -> requiredFields.contains(field.getKey()))
+                .filter(field -> matcherManager.getRequiredFields().contains(field.getKey()))
+                .peek(field -> matcherManager.normalizeFields(field))
                 .collect(Collectors.toMap(CorpusData.Field::getKey, CorpusData.Field::getValue))
                 .forEach((key, values) -> {
                     objectNode.set(key.replace('.', '_'), objectMapper.valueToTree(values));
@@ -164,7 +164,7 @@ public final class ElasticClient {
     public static JsonNode filterTerm(String fieldName, String value) {
         ObjectNode filter = objectMapper.createObjectNode();
         filter.putObject("term")
-                .put(fieldName, value);
+                .put(fieldName.replace('.', '_'), value);
         return filter;
     }
 

@@ -27,7 +27,6 @@ public final class MatcherManager {
     );
 
     private final Set<String> requiredFields;
-
     private final ElasticClient elasticClient;
 
     @Inject
@@ -43,6 +42,15 @@ public final class MatcherManager {
      */
     public Set<String> getRequiredFields() {
         return requiredFields;
+    }
+
+    /**
+     * @param field to normalize
+     */
+    public void normalizeFields(CorpusData.Field field) {
+        for (Searcher searcher : searcherList) {
+            searcher.normalize(field);
+        }
     }
 
     /**

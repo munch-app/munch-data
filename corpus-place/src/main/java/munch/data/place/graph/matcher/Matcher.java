@@ -24,6 +24,4 @@ public interface Matcher {
      * @return fields required for matching
      */
     Set<String> requiredFields();
-
-    // TODO Normalize fields
 }

@@ -22,4 +22,9 @@ public interface Searcher extends Matcher {
      * @return searched result, fields are trimmed
      */
     List<CorpusData> search(ElasticClient elasticClient, PlaceTree placeTree);
+
+    /**
+     * @param field to normalize before being indexed
+     */
+    void normalize(CorpusData.Field field);
 }

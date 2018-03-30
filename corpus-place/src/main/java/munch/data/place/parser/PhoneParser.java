@@ -25,6 +25,10 @@ public final class PhoneParser extends AbstractParser<String> {
         String phone = collectMax(list, PlaceKey.phone);
         if (phone == null) return null;
 
+        return normalize(phone);
+    }
+
+    public static String normalize(String phone) {
         Matcher matcher = PHONE_PATTERN.matcher(phone);
         if (matcher.matches()) {
             return "+65 " + matcher.group("g1") + " " + matcher.group("g2");
@@ -34,7 +38,6 @@ public final class PhoneParser extends AbstractParser<String> {
         if (matcher.matches()) {
             return "1800 " + matcher.group("g1") + " " + matcher.group("g2");
         }
-
         return null;
     }
 }
