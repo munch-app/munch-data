@@ -69,11 +69,6 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
         if (placeTree != null) {
             // If PlaceTree Already exists: search and maintain
             placeTree = tryBuildTree(placeTree, placeId, dataList);
-
-            if (placeTree == null) {
-                logger.info("Failed rebuilding PlaceTree: {}", placeId);
-                placeDatabase.delete(placeId);
-            }
         } else {
             // PlaceTree don't exists: try build tree
             placeTree = tryBuildTree(null, placeId, dataList);
@@ -124,9 +119,8 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
                     applyActions(placeId, result.actions);
                     placeDatabase.delete(placeId);
                     logger.info("Failed rebuilding PlaceTree: {}", placeId);
-                    return null;
                 }
-
+                return null;
             default:
                 throw new IllegalStateException();
         }

@@ -112,6 +112,13 @@ public class PlaceTree {
     }
 
     @JsonIgnore
+    public List<CorpusData> getCorpusDataList(String corpusName) {
+        List<CorpusData> list = new ArrayList<>();
+        findCorpusDataList(list, this, corpusName);
+        return list;
+    }
+
+    @JsonIgnore
     public Map<String, List<CorpusData.Field>> getFieldsMap() {
         Map<String, List<CorpusData.Field>> fieldMap = new HashMap<>();
         findFields(fieldMap, this);
@@ -188,6 +195,16 @@ public class PlaceTree {
 
         for (PlaceTree tree : placeTree.getTrees()) {
             collectFields(fieldCollector, tree);
+        }
+    }
+
+    private static void findCorpusDataList(List<CorpusData> list, PlaceTree placeTree, String corpusName) {
+        if (placeTree.getCorpusData().getCorpusName().equals(corpusName)) {
+            list.add(placeTree.getCorpusData());
+        }
+
+        for (PlaceTree tree : placeTree.getTrees()) {
+            findCorpusDataList(list, placeTree, corpusName);
         }
     }
 }

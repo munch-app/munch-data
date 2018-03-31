@@ -18,12 +18,13 @@ public class MatcherModule extends AbstractModule {
         matcherBinder.addBinding().to(NameMatcher.class);
         matcherBinder.addBinding().to(SpatialMatcher.class);
         matcherBinder.addBinding().to(LocationMatcher.class);
+        matcherBinder.addBinding().to(WebsiteMatcher.class);
+        matcherBinder.addBinding().to(LinkingMatcher.class);
 
         Multibinder<Searcher> searcherBinder = Multibinder.newSetBinder(binder(), Searcher.class);
         searcherBinder.addBinding().to(PhoneMatcher.class);
         searcherBinder.addBinding().to(SpatialMatcher.class);
         searcherBinder.addBinding().to(LocationMatcher.class);
-
-        // TODO Website Matcher & Linking Matcher
+        searcherBinder.addBinding().to(WebsiteMatcher.class);
     }
 }

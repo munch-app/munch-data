@@ -2,6 +2,7 @@ package munch.data.place.graph.seeder;
 
 import munch.data.place.graph.PlaceTree;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -11,18 +12,20 @@ import java.util.List;
  * Project: munch-data
  */
 public final class SeederManager {
-    private final List<Seeder> seederList = List.of(
-            new ValidationSeeder(),
-            new TrustedSeeder()
-    );
+    private final List<Seeder> seederList;
+
+    @Inject
+    public SeederManager(ValidationSeeder validationSeeder, DecaySeeder decaySeeder, TrustedSeeder trustedSeeder) {
+        this.seederList = List.of(validationSeeder, decaySeeder, trustedSeeder);
+    }
 
     /**
      * @param placeTree tree to try seed
      * @return whether it is successfully seeded
      */
-    public Seeder.Result trySeed(PlaceTree placeTree) {
+    public Seeder.Result trySeed(String placeId, PlaceTree placeTree) {
         for (Seeder seeder : seederList) {
-            Seeder.Result result = seeder.trySeed(placeTree);
+            Seeder.Result result = seeder.trySeed(placeId, placeTree);
             switch (result) {
                 case Seed:
                 case Block:

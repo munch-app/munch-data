@@ -76,7 +76,7 @@ public final class PlaceGraph {
         }
 
         // Try seed and return result
-        return Result.of(seederManager.trySeed(placeTree), placeTree, actionList);
+        return Result.of(seederManager.trySeed(placeId, placeTree), placeTree, actionList);
     }
 
     /**

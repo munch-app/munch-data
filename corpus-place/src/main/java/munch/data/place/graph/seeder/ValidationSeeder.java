@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -32,26 +31,11 @@ public final class ValidationSeeder implements Seeder {
     }
 
     @Override
-    public Result trySeed(PlaceTree placeTree) {
+    public Result trySeed(String placeId, PlaceTree placeTree) {
         Map<String, List<CorpusData.Field>> fieldsMap = placeTree.getFieldsMap();
 
         if (!validatePostal(fieldsMap)) return Result.Block;
         if (!validateName(fieldsMap)) return Result.Block;
-
-
-        List<CorpusData.Field> statusFields = fieldsMap.get("Place.status");
-        if (statusFields == null) return Result.Proceed;
-
-        Set<String> statusSet = statusFields.stream()
-                .map(field -> field.getValue().toLowerCase())
-                .collect(Collectors.toSet());
-
-        if (statusSet.contains("delete")) return Result.Block;
-        if (statusSet.contains("deleted")) return Result.Block;
-
-        // TODO decay tracking, so know when to change to block
-        if (statusSet.contains("close")) return Result.Decayed;
-        if (statusSet.contains("closed")) return Result.Decayed;
 
         return Result.Proceed;
     }

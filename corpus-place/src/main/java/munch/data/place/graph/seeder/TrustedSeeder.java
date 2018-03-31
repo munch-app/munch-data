@@ -12,10 +12,11 @@ import java.util.Set;
  */
 public final class TrustedSeeder implements Seeder {
 
-    private final Set<String> TRUSTED_SEEDER = Set.of(
+    public static final Set<String> TRUSTED_SEEDER = Set.of(
             "Sg.MunchSheet.PlaceInfo2",
             "Sg.MunchUGC.PlaceSuggest",
-            "Sg.Nea.TrackRecord"
+            "Sg.Nea.TrackRecord",
+            "Sg.Munch.PlaceAward"
     );
 
     /**
@@ -23,7 +24,7 @@ public final class TrustedSeeder implements Seeder {
      * @return true if tree contains a trusted source
      */
     @Override
-    public Result trySeed(PlaceTree placeTree) {
+    public Result trySeed(String placeId, PlaceTree placeTree) {
         for (String corpusName : placeTree.getCorpusNames()) {
             if (TRUSTED_SEEDER.contains(corpusName)) return Result.Seed;
         }

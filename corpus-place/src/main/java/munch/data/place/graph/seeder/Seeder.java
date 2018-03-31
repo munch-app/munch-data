@@ -21,6 +21,6 @@ public interface Seeder {
      * @param placeTree tree to try seed
      * @return whether successfully seeded
      */
-    Result trySeed(PlaceTree placeTree);
+    Result trySeed(String placeId, PlaceTree placeTree);
 
 }
