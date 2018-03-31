@@ -62,6 +62,8 @@ public final class ImageListBuilder {
                 switch (image.getImage().getSource()) {
                     case "munch-place-info":
                         return 100;
+                    case "munch-crawler-mall":
+                        return 410;
                     case "munch-franchise":
                         return 420;
                     case "munch-concept":
