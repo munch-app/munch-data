@@ -2,7 +2,6 @@ package munch.data.place.graph.seeder;
 
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
-import corpus.field.AbstractKey;
 import corpus.field.PlaceKey;
 
 import javax.annotation.Nullable;
@@ -10,6 +9,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -19,8 +20,6 @@ import java.util.List;
  */
 @Singleton
 public class DecayTracker {
-    public static final String CORPUS_NAME = "Sg.Munch.Place.Decaying";
-
     private final CorpusClient corpusClient;
 
     @Inject
@@ -29,7 +28,7 @@ public class DecayTracker {
     }
 
     public void start(String placeId, String name, Duration duration) {
-        CorpusData data = corpusClient.get(CORPUS_NAME, placeId);
+        CorpusData data = corpusClient.get("Sg.Munch.Place.Decaying", placeId);
         if (data != null) {
             // Decay speed override
             return;
@@ -42,65 +41,38 @@ public class DecayTracker {
         long startMillis = System.currentTimeMillis();
         data.put(DecayingKey.startMillis, startMillis);
         data.put(DecayingKey.endMillis, startMillis + duration.toMillis());
-        data.put(DecayingKey.force, false);
         data.put(DecayingKey.name, name);
+        data.put(PlaceKey.id, placeId);
 
-        corpusClient.put(CORPUS_NAME, placeId, data);
+        corpusClient.put("Sg.Munch.Place.Decaying", placeId, data);
     }
 
-    public void stop(String placeId) {
-        corpusClient.delete(CORPUS_NAME, placeId);
+    public void stop(String placeId, Status status) {
+        if (status != null) {
+            corpusClient.delete("Sg.Munch.Place.Decaying", placeId);
+        }
     }
 
     @Nullable
     public Status find(List<CorpusData> dataList) {
-        for (CorpusData data : dataList) {
-            if (data.getCorpusName().equals(CORPUS_NAME)) {
-                return new Status(data);
-            }
-        }
+        Set<String> corpusNames = dataList.stream()
+                .map(CorpusData::getCorpusName)
+                .collect(Collectors.toSet());
 
+        if (corpusNames.contains("Sg.Munch.Place.Decaying")) return new Status(corpusNames);
+        if (corpusNames.contains("Sg.Munch.Place.Decaying.Decayed")) return new Status(corpusNames);
         return null;
     }
 
     public class Status {
-        private final CorpusData corpusData;
+        private final Set<String> corpusNames;
 
-        public Status(CorpusData corpusData) {
-            this.corpusData = corpusData;
-        }
-
-        public Long getStartMillis() {
-            return DecayingKey.startMillis.getValueLong(corpusData, 0L);
-        }
-
-        public Long getEndMillis() {
-            return DecayingKey.endMillis.getValueLong(corpusData, 0L);
-        }
-
-        public Boolean isForce() {
-            return DecayingKey.force.getValueBoolean(corpusData, false);
-        }
-
-        public String getDecayName() {
-            return DecayingKey.name.getValue(corpusData);
+        public Status(Set<String> corpusNames) {
+            this.corpusNames = corpusNames;
         }
 
         public boolean isDecayed() {
-            if (isForce()) return true;
-            return getEndMillis() > System.currentTimeMillis();
-        }
-    }
-
-    public static class DecayingKey extends AbstractKey {
-
-        public static final DecayingKey startMillis = new DecayingKey("startMillis");
-        public static final DecayingKey endMillis = new DecayingKey("endMillis");
-        public static final DecayingKey force = new DecayingKey("force");
-        public static final DecayingKey name = new DecayingKey("name");
-
-        protected DecayingKey(String key) {
-            super("Decaying." + key, false);
+            return corpusNames.contains("Sg.Munch.Place.Decaying.Decayed");
         }
     }
 }

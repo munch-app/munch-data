@@ -27,7 +27,8 @@ public final class DecaySeeder implements Seeder {
             "Sg.Munch.PlaceAward",
             "Sg.Hpb.HealthyEating",
             "Sg.Muis.Halal",
-            "Global.MunchArticle.Article"
+            "Global.MunchArticle.Article",
+            "Sg.Munch.Place.Decaying.Stop"
     );
 
     private static final Set<String> STATUS_DELETE = Set.of("delete", "deleted");
@@ -52,15 +53,16 @@ public final class DecaySeeder implements Seeder {
                 return Result.Proceed;
 
             case Proceed:
-                if (status != null) {
-                    decayTracker.stop(placeId);
-                }
+                if (status != null) decayTracker.stop(placeId, status);
                 return Result.Proceed;
 
             case Delete:
+                if (status != null) decayTracker.stop(placeId, status);
                 return Result.Block;
 
             case Decayed:
+                if (status != null) decayTracker.stop(placeId, status);
+                // Sg.Munch.Place.Decay
                 return Result.Decayed;
 
             case StartFastDecay:
@@ -78,13 +80,14 @@ public final class DecaySeeder implements Seeder {
     }
 
     private Status getDecayStatus(List<CorpusData> dataList, DecayTracker.Status status) {
-        if (status != null && status.isDecayed()) return Status.Decayed;
-
         Set<String> names = dataList.stream().map(CorpusData::getCorpusName).collect(Collectors.toSet());
 
         if (names.contains("Sg.Nea.TrackRecord.Deleted")) {
             if (!names.contains("Sg.Nea.TrackRecord")) {
-                if (status != null) return Status.Decaying;
+                if (status != null) {
+                    if (status.isDecayed()) return Status.Decayed;
+                    return Status.Decaying;
+                }
                 return Status.StartFastDecay;
             }
         }
@@ -122,7 +125,10 @@ public final class DecaySeeder implements Seeder {
         if (latestOpen.getTime() != 0 || latestClose.getTime() != 0) {
             // If latest close is greater means Decayed
             if (latestOpen.compareTo(latestClose) < 0) {
-                if (status != null) return Status.Decaying;
+                if (status != null) {
+                    if (status.isDecayed()) return Status.Decayed;
+                    return Status.Decaying;
+                }
                 return Status.StartFastDecay;
             } else {
                 return Status.Proceed;
@@ -148,7 +154,6 @@ public final class DecaySeeder implements Seeder {
 
     /**
      * @param data  corpus data
-     * @param field with status
      * @return date of this status
      */
     private Date getDate(CorpusData data) {
