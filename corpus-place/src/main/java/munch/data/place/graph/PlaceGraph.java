@@ -1,7 +1,5 @@
 package munch.data.place.graph;
 
-import com.google.common.base.Joiner;
-import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import munch.data.place.graph.linker.LinkerManager;
 import munch.data.place.graph.matcher.MatcherManager;
@@ -13,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -24,15 +23,12 @@ import java.util.*;
 public final class PlaceGraph {
     private static final Logger logger = LoggerFactory.getLogger(PlaceGraph.class);
 
-    private final CorpusClient corpusClient;
-
     private final MatcherManager matcherManager;
     private final LinkerManager linkerManager;
     private final SeederManager seederManager;
 
     @Inject
-    public PlaceGraph(CorpusClient corpusClient, MatcherManager matcherManager, LinkerManager linkerManager, SeederManager seederManager) {
-        this.corpusClient = corpusClient;
+    public PlaceGraph(MatcherManager matcherManager, LinkerManager linkerManager, SeederManager seederManager) {
         this.matcherManager = matcherManager;
         this.linkerManager = linkerManager;
         this.seederManager = seederManager;
@@ -43,11 +39,11 @@ public final class PlaceGraph {
      * @param placeTree to validate
      * @return Seeder result
      */
-    public Seeder.Result search(String placeId, PlaceTree placeTree, List<CorpusData> dataList) {
+    public Result search(String placeId, PlaceTree placeTree, List<CorpusData> dataList) {
         Set<CorpusData> insideSet = new HashSet<>();
 
         // End if failed to find seed reference
-        if (!placeTree.updateReference(dataList)) return Seeder.Result.Proceed;
+        if (!placeTree.updateReference(dataList)) return Result.ofFailed(dataList);
 
         // Validate existing tree, remove those that don't belong
         insideSet.add(placeTree.getCorpusData());
@@ -79,11 +75,8 @@ public final class PlaceGraph {
             }
         }
 
-        // Apply the actions
-        applyActions(placeId, actionList);
-
-        // Check whether it can be seeded
-        return seederManager.trySeed(placeTree);
+        // Try seed and return result
+        return Result.of(seederManager.trySeed(placeTree), placeTree, actionList);
     }
 
     /**
@@ -131,37 +124,61 @@ public final class PlaceGraph {
         return false;
     }
 
-    private void applyActions(String placeId, List<Action> actionList) {
-        if (!actionList.isEmpty()) {
-            List<String> appliedActions = new ArrayList<>();
-            for (Action action : actionList) {
-                if (action.link) {
-                    if (!placeId.equals(action.data.getCatalystId())) {
-                        appliedActions.add("t");
-                        action.data.setCatalystId(placeId);
-                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
-                    }
-                } else {
-                    if (action.data.getCatalystId() != null) {
-                        appliedActions.add("f");
-                        action.data.setCatalystId(null);
-                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
-                    }
-                }
-            }
+    /**
+     * Result of Graph Search
+     */
+    public static class Result {
+        public final Status status;
+        public final PlaceTree placeTree;
+        public final List<Action> actions;
 
-            if (appliedActions.size() != 0) {
-                logger.info("Applied {} of {} Actions for PlaceGraph id: {}, Actions: {}", appliedActions.size(), actionList.size(), placeId, Joiner.on(' ').join(appliedActions));
+        public Result(Status status, PlaceTree placeTree, List<Action> actions) {
+            this.status = status;
+            this.placeTree = placeTree;
+            this.actions = actions;
+        }
+
+        public static Result ofFailed(List<CorpusData> dataList) {
+            List<Action> actions = dataList.stream()
+                    .map(data -> Action.of(false, data))
+                    .collect(Collectors.toList());
+            return new Result(Status.Failed, null, actions);
+        }
+
+        public static Result of(Seeder.Result result, PlaceTree placeTree, List<Action> actions) {
+            switch (result) {
+                case Block:
+                    return new Result(Status.Failed, placeTree, actions);
+                case Seed:
+                    return new Result(Status.Seeded, placeTree, actions);
+                case Decayed:
+                    return new Result(Status.Decayed, placeTree, actions);
+
+                default:
+                    throw new IllegalStateException();
             }
+        }
+
+        @Override
+        public String toString() {
+            return "Result{" +
+                    "status=" + status +
+                    ", placeTree=" + placeTree +
+                    ", actions=" + actions +
+                    '}';
         }
     }
 
+    public enum Status {
+        Seeded, Decayed, Failed
+    }
+
     /**
-     * Action for CorpusData
+     * Action to update data in corpus
      */
-    private static class Action {
-        private final boolean link;
-        private final CorpusData data;
+    public static class Action {
+        public final boolean link;
+        public final CorpusData data;
 
         private Action(boolean link, CorpusData data) {
             this.link = link;
@@ -170,6 +187,14 @@ public final class PlaceGraph {
 
         public static Action of(boolean link, CorpusData data) {
             return new Action(link, data);
+        }
+
+        @Override
+        public String toString() {
+            return "Action{" +
+                    "link=" + link +
+                    ", data=" + data +
+                    '}';
         }
     }
 }

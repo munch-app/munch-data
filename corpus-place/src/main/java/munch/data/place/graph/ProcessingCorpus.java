@@ -1,6 +1,7 @@
 package munch.data.place.graph;
 
 import catalyst.utils.iterators.NestedIterator;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import corpus.data.CatalystClient;
@@ -14,6 +15,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -66,25 +68,19 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
 
         if (placeTree != null) {
             // If PlaceTree Already exists: search and maintain
-            if (!buildTree(placeId, placeTree, dataList)) {
-                // Failed to build tree, try rebuilding
-                placeTree = tryBuildTree(placeId, dataList);
+            placeTree = tryBuildTree(placeTree, placeId, dataList);
 
-                // Failed at rebuilding, remove from database
-                if (placeTree == null) {
-                    logger.info("Failed rebuilding PlaceTree: {}", placeId);
-                    placeDatabase.delete(placeId);
-                }
+            if (placeTree == null) {
+                logger.info("Failed rebuilding PlaceTree: {}", placeId);
+                placeDatabase.delete(placeId);
             }
         } else {
-            // PlaceTree don't exists: try seed
-            placeTree = tryBuildTree(placeId, dataList);
+            // PlaceTree don't exists: try build tree
+            placeTree = tryBuildTree(null, placeId, dataList);
         }
 
         elasticClient.put(cycleNo, data, placeTree);
 
-        // Max 30 graph per sec?
-        sleep(10);
         if (processed % 1000 == 0) logger.info("Processed {} Data", processed);
     }
 
@@ -94,34 +90,71 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
      * @return PlaceTree that got created
      */
     @Nullable
-    private PlaceTree tryBuildTree(String placeId, List<CorpusData> dataList) {
-        for (CorpusData data : dataList) {
-            PlaceTree placeTree = new PlaceTree(data);
-            // Return if successfully build tree
-            if (buildTree(placeId, placeTree, dataList)) return placeTree;
+    private PlaceTree tryBuildTree(PlaceTree existingTree, String placeId, List<CorpusData> dataList) {
+        PlaceGraph.Result result = PlaceGraph.Result.ofFailed(dataList);
+
+        // Try build from initial place tree if exist
+        if (existingTree != null) {
+            result = placeGraph.search(placeId, existingTree, dataList);
         }
 
-        return null;
+        // Only try rebuild if initial build failed
+        if (result.status == PlaceGraph.Status.Failed) {
+            for (CorpusData data : dataList) {
+                result = placeGraph.search(placeId, new PlaceTree(data), dataList);
+
+                // Manage to build, exit
+                if (result.status != PlaceGraph.Status.Failed) break;
+            }
+        }
+
+        // After building, persist if seeded or decayed
+        switch (result.status) {
+            case Seeded:
+                applyActions(placeId, result.actions);
+                placeDatabase.put(placeId, result.placeTree, false);
+                return result.placeTree;
+            case Decayed:
+                applyActions(placeId, result.actions);
+                placeDatabase.put(placeId, result.placeTree, true);
+                return result.placeTree;
+            case Failed:
+                // If Failed, only delete if existing tree exist
+                if (existingTree != null) {
+                    applyActions(placeId, result.actions);
+                    placeDatabase.delete(placeId);
+                    logger.info("Failed rebuilding PlaceTree: {}", placeId);
+                    return null;
+                }
+
+            default:
+                throw new IllegalStateException();
+        }
     }
 
-    /**
-     * @param placeId  catalyst id
-     * @param dataList list of possible tree
-     * @return if tree is build successfully
-     */
-    private boolean buildTree(String placeId, PlaceTree placeTree, List<CorpusData> dataList) {
-        switch (placeGraph.search(placeId, placeTree, dataList)) {
-            case Proceed:
-            case Block:
-            default:
-                return false;
+    private void applyActions(String placeId, List<PlaceGraph.Action> actionList) {
+        if (!actionList.isEmpty()) {
+            List<String> appliedActions = new ArrayList<>();
+            for (PlaceGraph.Action action : actionList) {
+                if (action.link) {
+                    if (!placeId.equals(action.data.getCatalystId())) {
+                        appliedActions.add("T");
+                        action.data.setCatalystId(placeId);
+                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                    }
+                } else {
+                    if (action.data.getCatalystId() != null) {
+                        appliedActions.add("F");
+                        action.data.setCatalystId(null);
+                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
+                    }
+                }
+            }
 
-            case Seed:
-                placeDatabase.put(placeId, placeTree, false);
-                return true;
-            case Decayed:
-                placeDatabase.put(placeId, placeTree, true);
-                return true;
+            if (appliedActions.size() != 0) {
+                logger.info("Applied {} of {} Actions for PlaceGraph id: {}, Actions: {}", appliedActions.size(),
+                        actionList.size(), placeId, Joiner.on(' ').join(appliedActions));
+            }
         }
     }
 

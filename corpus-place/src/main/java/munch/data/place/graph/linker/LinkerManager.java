@@ -21,7 +21,9 @@ public final class LinkerManager {
             new PlaceIdLinker(),
             new FacebookLinker(),
             new PostalNameLinker(),
-            new SpatialNameLinker()
+            new SpatialNameLinker(),
+            new LocationPhoneLinkingLinker(),
+            new LocationPhoneWebsiteLinker()
     );
 
     private final Map<String, Linker> linkerMap;

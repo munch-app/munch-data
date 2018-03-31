@@ -10,7 +10,6 @@ import corpus.data.CorpusClient;
 import corpus.data.DataModule;
 import munch.data.place.elastic.GraphElasticModule;
 import munch.data.place.graph.matcher.MatcherModule;
-import munch.data.place.graph.seeder.Seeder;
 import munch.data.place.parser.ParserModule;
 
 /**
@@ -43,7 +42,6 @@ class PlaceGraphTest extends AbstractModule {
         PlaceGraph placeGraph = injector.getInstance(PlaceGraph.class);
 
         PlaceTree tree = new PlaceTree("seed", corpusClient.get("Sg.MunchSheet.PlaceInfo2", "reckeBuHDKjs3UDXG"));
-        Seeder.Result result = placeGraph.search(placeId, tree, Lists.newArrayList(catalystClient.listCorpus(placeId)));
-        System.out.println(result);
+        System.out.println(placeGraph.search(placeId, tree, Lists.newArrayList(catalystClient.listCorpus(placeId))));
     }
 }
