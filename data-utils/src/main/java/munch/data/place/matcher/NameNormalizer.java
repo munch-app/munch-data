@@ -2,6 +2,7 @@ package munch.data.place.matcher;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -29,8 +30,11 @@ public final class NameNormalizer {
      * @param name name to normalize
      * @return normalized name
      */
+    @Nullable
     public String normalize(String name) {
         name = StringUtils.stripAccents(name);
+        if (StringUtils.isBlank(name)) return null;
+
         // Iterate through all of replacement group
         for (ReplacementGroup group : GROUPS) {
             name = group.replace(name);

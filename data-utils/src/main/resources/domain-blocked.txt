@@ -42,3 +42,5 @@ uber.com
 ubereats.com
 themeforest.net
 tinypic.com
+sg.openrice.com
+openrice.com

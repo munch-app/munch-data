@@ -30,10 +30,11 @@ public final class ImageListBuilder {
                 .limit(3)
                 .forEach(images::add);
 
-        if (!imageList.isEmpty() && !MUNCH_SOURCE.contains(imageList.get(0).getImage().getSource())) {
-            // Remove all image that is not created through Munch
-            images.removeIf(image -> MUNCH_SOURCE.contains(image.getImage().getSource()));
-        }
+//        // Image list not empty, Remove all images from munch if first image is not from munch
+//        if (!images.isEmpty() && !MUNCH_SOURCE.contains(images.get(0).getImage().getSource())) {
+//            // Remove all image that is not created through Munch
+//            images.removeIf(image -> MUNCH_SOURCE.contains(image.getImage().getSource()));
+//        }
 
         imageList.stream()
                 .filter(image -> image.isOutput("place", 0.8f))
@@ -65,6 +66,8 @@ public final class ImageListBuilder {
                         return 420;
                     case "munch-concept":
                         return 430;
+                    case "munch-crawler":
+                        return 600;
                     default:
                         return 440;
                 }

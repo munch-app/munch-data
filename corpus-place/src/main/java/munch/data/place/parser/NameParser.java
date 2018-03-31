@@ -55,6 +55,7 @@ public final class NameParser extends AbstractParser<String> {
         if (!validateName(name)) return null;
 
         // Then format name properly
+        assert name != null;
         return format(name);
     }
 
@@ -98,6 +99,7 @@ public final class NameParser extends AbstractParser<String> {
      * @return true = allowed
      */
     private boolean validateName(String name) {
+        if (StringUtils.isBlank(name)) return false;
         name = name.toLowerCase();
         if (BLOCKED_PATTERN.matcher(name).matches()) return false;
         return true;

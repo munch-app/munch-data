@@ -35,7 +35,8 @@ public final class ValidationSeeder implements Seeder {
     public Result trySeed(PlaceTree placeTree) {
         Map<String, List<CorpusData.Field>> fieldsMap = placeTree.getFieldsMap();
 
-        if (!validatePostal(fieldsMap.get("Place.Location.postal"))) return Result.Block;
+        if (!validatePostal(fieldsMap)) return Result.Block;
+        if (!validateName(fieldsMap)) return Result.Block;
 
 
         List<CorpusData.Field> statusFields = fieldsMap.get("Place.status");
@@ -55,7 +56,8 @@ public final class ValidationSeeder implements Seeder {
         return Result.Proceed;
     }
 
-    private boolean validatePostal(List<CorpusData.Field> fields) {
+    private boolean validatePostal(Map<String, List<CorpusData.Field>> fieldsMap) {
+        List<CorpusData.Field> fields = fieldsMap.get("Place.Location.postal");
         // Postal not found
         if (fields == null) return false;
 
@@ -63,5 +65,12 @@ public final class ValidationSeeder implements Seeder {
         return fields.stream()
                 .map(CorpusData.Field::getValue)
                 .noneMatch(postalSet::contains);
+    }
+
+    private boolean validateName(Map<String, List<CorpusData.Field>> fieldsMap) {
+        List<CorpusData.Field> fields = fieldsMap.get("Place.name");
+        // Postal not found
+        if (fields == null) return false;
+        return !fields.isEmpty();
     }
 }
