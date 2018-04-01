@@ -1,7 +1,7 @@
 package munch.data.place.graph.seeder;
 
 import corpus.data.CorpusData;
-import corpus.engine.CatalystEngine;
+import corpus.engine.AbstractEngine;
 import corpus.field.PlaceKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import java.util.Iterator;
  * Project: munch-data
  */
 @Singleton
-public final class DecayCorpus extends CatalystEngine<CorpusData> {
+public final class DecayCorpus extends AbstractEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(DecayCorpus.class);
 
     @Inject
@@ -28,7 +28,12 @@ public final class DecayCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofHours(2);
+        return Duration.ofHours(3);
+    }
+
+    @Override
+    protected void doCycle(long cycleNo, Iterator<CorpusData> iterator) {
+        super.doCycle(cycleNo, iterator);
     }
 
     @Override

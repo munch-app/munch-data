@@ -18,6 +18,8 @@ public abstract class AbstractCollector {
     protected CollectedImage mapField(CorpusData.Field field, CollectedImage.From from) {
         ImageField imageField = ImageField.asImageField(field);
 
+        if (!validate(imageField)) return null;
+
         // Required fields validation
         // Cannot validate sourceId and sourceName because some data source don't provide those
         if (imageField.getSource() == null) return null;
@@ -40,5 +42,27 @@ public abstract class AbstractCollector {
 
         image.setImages(imageField.getImages());
         return image;
+    }
+
+    /**
+     * Required fields validation
+     *
+     * @param imageField to validate
+     * @return whether successful
+     */
+    private boolean validate(ImageField imageField) {
+        // Cannot validate sourceId and sourceName because some data source don't provide those
+
+        if (imageField.getSource() == null) return false;
+        if (imageField.getImageKey() == null) return false;
+        if (imageField.getImages() == null) return false;
+        if (imageField.getImages().isEmpty()) return false;
+
+        if (imageField.getSourceName() != null) {
+            // Some name is same as source url
+            if (imageField.getSourceName().equals(imageField.getSourceUrl())) return false;
+        }
+
+        return true;
     }
 }

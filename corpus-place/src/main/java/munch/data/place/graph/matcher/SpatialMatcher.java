@@ -4,10 +4,12 @@ import catalyst.utils.LatLngUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
+import corpus.location.LocationClient;
 import corpus.utils.FieldCollector;
 import munch.data.place.elastic.ElasticClient;
 import munch.data.place.graph.PlaceTree;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
@@ -24,18 +26,37 @@ import java.util.Set;
 public final class SpatialMatcher implements Matcher, Searcher {
     public static final double MAX_DISTANCE = 200.0; // Metres
 
+    private final LocationClient locationClient;
+
+    @Inject
+    public SpatialMatcher(LocationClient locationClient) {
+        this.locationClient = locationClient;
+    }
+
     @Override
     public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
-        Optional<LatLngUtils.LatLng> latLng = PlaceKey.Location.latLng.getLatLng(left);
+        // Only use this matcher if right latLng is present
+        Optional<LatLngUtils.LatLng> latLng = PlaceKey.Location.latLng.getLatLng(right);
         if (!latLng.isPresent()) return Map.of();
 
-        for (CorpusData.Field rightField : PlaceKey.Location.latLng.getAll(right)) {
-            LatLngUtils.LatLng rightLatLng = LatLngUtils.parse(rightField.getValue());
-            double distance = rightLatLng.distance(latLng.get());
-            if (distance <= MAX_DISTANCE) {
-                return Map.of("Place.Location.latLng", (int) distance);
-            }
+
+        Optional<LatLngUtils.LatLng> leftLatLng = PlaceKey.Location.latLng.getLatLng(left);
+        Optional<String> leftPostal = PlaceKey.Location.postal.get(left).map(CorpusData.Field::getValue);
+
+        if (leftLatLng.isPresent()) {
+            double distance = latLng.get().distance(leftLatLng.get());
+            if (distance <= MAX_DISTANCE) return Map.of("Place.Location.latLng", (int) distance);
+            return Map.of();
         }
+
+        if (leftPostal.isPresent()) {
+            LocationClient.Data data = locationClient.geocodePostcode(leftPostal.get());
+            if (data == null) return Map.of();
+            double distance = latLng.get().distance(data.getLat(), data.getLng());
+            if (distance <= MAX_DISTANCE) return Map.of("Place.Location.latLng", (int) distance);
+            return Map.of();
+        }
+
         return Map.of();
     }
 
