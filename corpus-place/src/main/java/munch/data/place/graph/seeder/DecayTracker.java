@@ -34,7 +34,7 @@ public class DecayTracker {
             return;
         }
 
-        data = new CorpusData();
+        data = new CorpusData("Sg.Munch.Place.Decaying", placeId, 0);
         data.setCatalystId(placeId);
         data.put(PlaceKey.id, placeId);
 
@@ -42,7 +42,6 @@ public class DecayTracker {
         data.put(DecayingKey.startMillis, startMillis);
         data.put(DecayingKey.endMillis, startMillis + duration.toMillis());
         data.put(DecayingKey.name, name);
-        data.put(PlaceKey.id, placeId);
 
         corpusClient.put("Sg.Munch.Place.Decaying", placeId, data);
     }

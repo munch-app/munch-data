@@ -9,7 +9,9 @@ import munch.data.place.graph.PlaceTree;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 public final class DecaySeeder implements Seeder {
-    private static final AbstractKey[] TIMESTAMP_KEYS = new AbstractKey[]{AbstractKey.of("Article.timestamp"), MetaKey.createdDate};
+    private static final AbstractKey[] TIMESTAMP_KEYS = {AbstractKey.of("Article.timestamp"), MetaKey.createdDate};
 
     public static final Set<String> DECAY_DATES = Set.of(
             "Sg.MunchSheet.PlaceInfo2",
@@ -153,13 +155,14 @@ public final class DecaySeeder implements Seeder {
     }
 
     /**
-     * @param data  corpus data
+     * @param data corpus data
      * @return date of this status
      */
     private Date getDate(CorpusData data) {
         for (AbstractKey key : TIMESTAMP_KEYS) {
-            Long time = key.getValueLong(data, null);
-            if (time != null && time != 0) return new Date(time);
+            String value = key.getValue(data);
+            if (value == null) continue;
+            return new Date(Long.parseLong(value));
         }
 
         return data.getUpdatedDate();

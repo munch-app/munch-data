@@ -1,7 +1,6 @@
 package munch.data.place.graph;
 
 import catalyst.utils.iterators.NestedIterator;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import corpus.data.CatalystClient;
@@ -15,7 +14,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -127,27 +125,19 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
     }
 
     private void applyActions(String placeId, List<PlaceGraph.Action> actionList) {
-        if (!actionList.isEmpty()) {
-            List<String> appliedActions = new ArrayList<>();
-            for (PlaceGraph.Action action : actionList) {
-                if (action.link) {
-                    if (!placeId.equals(action.data.getCatalystId())) {
-                        appliedActions.add("T");
-                        action.data.setCatalystId(placeId);
-                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
-                    }
-                } else {
-                    if (action.data.getCatalystId() != null) {
-                        appliedActions.add("F");
-                        action.data.setCatalystId(null);
-                        corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
-                    }
-                }
-            }
+        if (actionList.isEmpty()) return;
 
-            if (appliedActions.size() != 0) {
-                logger.info("Applied {} of {} Actions for PlaceGraph id: {}, Actions: {}", appliedActions.size(),
-                        actionList.size(), placeId, Joiner.on(' ').join(appliedActions));
+        for (PlaceGraph.Action action : actionList) {
+            if (action.link) {
+                if (placeId.equals(action.data.getCatalystId())) continue;
+
+                corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                logger.info("Applied LINK for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey() , placeId);
+            } else {
+                if (!placeId.equals(action.data.getCatalystId())) continue;
+
+                corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
+                logger.info("Applied UN-LINK for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
             }
         }
     }

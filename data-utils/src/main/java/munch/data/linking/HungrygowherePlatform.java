@@ -12,6 +12,11 @@ public class HungrygowherePlatform implements Platform {
 
     @Override
     public String parse(PlatformUrl url) {
+        String restaurantId = url.getQueryString("restaurant_id");
+        if (restaurantId != null) {
+            return wrap("hungrygowhere.com/", restaurantId);
+        }
+
         List<String> paths = url.getPaths();
         if (paths.size() < 2) return null;
 

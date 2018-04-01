@@ -25,6 +25,7 @@ public class NeaNoNameLinker implements Linker {
         if (!left.getCorpusName().equals("Sg.Nea.TrackRecord")) return false;
         if (PlaceKey.name.has(left)) return false;
 
+
         // TODO Multiple Rights
         // For NeaNoName & ArticleToArticle
         return false;

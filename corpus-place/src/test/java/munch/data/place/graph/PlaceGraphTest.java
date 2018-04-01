@@ -32,16 +32,21 @@ class PlaceGraphTest extends AbstractModule {
     public static void main(String[] args) {
         System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
         System.setProperty("services.elastic.url", "http://localhost:9200");
+        System.setProperty("services.location.url", "http://localhost:9200");
 
         Injector injector = Guice.createInjector(new PlaceGraphTest());
 
-        String placeId = "d71c2504-1a34-4d5f-be44-85cd15db2fef";
+        String placeId = "81bf2e1c-14bb-4032-9d19-8d7ee5f9964f";
 
         CorpusClient corpusClient = injector.getInstance(CorpusClient.class);
         CatalystClient catalystClient = injector.getInstance(CatalystClient.class);
         PlaceGraph placeGraph = injector.getInstance(PlaceGraph.class);
 
-        PlaceTree tree = new PlaceTree("seed", corpusClient.get("Sg.MunchSheet.PlaceInfo2", "reckeBuHDKjs3UDXG"));
-        System.out.println(placeGraph.search(placeId, tree, Lists.newArrayList(catalystClient.listCorpus(placeId))));
+        PlaceTree tree = new PlaceTree("seed", corpusClient.get("Sg.MunchSheet.PlaceInfo2", "recj3OR54YTb5nnws"));
+        PlaceGraph.Result result = placeGraph.search(placeId, tree, Lists.newArrayList(catalystClient.listCorpus(placeId)));
+
+        for (PlaceGraph.Action action : result.actions) {
+            System.out.println(action);
+        }
     }
 }

@@ -18,6 +18,7 @@ import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.GraphElasticModule;
 import munch.data.place.graph.ProcessingCorpus;
 import munch.data.place.graph.matcher.MatcherModule;
+import munch.data.place.graph.seeder.DecayAirtableCorpus;
 import munch.data.place.parser.ParserModule;
 import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
@@ -63,6 +64,7 @@ public class PlaceModule extends AbstractModule {
         // Start the following corpus
         EngineGroup.start(
                 injector.getInstance(ProcessingCorpus.class),
+                injector.getInstance(DecayAirtableCorpus.class),
                 injector.getInstance(PlaceAirtableCorpus.class)
         );
         ScheduledThreadUtils.shutdown();

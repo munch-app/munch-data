@@ -27,6 +27,7 @@ public final class LinkingMatcher implements Matcher {
     public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
         Set<String> linkingLeft = getLinkings(left);
         Set<String> linkingRight = getLinkings(right);
+        if (linkingLeft.isEmpty() || linkingRight.isEmpty()) return Map.of();
 
         linkingLeft.retainAll(linkingRight);
         return Map.of("Place.linking", linkingLeft.size());
@@ -38,7 +39,7 @@ public final class LinkingMatcher implements Matcher {
     }
 
     public static Set<String> getLinkings(CorpusData data) {
-        Set<String> linkings = new HashSet<>(PlaceKey.linking.getAllValue(data));
+        List<String> linkings = PlaceKey.linking.getAllValue(data);
         if (linkings.isEmpty()) return Set.of();
 
         linkings.removeIf(linking -> {
@@ -47,6 +48,6 @@ public final class LinkingMatcher implements Matcher {
             }
             return false;
         });
-        return linkings;
+        return new HashSet<>(linkings);
     }
 }

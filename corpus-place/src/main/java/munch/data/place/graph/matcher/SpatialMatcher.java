@@ -38,10 +38,11 @@ public final class SpatialMatcher implements Matcher, Searcher {
         // Only use this matcher if right latLng is present
         Optional<LatLngUtils.LatLng> latLng = PlaceKey.Location.latLng.getLatLng(right);
         if (!latLng.isPresent()) return Map.of();
-
+        Optional<String> leftPostal = PlaceKey.Location.postal.get(left).map(CorpusData.Field::getValue);
+        Optional<String> rightPostal = PlaceKey.Location.postal.get(right).map(CorpusData.Field::getValue);
+        if (leftPostal.isPresent() && rightPostal.isPresent()) return Map.of();
 
         Optional<LatLngUtils.LatLng> leftLatLng = PlaceKey.Location.latLng.getLatLng(left);
-        Optional<String> leftPostal = PlaceKey.Location.postal.get(left).map(CorpusData.Field::getValue);
 
         if (leftLatLng.isPresent()) {
             double distance = latLng.get().distance(leftLatLng.get());

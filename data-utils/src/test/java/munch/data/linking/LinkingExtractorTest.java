@@ -93,6 +93,7 @@ class LinkingExtractorTest {
     void hgw() throws Exception {
         asserts("hungrygowhere.com/singapore/sushi-jiro", "https://www.hungrygowhere.com/singapore/sushi-jiro/book-now/");
         asserts("hungrygowhere.com/singapore/sushi-jiro", "https://www.hungrygowhere.com/singapore/sushi-jiro/");
+        asserts("hungrygowhere.com/5a7bbbe8e4b0de23fa3aa5e3","https://reservations.hungrygowhere.com/the-lobby-lounge-at-shangri-la-hotel/?widget_id=53ffe4fcf30562d559000000&restaurant_id=5a7bbbe8e4b0de23fa3aa5e3&partner_code=sgfoodonfoot&partner_auth=09011348-3F4C-4BB8-89E9-AE30B361938A");
     }
 
     @Test

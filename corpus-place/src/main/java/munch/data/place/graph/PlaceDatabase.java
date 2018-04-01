@@ -81,7 +81,6 @@ public class PlaceDatabase {
             return;
         }
 
-
         putIf(place);
         corpusClient.put("Sg.Munch.Place", placeId, createCorpusData(place));
     }
@@ -120,6 +119,8 @@ public class PlaceDatabase {
     public static CorpusData createCorpusData(Place place) {
         // Put to corpus client
         CorpusData placeData = new CorpusData(System.currentTimeMillis());
+        placeData.setCatalystId(place.getId());
+
         // Max name is put twice
         placeData.put(PlaceKey.name, place.getName());
         if (place.getAllNames() != null)
