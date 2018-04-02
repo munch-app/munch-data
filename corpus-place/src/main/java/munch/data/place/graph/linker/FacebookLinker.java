@@ -26,10 +26,12 @@ public class FacebookLinker implements Linker {
             List<String> facebookLinks = LinkingUtils.getPrefix("facebook.com/", PlaceKey.linking.getAllValue(left.getCorpusData()));
             if (facebookLinks.isEmpty()) return false;
 
+            String facebook = facebookLinks.get(0);
+            if (facebook.equals("facebook.com/pages")) return false;
+
             List<String> rightFbLinks = LinkingUtils.getPrefix("facebook.com/", PlaceKey.linking.getAllValue(right));
             if (rightFbLinks.isEmpty()) return false;
 
-            String facebook = facebookLinks.get(0);
             for (String rightLink : rightFbLinks) {
                 if (!facebook.equals(rightLink)) return false;
             }
