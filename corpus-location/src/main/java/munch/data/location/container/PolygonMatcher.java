@@ -10,6 +10,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import corpus.data.CorpusData;
 import corpus.field.ContainerKey;
+import corpus.field.PlaceKey;
 import munch.data.structure.Container;
 import org.apache.commons.lang3.StringUtils;
 
@@ -82,7 +83,8 @@ public final class PolygonMatcher {
 
             CorpusData data = new CorpusData("Sg.Munch.Location.ContainerPlace", catalystId, cycleNo);
             data.setCatalystId(catalystId);
-            data.setFields(fields);
+            data.setFields(new ArrayList<>(fields));
+            data.put(PlaceKey.id, catalystId);
             return data;
         }
 
