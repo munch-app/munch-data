@@ -98,7 +98,10 @@ public final class ElasticClient {
 
     public List<CorpusData> search(PlaceTree tree, JsonNode... filters) {
         ArrayNode arrayNode = objectMapper.createArrayNode();
-        arrayNode.add(filterRange("treeSize", "lte", tree.getSize()));
+
+        ObjectNode treeSizeRange = objectMapper.createObjectNode();
+        treeSizeRange.putObject("range").putObject("treeSize").put("lte", tree.getSize());
+        arrayNode.add(treeSizeRange);
 
         for (JsonNode filter : filters) {
             arrayNode.add(filter);
@@ -118,22 +121,21 @@ public final class ElasticClient {
         ObjectNode filter = objectMapper.createObjectNode();
         filter.putObject("geo_distance")
                 .put("distance", metres + "m")
-                .put(fieldName.replace('.', '_'), latLng);
+                .put("fields." +fieldName, latLng);
         return filter;
     }
 
     public static JsonNode filterRange(String fieldName, String comparator, long value) {
         ObjectNode filter = objectMapper.createObjectNode();
         filter.putObject("range")
-                .putObject(fieldName.replace('.', '_'))
+                .putObject("fields." +fieldName)
                 .put(comparator, value);
         return filter;
     }
 
     public static JsonNode filterTerm(String fieldName, String value) {
         ObjectNode filter = objectMapper.createObjectNode();
-        filter.putObject("term")
-                .put(fieldName.replace('.', '_'), value);
+        filter.putObject("term").put("fields." +fieldName, value);
         return filter;
     }
 

@@ -38,13 +38,6 @@ public final class ElasticMarshaller {
     }
 
     /**
-     * @return fields required for matcher
-     */
-    public Set<String> getRequiredFields() {
-        return requiredFields;
-    }
-
-    /**
      * @param field to normalize
      */
     public void normalizeFields(CorpusData.Field field) {
@@ -56,13 +49,12 @@ public final class ElasticMarshaller {
     public List<CorpusData.Field> toFields(JsonNode fields) {
         List<CorpusData.Field> fieldList = new ArrayList<>();
         fields.fields().forEachRemaining(entry -> {
-            String key = entry.getKey().replace('_', '.');
             if (entry.getValue().isArray()) {
                 for (JsonNode node : entry.getValue()) {
-                    fieldList.add(new CorpusData.Field(key, node.asText()));
+                    fieldList.add(new CorpusData.Field(entry.getKey(), node.asText()));
                 }
             } else {
-                fieldList.add(new CorpusData.Field(key, entry.getValue().asText()));
+                fieldList.add(new CorpusData.Field(entry.getKey(), entry.getValue().asText()));
             }
         });
 
@@ -72,11 +64,11 @@ public final class ElasticMarshaller {
     public JsonNode toNodes(List<CorpusData.Field> fields) {
         ObjectNode objectNode = objectMapper.createObjectNode();
         fields.stream()
-                .filter(field -> getRequiredFields().contains(field.getKey()))
+                .filter(field -> requiredFields.contains(field.getKey()))
                 .peek(this::normalizeFields)
                 .collect(Collectors.groupingBy(CorpusData.Field::getKey, Collectors.mapping(CorpusData.Field::getValue, Collectors.toList())))
                 .forEach((key, values) -> {
-                    objectNode.set(key.replace('.', '_'), objectMapper.valueToTree(values));
+                    objectNode.set(key, objectMapper.valueToTree(values));
                 });
 
         return objectNode;

@@ -1,16 +1,15 @@
 package munch.data.place.graph;
 
 import com.google.common.collect.Lists;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import corpus.CorpusModule;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusClient;
-import corpus.data.DataModule;
-import munch.data.place.elastic.GraphElasticModule;
-import munch.data.place.graph.matcher.MatcherModule;
-import munch.data.place.parser.ParserModule;
+import corpus.data.CorpusData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Created by: Fuxing
@@ -18,35 +17,45 @@ import munch.data.place.parser.ParserModule;
  * Time: 2:48 AM
  * Project: munch-data
  */
-class PlaceGraphTest extends AbstractModule {
-    @Override
-    protected void configure() {
-        install(new CorpusModule());
-        install(new DataModule());
+@Singleton
+public class PlaceGraphTest {
+    private static final Logger logger = LoggerFactory.getLogger(PlaceGraphTest.class);
 
-        install(new GraphElasticModule());
-        install(new ParserModule());
-        install(new MatcherModule());
+    private final CorpusClient corpusClient;
+    private final CatalystClient catalystClient;
+    private final PlaceGraph placeGraph;
+
+    @Inject
+    public PlaceGraphTest(CorpusClient corpusClient, CatalystClient catalystClient, PlaceGraph placeGraph) {
+        this.corpusClient = corpusClient;
+        this.catalystClient = catalystClient;
+        this.placeGraph = placeGraph;
     }
 
-    public static void main(String[] args) {
-        System.setProperty("services.corpus.data.url", "http://proxy.corpus.munch.space:8200");
-        System.setProperty("services.elastic.url", "http://localhost:9200");
-        System.setProperty("services.location.url", "http://localhost:9200");
 
-        Injector injector = Guice.createInjector(new PlaceGraphTest());
 
-        String placeId = "81bf2e1c-14bb-4032-9d19-8d7ee5f9964f";
+    private void graphPrintActions(String corpusName, String corpusKey) {
+        CorpusData corpusData = corpusClient.get(corpusName, corpusKey);
+        String placeId = corpusData.getCatalystId();
 
-        CorpusClient corpusClient = injector.getInstance(CorpusClient.class);
-        CatalystClient catalystClient = injector.getInstance(CatalystClient.class);
-        PlaceGraph placeGraph = injector.getInstance(PlaceGraph.class);
-
-        PlaceTree tree = new PlaceTree("seed", corpusClient.get("Sg.MunchSheet.PlaceInfo2", "recj3OR54YTb5nnws"));
+        PlaceTree tree = new PlaceTree("seed", corpusData);
         PlaceGraph.Result result = placeGraph.search(placeId, tree, Lists.newArrayList(catalystClient.listCorpus(placeId)));
 
         for (PlaceGraph.Action action : result.actions) {
-            System.out.println(action);
+            if (action.link) {
+                if (placeId.equals(action.data.getCatalystId())) continue;
+                logger.info("Applied LINKED for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+            } else {
+                if (!placeId.equals(action.data.getCatalystId())) continue;
+                logger.info("Applied UN-LINK for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+            }
         }
+    }
+
+    public static void main(String[] args) {
+        Injector injector = PlaceGraphTestModule.getInjector();
+        PlaceGraphTest graphTest = injector.getInstance(PlaceGraphTest.class);
+
+        graphTest.graphPrintActions("Sg.MunchSheet.PlaceInfo2", "reclmMDsqFa60Hbpq");
     }
 }

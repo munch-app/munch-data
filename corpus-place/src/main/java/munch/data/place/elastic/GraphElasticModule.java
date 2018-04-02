@@ -74,4 +74,9 @@ public final class GraphElasticModule extends AbstractModule {
                 .build());
         return factory.getObject();
     }
+
+    public String locateUrl() {
+        // TODO
+        return null;
+    }
 }
