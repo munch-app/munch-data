@@ -29,10 +29,9 @@ public class DecayTracker {
 
     public void start(String placeId, String name, Duration duration) {
         CorpusData data = corpusClient.get("Sg.Munch.Place.Decaying", placeId);
-        if (data != null) {
-            // Decay speed override
-            return;
-        }
+
+        // Skip if it is already tracked
+        if (data != null && DecayingKey.name.getValueOrThrow(data).equals(name)) return;
 
         data = new CorpusData("Sg.Munch.Place.Decaying", placeId, 0);
         data.setCatalystId(placeId);

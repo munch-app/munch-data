@@ -69,11 +69,11 @@ public final class DecaySeeder implements Seeder {
 
             case StartFastDecay:
                 // Basically, how fast data can be re-amalgamated
-                decayTracker.start(placeId, "StartFastDecay", Duration.ofDays(7));
+                decayTracker.start(placeId, "StartFastDecay11", Duration.ofDays(11));
                 return Result.Proceed;
 
             case StartSlowDecay:
-                decayTracker.start(placeId, "StartSlowDecay", Duration.ofDays(40));
+                decayTracker.start(placeId, "StartSlowDecay90", Duration.ofDays(90));
                 return Result.Proceed;
 
             default:
