@@ -48,7 +48,7 @@ public final class PlaceGraph {
         // Validate existing tree, remove those that don't belong
         insideSet.add(placeTree.getCorpusData());
         for (PlaceTree right : placeTree.getTrees()) {
-            validate(placeId, placeTree.getCorpusData(), right, dataList, insideSet);
+            validate(placeId, placeTree, right, dataList, insideSet);
         }
 
         List<Action> actionList = new ArrayList<>();
@@ -85,17 +85,17 @@ public final class PlaceGraph {
      * @param dataList  for updating reference
      * @param insideSet to collect data in place tree
      */
-    private void validate(String placeId, CorpusData left, PlaceTree right, List<CorpusData> dataList, Set<CorpusData> insideSet) {
+    private void validate(String placeId, PlaceTree left, PlaceTree right, List<CorpusData> dataList, Set<CorpusData> insideSet) {
         // Failed to find reference
         if (!right.updateReference(dataList)) return;
 
-        Map<String, Integer> matcher = matcherManager.match(placeId, left, right.getCorpusData());
-        if (linkerManager.validate(right.getLinkerName(), matcher, left, right.getCorpusData())) {
+        Map<String, Integer> matcher = matcherManager.match(placeId, left.getCorpusData(), right.getCorpusData());
+        if (linkerManager.validate(right.getLinkerName(), placeId, left, matcher, right.getCorpusData())) {
             insideSet.add(right.getCorpusData());
 
             // Validate all again
             for (PlaceTree innerRight : right.getTrees()) {
-                validate(placeId, right.getCorpusData(), innerRight, dataList, insideSet);
+                validate(placeId, right, innerRight, dataList, insideSet);
             }
         }
     }
@@ -107,7 +107,7 @@ public final class PlaceGraph {
      */
     private boolean tryLink(String placeId, PlaceTree left, CorpusData right) {
         Map<String, Integer> matcher = matcherManager.match(placeId, left.getCorpusData(), right);
-        Optional<String> linked = linkerManager.link(matcher, left.getCorpusData(), right);
+        Optional<String> linked = linkerManager.link(placeId, left, matcher, right);
 
         // Manage to find a link
         if (linked.isPresent()) {

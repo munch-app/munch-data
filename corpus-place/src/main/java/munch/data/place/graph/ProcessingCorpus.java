@@ -61,15 +61,20 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
     @Override
     protected void process(long cycleNo, CorpusData data, long processed) {
         String placeId = data.getCatalystId();
-        PlaceTree placeTree = placeDatabase.get(placeId);
-        List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
+        RootPlaceTree rootTree = placeDatabase.get(placeId);
 
-        if (placeTree != null) {
-            // If PlaceTree Already exists: search and maintain
-            placeTree = tryBuildTree(placeTree, placeId, dataList);
-        } else {
-            // PlaceTree don't exists: try build tree
-            placeTree = tryBuildTree(null, placeId, dataList);
+        PlaceTree placeTree = rootTree != null ? rootTree.getTree() : null;
+
+        // Skip if already done by current cycle
+        if (rootTree == null || rootTree.getCycleNo() != cycleNo) {
+            List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
+            if (placeTree != null) {
+                // If PlaceTree Already exists: search and maintain
+                placeTree = tryBuildTree(cycleNo, placeTree, placeId, dataList);
+            } else {
+                // PlaceTree don't exists: try build tree
+                placeTree = tryBuildTree(cycleNo, null, placeId, dataList);
+            }
         }
 
         elasticClient.put(cycleNo, data, placeTree);
@@ -83,7 +88,7 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
      * @return PlaceTree that got created
      */
     @Nullable
-    private PlaceTree tryBuildTree(PlaceTree existingTree, String placeId, List<CorpusData> dataList) {
+    private PlaceTree tryBuildTree(long cycleNo, PlaceTree existingTree, String placeId, List<CorpusData> dataList) {
         PlaceGraph.Result result = PlaceGraph.Result.ofFailed(dataList);
 
         // Try build from initial place tree if exist
@@ -105,11 +110,11 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
         switch (result.status) {
             case Seeded:
                 applyActions(placeId, result.actions);
-                placeDatabase.put(placeId, result.placeTree, false);
+                placeDatabase.put(placeId, cycleNo, result.placeTree, false);
                 return result.placeTree;
             case Decayed:
                 applyActions(placeId, result.actions);
-                placeDatabase.put(placeId, result.placeTree, true);
+                placeDatabase.put(placeId, cycleNo, result.placeTree, true);
                 return result.placeTree;
             case Failed:
                 // If Failed, only delete if existing tree exist
@@ -132,7 +137,7 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
                 if (placeId.equals(action.data.getCatalystId())) continue;
 
                 corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
-                logger.info("Applied LINK for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey() , placeId);
+                logger.info("Applied LINKED for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
             } else {
                 if (!placeId.equals(action.data.getCatalystId())) continue;
 

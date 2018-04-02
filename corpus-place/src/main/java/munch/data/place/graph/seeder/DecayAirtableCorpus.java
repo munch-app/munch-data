@@ -52,7 +52,7 @@ public final class DecayAirtableCorpus extends AbstractEngine<Object> {
 
         // Delete all that is not updated anymore
         decayRecords.forEach((placeId, record) -> {
-            table.delete(placeId);
+            table.delete(record.getId());
             sleep(3000);
         });
     }
@@ -134,7 +134,6 @@ public final class DecayAirtableCorpus extends AbstractEngine<Object> {
         AirtableRecord record = decayRecords.get(data.getCorpusKey());
         if (record != null) {
             // Patch
-            record = new AirtableRecord();
             record.setFields(fields);
             table.patch(record);
             decayRecords.remove(placeId);

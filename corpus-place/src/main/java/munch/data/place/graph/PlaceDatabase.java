@@ -3,7 +3,6 @@ package munch.data.place.graph;
 import catalyst.utils.exception.ExceptionRetriable;
 import catalyst.utils.exception.Retriable;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import corpus.data.DocumentClient;
@@ -57,11 +56,11 @@ public class PlaceDatabase {
      * @return PlaceTree, nullable
      */
     @Nullable
-    public PlaceTree get(String placeId) {
+    public RootPlaceTree get(String placeId) {
         JsonNode node = documentClient.get(TABLE_NAME, placeId, "0");
         if (node == null) return null;
 
-        return JsonUtils.toObject(node.get("tree"), PlaceTree.class);
+        return JsonUtils.toObject(node, RootPlaceTree.class);
     }
 
     /**
@@ -69,10 +68,9 @@ public class PlaceDatabase {
      * @param placeTree tree data
      * @param decayed   whether data has successfully decayed
      */
-    public void put(String placeId, PlaceTree placeTree, boolean decayed) {
-        ObjectNode node = JsonUtils.objectMapper.createObjectNode();
-        node.set("tree", JsonUtils.toTree(placeTree));
-        documentClient.put(TABLE_NAME, placeId, "0", node);
+    public void put(String placeId, long cycleNo, PlaceTree placeTree, boolean decayed) {
+        RootPlaceTree rootTree = new RootPlaceTree(cycleNo, placeTree);
+        documentClient.put(TABLE_NAME, placeId, "0", JsonUtils.toTree(rootTree));
 
         Place place = placeParser.parse(placeId, placeTree, decayed);
 
