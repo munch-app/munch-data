@@ -6,6 +6,7 @@ import com.typesafe.config.Config;
 import corpus.data.CatalystClient;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
+import corpus.exception.NotFoundException;
 import munch.data.place.elastic.ElasticClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,16 +134,20 @@ public final class ProcessingCorpus extends CatalystEngine<CorpusData> {
         if (actionList.isEmpty()) return;
 
         for (PlaceGraph.Action action : actionList) {
-            if (action.link) {
-                if (placeId.equals(action.data.getCatalystId())) continue;
+            try {
+                if (action.link) {
+                    if (placeId.equals(action.data.getCatalystId())) continue;
 
-                corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
-                logger.info("Applied LINKED for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
-            } else {
-                if (!placeId.equals(action.data.getCatalystId())) continue;
+                    corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                    logger.info("Applied LINKED for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                } else {
+                    if (!placeId.equals(action.data.getCatalystId())) continue;
 
-                corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
-                logger.info("Applied UN-LINK for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                    corpusClient.patchCatalystId(action.data.getCorpusName(), action.data.getCorpusKey(), null);
+                    logger.info("Applied UN-LINK for {} id: {} placeId: {}", action.data.getCorpusName(), action.data.getCorpusKey(), placeId);
+                }
+            } catch (NotFoundException e) {
+                counter.increment("NotFound");
             }
         }
     }
