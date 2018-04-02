@@ -164,7 +164,12 @@ public class PlaceClient extends AbstractClient {
     public void delete(String id) throws ElasticException {
         Objects.requireNonNull(id);
 
-        elasticIndex.delete("Place", id);
+        try {
+            elasticIndex.delete("Place", id);
+        } catch (ElasticException e) {
+            if (e.getCode() == 404) return;
+        }
+
         placeTable.deleteItem("_id", id);
     }
 

@@ -1,6 +1,7 @@
 package munch.data.place.graph.linker;
 
 import corpus.data.CorpusData;
+import munch.data.place.graph.PlaceTree;
 
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public final class PostalNameLinker implements Linker {
     }
 
     @Override
-    public boolean link(Map<String, Integer> matchers, CorpusData left, CorpusData right) {
+    public boolean link(String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right) {
         int name = matchers.getOrDefault("Place.name", 0);
         int postal = matchers.getOrDefault("Place.Location.postal", 0);
         // City?

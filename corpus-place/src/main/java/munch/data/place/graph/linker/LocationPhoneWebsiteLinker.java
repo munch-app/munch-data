@@ -1,6 +1,7 @@
 package munch.data.place.graph.linker;
 
 import corpus.data.CorpusData;
+import munch.data.place.graph.PlaceTree;
 
 import javax.inject.Singleton;
 import java.util.Map;
@@ -19,7 +20,7 @@ public final class LocationPhoneWebsiteLinker implements Linker {
     }
 
     @Override
-    public boolean link(Map<String, Integer> matchers, CorpusData left, CorpusData right) {
+    public boolean link(String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right) {
         int postal = matchers.getOrDefault("Place.Location.postal", 0);
         int phone = matchers.getOrDefault("Place.phone", 0);
         int website = matchers.getOrDefault("Place.website", 0);

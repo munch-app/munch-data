@@ -1,6 +1,7 @@
 package munch.data.place.graph.linker;
 
 import corpus.data.CorpusData;
+import munch.data.place.graph.PlaceTree;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,9 +43,9 @@ public final class LinkerManager {
      * @param right    corpus data, in tree
      * @return Optional String, of linked using which linker
      */
-    public Optional<String> link(Map<String, Integer> matchers, CorpusData left, CorpusData right) {
+    public Optional<String> link(String placeId, PlaceTree left,  Map<String, Integer> matchers, CorpusData right) {
         for (Linker linker : linkers) {
-            if (linker.link(matchers, left, right)) {
+            if (linker.link(placeId, left, matchers, right)) {
                 return Optional.of(linker.getName());
             }
         }
@@ -58,11 +59,11 @@ public final class LinkerManager {
      * @param right      corpus data, in tree
      * @return validation result
      */
-    public boolean validate(String linkerName, Map<String, Integer> matchers, CorpusData left, CorpusData right) {
+    public boolean validate(String linkerName,String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right) {
         Linker linker = linkerMap.get(linkerName);
         if (linker == null) return false;
 
-        return linker.link(matchers, left, right);
+        return linker.link(placeId, left, matchers, right);
     }
 
 }

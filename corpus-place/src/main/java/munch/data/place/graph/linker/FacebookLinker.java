@@ -3,6 +3,7 @@ package munch.data.place.graph.linker;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
 import munch.data.linking.LinkingUtils;
+import munch.data.place.graph.PlaceTree;
 
 import java.util.List;
 import java.util.Map;
@@ -20,9 +21,9 @@ public class FacebookLinker implements Linker {
     }
 
     @Override
-    public boolean link(Map<String, Integer> matchers, CorpusData left, CorpusData right) {
-        if (left.getCorpusName().equals("Global.Facebook.Place")) {
-            List<String> facebookLinks = LinkingUtils.getPrefix("facebook.com/", PlaceKey.linking.getAllValue(left));
+    public boolean link(String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right) {
+        if (left.getCorpusData().getCorpusName().equals("Global.Facebook.Place")) {
+            List<String> facebookLinks = LinkingUtils.getPrefix("facebook.com/", PlaceKey.linking.getAllValue(left.getCorpusData()));
             if (facebookLinks.isEmpty()) return false;
 
             List<String> rightFbLinks = LinkingUtils.getPrefix("facebook.com/", PlaceKey.linking.getAllValue(right));

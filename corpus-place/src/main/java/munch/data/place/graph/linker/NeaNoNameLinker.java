@@ -2,6 +2,7 @@ package munch.data.place.graph.linker;
 
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
+import munch.data.place.graph.PlaceTree;
 
 import java.util.Map;
 
@@ -18,12 +19,12 @@ public class NeaNoNameLinker implements Linker {
     }
 
     @Override
-    public boolean link(Map<String, Integer> matchers, CorpusData left, CorpusData right) {
+    public boolean link(String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right) {
         int postal = matchers.getOrDefault("Place.Location.postal", 0);
         if (postal < 1) return false;
 
-        if (!left.getCorpusName().equals("Sg.Nea.TrackRecord")) return false;
-        if (PlaceKey.name.has(left)) return false;
+        if (!left.getCorpusData().getCorpusName().equals("Sg.Nea.TrackRecord")) return false;
+        if (PlaceKey.name.has(left.getCorpusData())) return false;
 
 
         // TODO Multiple Rights

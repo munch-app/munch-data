@@ -1,6 +1,7 @@
 package munch.data.place.graph.linker;
 
 import corpus.data.CorpusData;
+import munch.data.place.graph.PlaceTree;
 
 import java.util.Map;
 
@@ -17,7 +18,5 @@ public interface Linker {
      */
     String getName();
 
-    public boolean link(Map<String, Integer> matchers, CorpusData left, CorpusData right);
-
-    // E.g. LatLng + Direct Name Match
+    boolean link(String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right);
 }

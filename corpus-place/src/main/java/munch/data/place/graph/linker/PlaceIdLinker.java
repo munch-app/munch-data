@@ -2,6 +2,7 @@ package munch.data.place.graph.linker;
 
 import corpus.data.CorpusData;
 import corpus.field.FieldUtils;
+import munch.data.place.graph.PlaceTree;
 
 import java.util.Map;
 
@@ -19,14 +20,9 @@ public class PlaceIdLinker implements Linker {
     }
 
     @Override
-    public boolean link(Map<String, Integer> matchers, CorpusData left, CorpusData right) {
-        if (left.getCorpusName().equals("Sg.Munch.Place")) {
-            String rightPlaceId = FieldUtils.getValue(right, "Place.id");
-            if (rightPlaceId == null) return false;
+    public boolean link(String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right) {
+        String rightPlaceId = FieldUtils.getValue(right, "Place.id");
 
-            return left.getCorpusKey().equals(rightPlaceId);
-
-        }
-        return false;
+        return placeId.equals(rightPlaceId);
     }
 }
