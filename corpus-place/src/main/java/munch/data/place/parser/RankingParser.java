@@ -46,9 +46,11 @@ public final class RankingParser extends AbstractParser<Double> {
 
             case "Global.Facebook.Place":
             case "Global.Instagram.Location":
-                return 10;
+                return 1;
+
             case "Global.MunchArticle.Article":
                 return 2;
+
             case "Sg.Munch.Place":
             default:
                 return 1;
