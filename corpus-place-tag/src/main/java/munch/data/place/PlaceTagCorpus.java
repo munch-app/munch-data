@@ -17,7 +17,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -68,14 +71,19 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
 
         TagCollector.TagBuilder tagBuilder = tagCollector.collect(placeId, dataList);
-        List<String> predicts = tagBuilder.withPredicted();
         tagBuilder.withTrusted();
         List<String> alls = tagBuilder.withAll();
 
-
         List<String> explicits = tagBuilder.collectExplicit();
+        List<String> predicts = tagBuilder.withPredicted();
+        if (explicits.size() < 3) {
+            // Only rerun explicits if < 3
+            explicits = tagBuilder.collectExplicit();
+        }
+
         List<String> implicits = tagBuilder.collectImplicit();
         persist(placeId, explicits, implicits);
+
 
         // TOTAL, TOTAL Without Image
         // Predicted, Predicted Unique

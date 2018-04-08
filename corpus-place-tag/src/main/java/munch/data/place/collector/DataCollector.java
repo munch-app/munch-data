@@ -166,7 +166,6 @@ public abstract class DataCollector {
     }
 
     public static <T extends DataCollector> void run(Class<T> clazz) throws IOException, InterruptedException {
-
         Injector injector = Guice.createInjector(new CollectModule());
         DataCollector collector = injector.getInstance(clazz);
         collector.run();

@@ -146,8 +146,8 @@ public final class PlaceTagDatabase {
         }
 
         List<PlaceTagGroup> all = getAll();
-        if (all.size() >= MAX) {
-            logger.warn("There is equal or more then 5000 tags");
+        if (all.size() > MAX) {
+            logger.warn("There is more then 5000 tags");
             return;
         }
 
@@ -161,5 +161,6 @@ public final class PlaceTagDatabase {
         ));
         AirtableRecord postedRecord = table.post(record);
         all.add(parse(postedRecord));
+        logger.info("Created new Tag: {}", name);
     }
 }

@@ -32,7 +32,7 @@ public final class TagCollector {
             "Sg.MunchSheet.PlaceInfo2", "Sg.MunchSheet.FranchisePlace", "Sg.Munch.PlaceAward"
     );
     private static final Set<String> CORPUS_NAME_BLOCKED = Set.of(
-            "Sg.Munch.Place"
+            "Sg.Munch.Place", "Sg.Munch.Place.Tag", "Sg.Munch.PlaceTag"
     );
 
     protected final CorpusClient corpusClient;
@@ -86,8 +86,8 @@ public final class TagCollector {
 
         private TagBuilder(String placeId, List<CorpusData> list) {
             this.placeId = placeId;
-            this.dataList = list;
-            list.removeIf(data -> CORPUS_NAME_BLOCKED.contains(data.getCorpusName()));
+            this.dataList = Lists.newArrayList(list);
+            dataList.removeIf(data -> CORPUS_NAME_BLOCKED.contains(data.getCorpusName()));
         }
 
         public List<String> withAll() {

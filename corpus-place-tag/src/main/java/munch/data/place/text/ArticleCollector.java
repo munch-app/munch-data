@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class ArticleCollector extends AbstractCollector {
-    private static final String ARTICLE_TEXT = "Global.MunchArticle.ArticleText";
+    private static final String ARTICLE_TEXT = "Global.MunchArticle.ArticleText.Content";
     private final DocumentClient documentClient;
 
     @Inject
