@@ -51,11 +51,8 @@ public final class RankingParser extends AbstractParser<Double> {
             case "Global.MunchArticle.Article":
                 return 2;
 
-            case "Sg.Munch.Place":
             default:
-                return 1;
-
-            // Utility Corpus gives no ranking
+            case "Sg.Munch.Place":
             case "Sg.Munch.PlaceImage": // Deprecated
             case "Sg.Munch.Place.Image":
             case "Sg.Munch.Place.Tag":
