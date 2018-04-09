@@ -11,6 +11,6 @@ public class FacebookPlatform implements Platform {
     @Override
     public String parse(PlatformUrl url) {
 
-        return wrap("facebook.com/", url.getPath());
+        return wrap("facebook.com", url.getPath());
     }
 }
