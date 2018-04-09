@@ -9,7 +9,7 @@ from keras.layers import Dense, Activation, Dropout
 from keras.models import Sequential
 from keras.preprocessing import text
 
-data = pd.read_csv("data/tag-text-data-8.csv", encoding="utf-8")
+data = pd.read_csv("data/tag-text-data-9.csv", encoding="utf-8")
 data = data.sample(frac=1)
 print(data.head())
 
@@ -26,13 +26,13 @@ train_tags = data['tags'][:train_size]
 test_posts = data['texts'][train_size:]
 test_tags = data['tags'][train_size:]
 
-max_words_x = 3000
+max_words_x = 4000
 tokenize_x = text.Tokenizer(num_words=max_words_x, char_level=False, lower=True)
 tokenize_x.fit_on_texts(train_posts)  # only fit on train
 x_train = tokenize_x.texts_to_matrix(train_posts)
 x_test = tokenize_x.texts_to_matrix(test_posts)
 
-max_words_y = 200
+max_words_y = 300
 tokenize_y = text.Tokenizer(num_words=max_words_y, char_level=False, lower=False)
 tokenize_y.fit_on_texts(train_tags)  # only fit on train
 y_train = tokenize_y.texts_to_matrix(train_tags)

@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -40,27 +39,17 @@ public final class ArticleCollector extends AbstractCollector {
     }
 
     private boolean isArticle(CorpusData data) {
-        if (!data.getCorpusName().equals("Global.MunchArticle.Article")) return false;
-        return FieldUtils.get(data, "Article.groupings")
-                .map(CorpusData.Field::getValue)
-                .filter(s -> s.equals("1"))
-                .isPresent();
+        return data.getCorpusName().equals("Global.MunchArticle.Article");
     }
 
     private List<String> getTexts(CorpusData data) {
-        // Because Global.MunchArticle.ArticleText store both [""] & "" now
-        // Suppose to be [""]
+        String articleId = FieldUtils.getValueOrThrow(data, "Article.articleId");
+        String ordering = FieldUtils.getValueOrThrow(data, "Article.articleListNo");
 
-        Optional<JsonNode> optionalNode = FieldUtils.get(data, "Article.articleId")
-                .map(field -> documentClient.get(ARTICLE_TEXT, field.getValue(), "0"));
+        JsonNode node = documentClient.get(ARTICLE_TEXT, articleId, ordering);
+        if (node == null) return List.of();
 
-        if (!optionalNode.isPresent()) return List.of();
-
-        JsonNode node = optionalNode.get();
-
-        if (node.isArray()) {
-            return JsonUtils.toList(node, String.class);
-        }
+        if (node.isArray()) return JsonUtils.toList(node, String.class);
         return List.of(node.asText());
     }
 }
