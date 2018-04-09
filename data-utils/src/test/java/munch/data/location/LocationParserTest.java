@@ -42,6 +42,11 @@ class LocationParserTest {
     }
 
     @Test
+    void single() {
+        print("12 Purvis Street, Singapore");
+    }
+
+    @Test
     void address() {
         print("96 Somerset Road, #01-01 Pan Pacific Serviced Suites Orchard (Next To 313@Somerset), Singapore 238163");
         print("50 Siloso Beach Walk, #01-03 Sentosa, Singapore 099000");
@@ -67,10 +72,7 @@ class LocationParserTest {
         print("Singapore 150006.");
         print("(Singapore 150006)");
         print("'Singapore 150006'");
-    }
 
-    @Test
-    void single() {
-        print("(Singapore 150006)");
+        print("12 Purvis Street, Singapore");
     }
 }

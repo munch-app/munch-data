@@ -41,7 +41,7 @@ public final class SingaporeCityParser extends CityParser {
         data.setPostal(parsePostalToken(tokens));
         data.setStreet(parseStreetToken(tokens));
         data.setUnitNumber(parseUnitNumberToken(tokens));
-        data.setCity(has(tokens, "singapore", "sg"));
+        data.setCity(has(tokens, "singapore", "sg") ? "singapore" : null);
         data.setCountry(data.getCity());
 
         if (data.getPostal() != null) {
@@ -51,6 +51,7 @@ public final class SingaporeCityParser extends CityParser {
         }
 
         if (data.getUnitNumber() != null && data.getStreet() != null) return data;
+        if (tokens.contains("singapore") && data.getStreet() != null) return data;
         return null;
     }
 

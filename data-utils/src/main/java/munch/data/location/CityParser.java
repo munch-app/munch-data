@@ -57,13 +57,13 @@ public abstract class CityParser {
         return null;
     }
 
-    protected static String has(List<String> tokens, String... compares) {
+    protected static boolean has(List<String> tokens, String... compares) {
         for (String compare : compares) {
             if (tokens.contains(compare)) {
-                return compare;
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 }
