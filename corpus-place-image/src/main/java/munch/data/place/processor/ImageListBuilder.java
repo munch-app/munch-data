@@ -57,10 +57,13 @@ public final class ImageListBuilder {
                 return 200;
             case ArticleFullPage:
                 return 300;
+            case ArticleFullPageDoc:
+                return 310;
             case Place:
             default:
                 switch (image.getImage().getSource()) {
                     case "munch-place-info":
+                    case "munch-ugc":
                         return 100;
                     case "munch-crawler-mall":
                         return 410;
@@ -68,10 +71,10 @@ public final class ImageListBuilder {
                         return 420;
                     case "munch-concept":
                         return 430;
-                    case "munch-crawler":
-                        return 600;
                     default:
                         return 440;
+                    case "munch-crawler":
+                        return 600;
                 }
             case ArticleListPage:
                 return 500;

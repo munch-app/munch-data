@@ -21,11 +21,11 @@ public abstract class AbstractCollector {
         if (!validate(imageField)) return null;
 
         // Required fields validation
-        // Cannot validate sourceId and sourceName because some data source don't provide those
         if (imageField.getSource() == null) return null;
         if (imageField.getImageKey() == null) return null;
         if (imageField.getImages() == null) return null;
         if (imageField.getImages().isEmpty()) return null;
+        // Note: Cannot validate sourceId and sourceName because some data source don't provide those
 
         // Map CollectedImage
         CollectedImage image = new CollectedImage();

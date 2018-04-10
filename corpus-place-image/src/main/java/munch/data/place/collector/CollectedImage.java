@@ -13,6 +13,7 @@ public class CollectedImage {
         Place,
         Instagram,
         ArticleFullPage, // Single article talking about a single place
+        ArticleFullPageDoc, // Single article talking about a single place extract from docs
         ArticleListPage  // Single article talking about multiple place
     }
 

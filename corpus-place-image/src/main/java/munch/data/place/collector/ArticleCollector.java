@@ -37,7 +37,6 @@ public final class ArticleCollector extends AbstractCollector {
         if (from == null) return Stream.empty();
 
         return data.getFields().stream()
-                .filter(field -> field.getKey().equals("Article.image"))
                 .map(field -> mapField(field, from))
                 .filter(Objects::nonNull);
     }
@@ -53,5 +52,18 @@ public final class ArticleCollector extends AbstractCollector {
             }
             return null;
         }
+    }
+
+    @Override
+    protected CollectedImage mapField(CorpusData.Field field, CollectedImage.From from) {
+        if (field.getKey().equals("Article.image.doc")) {
+            return mapField(field, CollectedImage.From.ArticleFullPageDoc);
+        }
+
+        if (field.getKey().equals("Article.image")) {
+            return super.mapField(field, from);
+        }
+
+        return null;
     }
 }
