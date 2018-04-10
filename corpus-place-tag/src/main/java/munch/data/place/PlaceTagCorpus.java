@@ -71,7 +71,7 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
 
         TagCollector.TagBuilder tagBuilder = tagCollector.collect(placeId, dataList);
-        tagBuilder.withTrusted();
+        List<String> trusted = tagBuilder.withTrusted();
         List<String> alls = tagBuilder.withAll();
 
         List<String> explicits = tagBuilder.collectExplicit();
@@ -87,13 +87,13 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
         // TOTAL, TOTAL Without Image
         // Predicted, Predicted Unique
-        updateCounting(hasImage(dataList), predicts, implicits, alls);
+        updateCounting(hasImage(dataList), predicts, implicits, alls, trusted);
 
         sleep(300);
         if (processed % 100 == 0) logger.info("Processed {}", processed);
     }
 
-    private void updateCounting(boolean hasImage, List<String> predicts, List<String> implicits, List<String> alls) {
+    private void updateCounting(boolean hasImage, List<String> predicts, List<String> implicits, List<String> alls, List<String> trusted) {
         // Total Predicted
         predicts.forEach(s -> {
             counter.increment(s, "predicted");
@@ -110,6 +110,9 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         if (!hasImage) {
             implicits.forEach(s -> counter.increment(s, "noImage"));
         }
+
+        // Added to track but not count
+        trusted.forEach(s -> counter.increment(s, "trusted"));
     }
 
     private void persist(String placeId, List<String> explicits, List<String> implicits) {
