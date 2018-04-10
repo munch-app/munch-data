@@ -22,7 +22,12 @@ public class PlaceIdLinker implements Linker {
     @Override
     public boolean link(String placeId, PlaceTree left, Map<String, Integer> matchers, CorpusData right) {
         String rightPlaceId = FieldUtils.getValue(right, "Place.id");
+        if (placeId.equals(rightPlaceId)) return true;
 
-        return placeId.equals(rightPlaceId);
+        // If Right CorpusKey & CatalystId is same as PlaceId
+        if (placeId.equals(right.getCorpusKey())) {
+            return placeId.equals(right.getCatalystId());
+        }
+        return false;
     }
 }
