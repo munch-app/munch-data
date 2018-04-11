@@ -2,16 +2,18 @@ dependencies {
     compile project(':data-client')
     compile project(':data-utils')
     compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
-    compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
 
     // Search
     compile group: 'io.searchbox', name: 'jest', version: '5.3.2'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ecs', version: '1.11.210'
 
     // Parsers
     compile group: 'fr.dudie', name: 'nominatim-api', version: '3.3'
     compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
 
+    // Airtable
     compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
+    compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
 }
 
 mainClassName = 'munch.data.place.PlaceModule'

@@ -1,5 +1,9 @@
 package munch.data.place.elastic;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.ecs.AmazonECS;
+import com.amazonaws.services.ecs.AmazonECSClientBuilder;
+import com.amazonaws.services.ecs.model.*;
 import com.google.common.io.Resources;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -20,6 +24,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by: Fuxing
@@ -55,14 +62,12 @@ public final class GraphElasticModule extends AbstractModule {
     /**
      * Wait for elastic to be started
      *
-     * @param config config
      * @return elastic RestClient
      */
     @Provides
     @Singleton
     @Named("munch.data.place.jest")
-    JestClient provideClient(Config config) {
-        String url = config.getString("services.elastic.url");
+    JestClient provideClient(@Named("munch.data.place.jest.url") String url) {
         WaitFor.host(url, Duration.ofSeconds(180));
 
         JestClientFactory factory = new JestClientFactory();
@@ -75,9 +80,81 @@ public final class GraphElasticModule extends AbstractModule {
         return factory.getObject();
     }
 
-    public String locateUrl() {
+    @Provides
+    @Singleton
+    @Named("munch.data.place.jest.url")
+    String provideElasticUrl(Config config) {
+        ECSLocator ecsLocator = new ECSLocator(config);
+        return ecsLocator.locateUrl();
+    }
 
-        // TODO
-        return null;
+    private class ECSLocator {
+
+        private final String clusterArn;
+        private final String taskDefinition;
+        private final AmazonECS ecsClient;
+
+        public ECSLocator(Config config) {
+            this.clusterArn = config.getString("service.elastic.ecs.clusterArn");
+            this.taskDefinition = config.getString("service.elastic.ecs.taskDefinition");
+            this.ecsClient = AmazonECSClientBuilder.standard()
+                    .withRegion(config.getString("service.elastic.ecs.region"))
+                    .withCredentials(new DefaultAWSCredentialsProviderChain())
+                    .build();
+        }
+
+        private String locateUrl() {
+            Task task = getTask();
+            if (task == null) throw new IllegalStateException("Task is required to locate ecs for elastic");
+
+            List<Container> containers = task.getContainers();
+            for (Container container : containers) {
+                //noinspection LoopStatementThatDoesntLoop
+                for (NetworkBinding networkBinding : container.getNetworkBindings()) {
+                    String ip = networkBinding.getBindIP();
+                    int port = networkBinding.getHostPort();
+                    return "http://" + ip + ":" + port;
+                }
+            }
+
+            throw new IllegalStateException("Failed to find network binding");
+        }
+
+        private Task getTask() {
+            List<Task> tasks = getTasks();
+            if (tasks.isEmpty()) return null;
+            if (tasks.size() > 1) throw new IllegalStateException("Task size more then 1");
+            return tasks.get(0);
+        }
+
+        private List<Task> getTasks() {
+            ListTasksRequest request = new ListTasksRequest();
+            request.setCluster(clusterArn);
+            request.setFamily(taskDefinition);
+            request.setDesiredStatus(DesiredStatus.RUNNING);
+
+            List<Task> tasks = new ArrayList<>();
+
+            do {
+                ListTasksResult result = ecsClient.listTasks(request);
+                request.setNextToken(result.getNextToken());
+                tasks.addAll(getTasks(result.getTaskArns()));
+
+                if (result.getNextToken() == null) {
+                    // If no more next token, end of pagination
+                    return tasks;
+                }
+            } while (true);
+        }
+
+        private List<Task> getTasks(List<String> taskArns) {
+            if (taskArns.isEmpty()) return Collections.emptyList();
+
+            DescribeTasksRequest request = new DescribeTasksRequest();
+            request.setCluster(clusterArn);
+            request.setTasks(taskArns);
+            DescribeTasksResult result = ecsClient.describeTasks(request);
+            return result.getTasks();
+        }
     }
 }
