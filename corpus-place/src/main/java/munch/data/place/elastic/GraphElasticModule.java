@@ -76,6 +76,7 @@ public final class GraphElasticModule extends AbstractModule {
     }
 
     public String locateUrl() {
+
         // TODO
         return null;
     }

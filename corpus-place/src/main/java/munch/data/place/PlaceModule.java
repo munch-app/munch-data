@@ -9,6 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import com.typesafe.config.ConfigFactory;
 import corpus.CorpusModule;
 import corpus.airtable.AirtableModule;
 import corpus.data.DataModule;
@@ -16,15 +17,10 @@ import corpus.engine.EngineGroup;
 import io.searchbox.client.JestClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.GraphElasticModule;
-import munch.data.place.graph.ProcessingCorpus;
 import munch.data.place.graph.matcher.MatcherModule;
 import munch.data.place.graph.seeder.DecayAirtableCorpus;
 import munch.data.place.parser.ParserModule;
 import munch.data.utils.ScheduledThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 
 /**
  * Created By: Fuxing Loh
@@ -33,7 +29,6 @@ import java.util.Arrays;
  * Project: munch-data
  */
 public class PlaceModule extends AbstractModule {
-    private static final Logger logger = LoggerFactory.getLogger(PlaceModule.class);
 
     @Override
     protected void configure() {
@@ -58,22 +53,32 @@ public class PlaceModule extends AbstractModule {
         return result.getParameter().getValue();
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void start(String[] args) throws InterruptedException {
         Injector injector = Guice.createInjector(new PlaceModule());
 
         // Start the following corpus
         EngineGroup.start(
-                injector.getInstance(ProcessingCorpus.class),
+                injector.getInstance(PlaceCorpus.class),
                 injector.getInstance(DecayAirtableCorpus.class),
                 injector.getInstance(PlaceAirtableCorpus.class)
         );
         ScheduledThreadUtils.shutdown();
         injector.getInstance(JestClient.class).shutdownClient();
         injector.getInstance(Key.get(JestClient.class, Names.named("munch.data.place.jest"))).shutdownClient();
+    }
 
-        logger.info("Corpus should shutdown.");
-        Thread.getAllStackTraces().forEach((thread, stackTraceElements) -> {
-            logger.error("Thread: {} {}", thread.getName(), Arrays.toString(stackTraceElements));
-        });
+    public static void main(String[] args) throws InterruptedException {
+        String type = ConfigFactory.load().getString("corpus.type");
+        switch (type.toLowerCase()) {
+            case "place":
+                start(args);
+                return;
+            case "index":
+                IndexModule.start(args);
+                return;
+
+            default:
+                throw new IllegalArgumentException("corpus.type must be 'place' or 'index'");
+        }
     }
 }

@@ -33,8 +33,7 @@ import javax.inject.Singleton;
 @Singleton
 public class PlaceDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PlaceDatabase.class);
-    private static final String TABLE_NAME = "Sg.Munch.Place.Tree.V2";
-
+    private static final String TABLE_NAME = "Sg.Munch.Place.Tree.V3";
     private static final Retriable retriable = new ExceptionRetriable(4);
 
     private final DocumentClient documentClient;
@@ -63,24 +62,33 @@ public class PlaceDatabase {
         return JsonUtils.toObject(node, RootPlaceTree.class);
     }
 
+    public void put(String placeId, PlaceTree placeTree, boolean decayed){
+        Place place = putTree(placeId, placeTree, decayed);
+        putIf(place);
+    }
+
     /**
      * @param placeId   id of place
      * @param placeTree tree data
-     * @param decayed   whether data has successfully decayed
      */
-    public void put(String placeId, long cycleNo, PlaceTree placeTree, boolean decayed) {
-        RootPlaceTree rootTree = new RootPlaceTree(cycleNo, placeTree);
+    public Place putTree(String placeId, PlaceTree placeTree, boolean decayed) {
+        RootPlaceTree rootTree = new RootPlaceTree(placeTree);
         documentClient.put(TABLE_NAME, placeId, "0", JsonUtils.toTree(rootTree));
 
         Place place = placeParser.parse(placeId, placeTree, decayed);
-
         if (place == null) {
             logger.error("Failed to parse Place: {}", placeId);
-            return;
+            return null;
         }
 
-        putIf(place);
-        corpusClient.put("Sg.Munch.Place", placeId, createCorpusData(place));
+        corpusClient.put("Sg.Munch.Place", placeId, createPlaceData(place));
+        return place;
+    }
+
+    public void delete(String placeId) {
+        placeClient.delete(placeId);
+        corpusClient.delete("Sg.Munch.Place", placeId);
+        documentClient.delete(TABLE_NAME, placeId, "0");
     }
 
     /**
@@ -108,13 +116,7 @@ public class PlaceDatabase {
         }
     }
 
-    public void delete(String placeId) {
-        placeClient.delete(placeId);
-        corpusClient.delete("Sg.Munch.Place", placeId);
-        documentClient.delete(TABLE_NAME, placeId, "0");
-    }
-
-    public static CorpusData createCorpusData(Place place) {
+    private CorpusData createPlaceData(Place place) {
         // Put to corpus client
         CorpusData placeData = new CorpusData(System.currentTimeMillis());
         placeData.setCatalystId(place.getId());

@@ -1,6 +1,5 @@
 package munch.data.place;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
@@ -20,10 +19,10 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
 @Singleton
 public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceAirtableCorpus.class);
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // 2017-10-16T00:00:00.000Z
 
     private final PlaceClient placeClient;
     private final AirtableApi.Table table;
@@ -89,45 +87,43 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
 
     private AirtableRecord parse(Place place) {
         AirtableRecord record = new AirtableRecord();
-        Map<String, JsonNode> fields = new HashMap<>();
-        fields.put("Place.id", JsonUtils.toTree(place.getId()));
-        fields.put("Place.status", JsonUtils.toTree(place.isOpen() ? "Open" : "Close"));
+        record.putField("Place.id", place.getId());
+        record.putField("Place.status", JsonUtils.toTree(place.isOpen() ? "Open" : "Close"));
 
-        fields.put("Place.name", JsonUtils.toTree(place.getName()));
-        fields.put("Place.allNames", JsonUtils.toTree(Joiner.on("\n").join(place.getAllNames())));
-        fields.put("Place.description", JsonUtils.toTree(place.getDescription()));
-        fields.put("Place.phone", JsonUtils.toTree(place.getPhone()));
+        record.putField("Place.name", place.getName());
+        record.putField("Place.allNames", Joiner.on("\n").join(place.getAllNames()));
+        record.putField("Place.description", place.getDescription());
+        record.putField("Place.phone", place.getPhone());
 
-        fields.put("Place.menuUrl", JsonUtils.toTree(place.getMenuUrl()));
-        fields.put("Place.website", JsonUtils.toTree(place.getWebsite()));
+        record.putField("Place.menuUrl", place.getMenuUrl());
+        record.putField("Place.website", place.getWebsite());
 
         if (place.getPrice() != null) {
-            fields.put("Place.price", JsonUtils.toTree(place.getPrice().getMiddle()));
+            record.putField("Place.price", JsonUtils.toTree(place.getPrice().getMiddle()));
         }
 
-        fields.put("Place.tags", JsonUtils.toTree(getTags(place)));
+        record.putField("Place.tags", JsonUtils.toTree(getTags(place)));
 
         if (place.getReview() != null) {
-            fields.put("Place.Review.average", JsonUtils.toTree(place.getReview().getAverage() * 100));
-            fields.put("Place.Review.total", JsonUtils.toTree(place.getReview().getTotal()));
+            record.putField("Place.Review.average", JsonUtils.toTree(place.getReview().getAverage() * 100));
+            record.putField("Place.Review.total", JsonUtils.toTree(place.getReview().getTotal()));
         }
 
-        fields.put("Contains.containers", JsonUtils.toTree(place.getContainers().size() > 0));
-        fields.put("Contains.hours", JsonUtils.toTree(place.getHours().size() > 0));
-        fields.put("Contains.images", JsonUtils.toTree(place.getImages().size() > 0));
-        fields.put("Count.images", JsonUtils.toTree(place.getImages().size()));
+        record.putField("Contains.containers", JsonUtils.toTree(place.getContainers().size() > 0));
+        record.putField("Contains.hours", JsonUtils.toTree(place.getHours().size() > 0));
+        record.putField("Contains.images", JsonUtils.toTree(place.getImages().size() > 0));
+        record.putField("Count.images", JsonUtils.toTree(place.getImages().size()));
 
-        fields.put("Place.Location.address", JsonUtils.toTree(place.getLocation().getAddress()));
-        fields.put("Place.Location.postal", JsonUtils.toTree(place.getLocation().getPostal()));
-        fields.put("Place.Location.neighbourhood", JsonUtils.toTree(place.getLocation().getNeighbourhood()));
-        fields.put("Place.Location.street", JsonUtils.toTree(place.getLocation().getStreet()));
-        fields.put("Place.Location.unitNumber", JsonUtils.toTree(place.getLocation().getUnitNumber()));
-        fields.put("Place.Location.latLng", JsonUtils.toTree(place.getLocation().getLatLng()));
+        record.putField("Place.Location.address", JsonUtils.toTree(place.getLocation().getAddress()));
+        record.putField("Place.Location.postal", JsonUtils.toTree(place.getLocation().getPostal()));
+        record.putField("Place.Location.neighbourhood", JsonUtils.toTree(place.getLocation().getNeighbourhood()));
+        record.putField("Place.Location.street", JsonUtils.toTree(place.getLocation().getStreet()));
+        record.putField("Place.Location.unitNumber", JsonUtils.toTree(place.getLocation().getUnitNumber()));
+        record.putField("Place.Location.latLng", JsonUtils.toTree(place.getLocation().getLatLng()));
 
-        fields.put("ranking", JsonUtils.toTree(place.getRanking()));
-        fields.put("CreatedDate", JsonUtils.toTree(DATE_FORMAT.format(place.getCreatedDate())));
-        fields.put("UpdatedDate", JsonUtils.toTree(DATE_FORMAT.format(place.getUpdatedDate())));
-        record.setFields(fields);
+        record.putField("ranking", JsonUtils.toTree(place.getRanking()));
+        record.putFieldDate("CreatedDate", place.getCreatedDate());
+        record.putFieldDate("UpdatedDate", place.getUpdatedDate());
         return record;
     }
 

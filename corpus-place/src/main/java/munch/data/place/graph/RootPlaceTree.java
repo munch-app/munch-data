@@ -9,7 +9,6 @@ import java.util.Date;
  * Project: munch-data
  */
 public class RootPlaceTree {
-    private long cycleNo;
     private PlaceTree tree;
 
     private Date updatedDate;
@@ -17,18 +16,8 @@ public class RootPlaceTree {
     public RootPlaceTree() {
     }
 
-    public RootPlaceTree(long cycleNo, PlaceTree tree) {
-        this.cycleNo = cycleNo;
-        this.tree = tree;
+    public RootPlaceTree(PlaceTree tree) {
         this.updatedDate = new Date();
-    }
-
-    public long getCycleNo() {
-        return cycleNo;
-    }
-
-    public void setCycleNo(long cycleNo) {
-        this.cycleNo = cycleNo;
     }
 
     public PlaceTree getTree() {
