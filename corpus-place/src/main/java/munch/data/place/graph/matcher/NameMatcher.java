@@ -40,9 +40,10 @@ public final class NameMatcher implements Matcher {
     @Override
     public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
         List<String> leftNames = collectPlaceNames(left);
+
+        // Might want to join both left & right name
         if (!leftNames.isEmpty()) {
             List<String> rightNames = collectPlaceNames(right);
-
             // Place.name to Place.name
             if (!rightNames.isEmpty()) {
                 return Map.of("Place.name", match(leftNames, rightNames) ? 1 : -1);
@@ -53,6 +54,10 @@ public final class NameMatcher implements Matcher {
             }
         }
 
+        return matchArticleNames(left, right);
+    }
+
+    private Map<String, Integer> matchArticleNames(CorpusData left, CorpusData right) {
         // Article.Place.names to Article.Place.names
         List<String> leftArticleNames = collectArticleNames(left);
         List<String> rightArticleNames = collectArticleNames(right);

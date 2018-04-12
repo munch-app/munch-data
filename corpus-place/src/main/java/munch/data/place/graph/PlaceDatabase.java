@@ -63,9 +63,9 @@ public class PlaceDatabase {
         return JsonUtils.toObject(node, RootPlaceTree.class);
     }
 
-    public void put(String placeId, PlaceTree placeTree, boolean decayed){
+    public void put(String placeId, PlaceTree placeTree, boolean decayed) {
         Place place = putTree(placeId, placeTree, decayed);
-        putIf(place);
+        putIf(placeId, place);
     }
 
     /**
@@ -88,7 +88,7 @@ public class PlaceDatabase {
     }
 
     public void delete(String placeId) {
-        placeClient.delete(placeId);
+        retriable.loop(() -> placeClient.delete(placeId));
         corpusClient.delete("Sg.Munch.Place", placeId);
         documentClient.delete(TABLE_NAME, placeId, "0");
     }
@@ -98,23 +98,29 @@ public class PlaceDatabase {
      *
      * @param place non null place
      */
-    private void putIf(Place place) {
-        Place existing = placeClient.get(place.getId());
+    private void putIf(final String placeId, Place place) {
+        Place existing = placeClient.get(placeId);
+        if (place == null && existing == null) return;
+
+        if (place == null) {
+            // Need to be deleted
+            retriable.loop(() -> placeClient.delete(placeId));
+            return;
+        }
+
+        if (place.equals(existing)) return;
 
         // Put if data is changed only
-        if (!place.equals(existing)) {
-            try {
-                retriable.loop(() -> placeClient.put(place));
-                // Data might have been added to deleted, remove from deleted list
+        try {
+            retriable.loop(() -> placeClient.put(place));
 
-                logger.info("Updated: updated: {} existing: {}",
-                        JsonUtils.toString(place),
-                        JsonUtils.toString(existing)
-                );
-            } catch (Exception e) {
-                logger.error("Error: updated: {}", JsonUtils.toString(place));
-                throw e;
-            }
+            logger.info("Updated: updated: {} existing: {}",
+                    JsonUtils.toString(place),
+                    JsonUtils.toString(existing)
+            );
+        } catch (Exception e) {
+            logger.error("Error: updated: {}", JsonUtils.toString(place));
+            throw e;
         }
     }
 

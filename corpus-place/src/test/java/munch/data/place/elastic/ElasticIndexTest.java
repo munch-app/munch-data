@@ -46,7 +46,7 @@ public class ElasticIndexTest {
         while (iterator.hasNext() && i++ < size) {
             CorpusData next = iterator.next();
             RootPlaceTree rootTree = get(next.getCatalystId());
-            elasticClient.put(100, next, rootTree != null ? rootTree.getTree() : null);
+            elasticClient.put(100, next, rootTree);
             if (i % 100 == 0) logger.info("Indexed {} {} data", i, corpusName);
         }
 
