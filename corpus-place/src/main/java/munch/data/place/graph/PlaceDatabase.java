@@ -3,6 +3,7 @@ package munch.data.place.graph;
 import catalyst.utils.exception.ExceptionRetriable;
 import catalyst.utils.exception.Retriable;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import corpus.data.DocumentClient;
@@ -72,8 +73,9 @@ public class PlaceDatabase {
      * @param placeTree tree data
      */
     public Place putTree(String placeId, PlaceTree placeTree, boolean decayed) {
-        RootPlaceTree rootTree = new RootPlaceTree(placeTree);
-        documentClient.put(TABLE_NAME, placeId, "0", JsonUtils.toTree(rootTree));
+        ObjectNode node = (ObjectNode) JsonUtils.toTree(placeTree);
+        node.put("updatedDate", System.currentTimeMillis());
+        documentClient.put(TABLE_NAME, placeId, "0", node);
 
         Place place = placeParser.parse(placeId, placeTree, decayed);
         if (place == null) {

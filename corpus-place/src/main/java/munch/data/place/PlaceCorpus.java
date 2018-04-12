@@ -3,7 +3,6 @@ package munch.data.place;
 import com.google.common.collect.Lists;
 import corpus.data.CorpusData;
 import munch.data.place.graph.PlaceGraph;
-import munch.data.place.graph.PlaceTree;
 import munch.data.place.graph.RootPlaceTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +34,10 @@ public final class PlaceCorpus extends AbstractCorpus {
 
     @Override
     protected void process(long cycleNo, String placeId, CorpusData data) {
-        RootPlaceTree rootTree = placeDatabase.get(placeId);
-        PlaceTree placeTree = rootTree != null ? rootTree.getTree() : null;
+        RootPlaceTree placeTree = placeDatabase.get(placeId);
 
         List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
+        validate(dataList);
 
         PlaceGraph.Result result = tryBuildTree(placeTree, placeId, dataList);
         switch (result.status) {
@@ -63,5 +62,28 @@ public final class PlaceCorpus extends AbstractCorpus {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    /**
+     * @param dataList to validate, if failed will be deleted
+     */
+    private void validate(List<CorpusData> dataList) {
+        dataList.removeIf(data -> {
+            if (isValid(data)) return false;
+            corpusClient.delete(data.getCorpusName(), data.getCorpusKey());
+            return false;
+        });
+    }
+
+    /**
+     * Only Sg.Munch.Place is validated
+     * if Sg.Munch.Place corpusKey is not catalystId, it will fail validation
+     *
+     * @param data corpus data to validate
+     * @return data is valid
+     */
+    private boolean isValid(CorpusData data) {
+        if (!data.getCorpusName().equals("Sg.Munch.Place")) return true;
+        return data.getCorpusKey().equals(data.getCatalystId());
     }
 }
