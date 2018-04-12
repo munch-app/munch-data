@@ -95,10 +95,10 @@ public final class GraphElasticModule extends AbstractModule {
         private final AmazonECS ecsClient;
 
         public ECSLocator(Config config) {
-            this.clusterArn = config.getString("service.elastic.ecs.clusterArn");
-            this.taskDefinition = config.getString("service.elastic.ecs.taskDefinition");
+            this.clusterArn = config.getString("services.elastic.ecs.clusterArn");
+            this.taskDefinition = config.getString("services.elastic.ecs.taskDefinition");
             this.ecsClient = AmazonECSClientBuilder.standard()
-                    .withRegion(config.getString("service.elastic.ecs.region"))
+                    .withRegion(config.getString("services.elastic.ecs.region"))
                     .withCredentials(new DefaultAWSCredentialsProviderChain())
                     .build();
         }
