@@ -1,6 +1,12 @@
 package munch.data.place.elastic;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ecs.AmazonECS;
 import com.amazonaws.services.ecs.AmazonECSClientBuilder;
 import com.amazonaws.services.ecs.model.*;
@@ -93,6 +99,7 @@ public final class GraphElasticModule extends AbstractModule {
         private final String clusterArn;
         private final String taskDefinition;
         private final AmazonECS ecsClient;
+        private final AmazonEC2 ec2Client;
 
         public ECSLocator(Config config) {
             this.clusterArn = config.getString("services.elastic.ecs.clusterArn");
@@ -101,24 +108,53 @@ public final class GraphElasticModule extends AbstractModule {
                     .withRegion(config.getString("services.elastic.ecs.region"))
                     .withCredentials(new DefaultAWSCredentialsProviderChain())
                     .build();
+
+            this.ec2Client = AmazonEC2ClientBuilder.standard()
+                    .withRegion(config.getString("services.elastic.ecs.region"))
+                    .withCredentials(new DefaultAWSCredentialsProviderChain())
+                    .build();
         }
 
         private String locateUrl() {
             Task task = getTask();
             if (task == null) throw new IllegalStateException("Task is required to locate ecs for elastic");
+            String ipAddress = getApiAddress(task);
 
             List<Container> containers = task.getContainers();
             for (Container container : containers) {
-                //noinspection LoopStatementThatDoesntLoop
+
                 for (NetworkBinding networkBinding : container.getNetworkBindings()) {
-                    String ip = networkBinding.getBindIP();
                     int port = networkBinding.getHostPort();
-                    return "http://" + ip + ":" + port;
+                    return "http://" + ipAddress + ":" + port;
                 }
             }
 
             throw new IllegalStateException("Failed to find network binding");
         }
+
+        private String getApiAddress(Task task) {
+            DescribeContainerInstancesRequest request = new DescribeContainerInstancesRequest();
+            request.setCluster(clusterArn);
+            request.setContainerInstances(List.of(task.getContainerInstanceArn()));
+            DescribeContainerInstancesResult result = ecsClient.describeContainerInstances(request);
+
+            List<ContainerInstance> instances = result.getContainerInstances();
+            if (instances.size() != 1) throw new IllegalStateException("Failed to find Container Instance");
+
+            ContainerInstance containerInstance = instances.get(0);
+            DescribeInstancesRequest instancesRequest = new DescribeInstancesRequest();
+            instancesRequest.setInstanceIds(List.of(containerInstance.getEc2InstanceId()));
+            DescribeInstancesResult instanceResult = ec2Client.describeInstances(instancesRequest);
+
+            for (Reservation reservation : instanceResult.getReservations()) {
+                for (Instance instance : reservation.getInstances()) {
+                    return instance.getPrivateIpAddress();
+                }
+            }
+
+            throw new IllegalStateException("Failed to find ip address");
+        }
+
 
         private Task getTask() {
             List<Task> tasks = getTasks();

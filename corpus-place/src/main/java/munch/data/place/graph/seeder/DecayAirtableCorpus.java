@@ -157,7 +157,7 @@ public final class DecayAirtableCorpus extends AbstractEngine<Object> {
     }
 
     public void resolve(String placeId, boolean decayed) {
-        CorpusData data = new CorpusData();
+        CorpusData data = new CorpusData("", placeId, 0);
         data.setCatalystId(placeId);
         data.put(PlaceKey.id, placeId);
 
