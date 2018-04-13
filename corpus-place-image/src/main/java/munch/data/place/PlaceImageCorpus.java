@@ -30,7 +30,7 @@ import java.util.*;
 public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceImageCorpus.class);
 
-    private static final String VERSION = "2018-04-13";
+    private static final String VERSION = "2018-04-14";
     private final ImageCollector imageCollector;
     private final ImageProcessor imageProcessor;
 

@@ -65,10 +65,10 @@ public final class ImageListBuilder {
                     case "munch-place-info":
                     case "munch-ugc":
                         return 100;
+                    case "munch-franchise":
+                        return 110;
                     case "munch-crawler-mall":
                         return 410;
-                    case "munch-franchise":
-                        return 420;
                     case "munch-crawler":
                         return 600;
                     case "munch-concept":
