@@ -30,7 +30,7 @@ import java.util.*;
 public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceImageCorpus.class);
 
-    private static final String VERSION = "2018-01-31";
+    private static final String VERSION = "2018-04-13";
     private final ImageCollector imageCollector;
     private final ImageProcessor imageProcessor;
 
@@ -48,8 +48,13 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     }
 
     @Override
+    protected long loadCycleNo() {
+        return System.currentTimeMillis();
+    }
+
+    @Override
     protected Duration cycleDelay() {
-        return Duration.ofHours(16);
+        return Duration.ofHours(13);
     }
 
     @Override
@@ -77,6 +82,12 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
     protected void postCycle(long cycleNo) {
         airtableCounter.finish(Duration.ofMillis(1000));
         super.postCycle(cycleNo);
+    }
+
+    @Override
+    protected void deleteCycle(long cycleNo) {
+        super.deleteCycle(cycleNo);
+        corpusClient.deleteBefore("Sg.Munch.Place.Image", cycleNo - Duration.ofDays(7).toMillis());
     }
 
     private CorpusData parse(String placeId, long cycleNo) {
@@ -128,10 +139,12 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
      */
     private boolean isDue(CorpusData imageData) {
         if (imageData == null) return true;
+        if (!VERSION.equals(MetaKey.version.getValue(imageData))) return true;
+
         if (PlaceKey.image.getAll(imageData).size() < 3) {
             // If less then 3 photos, 2 day expiry date
             return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(2));
         }
-        return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(3));
+        return DateCompareUtils.after(imageData.getBridgedDate(), Duration.ofDays(4));
     }
 }

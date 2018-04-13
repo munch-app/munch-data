@@ -69,12 +69,12 @@ public final class ImageListBuilder {
                         return 410;
                     case "munch-franchise":
                         return 420;
-                    case "munch-concept":
-                        return 430;
-                    default:
-                        return 440;
                     case "munch-crawler":
                         return 600;
+                    case "munch-concept":
+                        return 700;
+                    default:
+                        return Integer.MAX_VALUE;
                 }
             case ArticleListPage:
                 return 500;
