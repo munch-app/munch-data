@@ -74,5 +74,8 @@ class LocationParserTest {
         print("'Singapore 150006'");
 
         print("12 Purvis Street, Singapore");
+
+        print("#01-49/50 Junction 8 Shopping Centre 9 Bishan Pl Singapore 579837");
+        print("#01-49/50 Junction 8 Shopping Centre 9 Bishan Pl Singapore 579837 Daily: 10.30am – 9.30pm");
     }
 }

@@ -66,7 +66,7 @@ public final class AddressGrouping {
         switch (type) {
             case StreetSuffix:
                 list = new ArrayList<>();
-                list.addAll(getPrefix(8, iterator));
+                list.addAll(getPrefix(22, iterator));
                 list.addAll(getPostfix(22, iterator));
                 return list;
             case Postal:
