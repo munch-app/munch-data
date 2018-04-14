@@ -59,6 +59,7 @@ public class PlaceModule extends AbstractModule {
         // Start the following corpus
         EngineGroup.start(
                 injector.getInstance(PlaceCorpus.class),
+//                injector.getInstance(ValidationCorpus.class),
                 injector.getInstance(DecayAirtableCorpus.class),
                 injector.getInstance(PlaceAirtableCorpus.class)
         );

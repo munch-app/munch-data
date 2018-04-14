@@ -29,6 +29,7 @@ public final class PlaceCorpus extends AbstractCorpus {
 
     @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
+
         return corpusClient.list("Sg.Munch.Place");
     }
 
@@ -37,7 +38,7 @@ public final class PlaceCorpus extends AbstractCorpus {
         RootPlaceTree placeTree = placeDatabase.get(placeId);
 
         List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
-        validate(dataList);
+        purge(dataList);
 
         PlaceGraph.Result result = tryBuildTree(placeTree, placeId, dataList);
         switch (result.status) {
@@ -67,23 +68,15 @@ public final class PlaceCorpus extends AbstractCorpus {
     /**
      * @param dataList to validate, if failed will be deleted
      */
-    private void validate(List<CorpusData> dataList) {
+    private void purge(List<CorpusData> dataList) {
         dataList.removeIf(data -> {
-            if (isValid(data)) return false;
-            corpusClient.delete(data.getCorpusName(), data.getCorpusKey());
+            if (data.getCorpusName().equals("Sg.Munch.Place")) {
+                if (!data.getCorpusKey().equals(data.getCatalystId())) {
+                    corpusClient.delete(data.getCorpusName(), data.getCorpusKey());
+                }
+                return true;
+            }
             return false;
         });
-    }
-
-    /**
-     * Only Sg.Munch.Place is validated
-     * if Sg.Munch.Place corpusKey is not catalystId, it will fail validation
-     *
-     * @param data corpus data to validate
-     * @return data is valid
-     */
-    private boolean isValid(CorpusData data) {
-        if (!data.getCorpusName().equals("Sg.Munch.Place")) return true;
-        return data.getCorpusKey().equals(data.getCatalystId());
     }
 }

@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
  */
 public final class ImageListBuilder {
     private static final Pattern X_PATTERN = Pattern.compile("[xX]");
-    private static final Set<String> MUNCH_SOURCE = Set.of("munch-franchise", "munch-concept");
 
     private List<ProcessedImage> imageList;
 
@@ -21,6 +20,16 @@ public final class ImageListBuilder {
 
     public List<ProcessedImage> select() {
         List<ProcessedImage> images = new ArrayList<>();
+
+        imageList.stream()
+                .filter(ImageListBuilder::isOverride)
+                .sorted(Comparator.comparingInt(ImageListBuilder::sortFromSource)
+                        .thenComparingLong(ImageListBuilder::sortSize)
+                        .thenComparingDouble(ImageListBuilder::sortOutput))
+                .limit(3)
+                .forEach(images::add);
+
+        if (!images.isEmpty()) return images;
 
         imageList.stream()
                 .filter(image -> image.isOutput("food", 0.8f))
@@ -45,6 +54,18 @@ public final class ImageListBuilder {
                 .forEach(images::add);
 
         return images;
+    }
+
+    private static boolean isOverride(ProcessedImage image) {
+        switch (image.getImage().getSource()) {
+            case "munch-place-info":
+            case "munch-ugc":
+            case "munch-franchise":
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     /**
