@@ -33,7 +33,6 @@ public final class SearchQuery {
     private Filter filter;
     private Sort sort;
 
-    private Trigger trigger;
     private UserInfo userInfo;
 
     public Integer getFrom() {
@@ -95,14 +94,6 @@ public final class SearchQuery {
 
     public void setSort(Sort sort) {
         this.sort = sort;
-    }
-
-    public Trigger getTrigger() {
-        return trigger;
-    }
-
-    public void setTrigger(Trigger trigger) {
-        this.trigger = trigger;
     }
 
     public UserInfo getUserInfo() {
@@ -363,59 +354,6 @@ public final class SearchQuery {
     }
 
     /**
-     * Trigger that user activated, not yet implemented
-     */
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Trigger {
-        private int querySearch;
-        private int placeClick;
-        private int placeImpression;
-        private int placePosition;
-
-        public int getQuerySearch() {
-            return querySearch;
-        }
-
-        public void setQuerySearch(int querySearch) {
-            this.querySearch = querySearch;
-        }
-
-        public int getPlaceClick() {
-            return placeClick;
-        }
-
-        public void setPlaceClick(int placeClick) {
-            this.placeClick = placeClick;
-        }
-
-        public int getPlaceImpression() {
-            return placeImpression;
-        }
-
-        public void setPlaceImpression(int placeImpression) {
-            this.placeImpression = placeImpression;
-        }
-
-        public int getPlacePosition() {
-            return placePosition;
-        }
-
-        public void setPlacePosition(int placePosition) {
-            this.placePosition = placePosition;
-        }
-
-        @Override
-        public String toString() {
-            return "Trigger{" +
-                    "querySearch=" + querySearch +
-                    ", placeClick=" + placeClick +
-                    ", placeImpression=" + placeImpression +
-                    ", placePosition=" + placePosition +
-                    '}';
-        }
-    }
-
-    /**
      * User Info send from client
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -476,7 +414,6 @@ public final class SearchQuery {
                 ", radius=" + radius +
                 ", filter=" + filter +
                 ", sort=" + sort +
-                ", trigger=" + trigger +
                 '}';
     }
 
