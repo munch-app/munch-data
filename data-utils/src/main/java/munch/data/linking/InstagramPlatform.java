@@ -10,6 +10,10 @@ public class InstagramPlatform implements Platform {
 
     @Override
     public String parse(PlatformUrl url) {
+        String path = url.getPath(0);
+        if (path == null) return null;
+        if (path.equalsIgnoreCase("p")) return null;
+
         return wrap("instagram.com/", url.getPath(0));
     }
 }
