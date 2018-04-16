@@ -21,7 +21,7 @@ import java.util.Set;
  * Project: munch-data
  */
 @Singleton
-public final class DomainBlocked {
+public class DomainBlocked {
     private final Set<String> blockedDomains;
 
     @Inject
@@ -31,10 +31,6 @@ public final class DomainBlocked {
     }
 
     public boolean isBlockedUrl(String url) {
-        return isBlocked(getTLD(url));
-    }
-
-    public boolean isBlockedImageUrl(String url) {
         return isBlocked(getTLD(url));
     }
 
