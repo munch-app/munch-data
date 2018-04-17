@@ -77,5 +77,7 @@ class LocationParserTest {
 
         print("#01-49/50 Junction 8 Shopping Centre 9 Bishan Pl Singapore 579837");
         print("#01-49/50 Junction 8 Shopping Centre 9 Bishan Pl Singapore 579837 Daily: 10.30am – 9.30pm");
+
+        print("Sentosa Golf Club, 27 Bukit Manis Road, Tel: ");
     }
 }
