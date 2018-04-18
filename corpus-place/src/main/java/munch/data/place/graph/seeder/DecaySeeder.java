@@ -82,18 +82,6 @@ public final class DecaySeeder implements Seeder {
     }
 
     private Status getDecayStatus(List<CorpusData> dataList, DecayTracker.Status status) {
-        Set<String> names = dataList.stream().map(CorpusData::getCorpusName).collect(Collectors.toSet());
-
-        if (names.contains("Sg.Nea.TrackRecord.Deleted")) {
-            if (!names.contains("Sg.Nea.TrackRecord")) {
-                if (status != null) {
-                    if (status.isDecayed()) return Status.Decayed;
-                    return Status.Decaying;
-                }
-                return Status.StartFastDecay;
-            }
-        }
-
         Date latestOpen = new Date(0);
         Date latestClose = new Date(0);
         Date latestDecay = new Date(0);
@@ -120,6 +108,18 @@ public final class DecaySeeder implements Seeder {
                 if (latestDecay.compareTo(date) < 0) {
                     latestDecay = date;
                 }
+            }
+        }
+
+        Set<String> names = dataList.stream().map(CorpusData::getCorpusName).collect(Collectors.toSet());
+
+        if (names.contains("Sg.Nea.TrackRecord.Deleted")) {
+            if (!names.contains("Sg.Nea.TrackRecord")) {
+                if (status != null) {
+                    if (status.isDecayed()) return Status.Decayed;
+                    return Status.Decaying;
+                }
+                return Status.StartFastDecay;
             }
         }
 
