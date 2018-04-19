@@ -116,6 +116,7 @@ public final class ImageProcessor {
                 }
             });
         } catch (IOException ioe) {
+            if (ioe.getMessage().startsWith("Server returned HTTP response code: 403 for")) return null;
             throw new RuntimeException(ioe);
         } finally {
             FileUtils.deleteQuietly(file);
