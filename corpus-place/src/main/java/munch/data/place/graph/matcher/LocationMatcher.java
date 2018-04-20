@@ -6,11 +6,13 @@ import corpus.field.PlaceKey;
 import corpus.utils.FieldCollector;
 import munch.data.place.elastic.ElasticClient;
 import munch.data.place.graph.PlaceTree;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Created by: Fuxing
@@ -20,15 +22,31 @@ import java.util.Set;
  */
 @Singleton
 public final class LocationMatcher implements Matcher, Searcher {
+    private static final Pattern UNIT_PATTERN = Pattern.compile("[# ]");
 
     @Override
     public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
         return Map.of(
                 "Place.Location.postal", matchPostal(left, right) ? 1 : 0,
-                "Place.Location.unitNumber", matchField(PlaceKey.Location.unitNumber, left, right) ? 1 : 0,
+                "Place.Location.unitNumber", matchUnit(left, right) ? 1 : 0,
                 "Place.Location.street", matchField(PlaceKey.Location.street, left, right) ? 1 : 0,
                 "Place.Location.address", matchField(PlaceKey.Location.address, left, right) ? 1 : 0
         );
+    }
+
+    private static boolean matchUnit(CorpusData left, CorpusData right) {
+        String leftUnit = fixUnit(PlaceKey.Location.unitNumber.getValue(left));
+        if(leftUnit == null) return false;
+
+        String rightUnit = fixUnit(PlaceKey.Location.unitNumber.getValue(right));
+        if (rightUnit == null) return false;
+
+        return leftUnit.equalsIgnoreCase(rightUnit);
+    }
+
+    private static String fixUnit(String text) {
+        if (StringUtils.isBlank(text)) return null;
+        return UNIT_PATTERN.matcher(text).replaceAll("");
     }
 
     private static boolean matchField(AbstractKey key, CorpusData left, CorpusData right) {
@@ -47,6 +65,11 @@ public final class LocationMatcher implements Matcher, Searcher {
         if (rightPostal == null) return false;
 
         return fixPostal(leftPostal).equals(fixPostal(rightPostal));
+    }
+
+    private static String fixPostal(String postal) {
+        if (postal != null && postal.length() == 5) return "0" + postal;
+        return postal;
     }
 
     @Override
@@ -73,10 +96,5 @@ public final class LocationMatcher implements Matcher, Searcher {
         if (!field.getKey().equals("Place.Location.postal")) return;
 
         field.setValue(fixPostal(field.getValue()));
-    }
-
-    private static String fixPostal(String postal) {
-        if (postal != null && postal.length() == 5) return "0" + postal;
-        return postal;
     }
 }

@@ -25,7 +25,8 @@ public final class LinkerManager {
             new SpatialNameLinker(),
             new LocationPhoneLinkingLinker(),
             new LocationPhoneWebsiteLinker(),
-            new LocationPhoneUnitLinker()
+            new LocationPhoneUnitLinker(),
+            new ContainNameLinker()
     );
 
     private final Map<String, Linker> linkerMap;

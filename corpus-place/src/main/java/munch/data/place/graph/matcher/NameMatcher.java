@@ -46,7 +46,18 @@ public final class NameMatcher implements Matcher {
             List<String> rightNames = collectPlaceNames(right);
             // Place.name to Place.name
             if (!rightNames.isEmpty()) {
-                return Map.of("Place.name", match(leftNames, rightNames) ? 1 : -1);
+                if (match(leftNames, rightNames)) {
+                    return Map.of("Place.name", 1);
+                }
+
+                for (String rightName : rightNames) {
+                    for (String leftName : leftNames) {
+                        if (StringUtils.containsIgnoreCase(rightName, leftName)) {
+                            return Map.of("Place.name.contains",  1);
+                        }
+                    }
+                }
+                return Map.of("Place.name",  -1);
             } else {
                 // Place.name to Article.Place.names
                 List<String> articleNames = collectArticleNames(right);
