@@ -31,11 +31,12 @@ public final class SeederManager {
                 case Block:
                 case Decayed:
                     return result;
+
                 case Proceed:
             }
         }
 
         // Default to block
-        return Seeder.Result.Block;
+        return Seeder.Result.Proceed;
     }
 }

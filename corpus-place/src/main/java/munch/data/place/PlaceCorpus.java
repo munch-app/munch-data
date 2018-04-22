@@ -29,7 +29,6 @@ public final class PlaceCorpus extends AbstractCorpus {
 
     @Override
     protected Iterator<CorpusData> fetch(long cycleNo) {
-
         return corpusClient.list("Sg.Munch.Place");
     }
 
@@ -57,7 +56,14 @@ public final class PlaceCorpus extends AbstractCorpus {
             case Failed:
                 applyActions(placeId, result.actions);
                 placeDatabase.delete(placeId);
+                index(result.placeTree);
                 logger.info("Failed rebuilding PlaceTree: {}", placeId);
+                return;
+
+            case Remove:
+                applyActions(placeId, result.actions);
+                placeDatabase.remove(placeId, placeTree);
+                index(result.placeTree);
                 return;
 
             default:

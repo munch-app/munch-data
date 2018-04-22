@@ -147,8 +147,10 @@ public final class PlaceGraph {
 
         public static Result of(Seeder.Result result, PlaceTree placeTree, List<Action> actions) {
             switch (result) {
-                case Block:
+                case Proceed:
                     return new Result(Status.Failed, placeTree, actions);
+                case Block:
+                    return new Result(Status.Remove, placeTree, actions);
                 case Seed:
                     return new Result(Status.Seeded, placeTree, actions);
                 case Decayed:
@@ -170,7 +172,7 @@ public final class PlaceGraph {
     }
 
     public enum Status {
-        Seeded, Decayed, Failed
+        Seeded, Decayed, Failed, Remove
     }
 
     /**

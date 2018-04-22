@@ -90,6 +90,8 @@ public final class NameMatcher implements Matcher {
         return PlaceKey.name.getAll(data).stream()
                 .map(field -> nameCleaner.clean(field.getValue()))
                 .map(String::toLowerCase)
+                // Temporary And Solution
+                .map(s -> s.replace(" & ", "and"))
                 .collect(Collectors.toList());
     }
 
@@ -97,6 +99,8 @@ public final class NameMatcher implements Matcher {
         return FieldUtils.getAll(data, "Article.Place.names").stream()
                 .map(field -> nameCleaner.simpleClean(field.getValue()))
                 .map(String::toLowerCase)
+                // Temporary And Solution
+                .map(s -> s.replace(" & ", "and"))
                 .collect(Collectors.toList());
     }
 

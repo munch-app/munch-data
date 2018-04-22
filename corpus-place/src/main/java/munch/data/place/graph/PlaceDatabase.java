@@ -93,6 +93,14 @@ public class PlaceDatabase {
         documentClient.delete(TABLE_NAME, placeId, "0");
     }
 
+    public void remove(String placeId, PlaceTree placeTree) {
+        ObjectNode node = (ObjectNode) JsonUtils.toTree(placeTree);
+        node.put("updatedDate", System.currentTimeMillis());
+        documentClient.put(TABLE_NAME, placeId, "0", node);
+
+        retriable.loop(() -> placeClient.delete(placeId));
+    }
+
     /**
      * Data put only if actually changed
      *

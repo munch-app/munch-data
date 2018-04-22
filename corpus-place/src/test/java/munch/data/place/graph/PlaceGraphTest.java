@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 /**
  * Created by: Fuxing
@@ -32,14 +33,34 @@ public class PlaceGraphTest {
         this.placeGraph = placeGraph;
     }
 
+    protected PlaceGraph.Result tryBuildTree(PlaceTree existingTree, String placeId, List<CorpusData> dataList) {
+        PlaceGraph.Result result = PlaceGraph.Result.ofFailed(dataList);
 
+        // Try build from initial place tree if exist
+        if (existingTree != null) {
+            result = placeGraph.search(placeId, existingTree, dataList);
+        }
+
+        // Only try rebuild if initial build failed
+        if (result.status == PlaceGraph.Status.Failed) {
+            for (CorpusData data : dataList) {
+                result = placeGraph.search(placeId, new PlaceTree(data), dataList);
+
+                // Manage to build, exit
+                if (result.status != PlaceGraph.Status.Failed) break;
+            }
+        }
+
+        return result;
+    }
 
     private void graphPrintActions(String corpusName, String corpusKey) {
         CorpusData corpusData = corpusClient.get(corpusName, corpusKey);
         String placeId = corpusData.getCatalystId();
 
         PlaceTree tree = new PlaceTree("seed", corpusData);
-        PlaceGraph.Result result = placeGraph.search(placeId, tree, Lists.newArrayList(catalystClient.listCorpus(placeId)));
+        List<CorpusData> dataList = Lists.newArrayList(catalystClient.listCorpus(placeId));
+        PlaceGraph.Result result = tryBuildTree(tree, placeId, dataList);
 
         for (PlaceGraph.Action action : result.actions) {
             if (action.link) {
@@ -56,6 +77,7 @@ public class PlaceGraphTest {
         Injector injector = PlaceGraphTestModule.getInjector();
         PlaceGraphTest graphTest = injector.getInstance(PlaceGraphTest.class);
 
-        graphTest.graphPrintActions("Sg.MunchSheet.PlaceInfo2", "reclmMDsqFa60Hbpq");
+//        graphTest.graphPrintActions("Sg.MunchSheet.PlaceInfo2", "reclmMDsqFa60Hbpq");
+        graphTest.graphPrintActions("Sg.Nea.TrackRecord", "585802d3b75a18ab29ba2c1d5ef2c5b8ed97be697bbf2cff47071159d0901062a53020066c9cd6796ec99dd4e46d7140d345a2159bee548314021bb8ce05e1b2");
     }
 }

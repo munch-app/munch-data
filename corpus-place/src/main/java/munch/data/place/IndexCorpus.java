@@ -54,6 +54,7 @@ public final class IndexCorpus extends AbstractCorpus {
                 return;
 
             case Failed:
+            case Remove:
                 index(data, null);
                 return;
 
