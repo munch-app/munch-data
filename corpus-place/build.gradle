@@ -11,6 +11,7 @@ dependencies {
     // Parsers
     compile group: 'fr.dudie', name: 'nominatim-api', version: '3.3'
     compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+    compile group: 'com.flipkart.zjsonpatch', name: 'zjsonpatch', version: '0.4.4'
 
     // Airtable
     compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.313'

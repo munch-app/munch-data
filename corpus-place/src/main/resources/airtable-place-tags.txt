@@ -314,3 +314,4 @@ pubs & bars
 zi char
 congee
 peranakan
+malay

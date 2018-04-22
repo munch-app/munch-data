@@ -4,6 +4,7 @@ import catalyst.utils.exception.ExceptionRetriable;
 import catalyst.utils.exception.Retriable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.zjsonpatch.JsonDiff;
 import corpus.data.CorpusClient;
 import corpus.data.CorpusData;
 import corpus.data.DocumentClient;
@@ -122,12 +123,10 @@ public class PlaceDatabase {
         try {
             retriable.loop(() -> placeClient.put(place));
 
-            logger.info("Updated: updated: {} existing: {}",
-                    JsonUtils.toString(place),
-                    JsonUtils.toString(existing)
-            );
+            JsonNode diffJson = JsonDiff.asJson(JsonUtils.toTree(existing), JsonUtils.toTree(place));
+            logger.info("Updated: diff: {}", JsonUtils.toString(diffJson));
         } catch (Exception e) {
-            logger.error("Error: updated: {}", JsonUtils.toString(place));
+            logger.error("Update: json: {}", JsonUtils.toString(place));
             throw e;
         }
     }

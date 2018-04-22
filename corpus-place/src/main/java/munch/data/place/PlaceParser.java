@@ -75,13 +75,7 @@ public final class PlaceParser {
     public Place parse(String placeId, PlaceTree placeTree, boolean decay) {
         List<CorpusData> list = placeTree.getCorpusDataList();
         // Remove Sg.Munch.Place from influencing Parser
-        Iterator<CorpusData> iterator = list.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().getCorpusName().equals("Sg.Munch.Place")) {
-                iterator.remove();
-                break;
-            }
-        }
+        list.removeIf(data -> data.getCorpusName().equals("Sg.Munch.Place"));
 
         Place place = new Place();
         place.setId(placeId);

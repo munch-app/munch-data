@@ -4,8 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import corpus.airtable.AirtableApi;
+import corpus.airtable.AirtableHashSession;
 import corpus.airtable.AirtableRecord;
-import corpus.airtable.AirtableReplaceSession;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.PlaceClient;
@@ -39,7 +39,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
     private final AirtableApi.Table table;
     private final Set<String> possiblePlaceTags;
 
-    private AirtableReplaceSession replaceSession;
+    private AirtableHashSession hashSession;
 
     @Inject
     public PlaceAirtableCorpus(PlaceClient placeClient, AirtableApi airtableApi) throws IOException {
@@ -58,11 +58,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected boolean preCycle(long cycleNo) {
-        this.replaceSession = new AirtableReplaceSession(Duration.ofMillis(500), table, (record, record2) -> {
-            return record.getField("Place.id").asText().equals(record2.getField("Place.id").asText());
-        }, (record, record2) -> {
-            return record.getField("UpdatedDate").asText().equals(record2.getField("UpdatedDate").asText());
-        });
+        this.hashSession = new AirtableHashSession(table, Duration.ofMillis(500), "Place.id", "UpdatedDate");
         return super.preCycle(cycleNo);
     }
 
@@ -82,7 +78,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
         }
 
         AirtableRecord record = parse(place);
-        replaceSession.put(record);
+        hashSession.put(record);
     }
 
     private AirtableRecord parse(Place place) {
@@ -140,8 +136,8 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
 
     @Override
     protected void postCycle(long cycleNo) {
-        replaceSession.close();
-        replaceSession = null;
+        hashSession.close();
+        hashSession = null;
         super.postCycle(cycleNo);
     }
 }

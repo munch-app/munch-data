@@ -56,7 +56,6 @@ public final class PlaceCorpus extends AbstractCorpus {
             case Failed:
                 applyActions(placeId, result.actions);
                 placeDatabase.delete(placeId);
-                index(result.placeTree);
                 logger.info("Failed rebuilding PlaceTree: {}", placeId);
                 return;
 
