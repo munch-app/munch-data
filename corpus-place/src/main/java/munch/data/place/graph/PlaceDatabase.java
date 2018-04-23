@@ -123,8 +123,14 @@ public class PlaceDatabase {
         try {
             retriable.loop(() -> placeClient.put(place));
 
-            JsonNode diffJson = JsonDiff.asJson(JsonUtils.toTree(existing), JsonUtils.toTree(place));
-            logger.info("Updated: diff: {}", JsonUtils.toString(diffJson));
+            if (existing != null) {
+                JsonNode diffJson = JsonDiff.asJson(JsonUtils.toTree(existing), JsonUtils.toTree(place));
+                logger.info("Updated: diff: {}", JsonUtils.toString(diffJson));
+            } else {
+                logger.info("Created: new: {}", JsonUtils.toTree(place));
+            }
+
+
         } catch (Exception e) {
             logger.error("Update: json: {}", JsonUtils.toString(place));
             throw e;
