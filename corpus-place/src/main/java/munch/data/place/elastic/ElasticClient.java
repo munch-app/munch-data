@@ -107,7 +107,7 @@ public final class ElasticClient {
             arrayNode.add(filter);
         }
 
-        return search(createQuery(0, 1000, arrayNode));
+        return search(createQuery(0, 200, arrayNode));
     }
 
     /**

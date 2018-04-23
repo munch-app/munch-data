@@ -50,5 +50,7 @@ public final class ValidationCorpus extends CatalystEngine<Place> {
             placeClient.delete(data.getId());
             logger.info("Deleted Place {}", data.getId());
         }
+
+        sleep(100);
     }
 }

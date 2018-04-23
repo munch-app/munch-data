@@ -25,7 +25,6 @@ public final class LocationPhoneUnitLinker implements Linker {
         int unit = matchers.getOrDefault("Place.Location.unitNumber", 0);
         int phone = matchers.getOrDefault("Place.phone", 0);
 
-
         return phone >= 1 && postal >= 1 && unit >= 1;
     }
 }
