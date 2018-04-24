@@ -83,8 +83,6 @@ public class PlaceTree {
             size += tree.getSize();
         }
 
-        // TODO: CC V3
-        if (size > 1000) throw new IllegalStateException("Not allowed to have more then 1000.");
         return size;
     }
 

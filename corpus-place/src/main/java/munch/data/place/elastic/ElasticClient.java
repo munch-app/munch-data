@@ -11,6 +11,8 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import munch.data.place.graph.PlaceTree;
 import munch.restful.core.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,6 +29,7 @@ import java.util.List;
  */
 @Singleton
 public final class ElasticClient {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticClient.class);
     private static final ObjectMapper objectMapper = JsonUtils.objectMapper;
 
     private final JestClient client;
@@ -97,10 +100,15 @@ public final class ElasticClient {
     }
 
     public List<CorpusData> search(PlaceTree tree, JsonNode... filters) {
+        int size = tree.getSize();
+
+        if (size > 1000) {
+            logger.warn("PlaceTree size more than 1000, actual: {}, id: {}", tree.getSize(), tree.getCorpusData().getCatalystId());
+        }
         ArrayNode arrayNode = objectMapper.createArrayNode();
 
         ObjectNode treeSizeRange = objectMapper.createObjectNode();
-        treeSizeRange.putObject("range").putObject("treeSize").put("lte", tree.getSize());
+        treeSizeRange.putObject("range").putObject("treeSize").put("lte", size);
         arrayNode.add(treeSizeRange);
 
         for (JsonNode filter : filters) {
