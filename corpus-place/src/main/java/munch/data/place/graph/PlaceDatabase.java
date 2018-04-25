@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 /**
  * In Charge of saving Place Data:
@@ -74,11 +75,8 @@ public class PlaceDatabase {
      * @param placeTree tree data
      */
     public Place putTree(String placeId, PlaceTree placeTree, boolean decayed) {
-        ObjectNode node = (ObjectNode) JsonUtils.toTree(placeTree);
-        node.put("updatedDate", System.currentTimeMillis());
-        documentClient.put(TABLE_NAME, placeId, "0", node);
-
         Place place = placeParser.parse(placeId, placeTree, decayed);
+        documentClient.put(TABLE_NAME, placeId, "0", asNode(placeTree));
         if (place == null) {
             logger.error("Failed to parse Place: {}", placeId);
             return null;
@@ -95,11 +93,18 @@ public class PlaceDatabase {
     }
 
     public void remove(String placeId, PlaceTree placeTree) {
-        ObjectNode node = (ObjectNode) JsonUtils.toTree(placeTree);
-        node.put("updatedDate", System.currentTimeMillis());
-        documentClient.put(TABLE_NAME, placeId, "0", node);
+        documentClient.put(TABLE_NAME, placeId, "0", asNode(placeTree));
 
         retriable.loop(() -> placeClient.delete(placeId));
+    }
+
+    private JsonNode asNode(PlaceTree placeTree) {
+        for (CorpusData data : placeTree.getCorpusDataList()) {
+            data.setFields(List.of());
+        }
+        ObjectNode node = (ObjectNode) JsonUtils.toTree(placeTree);
+        node.put("updatedDate", System.currentTimeMillis());
+        return node;
     }
 
     /**
