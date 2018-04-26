@@ -76,8 +76,8 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
 
         List<String> explicits = tagBuilder.collectExplicit();
         List<String> predicts = tagBuilder.withPredicted();
-        if (explicits.size() < 3) {
-            // Only rerun explicits if < 3
+        if (explicits.size() < 2) {
+            // Only rerun explicits if < 2
             explicits = tagBuilder.collectExplicit();
         }
 
