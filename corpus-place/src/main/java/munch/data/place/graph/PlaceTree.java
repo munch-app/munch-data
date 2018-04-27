@@ -94,10 +94,11 @@ public class PlaceTree {
     }
 
     @JsonIgnore
-    public boolean updateReference(List<CorpusData> dataList) {
+    public boolean updateReference(Collection<CorpusData> dataList) {
         for (CorpusData data : dataList) {
             if (data.getCorpusName().equals(corpusData.getCorpusName()) &&
                     data.getCorpusKey().equals(corpusData.getCorpusKey())) {
+                dataList.remove(data);
                 setCorpusData(data);
                 return true;
             }

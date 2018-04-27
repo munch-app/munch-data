@@ -35,7 +35,7 @@ import javax.inject.Singleton;
 @Singleton
 public class PlaceDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PlaceDatabase.class);
-    public static final String TABLE_NAME = "Sg.Munch.Place.Tree.V4";
+    public static final String TABLE_NAME = "Sg.Munch.Place.Tree.V5";
     private static final Retriable retriable = new ExceptionRetriable(4);
 
     private final DocumentClient documentClient;

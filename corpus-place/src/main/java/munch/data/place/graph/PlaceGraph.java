@@ -39,8 +39,9 @@ public final class PlaceGraph {
      * @param placeTree to validate
      * @return Seeder result
      */
-    public Result search(String placeId, PlaceTree placeTree, List<CorpusData> dataList) {
+    public Result search(String placeId, PlaceTree placeTree, Collection<CorpusData> dataList) {
         Set<CorpusData> insideSet = new HashSet<>();
+        dataList = new HashSet<>(dataList);
 
         // End if failed to find seed reference
         if (!placeTree.updateReference(dataList)) return Result.ofFailed(dataList);
@@ -99,7 +100,7 @@ public final class PlaceGraph {
      * @param dataList  for updating reference
      * @param insideSet to collect data in place tree
      */
-    private void validate(String placeId, PlaceTree left, PlaceTree right, List<CorpusData> dataList, Set<CorpusData> insideSet) {
+    private void validate(String placeId, PlaceTree left, PlaceTree right, Collection<CorpusData> dataList, Set<CorpusData> insideSet) {
         // Failed to find reference
         if (!right.updateReference(dataList)) return;
 
@@ -152,7 +153,7 @@ public final class PlaceGraph {
             this.actions = actions;
         }
 
-        public static Result ofFailed(List<CorpusData> dataList) {
+        public static Result ofFailed(Collection<CorpusData> dataList) {
             List<Action> actions = dataList.stream()
                     .map(data -> Action.of(false, data))
                     .collect(Collectors.toList());
