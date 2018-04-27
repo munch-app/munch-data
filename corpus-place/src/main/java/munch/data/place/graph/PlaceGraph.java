@@ -57,10 +57,24 @@ public final class PlaceGraph {
         Set<CorpusData> linkedSet = new HashSet<>(dataList);
         linkedSet.removeAll(insideSet);
 
-        // Try link and remove all unlinked data
+        boolean looping;
+
+        do {
+            looping = false;
+            // Try link and remove all unlinked data
+            for (CorpusData right : linkedSet) {
+                if (tryLink(placeId, placeTree, right)) {
+                    linkedSet.remove(right);
+                    insideSet.add(right);
+                    looping = true;
+                    break;
+                }
+            }
+        } while (looping);
+
+        // For Remove
         for (CorpusData right : linkedSet) {
-            boolean linked = tryLink(placeId, placeTree, right);
-            actionList.add(Action.of(linked, right));
+            actionList.add(Action.of(false, right));
         }
 
         // Collected search result

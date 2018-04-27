@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.List;
 
 /**
  * In Charge of saving Place Data:
@@ -36,7 +35,7 @@ import java.util.List;
 @Singleton
 public class PlaceDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PlaceDatabase.class);
-    private static final String TABLE_NAME = "Sg.Munch.Place.Tree.V3";
+    public static final String TABLE_NAME = "Sg.Munch.Place.Tree.V4";
     private static final Retriable retriable = new ExceptionRetriable(4);
 
     private final DocumentClient documentClient;
@@ -93,15 +92,16 @@ public class PlaceDatabase {
     }
 
     public void remove(String placeId, PlaceTree placeTree) {
-        documentClient.put(TABLE_NAME, placeId, "0", asNode(placeTree));
+        if (placeTree != null)
+            documentClient.put(TABLE_NAME, placeId, "0", asNode(placeTree));
 
         retriable.loop(() -> placeClient.delete(placeId));
     }
 
     private JsonNode asNode(PlaceTree placeTree) {
-        for (CorpusData data : placeTree.getCorpusDataList()) {
-            data.setFields(List.of());
-        }
+//        for (CorpusData data : placeTree.getCorpusDataList()) {
+//            data.setFields(List.of());
+//        }
         ObjectNode node = (ObjectNode) JsonUtils.toTree(placeTree);
         node.put("updatedDate", System.currentTimeMillis());
         return node;

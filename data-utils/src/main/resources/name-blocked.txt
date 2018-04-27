@@ -69,3 +69,5 @@ right
 left
 header-left
 header-right
+not
+not applicable

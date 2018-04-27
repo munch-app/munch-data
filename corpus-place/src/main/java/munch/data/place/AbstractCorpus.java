@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -97,17 +99,21 @@ public abstract class AbstractCorpus extends CatalystEngine<CorpusData> {
             result = placeGraph.search(placeId, existingTree, dataList);
         }
 
+        List<PlaceGraph.Result> results = new ArrayList<>();
         // Only try rebuild if initial build failed
-        if (result.status == PlaceGraph.Status.Failed) {
+        if (result.status != PlaceGraph.Status.Seeded) {
             for (CorpusData data : dataList) {
                 result = placeGraph.search(placeId, new PlaceTree(data), dataList);
 
                 // Manage to build, exit
-                if (result.status != PlaceGraph.Status.Failed) break;
+                if (result.status == PlaceGraph.Status.Seeded) return result;
+                results.add(result);
             }
         }
 
-        return result;
+        return results.stream()
+                .min(Comparator.comparingInt(o -> o.actions.size()))
+                .orElse(result);
     }
 
     protected void applyActions(String placeId, List<PlaceGraph.Action> actionList) {
