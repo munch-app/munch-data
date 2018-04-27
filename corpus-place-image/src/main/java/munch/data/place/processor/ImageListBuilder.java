@@ -1,5 +1,7 @@
 package munch.data.place.processor;
 
+import munch.data.place.collector.CollectedImage;
+
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -32,21 +34,17 @@ public final class ImageListBuilder {
         if (!images.isEmpty()) return images;
 
         imageList.stream()
-                .filter(image -> image.isOutput("food", 0.8f))
+                .filter(image -> image.isOutput("food", 0.7f))
+                .filter(image -> !canError(image))
                 .sorted(Comparator.comparingInt(ImageListBuilder::sortFromSource)
                         .thenComparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput))
                 .limit(3)
                 .forEach(images::add);
 
-//        // Image list not empty, Remove all images from munch if first image is not from munch
-//        if (!images.isEmpty() && !MUNCH_SOURCE.contains(images.get(0).getImage().getSource())) {
-//            // Remove all image that is not created through Munch
-//            images.removeIf(image -> MUNCH_SOURCE.contains(image.getImage().getSource()));
-//        }
-
         imageList.stream()
-                .filter(image -> image.isOutput("place", 0.8f))
+                .filter(image -> image.isOutput("place", 0.7f))
+                .filter(image -> !canError(image))
                 .sorted(Comparator.comparingInt(ImageListBuilder::sortFromSource)
                         .thenComparingLong(ImageListBuilder::sortSize)
                         .thenComparingDouble(ImageListBuilder::sortOutput))
@@ -127,6 +125,13 @@ public final class ImageListBuilder {
         } catch (NumberFormatException | NullPointerException ignored) {
         }
         return 0;
+    }
+
+    private static boolean canError(ProcessedImage image) {
+        if (image.getImage().getFrom() == CollectedImage.From.ArticleListPage) {
+            if (image.getImage().getSourceId().equals("misstamchiak.com")) return true;
+        }
+        return false;
     }
 
     /**
