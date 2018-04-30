@@ -25,10 +25,7 @@ public class MenuParser extends WebsiteParser {
 
     @Override
     public String parse(Place place, List<CorpusData> list) {
-        List<String> websites = collectSorted(list, PlaceKey.menu);
-        if (websites.isEmpty()) return null;
-
-        return search(websites);
+        return fix(collectMax(list, PlaceKey.menu));
     }
 
 }

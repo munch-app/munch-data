@@ -1,7 +1,10 @@
 package munch.data.place.parser;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import corpus.data.CorpusData;
 import corpus.field.PlaceKey;
+import corpus.utils.FieldCollector;
 import munch.data.structure.Place;
 import munch.data.website.DomainBlocked;
 import munch.data.website.WebsiteNormalizer;
@@ -9,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -29,20 +32,47 @@ public class WebsiteParser extends AbstractParser<String> {
 
     @Override
     public String parse(Place place, List<CorpusData> list) {
-        List<String> websites = collectSorted(list, PlaceKey.website);
-        if (websites.isEmpty()) return null;
+        FieldCollector fieldCollector = new FieldCollector(PlaceKey.website);
+        fieldCollector.addAll(list);
+        String priority = fix(fieldCollector.collectMax(priorityCorpus));
+        if (priority != null) return priority;
 
-        return search(websites);
+        List<String> websites = new ArrayList<>();
+        Map<String, Set<String>> articleWebsites = new HashMap<>();
+
+        fieldCollector.getFields().forEach(field -> {
+            if (field.getCorpusName().equals("Global.MunchArticle.Article")) {
+                articleWebsites.compute(field.getValue(), (s, strings) -> {
+                    if (strings == null) strings = new HashSet<>();
+                    strings.add(field.getCorpusKey());
+
+                    return strings;
+                });
+            } else {
+                websites.add(field.getValue());
+            }
+        });
+
+        if (!websites.isEmpty()) {
+            return HashMultiset.create(websites).entrySet()
+                    .stream()
+                    .max(Comparator.comparingInt(Multiset.Entry::getCount))
+                    .map(entry -> fix(entry.getElement()))
+                    .orElse(null);
+        }
+
+        if (articleWebsites.isEmpty()) return null;
+        return articleWebsites.entrySet()
+                .stream()
+                .max(Comparator.comparingInt(value -> value.getValue().size()))
+                .map(entry -> fix(entry.getKey()))
+                .orElse(null);
     }
 
-    protected String search(List<String> urls) {
-        for (String url : urls) {
-            url = WebsiteNormalizer.normalize(url);
-            if (isBlocked(url)) continue;
-
-            return url;
-        }
-        return null;
+    protected String fix(String url) {
+        url = WebsiteNormalizer.normalize(url);
+        if (isBlocked(url)) return null;
+        return url;
     }
 
     protected boolean isBlocked(String website) {
