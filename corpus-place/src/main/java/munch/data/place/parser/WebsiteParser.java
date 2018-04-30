@@ -70,6 +70,8 @@ public class WebsiteParser extends AbstractParser<String> {
     }
 
     protected String fix(String url) {
+        if (StringUtils.isEmpty(url)) return null;
+
         url = WebsiteNormalizer.normalize(url);
         if (isBlocked(url)) return null;
         return url;
