@@ -66,7 +66,9 @@ public class SearchClient extends AbstractClient {
      */
     public List<String> suggestText(String text, @Nullable String latLng, int size) {
         JsonNode results = client.suggest(List.of(), text, latLng, size);
-        return marshaller.deserializeListName(results);
+        List<String> textList = marshaller.deserializeListName(results);
+        textList.removeIf(s -> StringUtils.equalsIgnoreCase(s, text));
+        return textList;
     }
 
     /**
