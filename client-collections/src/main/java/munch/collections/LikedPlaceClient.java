@@ -1,15 +1,15 @@
 package munch.collections;
 
 import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -21,13 +21,35 @@ import java.util.Objects;
 public final class LikedPlaceClient {
     private static final String DYNAMO_TABLE_NAME = "munch-core.LikedPlace";
 
+    private final DynamoDB dynamoDB;
     private final Table table;
     private final Index sortIndex;
 
     @Inject
     public LikedPlaceClient(DynamoDB dynamoDB) {
+        this.dynamoDB = dynamoDB;
         this.table = dynamoDB.getTable(DYNAMO_TABLE_NAME);
         this.sortIndex = table.getIndex("sortKey-index");
+    }
+
+    public Set<String> getIsLiked(String userId, Collection<String> placeIds) {
+        Objects.requireNonNull(userId);
+
+        PrimaryKey[] primaryKeys = placeIds.stream()
+                .map(s -> new PrimaryKey("u", userId, "p", s))
+                .toArray(PrimaryKey[]::new);
+
+        BatchGetItemSpec spec = new BatchGetItemSpec()
+                .withTableKeyAndAttributes(new TableKeysAndAttributes(DYNAMO_TABLE_NAME)
+                        .withPrimaryKeys(primaryKeys));
+
+        BatchGetItemOutcome outcome = dynamoDB.batchGetItem(spec);
+        return outcome.getTableItems()
+                .get(DYNAMO_TABLE_NAME)
+                .stream()
+                .filter(Objects::nonNull)
+                .map(item -> item.getString("p"))
+                .collect(Collectors.toSet());
     }
 
     /**

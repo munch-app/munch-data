@@ -60,15 +60,18 @@ public class SearchClient extends AbstractClient {
 
     /**
      * @param text   for suggesting
-     * @param latLng for geo fencing to certain radius
      * @param size   for number for suggestion
      * @return List of test suggestion
      */
-    public List<String> suggestText(String text, @Nullable String latLng, int size) {
-        JsonNode results = client.suggest(List.of(), text, latLng, size);
+    public List<String> suggestText(String text, int size) {
+        JsonNode results = client.suggest(List.of(), text, null, size);
         List<String> textList = marshaller.deserializeListName(results);
-        textList.removeIf(s -> StringUtils.equalsIgnoreCase(s, text));
-        return textList;
+
+        return textList.stream()
+                .filter(s -> !s.equalsIgnoreCase(text))
+                .distinct()
+                .sorted(Comparator.comparingInt(String::length))
+                .collect(Collectors.toList());
     }
 
     /**
