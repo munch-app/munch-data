@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
-import munch.data.structure.*;
+import munch.data.structure.Container;
+import munch.data.structure.Location;
+import munch.data.structure.Place;
+import munch.data.structure.Tag;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.JsonException;
 import org.slf4j.Logger;
@@ -163,15 +166,31 @@ public final class ElasticMarshaller {
     }
 
     /**
-     * @param results results
+     * @param results from es
      * @param <T>     deserialized type
-     * @return deserialized type
+     * @return deserialized type into a list
      */
     public <T> List<T> deserializeList(JsonNode results) {
         if (results.isMissingNode()) return Collections.emptyList();
 
         List<T> list = new ArrayList<>();
         for (JsonNode result : results) list.add(deserialize(result));
+        return list;
+    }
+
+    /**
+     * @param results from es
+     * @return List of name`
+     */
+    public List<String> deserializeListName(JsonNode results) {
+        if (results.isMissingNode()) return Collections.emptyList();
+
+        List<String> list = new ArrayList<>();
+        for (JsonNode result : results) {
+            JsonNode source = result.path("_source");
+            String name = source.path("name").asText();
+            if (name != null) list.add(name);
+        }
         return list;
     }
 

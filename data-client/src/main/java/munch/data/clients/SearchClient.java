@@ -59,6 +59,17 @@ public class SearchClient extends AbstractClient {
     }
 
     /**
+     * @param text   for suggesting
+     * @param latLng for geo fencing to certain radius
+     * @param size   for number for suggestion
+     * @return List of test suggestion
+     */
+    public List<String> suggestText(String text, @Nullable String latLng, int size) {
+        JsonNode results = client.suggest(List.of(), text, latLng, size);
+        return marshaller.deserializeListName(results);
+    }
+
+    /**
      * Search all data based on name
      *
      * @param size size per list
