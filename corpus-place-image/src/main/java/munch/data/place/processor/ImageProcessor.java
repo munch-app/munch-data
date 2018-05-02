@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -115,6 +116,8 @@ public final class ImageProcessor {
                     return null;
                 }
             });
+        } catch (FileNotFoundException e) {
+            return null;
         } catch (IOException ioe) {
             if (ioe.getMessage().startsWith("Server returned HTTP response code: 403 for")) return null;
             throw new RuntimeException(ioe);
