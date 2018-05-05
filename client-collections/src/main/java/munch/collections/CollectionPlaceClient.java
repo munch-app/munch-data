@@ -82,7 +82,7 @@ public final class CollectionPlaceClient {
 
         // Set min, max place sort
         if (maxSortKey != null) {
-            query.withRangeKeyCondition(new RangeKeyCondition("s").lt(maxSortKey));
+            query.withExclusiveStartKey("uc", createKey(userId, collectionId), "s", maxSortKey);
         }
 
         ItemCollection<QueryOutcome> collection = sortIndex.query(query);
