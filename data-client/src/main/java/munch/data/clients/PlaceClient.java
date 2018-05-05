@@ -17,9 +17,7 @@ import munch.restful.core.exception.ValidationException;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -60,7 +58,7 @@ public class PlaceClient extends AbstractClient {
      * @param ids list of place id
      * @return list of Place in order, with those not found removed
      */
-    public List<Place> batchGet(List<String> ids) {
+    public List<Place> batchGet(Collection<String> ids) {
         if (ids.isEmpty()) return List.of();
 
         BatchGetItemSpec spec = new BatchGetItemSpec()
@@ -81,7 +79,7 @@ public class PlaceClient extends AbstractClient {
      * @param ids list of place id
      * @return Map of Place, with placeId -> Place mapping
      */
-    public Map<String, Place> batchGetMap(List<String> ids) {
+    public Map<String, Place> batchGetMap(Collection<String> ids) {
         return batchGet(ids)
                 .stream()
                 .collect(Collectors.toMap(Place::getId, o -> o));
@@ -96,7 +94,7 @@ public class PlaceClient extends AbstractClient {
      * @return List of mapped result, null will be removed
      */
     public <R, T> List<R> batchGetMap(List<T> dataList, Function<T, String> idMapper, BiFunction<T, Place, R> collector) {
-        List<String> placeIds = dataList.stream().map(idMapper).collect(Collectors.toList());
+        Set<String> placeIds = dataList.stream().map(idMapper).collect(Collectors.toSet());
         Map<String, Place> placeMap = batchGetMap(placeIds);
         return dataList.stream()
                 .map(t -> {
