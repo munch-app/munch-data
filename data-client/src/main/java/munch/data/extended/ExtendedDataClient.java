@@ -1,9 +1,6 @@
 package munch.data.extended;
 
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.ItemCollection;
-import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.google.common.collect.Iterators;
 
@@ -86,7 +83,7 @@ public abstract class ExtendedDataClient<T extends ExtendedData> {
 
 
         if (lastSortKey != null)
-            query.withExclusiveStartKey(hashKeyName, placeId, sortKeyName, lastSortKey);
+            query.withRangeKeyCondition(new RangeKeyCondition(sortKeyName).lt(lastSortKey));
 
 
         ItemCollection<QueryOutcome> collection = table.query(query);

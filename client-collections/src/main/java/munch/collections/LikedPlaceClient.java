@@ -115,7 +115,7 @@ public final class LikedPlaceClient {
 
         // Set min, max place sort
         if (maxSortKey != null) {
-            query.withExclusiveStartKey("u", userId, "s", maxSortKey);
+            query.withRangeKeyCondition(new RangeKeyCondition("s").lt(maxSortKey));
         }
 
         ItemCollection<QueryOutcome> collection = sortIndex.query(query);

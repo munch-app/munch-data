@@ -52,7 +52,7 @@ public final class RecentPlaceClient {
 
         // Set min, max place sort
         if (maxCreatedDate != null) {
-            query.withExclusiveStartKey("u", userId, "c", maxCreatedDate);
+            query.withRangeKeyCondition(new RangeKeyCondition("c").lt(maxCreatedDate));
         }
 
         ItemCollection<QueryOutcome> collection = sortIndex.query(query);
