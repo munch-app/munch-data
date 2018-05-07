@@ -35,7 +35,7 @@ public final class ValidationCorpus extends CatalystEngine<Place> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofDays(31);
+        return Duration.ofDays(2);
     }
 
     @Override
