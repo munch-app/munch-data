@@ -18,7 +18,7 @@ public abstract class CityParser {
     // TODO []():;'"@\\n\\r-={}|\/<>
     // |\\n\\r|\\r\\n|\\n|\\r|-|–|—|:|@|\||\\
     public static Pattern REPLACE_SPACE_PATTERN = Pattern.compile("\\\\n|\\\\r|\\\\t");
-    public static PatternSplit WHITESPACE_PATTERN = PatternSplit.compile("[,.()'\"]?( +|$)|( +|^)[,.()'\"]");
+    public static PatternSplit WHITESPACE_PATTERN = PatternSplit.compile("[|,.()'\"]?( +|$)|( +|^)[,.()'\"]");
 
     /**
      * @param text to parse

@@ -43,7 +43,7 @@ class LocationParserTest {
 
     @Test
     void single() {
-        print("12 Purvis Street, Singapore");
+        print("The Daily Cut:1 Raffles Place, One Raffles Place Shopping Mall, Singapore 048616| Opening Hours: (Mon-Fri) 11:00 – 15:00, 18:00-20:30 (Sat and Sun) 11:00-15:30 | Website");
     }
 
     @Test
@@ -79,5 +79,6 @@ class LocationParserTest {
         print("#01-49/50 Junction 8 Shopping Centre 9 Bishan Pl Singapore 579837 Daily: 10.30am – 9.30pm");
 
         print("Sentosa Golf Club, 27 Bukit Manis Road, Tel: ");
+        print("The Daily Cut:1 Raffles Place, One Raffles Place Shopping Mall, Singapore 048616| Opening Hours: (Mon-Fri) 11:00 – 15:00, 18:00-20:30 (Sat and Sun) 11:00-15:30 | Website");
     }
 }
