@@ -110,6 +110,10 @@ public final class DecayAirtableCorpus extends AbstractEngine<Object> {
         String endMillis = DecayingKey.endMillis.getValueOrThrow(data);
         Date completeDate = new Date(Long.parseLong(endMillis));
 
+        if (!catalystClient.hasCorpus(data.getCatalystId(), "Sg.Munch.Place")) {
+            return;
+        }
+
         if (completeDate.before(new Date())) {
             resolve(placeId, true);
             return;
