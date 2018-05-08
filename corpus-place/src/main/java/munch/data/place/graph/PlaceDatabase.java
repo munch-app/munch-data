@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.EnumSet;
+
+import static com.flipkart.zjsonpatch.DiffFlags.ADD_ORIGINAL_VALUE_ON_REPLACE;
 
 /**
  * In Charge of saving Place Data:
@@ -129,10 +132,10 @@ public class PlaceDatabase {
             retriable.loop(() -> placeClient.put(place));
 
             if (existing != null) {
-                JsonNode diffJson = JsonDiff.asJson(JsonUtils.toTree(existing), JsonUtils.toTree(place));
-                logger.info("Updated: diff: {}", JsonUtils.toString(diffJson));
+                JsonNode diffJson = JsonDiff.asJson(JsonUtils.toTree(existing), JsonUtils.toTree(place), EnumSet.of(ADD_ORIGINAL_VALUE_ON_REPLACE));
+                logger.info("Updated: id: {}, diff: {}", placeId, JsonUtils.toString(diffJson));
             } else {
-                logger.info("Created: new: {}", JsonUtils.toTree(place));
+                logger.info("Created: id: {}, new: {}", placeId, JsonUtils.toTree(place));
             }
 
 
