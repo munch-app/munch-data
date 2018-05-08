@@ -3,7 +3,6 @@ package munch.data.place;
 import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import munch.data.clients.PlaceClient;
-import munch.data.elastic.ElasticIndex;
 import munch.data.structure.Place;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +23,11 @@ public final class ValidationCorpus extends CatalystEngine<Place> {
     private static final Logger logger = LoggerFactory.getLogger(ValidationCorpus.class);
 
     private final PlaceClient placeClient;
-    private final ElasticIndex elasticIndex;
 
     @Inject
-    public ValidationCorpus(PlaceClient placeClient, ElasticIndex elasticIndex) {
+    public ValidationCorpus(PlaceClient placeClient) {
         super(logger);
         this.placeClient = placeClient;
-        this.elasticIndex = elasticIndex;
     }
 
     @Override
@@ -40,7 +37,7 @@ public final class ValidationCorpus extends CatalystEngine<Place> {
 
     @Override
     protected Iterator<Place> fetch(long cycleNo) {
-        return elasticIndex.scroll("Place", "6m");
+        return placeClient.list();
     }
 
     @Override
@@ -51,6 +48,6 @@ public final class ValidationCorpus extends CatalystEngine<Place> {
             logger.info("Deleted Place {}", data.getId());
         }
 
-        sleep(100);
+        sleep(200);
     }
 }

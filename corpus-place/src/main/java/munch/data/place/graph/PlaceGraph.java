@@ -40,51 +40,52 @@ public final class PlaceGraph {
      * @return Seeder result
      */
     public Result search(String placeId, PlaceTree placeTree, Collection<CorpusData> dataList) {
-        Set<CorpusData> insideSet = new HashSet<>();
+        Set<CorpusData> insideCollection = new HashSet<>();
         dataList = new HashSet<>(dataList);
 
         // End if failed to find seed reference
         if (!placeTree.updateReference(dataList)) return Result.ofFailed(dataList);
+        insideCollection.add(placeTree.getCorpusData());
 
         // Validate existing tree, remove those that don't belong
-        insideSet.add(placeTree.getCorpusData());
         for (PlaceTree right : placeTree.getTrees()) {
-            validate(placeId, placeTree, right, dataList, insideSet);
+            validate(placeId, placeTree, right, dataList, insideCollection);
+            // Fixed: Those that failed to be validated must be removed from the tree
         }
 
         List<Action> actionList = new ArrayList<>();
 
         // Collect data entering to tree
-        Set<CorpusData> linkedSet = new HashSet<>(dataList);
-        linkedSet.removeAll(insideSet);
+        Set<CorpusData> toLinkCollection = new HashSet<>(dataList);
+        toLinkCollection.removeAll(insideCollection);
 
         boolean looping;
 
         do {
             looping = false;
             // Try link and remove all unlinked data
-            for (CorpusData right : linkedSet) {
+            for (CorpusData right : toLinkCollection) {
                 if (tryLink(placeId, placeTree, right)) {
-                    linkedSet.remove(right);
-                    insideSet.add(right);
+                    toLinkCollection.remove(right);
+                    insideCollection.add(right);
                     looping = true;
                     break;
                 }
             }
         } while (looping);
 
-        // For Remove
-        for (CorpusData right : linkedSet) {
+        // Remove those failed to Link
+        for (CorpusData right : toLinkCollection) {
             actionList.add(Action.of(false, right));
         }
 
         // Collected search result
-        Set<CorpusData> searchedSet = matcherManager.search(placeTree);
-        searchedSet.removeAll(linkedSet);
-        searchedSet.removeAll(insideSet);
+        Set<CorpusData> searchedCollection = matcherManager.search(placeTree);
+        searchedCollection.removeAll(toLinkCollection);
+        searchedCollection.removeAll(insideCollection);
 
         // Try link and persist all linked data
-        for (CorpusData right : searchedSet) {
+        for (CorpusData right : searchedCollection) {
             if (tryLink(placeId, placeTree, right)) {
                 actionList.add(Action.of(true, right));
             }
@@ -102,7 +103,12 @@ public final class PlaceGraph {
      */
     private void validate(String placeId, PlaceTree left, PlaceTree right, Collection<CorpusData> dataList, Set<CorpusData> insideSet) {
         // Failed to find reference
-        if (!right.updateReference(dataList)) return;
+        if (!right.updateReference(dataList)) {
+            // Failed validation
+            // Remove Right from left
+            left.getTrees().remove(right);
+            return;
+        }
 
         Map<String, Integer> matcher = matcherManager.match(placeId, left.getCorpusData(), right.getCorpusData());
         if (linkerManager.validate(right.getLinkerName(), placeId, left, matcher, right.getCorpusData())) {
@@ -112,6 +118,10 @@ public final class PlaceGraph {
             for (PlaceTree innerRight : right.getTrees()) {
                 validate(placeId, right, innerRight, dataList, insideSet);
             }
+        } else {
+            // Failed Validation
+            // Remove Right from left
+            left.getTrees().remove(right);
         }
     }
 

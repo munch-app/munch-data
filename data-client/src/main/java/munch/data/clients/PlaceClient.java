@@ -3,6 +3,7 @@ package munch.data.clients;
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Iterators;
 import munch.data.elastic.ElasticClient;
 import munch.data.elastic.ElasticIndex;
 import munch.data.elastic.ElasticMarshaller;
@@ -52,6 +53,13 @@ public class PlaceClient extends AbstractClient {
      */
     public SearchClient getSearchClient() {
         return searchClient;
+    }
+
+    public Iterator<Place> list() {
+        ItemCollection<ScanOutcome> collection = placeTable.scan();
+        return Iterators.transform(collection.iterator(), input ->
+                fromJson(input.getJSON("_source"), Place.class)
+        );
     }
 
     /**
