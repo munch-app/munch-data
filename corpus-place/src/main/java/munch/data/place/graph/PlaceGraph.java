@@ -1,5 +1,6 @@
 package munch.data.place.graph;
 
+import com.google.common.collect.ImmutableList;
 import corpus.data.CorpusData;
 import munch.data.place.graph.linker.LinkerManager;
 import munch.data.place.graph.matcher.MatcherManager;
@@ -115,7 +116,7 @@ public final class PlaceGraph {
             insideSet.add(right.getCorpusData());
 
             // Validate all again
-            for (PlaceTree innerRight : right.getTrees()) {
+            for (PlaceTree innerRight : ImmutableList.copyOf(right.getTrees())) {
                 validate(placeId, right, innerRight, dataList, insideSet);
             }
         } else {
