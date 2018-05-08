@@ -49,7 +49,7 @@ public final class PlaceGraph {
         insideCollection.add(placeTree.getCorpusData());
 
         // Validate existing tree, remove those that don't belong
-        for (PlaceTree right : placeTree.getTrees()) {
+        for (PlaceTree right : ImmutableList.copyOf(placeTree.getTrees())) {
             validate(placeId, placeTree, right, dataList, insideCollection);
             // Fixed: Those that failed to be validated must be removed from the tree
         }
