@@ -111,6 +111,7 @@ public abstract class AbstractCorpus extends CatalystEngine<CorpusData> {
             }
         }
 
+        // Failed, finding smallest change
         return results.stream()
                 .min(Comparator.comparingInt(o -> o.actions.size()))
                 .orElse(result);

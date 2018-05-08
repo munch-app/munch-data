@@ -93,12 +93,15 @@ public class PlaceTree {
         return names;
     }
 
+    /**
+     * @param dataList data list from corpus to update reference
+     * @return whether reference is updated
+     */
     @JsonIgnore
     public boolean updateReference(Collection<CorpusData> dataList) {
         for (CorpusData data : dataList) {
             if (data.getCorpusName().equals(corpusData.getCorpusName()) &&
                     data.getCorpusKey().equals(corpusData.getCorpusKey())) {
-                dataList.remove(data);
                 setCorpusData(data);
                 return true;
             }
@@ -208,5 +211,19 @@ public class PlaceTree {
         for (PlaceTree tree : placeTree.getTrees()) {
             findCorpusDataList(list, placeTree, corpusName);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlaceTree tree = (PlaceTree) o;
+        return Objects.equals(linkerName, tree.linkerName) &&
+                Objects.equals(corpusData, tree.corpusData);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(linkerName, corpusData);
     }
 }
