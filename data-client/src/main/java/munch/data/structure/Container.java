@@ -23,6 +23,8 @@ public final class Container implements SearchResult {
     private String phone;
     private String website;
     private String description;
+
+    private List<Hour> hours;
     private List<SourcedImage> images;
 
     private Location location;
@@ -109,25 +111,36 @@ public final class Container implements SearchResult {
         this.count = count;
     }
 
+    public List<Hour> getHours() {
+        return hours;
+    }
+
+    public void setHours(List<Hour> hours) {
+        this.hours = hours;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Container container = (Container) o;
         return Double.compare(container.ranking, ranking) == 0 &&
+                count == container.count &&
                 Objects.equals(id, container.id) &&
                 Objects.equals(name, container.name) &&
                 Objects.equals(type, container.type) &&
                 Objects.equals(phone, container.phone) &&
                 Objects.equals(website, container.website) &&
                 Objects.equals(description, container.description) &&
+                Objects.equals(hours, container.hours) &&
                 Objects.equals(images, container.images) &&
                 Objects.equals(location, container.location);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, type, phone, website, description, images, location, ranking);
+
+        return Objects.hash(id, name, type, phone, website, description, hours, images, location, ranking, count);
     }
 
     @Override
@@ -238,6 +251,98 @@ public final class Container implements SearchResult {
                     '}';
         }
 
+    }
+
+    /**
+     * Opening hour of the container
+     */
+    public static final class Hour {
+        private String day;
+
+        /**
+         * HH:mm
+         * 00:00 - 23:59
+         * 00:00 - 24:00 (Allowed)
+         * Midnight - 1 Min before midnight Max
+         * <p>
+         * 12:00 - 22:00
+         * Noon - 10pm
+         * <p>
+         * 08:00 - 19:00
+         * 8am - 7pm
+         * <p>
+         * Not allowed to put 24:00 Highest is 23:59
+         * Not allowed to cross to another day
+         */
+        private String open;
+        private String close;
+
+        /**
+         * mon
+         * tue
+         * wed
+         * thu
+         * fri
+         * sat
+         * sun
+         * ph
+         * evePh
+         *
+         * @return day that will be in string
+         */
+        public String getDay() {
+            return day;
+        }
+
+        public void setDay(String day) {
+            this.day = day;
+        }
+
+        /**
+         * @return opening hours
+         */
+        public String getOpen() {
+            return open;
+        }
+
+        public void setOpen(String open) {
+            this.open = open;
+        }
+
+        /**
+         * @return closing hours
+         */
+        public String getClose() {
+            return close;
+        }
+
+        public void setClose(String close) {
+            this.close = close;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Container.Hour hour = (Container.Hour) o;
+            return Objects.equals(day, hour.day) &&
+                    Objects.equals(open, hour.open) &&
+                    Objects.equals(close, hour.close);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(day, open, close);
+        }
+
+        @Override
+        public String toString() {
+            return "Hour{" +
+                    "day='" + day + '\'' +
+                    ", open='" + open + '\'' +
+                    ", close='" + close + '\'' +
+                    '}';
+        }
     }
 
     @Override

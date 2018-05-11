@@ -3,8 +3,10 @@ package munch.data.location.container;
 import corpus.data.CorpusData;
 import corpus.field.ContainerKey;
 import corpus.images.ImageField;
+import munch.data.hour.HourExtractor;
 import munch.data.structure.Container;
 import munch.data.structure.SourcedImage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +19,21 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 public final class ContainerUtils {
+    private static final HourExtractor hourExtractor = new HourExtractor();
+
+    public static List<Container.Hour> getHours(CorpusData data) {
+        String value = ContainerKey.hours.getValue(data);
+        if (StringUtils.isBlank(value)) return List.of();
+
+        return hourExtractor.extract(value).stream()
+                .map(openHour -> {
+                    Container.Hour hour = new Container.Hour();
+                    hour.setDay(openHour.getDay().name());
+                    hour.setOpen(openHour.getOpen());
+                    hour.setClose(openHour.getClose());
+                    return hour;
+                }).collect(Collectors.toList());
+    }
 
     public static Container createContainer(CorpusData sourceData) {
         if (sourceData == null) return null;
@@ -37,6 +54,7 @@ public final class ContainerUtils {
         container.setPhone(ContainerKey.phone.getValue(sourceData));
         container.setWebsite(ContainerKey.website.getValue(sourceData));
         container.setDescription(ContainerKey.description.getValue(sourceData));
+        container.setHours(getHours(sourceData));
 
         Container.Location location = new Container.Location();
         location.setAddress(ContainerKey.Location.address.getValue(sourceData));
