@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public final class TagCollector {
     private static final Logger logger = LoggerFactory.getLogger(TagCollector.class);
     private static final Set<String> CORPUS_NAME_TRUSTED = Set.of(
-            "Sg.MunchSheet.PlaceInfo2", "Sg.MunchSheet.FranchisePlace", "Sg.Munch.PlaceAward"
+            "Sg.MunchSheet.PlaceInfo2", "Sg.MunchSheet.FranchisePlace", "Sg.Munch.PlaceAward", "Global.MunchArticle.Article"
     );
     private static final Set<String> CORPUS_NAME_BLOCKED = Set.of(
             "Sg.Munch.Place", "Sg.Munch.Place.Tag", "Sg.Munch.PlaceTag"
