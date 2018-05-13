@@ -1,9 +1,6 @@
 package munch.data.hour;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -12,6 +9,9 @@ import java.util.Map;
  * Project: munch-data
  */
 public class HourNormaliser {
+    private static final Set<String> SUPPORTED_DAYS = Set.of(
+            "mon", "tue", "wed", "thu", "fri", "sat", "sun"
+    );
 
     public List<OpenHour> normalise(List<OpenHour> hours) {
         Map<String, DayOpenClose> days = new HashMap<>();
@@ -25,7 +25,9 @@ public class HourNormaliser {
 
         List<OpenHour> hourList = new ArrayList<>();
         for (OpenHour hour : hours) {
-            String day = hour.getDay().name();
+            String day = hour.getDay().name().toLowerCase();
+            if (!SUPPORTED_DAYS.contains(day)) continue;
+
             String open = hour.getOpen();
             String close = hour.getClose();
 
