@@ -4,6 +4,8 @@ import corpus.data.CorpusData;
 import corpus.field.ContainerKey;
 import corpus.images.ImageField;
 import munch.data.hour.HourExtractor;
+import munch.data.hour.HourNormaliser;
+import munch.data.hour.OpenHour;
 import munch.data.structure.Container;
 import munch.data.structure.SourcedImage;
 import org.apache.commons.lang3.StringUtils;
@@ -19,13 +21,17 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 public final class ContainerUtils {
-    private static final HourExtractor hourExtractor = new HourExtractor();
+    private static final HourExtractor HOUR_EXTRACTOR = new HourExtractor();
+    private static final HourNormaliser HOUR_NORMALISER = new HourNormaliser();
 
     public static List<Container.Hour> getHours(CorpusData data) {
         String value = ContainerKey.hours.getValue(data);
         if (StringUtils.isBlank(value)) return List.of();
 
-        return hourExtractor.extract(value).stream()
+        List<OpenHour> hours = HOUR_EXTRACTOR.extract(value);
+        List<OpenHour> normalised = HOUR_NORMALISER.normalise(hours);
+
+        return normalised.stream()
                 .map(openHour -> {
                     Container.Hour hour = new Container.Hour();
                     hour.setDay(openHour.getDay().name());

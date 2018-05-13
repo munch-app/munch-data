@@ -26,20 +26,9 @@ public class HourExtractor {
                 .map(this::extract)
                 .filter(s -> s.size() > 1)
                 .map(hours -> Pair.of(strength(hours), hours))
-                .sorted((o1, o2) -> o2.getLeft().compareTo(o1.getLeft()))
-                .findFirst()
+                .min((o1, o2) -> o2.getLeft().compareTo(o1.getLeft()))
                 .map(Pair::getRight)
                 .orElse(List.of());
-    }
-
-    /**
-     * @param hourList hour list
-     * @return strength of that open list
-     */
-    private long strength(List<OpenHour> hourList) {
-        return hourList.stream()
-                .mapToLong(OpenHour::getMinutes)
-                .sum();
     }
 
     /**
@@ -83,6 +72,16 @@ public class HourExtractor {
                     .collect(Collectors.toList());
         }
         return parseFields(texts);
+    }
+
+    /**
+     * @param hourList hour list
+     * @return strength of that open list
+     */
+    private long strength(List<OpenHour> hourList) {
+        return hourList.stream()
+                .mapToLong(OpenHour::getMinutes)
+                .sum();
     }
 
     PatternTexts parse(String text) {
