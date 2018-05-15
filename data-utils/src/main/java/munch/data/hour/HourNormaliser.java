@@ -1,6 +1,10 @@
 package munch.data.hour;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -13,7 +17,10 @@ public class HourNormaliser {
             "mon", "tue", "wed", "thu", "fri", "sat", "sun"
     );
 
-    public List<OpenHour> normalise(List<OpenHour> hours) {
+    public <T> List<T> normalise(List<OpenHour> hours, DayOpenCloseFunction<T> function) {
+        if (hours == null) return List.of();
+        if (hours.isEmpty()) return List.of();
+
         Map<String, DayOpenClose> days = new HashMap<>();
         days.put("mon", new DayOpenClose());
         days.put("tue", new DayOpenClose());
@@ -23,7 +30,6 @@ public class HourNormaliser {
         days.put("sat", new DayOpenClose());
         days.put("sun", new DayOpenClose());
 
-        List<OpenHour> hourList = new ArrayList<>();
         for (OpenHour hour : hours) {
             String day = hour.getDay().name().toLowerCase();
             if (!SUPPORTED_DAYS.contains(day)) continue;
@@ -38,7 +44,10 @@ public class HourNormaliser {
                 days.get(day).put(open, close);
             }
         }
-        return hourList;
+
+        return days.entrySet().stream()
+                .flatMap(e -> e.getValue().parseAs((open, close) -> function.apply(e.getKey(), open, close)).stream())
+                .collect(Collectors.toList());
     }
 
     private static String getNextDay(String day) {
@@ -64,5 +73,10 @@ public class HourNormaliser {
 
     private static boolean pastMidnight(String open, String close) {
         return DayOpenClose.serializeTime(open) > DayOpenClose.serializeTime(close);
+    }
+
+    @FunctionalInterface
+    public interface DayOpenCloseFunction<T> {
+        T apply(String day, String open, String close);
     }
 }

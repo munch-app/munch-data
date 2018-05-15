@@ -29,16 +29,13 @@ public final class ContainerUtils {
         if (StringUtils.isBlank(value)) return List.of();
 
         List<OpenHour> hours = HOUR_EXTRACTOR.extract(value);
-        List<OpenHour> normalised = HOUR_NORMALISER.normalise(hours);
-
-        return normalised.stream()
-                .map(openHour -> {
-                    Container.Hour hour = new Container.Hour();
-                    hour.setDay(openHour.getDay().name());
-                    hour.setOpen(openHour.getOpen());
-                    hour.setClose(openHour.getClose());
-                    return hour;
-                }).collect(Collectors.toList());
+        return HOUR_NORMALISER.normalise(hours, (day, open, close) -> {
+            Container.Hour hour = new Container.Hour();
+            hour.setDay(day);
+            hour.setOpen(open);
+            hour.setClose(close);
+            return hour;
+        });
     }
 
     public static Container createContainer(CorpusData sourceData) {
