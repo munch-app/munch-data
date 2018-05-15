@@ -20,11 +20,15 @@ public final class CorpusCollector extends AbstractCollector {
 
     @Override
     public List<CollectedImage> collect(String placeId, List<CorpusData> list) {
+        return collect(list, "Place.image");
+    }
+
+    public static List<CollectedImage> collect(List<CorpusData> list, String key) {
         return list.stream()
                 // Not to collect from self
                 .filter(data -> !BLOCKED_CORPUS.contains(data.getCorpusName()))
                 .flatMap(data -> data.getFields().stream())
-                .filter(field -> field.getKey().equals("Place.image"))
+                .filter(field -> field.getKey().equals(key))
                 .map(field -> mapField(field, CollectedImage.From.Place))
                 .filter(Objects::nonNull)
                 .peek(collectedImage -> {

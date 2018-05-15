@@ -7,18 +7,25 @@ import corpus.field.MetaKey;
 import corpus.field.PlaceKey;
 import corpus.images.ImageField;
 import munch.data.place.collector.CollectedImage;
+import munch.data.place.collector.CorpusCollector;
 import munch.data.place.collector.ImageCollector;
 import munch.data.place.processor.ImageListBuilder;
 import munch.data.place.processor.ImageProcessor;
 import munch.data.place.processor.MenuProcessor;
 import munch.data.place.processor.ProcessedImage;
+import munch.finn.FinnLabel;
+import munch.finn.RawLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -97,6 +104,7 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         // Collect and process
         List<CollectedImage> collectedImages = imageCollector.collect(placeId, dataList);
         List<ProcessedImage> processedImages = imageProcessor.process(collectedImages);
+        processedImages.addAll(selectMenus(dataList));
 
         // Put PlaceMenu collected from images
         menuProcessor.put(placeId, processedImages);
@@ -108,6 +116,21 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         imageData.put(PlaceKey.id, placeId);
         corpusClient.put("Sg.Munch.Place.Image", placeId, imageData);
         return imageData;
+    }
+
+    private static List<ProcessedImage> selectMenus(List<CorpusData> list) {
+        return CorpusCollector.collect(list, "Place.Image.menu")
+                .stream()
+                .map(collectedImage -> {
+                    ProcessedImage processedImage = new ProcessedImage();
+                    processedImage.setImage(collectedImage);
+                    FinnLabel finnLabel = new FinnLabel();
+                    finnLabel.setOutput(Map.of("menu", 1.0f));
+                    finnLabel.setRawLabel(new RawLabel());
+                    processedImage.setFinnLabel(finnLabel);
+                    return processedImage;
+                })
+                .collect(Collectors.toList());
     }
 
     /**

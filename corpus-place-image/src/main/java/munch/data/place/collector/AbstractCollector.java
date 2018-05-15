@@ -15,7 +15,7 @@ public abstract class AbstractCollector {
 
     public abstract List<CollectedImage> collect(String placeId, List<CorpusData> list);
 
-    protected CollectedImage mapField(CorpusData.Field field, CollectedImage.From from) {
+    protected static CollectedImage mapField(CorpusData.Field field, CollectedImage.From from) {
         ImageField imageField = ImageField.asImageField(field);
 
         if (!validate(imageField)) return null;
@@ -50,7 +50,7 @@ public abstract class AbstractCollector {
      * @param imageField to validate
      * @return whether successful
      */
-    private boolean validate(ImageField imageField) {
+    private static boolean validate(ImageField imageField) {
         // Cannot validate sourceId and sourceName because some data source don't provide those
 
         if (imageField.getSource() == null) return false;
