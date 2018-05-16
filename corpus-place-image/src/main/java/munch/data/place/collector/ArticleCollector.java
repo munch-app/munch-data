@@ -54,14 +54,13 @@ public final class ArticleCollector extends AbstractCollector {
         }
     }
 
-    @Override
-    protected CollectedImage mapField(CorpusData.Field field, CollectedImage.From from) {
+    protected static CollectedImage mapField(CorpusData.Field field, CollectedImage.From from) {
         if (field.getKey().equals("Article.image.doc")) {
-            return super.mapField(field, CollectedImage.From.ArticleFullPageDoc);
+            return AbstractCollector.mapField(field, CollectedImage.From.ArticleFullPageDoc);
         }
 
         if (field.getKey().equals("Article.image")) {
-            return super.mapField(field, from);
+            return AbstractCollector.mapField(field, from);
         }
 
         return null;
