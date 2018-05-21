@@ -33,8 +33,8 @@ public final class DecaySeeder implements Seeder {
             "Sg.Munch.Place.Decaying.Stop"
     );
 
-    private static final Set<String> STATUS_DELETE = Set.of("delete", "deleted");
-    private static final Set<String> STATUS_CLOSE = Set.of("close", "closed");
+    private static final Set<String> STATUS_DELETE = Set.of("delete", "deleted", "duplicate", "not food place", "does not exist");
+    private static final Set<String> STATUS_CLOSE = Set.of("close", "closed", "permanently closed");
     private static final Set<String> STATUS_OPEN = Set.of("open", "opened");
 
     private final DecayTracker decayTracker;

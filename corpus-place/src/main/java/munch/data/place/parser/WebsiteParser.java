@@ -40,7 +40,11 @@ public class WebsiteParser extends AbstractParser<String> {
         List<String> websites = new ArrayList<>();
         Map<String, Set<String>> articleWebsites = new HashMap<>();
 
+        Set<String> negatives = new HashSet<>(fieldCollector.collectNegative());
+
         fieldCollector.getFields().forEach(field -> {
+            if (negatives.contains(field.getValue())) return;
+
             if (field.getCorpusName().equals("Global.MunchArticle.Article")) {
                 articleWebsites.compute(field.getValue(), (s, strings) -> {
                     if (strings == null) strings = new HashSet<>();

@@ -6,6 +6,7 @@ import corpus.data.CorpusData;
 import corpus.engine.CatalystEngine;
 import corpus.field.PlaceKey;
 import munch.data.clients.ContainerClient;
+import munch.data.elastic.ElasticIndex;
 import munch.data.structure.Container;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -31,10 +34,13 @@ public class ContainerCatalyst extends CatalystEngine<CorpusData> {
     private PostalMatcher postalMatcher;
     private PolygonMatcher polygonMatcher;
 
+    private final ElasticIndex elasticIndex;
+
     @Inject
-    public ContainerCatalyst(ContainerClient containerClient) {
+    public ContainerCatalyst(ContainerClient containerClient, ElasticIndex elasticIndex) {
         super(logger);
         this.containerClient = containerClient;
+        this.elasticIndex = elasticIndex;
     }
 
     @Override
@@ -93,6 +99,7 @@ public class ContainerCatalyst extends CatalystEngine<CorpusData> {
     @Override
     protected void postCycle(long cycleNo) {
         super.postCycle(cycleNo);
+        Set<String> updatedContainerIds = new HashSet<>();
 
         Consumer<Container> consumer = (Container container) -> {
             // Put, Delete will be done at preCycle
@@ -100,11 +107,22 @@ public class ContainerCatalyst extends CatalystEngine<CorpusData> {
                 containerClient.put(container);
                 counter.increment("Updated");
             });
+            updatedContainerIds.add(container.getId());
             sleep(100);
         };
 
         postalMatcher.forEach(consumer);
         polygonMatcher.forEach(consumer);
+
+        Iterator<Container> scroller = elasticIndex.scroll("Container", "2m");
+        scroller.forEachRemaining(container -> {
+            if (!updatedContainerIds.contains(container.getId())) {
+                // Container don't belong to updated = must delete
+                containerClient.delete(container.getId());
+            }
+
+            sleep(100);
+        });
     }
 
     @Override
