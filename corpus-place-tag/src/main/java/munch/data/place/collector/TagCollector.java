@@ -151,13 +151,22 @@ public final class TagCollector {
             collected.addAll(findTypes(groups, Set.of("Cuisine"), 1));
             collected.addAll(findTypes(groups, Set.of("Establishment"), 1));
             collected.addAll(findTypes(groups, Set.of("Amenities", "Occasion"), 1));
+            removeConflict(collected);
             return collected;
         }
 
         public List<String> collectImplicit() {
             Set<PlaceTagGroup> groups = synonymTagMapping.resolveAll(tags);
 
-            return findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food"), 1000);
+            List<String> collected = findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food"), 1000);
+            removeConflict(collected);
+            return collected;
+        }
+
+        private void removeConflict(List<String> collected) {
+             if (collected.contains("halal")) {
+                 collected.removeAll(List.of("alcohol", "bars & pubs", "bars", "pubs", "beer"));
+             }
         }
     }
 }
