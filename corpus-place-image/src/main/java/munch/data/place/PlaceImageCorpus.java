@@ -104,10 +104,6 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         // Collect and process
         List<CollectedImage> collectedImages = imageCollector.collect(placeId, dataList);
         List<ProcessedImage> processedImages = imageProcessor.process(collectedImages);
-        processedImages.addAll(selectMenus(dataList));
-
-        // Put PlaceMenu collected from images
-        menuProcessor.put(placeId, processedImages);
 
         CorpusData imageData = new CorpusData(cycleNo);
         imageData.setCatalystId(placeId);
@@ -115,6 +111,10 @@ public final class PlaceImageCorpus extends CatalystEngine<CorpusData> {
         imageData.put(MetaKey.version, VERSION);
         imageData.put(PlaceKey.id, placeId);
         corpusClient.put("Sg.Munch.Place.Image", placeId, imageData);
+
+        // Put PlaceMenu collected from images
+        processedImages.addAll(selectMenus(dataList));
+        menuProcessor.put(placeId, processedImages);
         return imageData;
     }
 
