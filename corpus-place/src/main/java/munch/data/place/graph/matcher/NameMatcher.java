@@ -52,7 +52,7 @@ public final class NameMatcher implements Matcher {
 
                 for (String rightName : rightNames) {
                     for (String leftName : leftNames) {
-                        if (StringUtils.containsIgnoreCase(rightName, leftName)) {
+                        if (StringUtils.startsWithAny(rightName, leftName) && rightName.length() > 10) {
                             return Map.of("Place.name.contains",  1);
                         }
                     }
