@@ -164,9 +164,16 @@ public final class TagCollector {
         }
 
         private void removeConflict(List<String> collected) {
-             if (collected.contains("halal")) {
-                 collected.removeAll(List.of("alcohol", "bars & pubs", "bars", "pubs", "beer"));
-             }
+            if (collected.contains("halal") && collected.contains("Halal")) {
+                collected.removeIf(s -> {
+                    if (s.equalsIgnoreCase("alcohol")) return true;
+                    if (s.equalsIgnoreCase("bars & pubs")) return true;
+                    if (s.equalsIgnoreCase("bars")) return true;
+                    if (s.equalsIgnoreCase("pubs")) return true;
+                    if (s.equalsIgnoreCase("beer")) return true;
+                    return false;
+                });
+            }
         }
     }
 }

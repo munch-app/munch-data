@@ -7,10 +7,12 @@ import corpus.utils.FieldCollector;
 import munch.data.place.elastic.ElasticClient;
 import munch.data.place.graph.PlaceTree;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -22,21 +24,45 @@ import java.util.regex.Pattern;
  */
 @Singleton
 public final class LocationMatcher implements Matcher, Searcher {
-    private static final Pattern UNIT_PATTERN = Pattern.compile("[# ]");
+    private static final Pattern UNIT_SPLIT_PATTERN = Pattern.compile("#?0?(?<left>[^-]+)(-0?(?<right>.*))?");
 
     @Override
     public Map<String, Integer> match(String placeId, CorpusData left, CorpusData right) {
         return Map.of(
                 "Place.Location.postal", matchPostal(left, right) ? 1 : 0,
-                "Place.Location.unitNumber", matchUnit(left, right) ? 1 : 0,
+                "Place.Location.unitNumber", scoreUnit(left, right),
                 "Place.Location.street", matchField(PlaceKey.Location.street, left, right) ? 1 : 0,
                 "Place.Location.address", matchField(PlaceKey.Location.address, left, right) ? 1 : 0
         );
     }
 
+    public static Optional<Pair<String, String>> match(String text) {
+        java.util.regex.Matcher matcher = UNIT_SPLIT_PATTERN.matcher(text);
+        if (matcher.matches()) {
+            String left = StringUtils.trimToNull(matcher.group("left"));
+            String right = StringUtils.trimToNull(matcher.group("right"));
+            return Optional.of(Pair.of(left, right));
+        }
+
+        return Optional.empty();
+    }
+
+    private static int scoreUnit(CorpusData left, CorpusData right) {
+        String leftUnit = fixUnit(PlaceKey.Location.unitNumber.getValue(left));
+        String rightUnit = fixUnit(PlaceKey.Location.unitNumber.getValue(right));
+        if (leftUnit != null && rightUnit != null) {
+            if (leftUnit.equalsIgnoreCase(rightUnit)) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
     private static boolean matchUnit(CorpusData left, CorpusData right) {
         String leftUnit = fixUnit(PlaceKey.Location.unitNumber.getValue(left));
-        if(leftUnit == null) return false;
+        if (leftUnit == null) return false;
 
         String rightUnit = fixUnit(PlaceKey.Location.unitNumber.getValue(right));
         if (rightUnit == null) return false;
@@ -46,7 +72,8 @@ public final class LocationMatcher implements Matcher, Searcher {
 
     private static String fixUnit(String text) {
         if (StringUtils.isBlank(text)) return null;
-        return UNIT_PATTERN.matcher(text).replaceAll("");
+return null;
+//        return UNIT_PATTERN.matcher(text).replaceAll("");
     }
 
     private static boolean matchField(AbstractKey key, CorpusData left, CorpusData right) {
