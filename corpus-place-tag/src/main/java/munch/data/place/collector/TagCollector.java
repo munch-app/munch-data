@@ -164,7 +164,7 @@ public final class TagCollector {
         }
 
         private void removeConflict(List<String> collected) {
-            if (collected.contains("halal") && collected.contains("Halal")) {
+            if (collected.contains("halal") || collected.contains("Halal")) {
                 collected.removeIf(s -> {
                     if (s.equalsIgnoreCase("alcohol")) return true;
                     if (s.equalsIgnoreCase("bars & pubs")) return true;
