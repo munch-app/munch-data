@@ -24,6 +24,8 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class SearchQuery {
+    public static final String VERSION = "2018-05-28";
+
     private Integer from;
     private Integer size;
 
@@ -102,6 +104,13 @@ public final class SearchQuery {
 
     public void setUserInfo(UserInfo userInfo) {
         this.userInfo = userInfo;
+    }
+
+    /**
+     * @return version of SearchQuery
+     */
+    public String getVersion() {
+        return VERSION;
     }
 
     /**
@@ -417,7 +426,7 @@ public final class SearchQuery {
                 '}';
     }
 
-    public SearchQuery deepCopy(){
+    public SearchQuery deepCopy() {
         JsonNode node = JsonUtils.toTree(this);
         return JsonUtils.toObject(node, SearchQuery.class);
     }
