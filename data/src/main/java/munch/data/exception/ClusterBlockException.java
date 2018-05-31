@@ -1,4 +1,4 @@
-package munch.data.exceptions;
+package munch.data.exception;
 
 import munch.restful.core.exception.ExceptionParser;
 import munch.restful.core.exception.StructuredException;

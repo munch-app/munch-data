@@ -1,0 +1,64 @@
+{
+  "settings": {
+    "analysis": {
+      "normalizer": {
+        "normalizer_lower": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "Data": {
+      "properties": {
+        "suggest": {
+          "type": "completion",
+          "contexts": [
+            {
+              "name": "dataType",
+              "type": "category",
+              "path": "dataType"
+            },
+            {
+              "name": "name",
+              "type": "category",
+              "path": "name"
+            },
+            {
+              "name": "latLng",
+              "type": "geo",
+              "precision": 7,
+              "path": "location.latLng"
+            }
+          ]
+        },
+        "dataType": {
+          "type": "keyword"
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "type": {
+          "type": "keyword",
+          "normalizer": "normalizer_lower"
+        },
+        "name": {
+          "type": "text"
+        },
+        "names": {
+          "type": "text"
+        },
+
+        "tags": {
+          "type": "keyword",
+          "normalizer": "normalizer_lower"
+        },
+        "price": {
+          "type": "double"
+        }
+      }
+    }
+  }
+}

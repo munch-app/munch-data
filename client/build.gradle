@@ -1,0 +1,11 @@
+dependencies {
+    compile group: 'munch.restful', name: 'restful-client', version: restfulVersion
+
+    compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+}
+
+task publishLib {
+    dependsOn 'build'
+    dependsOn 'artifactoryPublish'
+    tasks.findByName('artifactoryPublish').mustRunAfter 'build'
+}

@@ -13,4 +13,7 @@ include 'corpus-place-tag'
 include 'corpus-place-award'
 
 include 'corpus-ugc'
+include 'data'
+include 'client'
+include 'service'
 

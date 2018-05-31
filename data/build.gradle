@@ -1,0 +1,9 @@
+dependencies {
+    compile group: 'munch.restful', name: 'restful-core', version: restfulVersion
+}
+
+task publishLib {
+    dependsOn 'build'
+    dependsOn 'artifactoryPublish'
+    tasks.findByName('artifactoryPublish').mustRunAfter 'build'
+}
