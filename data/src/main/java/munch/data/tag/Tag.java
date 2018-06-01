@@ -20,8 +20,8 @@ public final class Tag implements ElasticObject, VersionedObject {
 
     private String type;
     private String name;
-
     private Set<String> names;
+
     private long createdMillis;
     private long updatedMillis;
 

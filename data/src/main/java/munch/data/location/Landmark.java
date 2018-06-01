@@ -21,6 +21,14 @@ public final class Landmark implements VersionedObject {
     private String type;
     private String latLng;
 
+    public String getLandmarkId() {
+        return landmarkId;
+    }
+
+    public void setLandmarkId(String landmarkId) {
+        this.landmarkId = landmarkId;
+    }
+
     public String getName() {
         return name;
     }
@@ -50,20 +58,22 @@ public final class Landmark implements VersionedObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Landmark landmark = (Landmark) o;
-        return Objects.equals(name, landmark.name) &&
+        return Objects.equals(landmarkId, landmark.landmarkId) &&
+                Objects.equals(name, landmark.name) &&
                 Objects.equals(type, landmark.type) &&
                 Objects.equals(latLng, landmark.latLng);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, type, latLng);
+        return Objects.hash(landmarkId, name, type, latLng);
     }
 
     @Override
     public String toString() {
         return "Landmark{" +
-                "name='" + name + '\'' +
+                "landmarkId='" + landmarkId + '\'' +
+                ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", latLng='" + latLng + '\'' +
                 '}';
