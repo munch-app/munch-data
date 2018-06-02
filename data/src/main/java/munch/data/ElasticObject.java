@@ -1,5 +1,6 @@
 package munch.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -10,6 +11,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public interface ElasticObject {
 
+    /**
+     * @return data type to identify the type of data
+     */
     @JsonProperty("dataType")
     String getDataType();
+
+    /**
+     * @return id to identify the data
+     */
+    @JsonIgnore
+    String getDataId();
 }

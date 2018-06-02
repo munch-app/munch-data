@@ -37,9 +37,19 @@
         "dataType": {
           "type": "keyword"
         },
-        "id": {
+        "placeId": {
           "type": "keyword"
         },
+        "clusterId": {
+          "type": "keyword"
+        },
+        "tagId": {
+          "type": "keyword"
+        },
+        "landmarkId": {
+          "type": "keyword"
+        },
+
         "type": {
           "type": "keyword",
           "normalizer": "normalizer_lower"

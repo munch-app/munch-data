@@ -2,9 +2,13 @@ package munch.data.elastic;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
+import munch.data.ElasticObject;
+import munch.data.SuggestObject;
+import munch.data.location.Cluster;
+import munch.data.location.Landmark;
+import munch.data.place.Place;
 import munch.data.tag.Tag;
 import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
@@ -12,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -22,44 +25,22 @@ import java.util.List;
  * Project: munch-core
  */
 @Singleton
-@SuppressWarnings("Duplicates") // TODO Remove after done
 public final class ElasticMarshaller {
     private static final Logger logger = LoggerFactory.getLogger(ElasticMarshaller.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
-    public ObjectNode serialize(Tag tag) {
-        ObjectNode node = mapper.createObjectNode();
-        node.put("dataType", tag.getDataType());
+    public ObjectNode serialize(ElasticObject object) {
+        ObjectNode node = mapper.valueToTree(object);
 
-        // Root Node
-        node.put("id", tag.getTagId());
-        node.put("type", tag.getType());
-        node.put("name", tag.getName());
-        node.put("names", JsonUtils.toTree(tag.getNames()));
+        // SuggestObject Field
+        if (object instanceof SuggestObject) {
+            node.putObject("suggest")
+                    .put("weight", 1)
+                    .putArray("input")
+                    .add(((SuggestObject) object).getName());
+        }
 
-        // Suggest Field
-        ArrayNode inputs = mapper.createArrayNode();
-        inputs.add(tag.getName());
-        node.putObject("suggest")
-                .put("weight", 100)
-                .set("input", inputs);
         return node;
-    }
-
-    /**
-     * @param node json node
-     * @return deserialized Tag
-     */
-    public Tag deserializeTag(JsonNode node) {
-        Tag tag = new Tag();
-        tag.setTagId(node.get("id").asText());
-        tag.setType(node.get("type").asText());
-        tag.setName(node.get("name").asText());
-
-        tag.setNames(new HashSet<>());
-        node.get("names").forEach(n -> tag.getNames().add(n.asText()));
-
-        return tag;
     }
 
     /**
@@ -67,7 +48,7 @@ public final class ElasticMarshaller {
      * @param <T>     deserialized type
      * @return deserialized type into a list
      */
-    public <T> List<T> deserializeList(JsonNode results) {
+    public <T extends ElasticObject> List<T> deserializeList(JsonNode results) {
         if (results.isMissingNode()) return Collections.emptyList();
 
         List<T> list = new ArrayList<>();
@@ -81,11 +62,17 @@ public final class ElasticMarshaller {
      * @return deserialized type
      */
     @SuppressWarnings("unchecked")
-    public <T> T deserialize(JsonNode node) {
+    public <T extends ElasticObject> T deserialize(JsonNode node) {
         JsonNode source = node.path("_source");
         switch (source.path("dataType").asText()) {
             case "Tag":
-                return (T) deserializeTag(source);
+                return (T) JsonUtils.toObject(source, Tag.class);
+            case "Landmark":
+                return (T) JsonUtils.toObject(source, Landmark.class);
+            case "Cluster":
+                return (T) JsonUtils.toObject(source, Cluster.class);
+            case "Place":
+                return (T) JsonUtils.toObject(source, Place.class);
             default:
                 return null;
         }

@@ -2,7 +2,9 @@ package munch.data.tag;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import munch.data.CorrectableObject;
 import munch.data.ElasticObject;
+import munch.data.SuggestObject;
 import munch.data.VersionedObject;
 
 import java.util.Set;
@@ -15,7 +17,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Tag implements ElasticObject, VersionedObject {
+public final class Tag implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
     private String tagId;
 
     private String type;
@@ -41,6 +43,7 @@ public final class Tag implements ElasticObject, VersionedObject {
         this.type = type;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -49,6 +52,12 @@ public final class Tag implements ElasticObject, VersionedObject {
         this.name = name;
     }
 
+    /**
+     * name is the main name for the tag
+     * names are all the synonyms for the tag
+     *
+     * @return similar names
+     */
     public Set<String> getNames() {
         return names;
     }
@@ -76,6 +85,11 @@ public final class Tag implements ElasticObject, VersionedObject {
     @Override
     public String getDataType() {
         return "Tag";
+    }
+
+    @Override
+    public String getDataId() {
+        return tagId;
     }
 
     @Override

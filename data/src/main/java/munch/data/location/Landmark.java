@@ -2,9 +2,10 @@ package munch.data.location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import munch.data.ElasticObject;
+import munch.data.Location;
+import munch.data.SuggestObject;
 import munch.data.VersionedObject;
-
-import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -14,12 +15,15 @@ import java.util.Objects;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Landmark implements VersionedObject {
+public final class Landmark implements VersionedObject, ElasticObject, SuggestObject {
     private String landmarkId;
 
-    private String name;
     private String type;
-    private String latLng;
+    private String name;
+    private Location location;
+
+    private long updatedMillis;
+    private long createdMillis;
 
     public String getLandmarkId() {
         return landmarkId;
@@ -29,6 +33,7 @@ public final class Landmark implements VersionedObject {
         this.landmarkId = landmarkId;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -45,42 +50,54 @@ public final class Landmark implements VersionedObject {
         this.type = type;
     }
 
-    public String getLatLng() {
-        return latLng;
+    public Location getLocation() {
+        return location;
     }
 
-    public void setLatLng(String latLng) {
-        this.latLng = latLng;
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Landmark landmark = (Landmark) o;
-        return Objects.equals(landmarkId, landmark.landmarkId) &&
-                Objects.equals(name, landmark.name) &&
-                Objects.equals(type, landmark.type) &&
-                Objects.equals(latLng, landmark.latLng);
+    public long getUpdatedMillis() {
+        return updatedMillis;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(landmarkId, name, type, latLng);
+    public void setUpdatedMillis(long updatedMillis) {
+        this.updatedMillis = updatedMillis;
+    }
+
+    public long getCreatedMillis() {
+        return createdMillis;
+    }
+
+    public void setCreatedMillis(long createdMillis) {
+        this.createdMillis = createdMillis;
     }
 
     @Override
     public String toString() {
         return "Landmark{" +
                 "landmarkId='" + landmarkId + '\'' +
-                ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
-                ", latLng='" + latLng + '\'' +
+                ", name='" + name + '\'' +
+                ", location=" + location +
+                ", updatedMillis=" + updatedMillis +
+                ", createdMillis=" + createdMillis +
                 '}';
     }
 
     @Override
     public String getVersion() {
         return "2018-05-30";
+    }
+
+    @Override
+    public String getDataType() {
+        return "Landmark";
+    }
+
+    @Override
+    public String getDataId() {
+        return landmarkId;
     }
 }

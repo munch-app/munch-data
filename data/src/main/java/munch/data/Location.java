@@ -1,5 +1,7 @@
 package munch.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import munch.data.location.Landmark;
 
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.Objects;
  * Time: 9:49 PM
  * Project: munch-data
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Location {
     private String address;
     private String street;
@@ -106,6 +110,8 @@ public final class Location {
         this.landmarks = landmarks;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Polygon {
         private List<String> points;
 
@@ -175,4 +181,6 @@ public final class Location {
                 ", landmarks=" + landmarks +
                 '}';
     }
+
+
 }

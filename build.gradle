@@ -6,7 +6,7 @@ allprojects {
 
     group 'munch.data'
     version '3.0.0-SNAPSHOT'
-    ext.restfulVersion = '1.4.34'
+    ext.restfulVersion = '1.4.36'
     ext.guiceVersion = '4.2.0'
     ext.awsVersion = '1.11.313'
     ext.ccVersion = '2.5.0-SNAPSHOT'

@@ -37,9 +37,9 @@ public final class TagService extends RestfulDynamoHashService<Tag> {
     public void route() {
         PATH("/tags", () -> {
             GET("", this::list);
-            POST("", this::post);
-
             GET("/:tagId", this::get);
+
+            POST("", this::post);
             PUT("/:tagId", this::put);
             DELETE("/:tagId", this::delete);
 
@@ -48,29 +48,16 @@ public final class TagService extends RestfulDynamoHashService<Tag> {
         });
     }
 
-    public JsonNode list(JsonCall call) {
-        return super.list(call);
-    }
-
-    public Tag get(JsonCall call) {
-        return super.get(call);
-    }
-
     private JsonNode post(JsonCall call) {
-        String tagId = KeyUtils.randomUUIDBase64();
         Tag tag = call.bodyAsObject(Tag.class);
-        tag.setTagId(tagId);
+        tag.setTagId(KeyUtils.randomUUIDBase64());
         tag.setCreatedMillis(System.currentTimeMillis());
-        tag.setUpdatedMillis(System.currentTimeMillis());
         return put(tag);
     }
 
     public JsonNode put(JsonCall call) {
-        String tagId = call.pathString("tagId");
         Tag tag = call.bodyAsObject(Tag.class);
-        tag.setTagId(tagId);
-        tag.setUpdatedMillis(System.currentTimeMillis());
-
+        tag.setTagId(call.pathString("tagId"));
         return put(tag);
     }
 
@@ -85,11 +72,13 @@ public final class TagService extends RestfulDynamoHashService<Tag> {
         if (tag.getNames() == null) tag.setNames(new HashSet<>());
         tag.getNames().add(tag.getName());
 
+        tag.setUpdatedMillis(System.currentTimeMillis());
+
         elasticIndex.put(tag);
         return super.put(tag.getTagId(), JsonUtils.toTree(tag));
     }
 
-    private static class ConfigService extends RestfulDynamoHashService<TagConfig> {
+    private class ConfigService extends RestfulDynamoHashService<TagConfig> {
 
         private ConfigService(DynamoDB dynamoDB) {
             super(dynamoDB.getTable("munch-data.TagConfig"), TagConfig.class, "tagId");

@@ -9,14 +9,15 @@ import com.google.inject.Singleton;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.*;
 import io.searchbox.params.Parameters;
+import munch.data.ElasticObject;
 import munch.data.exception.ClusterBlockException;
 import munch.data.exception.ElasticException;
-import munch.data.tag.Tag;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -52,20 +53,16 @@ public final class ElasticIndex {
     /**
      * Index a tag by putting it into elastic search
      *
-     * @param tag tag to index
+     * @param object elastic object to persist
      * @throws ElasticException wrapped exception
      */
-    public void put(Tag tag) throws ElasticException {
-        put("Tag", tag.getTagId(), marshaller.serialize(tag));
-    }
-
-    private void put(String type, String key, ObjectNode node) throws ElasticException {
+    public void put(ElasticObject object) throws ElasticException {
         try {
-            String json = mapper.writeValueAsString(node);
+            String json = mapper.writeValueAsString(marshaller.serialize(object));
             DocumentResult result = client.execute(new Index.Builder(json)
                     .index(ElasticMapping.INDEX_NAME)
                     .type(ElasticMapping.TABLE_NAME)
-                    .id(createKey(type, key))
+                    .id(createKey(object.getDataType(), object.getDataId()))
                     .build());
 
             validateResult(true, result);
@@ -74,9 +71,16 @@ public final class ElasticIndex {
         }
     }
 
-    public <T> T get(String type, String key) {
+    /**
+     * @param dataType data type to get
+     * @param dataId   id of data
+     * @param <T>      Data Type
+     * @return data if exists
+     */
+    @Nullable
+    public <T extends ElasticObject> T get(String dataType, String dataId) {
         try {
-            DocumentResult result = client.execute(new Get.Builder(ElasticMapping.INDEX_NAME, createKey(type, key)).type("Data").build());
+            DocumentResult result = client.execute(new Get.Builder(ElasticMapping.INDEX_NAME, createKey(dataType, dataId)).type("Data").build());
             validateResult(false, result);
             return marshaller.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
@@ -85,13 +89,13 @@ public final class ElasticIndex {
     }
 
     /**
-     * @param type data type to delete before
-     * @param key  key of data type
+     * @param dataType data type to delete before
+     * @param dataId   key of data type
      * @throws ElasticException wrapped exception
      */
-    public void delete(String type, String key) {
+    public void delete(String dataType, String dataId) {
         try {
-            DocumentResult result = client.execute(new Delete.Builder(createKey(type, key))
+            DocumentResult result = client.execute(new Delete.Builder(createKey(dataType, dataId))
                     .index(ElasticMapping.INDEX_NAME)
                     .type(ElasticMapping.TABLE_NAME)
                     .build());
@@ -109,7 +113,7 @@ public final class ElasticIndex {
      * @param <T>     data type
      * @return Iterator of batch Data
      */
-    public <T> Iterator<List<T>> scroll(String type, String timeout, int size) {
+    public <T extends ElasticObject> Iterator<List<T>> scroll(String type, String timeout, int size) {
         ObjectNode node = JsonUtils.createObjectNode();
         node.put("size", size);
         node.putObject("query").putObject("term").put("dataType", type);
@@ -164,7 +168,7 @@ public final class ElasticIndex {
      * @param <T>     T data type
      * @return Iterator of that Data
      */
-    public <T> Iterator<T> scroll(String type, String timeout) {
+    public <T extends ElasticObject> Iterator<T> scroll(String type, String timeout) {
         Iterator<List<T>> listIterator = scroll(type, timeout, 20);
         return Iterators.concat(Iterators.transform(listIterator, List::iterator));
     }
