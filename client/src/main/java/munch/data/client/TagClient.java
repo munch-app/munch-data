@@ -1,10 +1,14 @@
 package munch.data.client;
 
 import com.typesafe.config.ConfigFactory;
-import munch.restful.client.RestfulClient;
+import munch.data.tag.Tag;
+import munch.restful.client.dynamodb.NextNodeList;
+import munch.restful.client.dynamodb.RestfulDynamoHashClient;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -13,16 +17,41 @@ import javax.inject.Singleton;
  * Project: munch-data
  */
 @Singleton
-public final class TagClient extends RestfulClient {
+public final class TagClient extends RestfulDynamoHashClient<Tag> {
 
     @Inject
     public TagClient() {
-        this(ConfigFactory.load().getString("services.tag.url"));
+        this(ConfigFactory.load().getString("services.munch-data.url"));
     }
 
-    public TagClient(String url) {
-        super(url);
+    TagClient(String url) {
+        super(url, Tag.class, "tagId");
     }
 
-    // TODO Client Methods
+    public Tag get(String tagId) {
+        return get("/tags/:tagId", tagId);
+    }
+
+    public NextNodeList<Tag> list(String nextTagId, int size) {
+        return list("/tags", nextTagId, size);
+    }
+
+    public Iterator<Tag> list() {
+        return list("/tags");
+    }
+
+    public Tag post(Tag tag) {
+        return doPost("/tags")
+                .body(tag)
+                .asDataObject(Tag.class);
+    }
+
+    public void put(Tag tag) {
+        String tagId = Objects.requireNonNull(tag.getTagId());
+        put("/tags/:tagId", tagId, tag);
+    }
+
+    public Tag delete(String tagId) {
+        return delete("/tags/:tagId", tagId);
+    }
 }

@@ -64,6 +64,7 @@ public final class LandmarkService extends RestfulDynamoHashService<Landmark> {
         landmark.setUpdatedMillis(System.currentTimeMillis());
 
         elasticIndex.put(landmark);
-        return super.put(landmark.getLandmarkId(), JsonUtils.toTree(landmark));
+        super.put(landmark.getLandmarkId(), JsonUtils.toTree(landmark));
+        return nodes(200, landmark);
     }
 }

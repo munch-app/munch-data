@@ -64,6 +64,7 @@ public final class ClusterService extends RestfulDynamoHashService<Cluster> {
         cluster.setUpdatedMillis(System.currentTimeMillis());
 
         elasticIndex.put(cluster);
-        return super.put(cluster.getClusterId(), JsonUtils.toTree(cluster));
+        super.put(cluster.getClusterId(), JsonUtils.toTree(cluster));
+        return nodes(200, cluster);
     }
 }

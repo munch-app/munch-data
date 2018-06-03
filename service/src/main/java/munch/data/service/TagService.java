@@ -75,7 +75,8 @@ public final class TagService extends RestfulDynamoHashService<Tag> {
         tag.setUpdatedMillis(System.currentTimeMillis());
 
         elasticIndex.put(tag);
-        return super.put(tag.getTagId(), JsonUtils.toTree(tag));
+        super.put(tag.getTagId(), JsonUtils.toTree(tag));
+        return nodes(200, tag);
     }
 
     private class ConfigService extends RestfulDynamoHashService<TagConfig> {

@@ -6,16 +6,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
 import munch.data.ElasticObject;
 import munch.data.SuggestObject;
-import munch.data.location.Cluster;
-import munch.data.location.Landmark;
-import munch.data.place.Place;
-import munch.data.tag.Tag;
 import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,11 +43,7 @@ public final class ElasticMarshaller {
      * @return deserialized type into a list
      */
     public <T extends ElasticObject> List<T> deserializeList(JsonNode results) {
-        if (results.isMissingNode()) return Collections.emptyList();
-
-        List<T> list = new ArrayList<>();
-        for (JsonNode result : results) list.add(deserialize(result));
-        return list;
+        return ElasticUtils.deserializeList(results);
     }
 
     /**
@@ -63,18 +53,6 @@ public final class ElasticMarshaller {
      */
     @SuppressWarnings("unchecked")
     public <T extends ElasticObject> T deserialize(JsonNode node) {
-        JsonNode source = node.path("_source");
-        switch (source.path("dataType").asText()) {
-            case "Tag":
-                return (T) JsonUtils.toObject(source, Tag.class);
-            case "Landmark":
-                return (T) JsonUtils.toObject(source, Landmark.class);
-            case "Cluster":
-                return (T) JsonUtils.toObject(source, Cluster.class);
-            case "Place":
-                return (T) JsonUtils.toObject(source, Place.class);
-            default:
-                return null;
-        }
+        return ElasticUtils.deserialize(node);
     }
 }

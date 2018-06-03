@@ -33,6 +33,7 @@ public final class ServiceModule extends AbstractModule {
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ServiceModule());
         RestfulServer.start("/v4.0",
+                injector.getInstance(PlaceService.class),
                 injector.getInstance(TagService.class),
                 injector.getInstance(LandmarkService.class),
                 injector.getInstance(ClusterService.class),
