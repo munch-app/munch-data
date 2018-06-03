@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticIndex;
 import munch.data.tag.Tag;
-import munch.data.tag.TagConfig;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
@@ -24,13 +23,11 @@ import java.util.HashSet;
 public final class TagService extends RestfulDynamoHashService<Tag> {
 
     private final ElasticIndex elasticIndex;
-    private final ConfigService configService;
 
     @Inject
     public TagService(DynamoDB dynamoDB, ElasticIndex elasticIndex) {
         super(dynamoDB.getTable("munch-data.Tag"), Tag.class, "tagId", 100);
         this.elasticIndex = elasticIndex;
-        this.configService = new ConfigService(dynamoDB);
     }
 
     @Override
@@ -42,9 +39,7 @@ public final class TagService extends RestfulDynamoHashService<Tag> {
             POST("", this::post);
             PUT("/:tagId", this::put);
             DELETE("/:tagId", this::delete);
-
-            // Config Service
-            configService.route();
+            PATCH("/:tagId", call -> patch(call, "predict", "place", "count"));
         });
     }
 
@@ -77,19 +72,5 @@ public final class TagService extends RestfulDynamoHashService<Tag> {
         elasticIndex.put(tag);
         super.put(tag.getTagId(), JsonUtils.toTree(tag));
         return nodes(200, tag);
-    }
-
-    private class ConfigService extends RestfulDynamoHashService<TagConfig> {
-
-        private ConfigService(DynamoDB dynamoDB) {
-            super(dynamoDB.getTable("munch-data.TagConfig"), TagConfig.class, "tagId");
-        }
-
-        @Override
-        public void route() {
-            GET("/:tagId/config", this::get);
-            PUT("/:tagId/config", this::put);
-            DELETE("/:tagId/config", this::delete);
-        }
     }
 }

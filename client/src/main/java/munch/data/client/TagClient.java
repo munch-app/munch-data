@@ -1,5 +1,6 @@
 package munch.data.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import munch.data.tag.Tag;
 import munch.restful.client.dynamodb.NextNodeList;
@@ -53,5 +54,12 @@ public final class TagClient extends RestfulDynamoHashClient<Tag> {
 
     public Tag delete(String tagId) {
         return delete("/tags/:tagId", tagId);
+    }
+
+    public void patch(String tagId, JsonNode body) {
+        doPatch("/tags/:tagId")
+                .path("tagId", tagId)
+                .body(body)
+                .asResponse();
     }
 }
