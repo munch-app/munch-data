@@ -2,11 +2,13 @@ package munch.data.tag;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.CorrectableObject;
 import munch.data.ElasticObject;
 import munch.data.SuggestObject;
 import munch.data.VersionedObject;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -20,11 +22,12 @@ import java.util.Set;
 public final class Tag implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
     private String tagId;
 
-    private String type;
+    private Type type;
     private String name;
     private Set<String> names;
 
     private Place place;
+    private Search search;
     private Count count;
 
     private long createdMillis;
@@ -38,11 +41,11 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         this.tagId = tagId;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -75,6 +78,14 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
 
     public void setPlace(Place place) {
         this.place = place;
+    }
+
+    public Search getSearch() {
+        return search;
+    }
+
+    public void setSearch(Search search) {
+        this.search = search;
     }
 
     public Count getCount() {
@@ -116,10 +127,29 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         return "2018-05-30";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tag tag = (Tag) o;
+        return Objects.equals(tagId, tag.tagId) &&
+                type == tag.type &&
+                Objects.equals(name, tag.name) &&
+                Objects.equals(names, tag.names) &&
+                Objects.equals(place, tag.place) &&
+                Objects.equals(search, tag.search) &&
+                Objects.equals(count, tag.count);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(tagId, type, name, names, place, search, count);
+    }
+
     public static class Place {
         private Integer level;
         private Double order;
-
         private Set<String> remapping;
 
         public Integer getLevel() {
@@ -154,6 +184,66 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
                     ", remapping=" + remapping +
                     '}';
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Place place = (Place) o;
+            return Objects.equals(level, place.level) &&
+                    Objects.equals(order, place.order) &&
+                    Objects.equals(remapping, place.remapping);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(level, order, remapping);
+        }
+    }
+
+    public static class Search {
+        private boolean enabled;
+        private boolean listed;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public boolean isListed() {
+            return listed;
+        }
+
+        public void setListed(boolean listed) {
+            this.listed = listed;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Search search = (Search) o;
+            return enabled == search.enabled &&
+                    listed == search.listed;
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(enabled, listed);
+        }
+
+        @Override
+        public String toString() {
+            return "Search{" +
+                    "enabled=" + enabled +
+                    ", listed=" + listed +
+                    '}';
+        }
     }
 
     public static class Count {
@@ -173,16 +263,48 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
                     "total=" + total +
                     '}';
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Count count = (Count) o;
+            return Objects.equals(total, count.total);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(total);
+        }
+    }
+
+    public enum Type {
+        @JsonProperty("Food")
+        Food,
+
+        @JsonProperty("Cuisine")
+        Cuisine,
+
+        @JsonProperty("Establishment")
+        Establishment,
+
+        @JsonProperty("Amenities")
+        Amenities,
+
+        @JsonProperty("Timing")
+        Timing,
     }
 
     @Override
     public String toString() {
         return "Tag{" +
                 "tagId='" + tagId + '\'' +
-                ", type='" + type + '\'' +
+                ", type=" + type +
                 ", name='" + name + '\'' +
                 ", names=" + names +
                 ", place=" + place +
+                ", search=" + search +
                 ", count=" + count +
                 ", createdMillis=" + createdMillis +
                 ", updatedMillis=" + updatedMillis +

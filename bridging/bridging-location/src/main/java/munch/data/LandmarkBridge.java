@@ -73,8 +73,8 @@ public final class LandmarkBridge extends AirtableBridge<Landmark> {
         landmark.setName(StringUtils.trimToNull(record.getField("name").asText()));
 
         String type = record.getField("type").asText();
-        landmark.setType(Landmark.Type.valueOf(type));
         if (type == null) return null;
+        landmark.setType(Landmark.Type.valueOf(type));
 
         landmark.setLocation(new Location());
         landmark.getLocation().setCity(StringUtils.trimToNull(record.getField("location.city").asText()));

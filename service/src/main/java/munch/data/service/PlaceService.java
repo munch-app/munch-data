@@ -55,7 +55,7 @@ public final class PlaceService extends PersistenceService<Place> {
 
     private JsonResult post(JsonCall call) {
         Place place = call.bodyAsObject(Place.class);
-        place.setPlaceId(KeyUtils.randomUUIDBase64());
+        place.setPlaceId(KeyUtils.randomUUID());
         return put(place);
     }
 

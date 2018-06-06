@@ -37,7 +37,7 @@ public final class LandmarkService extends PersistenceService<Landmark> {
 
     private JsonResult post(JsonCall call) {
         Landmark landmark = call.bodyAsObject(Landmark.class);
-        landmark.setLandmarkId(KeyUtils.randomUUIDBase64());
+        landmark.setLandmarkId(KeyUtils.randomUUID());
         return put(landmark);
     }
 }

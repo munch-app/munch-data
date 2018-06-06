@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':data-client')
+}
+
+mainClassName = 'munch.data.PlaceModule'

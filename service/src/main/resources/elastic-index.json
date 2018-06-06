@@ -249,6 +249,16 @@
         },
         "ranking": {
           "type": "double"
+        },
+        "search": {
+          "properties": {
+            "listed": {
+              "type": "boolean"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
         }
       }
     }

@@ -13,9 +13,15 @@ include 'corpus-place-tag'
 include 'corpus-place-award'
 
 include 'corpus-ugc'
+
+// Version 4.0 Data + Service + Client
 include 'data'
 include 'client'
 include 'service'
-include 'bridging-location'
+
+// Version 4.0 Temporary Data Bridging
 include 'bridging'
+include 'bridging:bridging-location'
+include 'bridging:bridging-tag'
+include 'bridging:bridging-place'
 

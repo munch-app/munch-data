@@ -66,8 +66,6 @@ public abstract class AbstractCorpus extends CatalystEngine<CorpusData> {
 
     protected abstract void process(long cycleNo, String placeId, CorpusData data);
 
-    // TODO Verify index method place tree counter works as expected
-
     protected void index(PlaceTree placeTree) {
         for (CorpusData data : placeTree.getCorpusDataList()) {
             index(data, placeTree);

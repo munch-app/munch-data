@@ -11,3 +11,35 @@ dependencies {
 
     compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
 }
+
+subprojects {
+    dependencies {
+        compile project(':bridging')
+    }
+
+    apply plugin: 'application'
+    apply plugin: 'com.bmuschko.docker-java-application'
+
+    ext.dockerTag = rootProject.name + '/' + project.name + ':latest'
+    ext.dockerHost = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/' + dockerTag
+
+    docker {
+        javaApplication {
+            baseImage = 'openjdk:9-jdk-slim'
+            maintainer = 'Fuxing'
+            ports = [8000]
+            tag = dockerTag
+        }
+    }
+
+    task publishDocker {
+        dependsOn 'clean'
+        dependsOn 'dockerBuildImage'
+        tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
+
+        doLast {
+            exec { commandLine "docker", "tag", dockerTag, dockerHost }
+            exec { commandLine "docker", "push", dockerHost }
+        }
+    }
+}

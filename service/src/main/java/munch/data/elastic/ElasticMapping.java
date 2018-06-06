@@ -28,7 +28,6 @@ import java.nio.charset.Charset;
  * Project: munch-core
  */
 @Singleton
-@SuppressWarnings("Duplicates") // TODO Remove after done
 public final class ElasticMapping {
     public static final String INDEX_NAME = "munch5";
     public static final String TABLE_NAME = "Data4";

@@ -56,7 +56,6 @@ class ContainerClientTest {
                 object.put("location.postcode", data.path("location").path("postal").asText());
 
                 object.put("location.latLng", data.path("location").path("latLng").asText());
-                // TODO Transfer Current Polygon
 
                 List<String> hourList = new ArrayList<>();
                 for (JsonNode hours : data.path("hours")) {
@@ -73,7 +72,6 @@ class ContainerClientTest {
                             .put("url", url1);
                 }
 
-                // TODO Images
             } else {
                 object.put("location.latLng", data.path("latLng").asText());
                 object.put("location.polygon", pointsToWKT(JsonUtils.toList(data.path("points"), String.class)));

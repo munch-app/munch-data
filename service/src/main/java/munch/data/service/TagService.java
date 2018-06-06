@@ -8,7 +8,6 @@ import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.HashSet;
 
 /**
  * Created by: Fuxing
@@ -39,15 +38,7 @@ public final class TagService extends PersistenceService<Tag> {
 
     private JsonResult post(JsonCall call) {
         Tag tag = call.bodyAsObject(Tag.class);
-        tag.setTagId(KeyUtils.randomUUIDBase64());
+        tag.setTagId(KeyUtils.randomUUID());
         return put(tag);
-    }
-
-    @Override
-    protected JsonResult put(Tag tag) {
-        // Auto add name to names for first put
-        if (tag.getNames() == null) tag.setNames(new HashSet<>());
-        tag.getNames().add(tag.getName());
-        return super.put(tag);
     }
 }

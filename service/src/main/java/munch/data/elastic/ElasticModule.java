@@ -29,7 +29,6 @@ import java.time.ZoneOffset;
  * Time: 3:49 PM
  * Project: munch-core
  */
-@SuppressWarnings("Duplicates") // TODO Remove after done
 public final class ElasticModule extends AbstractModule {
     private static final Logger logger = LoggerFactory.getLogger(ElasticModule.class);
 

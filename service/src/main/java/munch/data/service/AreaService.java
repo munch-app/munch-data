@@ -52,7 +52,7 @@ public final class AreaService extends PersistenceService<Area> {
 
     private JsonResult post(JsonCall call) {
         Area area = call.bodyAsObject(Area.class);
-        area.setAreaId(KeyUtils.randomUUIDBase64());
+        area.setAreaId(KeyUtils.randomUUID());
         return put(area);
     }
 

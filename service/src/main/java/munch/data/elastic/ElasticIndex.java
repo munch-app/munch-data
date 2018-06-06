@@ -29,7 +29,6 @@ import java.util.List;
  * Project: munch-core
  */
 @Singleton
-@SuppressWarnings("Duplicates") // TODO Remove after done
 public final class ElasticIndex {
     private static final Logger logger = LoggerFactory.getLogger(ElasticIndex.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
