@@ -9,6 +9,7 @@ import munch.data.elastic.ElasticMapping;
 import munch.data.exception.ElasticException;
 import munch.restful.core.JsonUtils;
 import munch.restful.server.JsonCall;
+import munch.restful.server.JsonResult;
 import munch.restful.server.JsonService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,13 +52,13 @@ public final class ElasticService implements JsonService {
      * @param call json call
      * @return {'data': 'elastic result'}
      */
-    private JsonNode search(JsonCall call) {
+    private JsonResult search(JsonCall call) {
         Search search = new Search.Builder(JsonUtils.toString(call.bodyAsJson()))
                 .addIndex(ElasticMapping.INDEX_NAME)
                 .build();
         try {
             String json = client.execute(search).getJsonString();
-            return nodes(200, objectMapper.readTree(json));
+            return result(200, objectMapper.readTree(json));
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
@@ -75,7 +76,7 @@ public final class ElasticService implements JsonService {
      * @param call json call
      * @return {'data': ['elastic result 1', 'elastic result 2']}
      */
-    private JsonNode searchMulti(JsonCall call) {
+    private JsonResult searchMulti(JsonCall call) {
         JsonNode arrayNode = call.bodyAsJson();
         List<Search> searches = new ArrayList<>();
 
@@ -98,7 +99,7 @@ public final class ElasticService implements JsonService {
                 parseResponse(node);
                 responses.add(node);
             }
-            return nodes(200, responses);
+            return result(200, responses);
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }

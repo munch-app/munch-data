@@ -13,7 +13,7 @@
     }
   },
   "mappings": {
-    "Data": {
+    "Data4": {
       "properties": {
         "suggest": {
           "type": "completion",
@@ -42,7 +42,7 @@
         "placeId": {
           "type": "keyword"
         },
-        "clusterId": {
+        "areaId": {
           "type": "keyword"
         },
         "tagId": {
@@ -198,9 +198,9 @@
             }
           }
         },
-        "clusters": {
+        "areas": {
           "properties": {
-            "clusterId": {
+            "areaId": {
               "type": "keyword"
             },
             "type": {

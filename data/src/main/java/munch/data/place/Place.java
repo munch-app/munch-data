@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
-import munch.data.location.Cluster;
+import munch.data.location.Area;
 import munch.file.Image;
 
 import javax.annotation.Nullable;
@@ -41,7 +41,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     private List<Hour> hours;
     private List<Image> images;
-    private List<Cluster> clusters;
+    private List<Area> areas;
 
     private long createdMillis;
     private long updatedMillis;
@@ -168,12 +168,12 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
-    public List<Cluster> getClusters() {
-        return clusters;
+    public List<Area> getAreas() {
+        return areas;
     }
 
-    public void setClusters(List<Cluster> clusters) {
-        this.clusters = clusters;
+    public void setAreas(List<Area> areas) {
+        this.areas = areas;
     }
 
     public long getCreatedMillis() {
@@ -232,7 +232,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                 ", counts=" + counts +
                 ", hours=" + hours +
                 ", images=" + images +
-                ", clusters=" + clusters +
+                ", areas=" + areas +
                 ", createdMillis=" + createdMillis +
                 ", updatedMillis=" + updatedMillis +
                 ", ranking=" + ranking +

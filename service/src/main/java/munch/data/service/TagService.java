@@ -1,13 +1,10 @@
 package munch.data.service;
 
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticIndex;
 import munch.data.tag.Tag;
-import munch.restful.core.JsonUtils;
 import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
-import munch.restful.server.dynamodb.RestfulDynamoHashService;
+import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,14 +17,11 @@ import java.util.HashSet;
  * Project: munch-data
  */
 @Singleton
-public final class TagService extends RestfulDynamoHashService<Tag> {
-
-    private final ElasticIndex elasticIndex;
+public final class TagService extends PersistenceService<Tag> {
 
     @Inject
-    public TagService(DynamoDB dynamoDB, ElasticIndex elasticIndex) {
-        super(dynamoDB.getTable("munch-data.Tag"), Tag.class, "tagId", 100);
-        this.elasticIndex = elasticIndex;
+    public TagService(PersistenceMapping persistenceMapping, ElasticIndex elasticIndex) {
+        super(persistenceMapping, elasticIndex, Tag.class);
     }
 
     @Override
@@ -39,38 +33,21 @@ public final class TagService extends RestfulDynamoHashService<Tag> {
             POST("", this::post);
             PUT("/:tagId", this::put);
             DELETE("/:tagId", this::delete);
-            PATCH("/:tagId", call -> patch(call, "predict", "place", "count"));
+            PATCH("/:tagId", call -> patch(call, "count"));
         });
     }
 
-    private JsonNode post(JsonCall call) {
+    private JsonResult post(JsonCall call) {
         Tag tag = call.bodyAsObject(Tag.class);
         tag.setTagId(KeyUtils.randomUUIDBase64());
-        tag.setCreatedMillis(System.currentTimeMillis());
         return put(tag);
     }
 
-    public JsonNode put(JsonCall call) {
-        Tag tag = call.bodyAsObject(Tag.class);
-        tag.setTagId(call.pathString("tagId"));
-        return put(tag);
-    }
-
-    public Tag delete(JsonCall call) {
-        String tagId = call.pathString("tagId");
-        elasticIndex.delete("Tag", tagId);
-        return super.delete(tagId);
-    }
-
-    private JsonNode put(Tag tag) {
+    @Override
+    protected JsonResult put(Tag tag) {
         // Auto add name to names for first put
         if (tag.getNames() == null) tag.setNames(new HashSet<>());
         tag.getNames().add(tag.getName());
-
-        tag.setUpdatedMillis(System.currentTimeMillis());
-
-        elasticIndex.put(tag);
-        super.put(tag.getTagId(), JsonUtils.toTree(tag));
-        return nodes(200, tag);
+        return super.put(tag);
     }
 }

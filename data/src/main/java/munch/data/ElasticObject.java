@@ -22,4 +22,14 @@ public interface ElasticObject {
      */
     @JsonIgnore
     String getDataId();
+
+    @JsonProperty("updatedMillis")
+    long getUpdatedMillis();
+
+    void setUpdatedMillis(long updatedMillis);
+
+    @JsonProperty("createdMillis")
+    long getCreatedMillis();
+
+    void setCreatedMillis(long createdMillis);
 }

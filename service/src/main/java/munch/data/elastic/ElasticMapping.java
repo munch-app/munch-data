@@ -30,8 +30,8 @@ import java.nio.charset.Charset;
 @Singleton
 @SuppressWarnings("Duplicates") // TODO Remove after done
 public final class ElasticMapping {
-    public static final String INDEX_NAME = "munch";
-    public static final String TABLE_NAME = "Data";
+    public static final String INDEX_NAME = "munch5";
+    public static final String TABLE_NAME = "Data4";
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticMapping.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
@@ -62,8 +62,8 @@ public final class ElasticMapping {
             sleep(5000);
             index = getIndex();
         } else {
-            JsonNode data = getExpectedMapping().path("mappings").path("Data");
-            JestResult execute = client.execute(new PutMapping.Builder(ElasticMapping.INDEX_NAME, "Data", mapper.writeValueAsString(data)).build());
+            JsonNode data = getExpectedMapping().path("mappings").path(TABLE_NAME);
+            JestResult execute = client.execute(new PutMapping.Builder(ElasticMapping.INDEX_NAME, TABLE_NAME, mapper.writeValueAsString(data)).build());
             logger.info(execute.getJsonString());
 
             if (execute.getResponseCode() != 200) {

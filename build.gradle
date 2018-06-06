@@ -5,8 +5,10 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch.data'
-    version '3.0.0-SNAPSHOT'
-    ext.restfulVersion = '1.4.38'
+    version '4.0'
+    ext.restfulVersion = '2.0.1'
+    ext.fileVersion = '1.2.1'
+
     ext.guiceVersion = '4.2.0'
     ext.awsVersion = '1.11.313'
     ext.ccVersion = '2.5.0-SNAPSHOT'
@@ -46,6 +48,34 @@ allprojects {
 }
 
 configure(subprojects.findAll { it.name.matches("(corpus|service)(-.+)?") }) {
+    apply plugin: 'application'
+    apply plugin: 'com.bmuschko.docker-java-application'
+
+    ext.dockerTag = rootProject.name + '/' + project.name + ':4.0'
+    ext.dockerHost = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/' + dockerTag
+
+    docker {
+        javaApplication {
+            baseImage = 'openjdk:9-jdk-slim'
+            maintainer = 'Fuxing'
+            ports = [8000]
+            tag = dockerTag
+        }
+    }
+
+    task publishDocker {
+        dependsOn 'clean'
+        dependsOn 'dockerBuildImage'
+        tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
+
+        doLast {
+            exec { commandLine "docker", "tag", dockerTag, dockerHost }
+            exec { commandLine "docker", "push", dockerHost}
+        }
+    }
+}
+
+configure(subprojects.findAll { it.name.matches("bridging-(.+)") }) {
     apply plugin: 'application'
     apply plugin: 'com.bmuschko.docker-java-application'
 

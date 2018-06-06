@@ -2,10 +2,15 @@ package munch.data.location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.ElasticObject;
 import munch.data.Location;
 import munch.data.SuggestObject;
 import munch.data.VersionedObject;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -18,7 +23,7 @@ import munch.data.VersionedObject;
 public final class Landmark implements VersionedObject, ElasticObject, SuggestObject {
     private String landmarkId;
 
-    private String type;
+    private Type type;
     private String name;
     private Location location;
 
@@ -33,6 +38,7 @@ public final class Landmark implements VersionedObject, ElasticObject, SuggestOb
         this.landmarkId = landmarkId;
     }
 
+    @NotBlank
     @Override
     public String getName() {
         return name;
@@ -42,14 +48,16 @@ public final class Landmark implements VersionedObject, ElasticObject, SuggestOb
         this.name = name;
     }
 
-    public String getType() {
+    @NotNull
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
+    @NotNull
     public Location getLocation() {
         return location;
     }
@@ -87,6 +95,23 @@ public final class Landmark implements VersionedObject, ElasticObject, SuggestOb
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Landmark landmark = (Landmark) o;
+        return Objects.equals(landmarkId, landmark.landmarkId) &&
+                type == landmark.type &&
+                Objects.equals(name, landmark.name) &&
+                Objects.equals(location, landmark.location);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(landmarkId, type, name, location);
+    }
+
+    @Override
     public String getVersion() {
         return "2018-05-30";
     }
@@ -99,5 +124,10 @@ public final class Landmark implements VersionedObject, ElasticObject, SuggestOb
     @Override
     public String getDataId() {
         return landmarkId;
+    }
+
+    public enum Type {
+        @JsonProperty("train")
+        train
     }
 }

@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':bridging')
+}
+
+mainClassName = 'munch.data.LocationModule'

@@ -1,0 +1,13 @@
+dependencies {
+    compile project(':client')
+    compile project(':data-utils')
+    compile group: 'catalyst', name: 'corpus-framework', version: ccVersion
+    compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
+    compile group: 'file-service', name: 'client', version: fileVersion
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
+
+    compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+
+    compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+}

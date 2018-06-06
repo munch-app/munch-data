@@ -24,7 +24,6 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     private String name;
     private Set<String> names;
 
-    private Predict predict;
     private Place place;
     private Count count;
 
@@ -68,14 +67,6 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
 
     public void setNames(Set<String> names) {
         this.names = names;
-    }
-
-    public Predict getPredict() {
-        return predict;
-    }
-
-    public void setPredict(Predict predict) {
-        this.predict = predict;
     }
 
     public Place getPlace() {
@@ -125,25 +116,6 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         return "2018-05-30";
     }
 
-    public static class Predict {
-        private boolean enabled;
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        @Override
-        public String toString() {
-            return "Predict{" +
-                    "enabled=" + enabled +
-                    '}';
-        }
-    }
-
     public static class Place {
         private Integer level;
         private Double order;
@@ -185,25 +157,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     }
 
     public static class Count {
-        private Long predicted;
-        private Long imageless;
         private Long total;
-
-        public Long getPredicted() {
-            return predicted;
-        }
-
-        public void setPredicted(Long predicted) {
-            this.predicted = predicted;
-        }
-
-        public Long getImageless() {
-            return imageless;
-        }
-
-        public void setImageless(Long imageless) {
-            this.imageless = imageless;
-        }
 
         public Long getTotal() {
             return total;
@@ -216,9 +170,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         @Override
         public String toString() {
             return "Count{" +
-                    "predicted=" + predicted +
-                    ", imageless=" + imageless +
-                    ", total=" + total +
+                    "total=" + total +
                     '}';
         }
     }
@@ -230,7 +182,6 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
                 ", type='" + type + '\'' +
                 ", name='" + name + '\'' +
                 ", names=" + names +
-                ", predict=" + predict +
                 ", place=" + place +
                 ", count=" + count +
                 ", createdMillis=" + createdMillis +

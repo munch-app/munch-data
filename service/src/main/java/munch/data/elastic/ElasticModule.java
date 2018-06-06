@@ -4,6 +4,7 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
@@ -54,7 +55,8 @@ public final class ElasticModule extends AbstractModule {
 
     @Provides
     @Singleton
-    JestClientFactory provideJestFactory(Config config) {
+    JestClientFactory provideJestFactory() {
+        Config config = ConfigFactory.load();
         if (!config.getBoolean("services.elastic.aws.signing")) return new JestClientFactory();
 
         AWSSigner awsSigner = new AWSSigner(new DefaultAWSCredentialsProviderChain(),
@@ -82,12 +84,12 @@ public final class ElasticModule extends AbstractModule {
     /**
      * Wait for elastic to be started
      *
-     * @param config config
      * @return elastic RestClient
      */
     @Provides
     @Singleton
-    JestClient provideClient(Config config, JestClientFactory factory) {
+    JestClient provideClient(JestClientFactory factory) {
+        Config config = ConfigFactory.load();
         String url = config.getString("services.elastic.url");
         WaitFor.host(url, Duration.ofSeconds(180));
 

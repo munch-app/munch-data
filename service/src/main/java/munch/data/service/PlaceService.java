@@ -4,13 +4,12 @@ import com.amazonaws.services.dynamodbv2.document.BatchGetItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.TableKeysAndAttributes;
 import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
-import com.fasterxml.jackson.databind.JsonNode;
 import munch.data.elastic.ElasticIndex;
 import munch.data.place.Place;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
-import munch.restful.server.dynamodb.RestfulDynamoHashService;
+import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,6 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static munch.data.elastic.ElasticMapping.TABLE_NAME;
+
 /**
  * Created by: Fuxing
  * Date: 2/6/18
@@ -26,17 +27,18 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class PlaceService extends RestfulDynamoHashService<Place> {
-    private static final String TABLE_NAME = "munch-data.Place";
+public final class PlaceService extends PersistenceService<Place> {
+
     private final DynamoDB dynamoDB;
-    private final ElasticIndex elasticIndex;
+    private final AreaManager areaManager;
 
     @Inject
-    public PlaceService(DynamoDB dynamoDB, ElasticIndex elasticIndex) {
-        super(dynamoDB.getTable(TABLE_NAME), Place.class, "placeId", 100);
+    public PlaceService(PersistenceMapping persistenceMapping, ElasticIndex elasticIndex, DynamoDB dynamoDB, AreaManager areaManager) {
+        super(persistenceMapping, elasticIndex, Place.class);
         this.dynamoDB = dynamoDB;
-        this.elasticIndex = elasticIndex;
+        this.areaManager = areaManager;
     }
+
 
     @Override
     public void route() {
@@ -51,31 +53,17 @@ public final class PlaceService extends RestfulDynamoHashService<Place> {
         });
     }
 
-    private JsonNode post(JsonCall call) {
+    private JsonResult post(JsonCall call) {
         Place place = call.bodyAsObject(Place.class);
         place.setPlaceId(KeyUtils.randomUUIDBase64());
-        place.setCreatedMillis(System.currentTimeMillis());
         return put(place);
     }
 
-    public JsonNode put(JsonCall call) {
-        Place place = call.bodyAsObject(Place.class);
-        place.setPlaceId(call.pathString("placeId"));
-        return put(place);
-    }
 
-    public Place delete(JsonCall call) {
-        String placeId = call.pathString("placeId");
-        elasticIndex.delete("Place", placeId);
-        return super.delete(placeId);
-    }
-
-    private JsonNode put(Place place) {
-        place.setUpdatedMillis(System.currentTimeMillis());
-
-        elasticIndex.put(place);
-        super.put(place.getPlaceId(), JsonUtils.toTree(place));
-        return nodes(200, place);
+    @Override
+    protected JsonResult put(Place object) {
+        areaManager.update(object);
+        return super.put(object);
     }
 
     public Map<String, Place> batchGet(JsonCall call) {
@@ -83,7 +71,7 @@ public final class PlaceService extends RestfulDynamoHashService<Place> {
         if (placeIds.isEmpty()) return Map.of();
 
         BatchGetItemSpec spec = new BatchGetItemSpec()
-                .withTableKeyAndAttributes(new TableKeysAndAttributes(TABLE_NAME)
+                .withTableKeyAndAttributes(new TableKeysAndAttributes(table.getTableName())
                         .withHashOnlyKeys("placeId", placeIds.toArray(new Object[0])));
 
         BatchGetItemOutcome outcome = dynamoDB.batchGetItem(spec);

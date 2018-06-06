@@ -2,9 +2,12 @@ package munch.data.location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
 import munch.file.Image;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
@@ -16,10 +19,10 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Cluster implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
-    private String clusterId;
+public final class Area implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
+    private String areaId;
 
-    private String type;
+    private Type type;
     private String name;
     private Set<String> names;
 
@@ -34,23 +37,25 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
     private long createdMillis;
     private long updatedMillis;
 
-    public String getClusterId() {
-        return clusterId;
+    public String getAreaId() {
+        return areaId;
     }
 
-    public void setClusterId(String clusterId) {
-        this.clusterId = clusterId;
+    public void setAreaId(String areaId) {
+        this.areaId = areaId;
     }
 
-    public String getType() {
+    @NotNull
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
     @Override
+    @NotBlank
     public String getName() {
         return name;
     }
@@ -59,6 +64,7 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
         this.name = name;
     }
 
+    @NotNull
     public Set<String> getNames() {
         return names;
     }
@@ -83,6 +89,7 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
         this.description = description;
     }
 
+    @NotNull
     public List<Image> getImages() {
         return images;
     }
@@ -91,6 +98,7 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
         this.images = images;
     }
 
+    @NotNull
     public List<Hour> getHours() {
         return hours;
     }
@@ -99,6 +107,7 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
         this.hours = hours;
     }
 
+    @NotNull
     public Location getLocation() {
         return location;
     }
@@ -133,12 +142,12 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
 
     @Override
     public String getDataType() {
-        return "Cluster";
+        return "Area";
     }
 
     @Override
     public String getDataId() {
-        return clusterId;
+        return areaId;
     }
 
     @Override
@@ -153,6 +162,7 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
         private Set<String> postcodes;
         private Set<String> unitNumbers;
 
+        @NotNull
         public Set<String> getPostcodes() {
             return postcodes;
         }
@@ -161,6 +171,7 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
             this.postcodes = postcodes;
         }
 
+        @NotNull
         public Set<String> getUnitNumbers() {
             return unitNumbers;
         }
@@ -168,5 +179,14 @@ public final class Cluster implements ElasticObject, VersionedObject, SuggestObj
         public void setUnitNumbers(Set<String> unitNumbers) {
             this.unitNumbers = unitNumbers;
         }
+
+
+    }
+
+    public enum Type {
+        @JsonProperty("Region")
+        Region,
+        @JsonProperty("Cluster")
+        Cluster
     }
 }

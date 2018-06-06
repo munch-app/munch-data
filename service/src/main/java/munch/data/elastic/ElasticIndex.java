@@ -80,8 +80,12 @@ public final class ElasticIndex {
     @Nullable
     public <T extends ElasticObject> T get(String dataType, String dataId) {
         try {
-            DocumentResult result = client.execute(new Get.Builder(ElasticMapping.INDEX_NAME, createKey(dataType, dataId)).type("Data").build());
+            Get get = new Get.Builder(ElasticMapping.INDEX_NAME, createKey(dataType, dataId))
+                    .type(ElasticMapping.TABLE_NAME)
+                    .build();
+            DocumentResult result = client.execute(get);
             validateResult(false, result);
+
             return marshaller.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
             throw ElasticException.parse(e);
@@ -181,13 +185,12 @@ public final class ElasticIndex {
                 throw new ClusterBlockException();
             }
 
-            if (StringUtils.equals(jsonNode.path("result").asText(), "not_found")) {
-                if (validateNotFound) throw new ElasticException(404, "Failed to put/delete/get object.");
-
-            }
-
             logger.warn("{}", jsonNode);
-            throw new ElasticException("Failed to put/delete/get object.");
+            if (jsonNode.path("result").asText("").equals("not_found") || !jsonNode.path("found").asBoolean()) {
+                if (validateNotFound) throw new ElasticException(404, "Failed to put/delete/get object.");
+            } else {
+                throw new ElasticException("Failed to put/delete/get object.");
+            }
         }
     }
 

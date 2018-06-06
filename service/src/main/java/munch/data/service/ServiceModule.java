@@ -36,7 +36,7 @@ public final class ServiceModule extends AbstractModule {
                 injector.getInstance(PlaceService.class),
                 injector.getInstance(TagService.class),
                 injector.getInstance(LandmarkService.class),
-                injector.getInstance(ClusterService.class),
+                injector.getInstance(AreaService.class),
                 injector.getInstance(ElasticService.class)
         ).withHealth();
     }

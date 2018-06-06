@@ -16,4 +16,6 @@ include 'corpus-ugc'
 include 'data'
 include 'client'
 include 'service'
+include 'bridging-location'
+include 'bridging'
 

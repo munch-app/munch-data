@@ -11,6 +11,9 @@ dependencies {
 
     // DynamoDB
     compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.210'
+
+    compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+    compile group: 'catalyst', name: 'corpus-framework-airtable', version: ccVersion
 }
 
 task publishLib {
