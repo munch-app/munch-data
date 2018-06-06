@@ -57,8 +57,17 @@ public final class AreaBridge extends AirtableBridge<Area> {
         if (StringUtils.isNotBlank(areaId)) {
             // Update if Changed
             Area area = areaClient.get(areaId);
+            Long count = areaClient.countPlaces(areaId);
+            updated.setCount(count != null ? count : 0);
             if (updated.equals(area)) return;
-            areaClient.put(updated);
+
+            AirtableRecord patch = new AirtableRecord();
+            patch.setId(record.getId());
+            patch.putField("count", area.getCount());
+
+            // Patch to Airtable & Client
+            table.patch(patch);
+            areaClient.put(area);
         } else {
             // Create New
             Area posted = areaClient.post(updated);

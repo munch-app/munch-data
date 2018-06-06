@@ -71,12 +71,6 @@ public final class PlaceClient extends RestfulDynamoHashClient<Place> {
         return list("/places");
     }
 
-    public Place post(Place place) {
-        return doPost("/places")
-                .body(place)
-                .asDataObject(Place.class);
-    }
-
     public void put(Place place) {
         String placeId = Objects.requireNonNull(place.getPlaceId());
         put("/places/:placeId", placeId, place);

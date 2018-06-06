@@ -7,7 +7,6 @@ import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
 import munch.data.elastic.ElasticIndex;
 import munch.data.place.Place;
 import munch.restful.core.JsonUtils;
-import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
 import munch.restful.server.JsonResult;
 
@@ -47,18 +46,10 @@ public final class PlaceService extends PersistenceService<Place> {
             GET("/:placeId", this::get);
             POST("/batch/get", this::batchGet);
 
-            POST("", this::post);
             PUT("/:placeId", this::put);
             DELETE("/:placeId", this::delete);
         });
     }
-
-    private JsonResult post(JsonCall call) {
-        Place place = call.bodyAsObject(Place.class);
-        place.setPlaceId(KeyUtils.randomUUID());
-        return put(place);
-    }
-
 
     @Override
     protected JsonResult put(Place object) {

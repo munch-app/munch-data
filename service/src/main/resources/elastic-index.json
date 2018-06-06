@@ -62,8 +62,18 @@
           "type": "text"
         },
         "tags": {
-          "type": "keyword",
-          "normalizer": "normalizer_lower"
+          "properties": {
+            "tagId": {
+              "type": "keyword"
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword",
+              "normalizer": "normalizer_lower"
+            }
+          }
         },
         "website": {
           "enabled": false
@@ -240,6 +250,9 @@
         },
         "locationCondition": {
           "enabled": false
+        },
+        "count": {
+          "type": "long"
         },
         "createdMillis": {
           "type": "long"

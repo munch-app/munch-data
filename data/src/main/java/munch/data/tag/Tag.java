@@ -143,7 +143,6 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
 
     @Override
     public int hashCode() {
-
         return Objects.hash(tagId, type, name, names, place, search, count);
     }
 

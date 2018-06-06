@@ -9,6 +9,7 @@ import munch.file.Image;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -34,6 +35,7 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
     private Location location;
     private LocationCondition locationCondition;
 
+    private long count;
     private long createdMillis;
     private long updatedMillis;
 
@@ -124,6 +126,14 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
         this.locationCondition = locationCondition;
     }
 
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
+
     public long getCreatedMillis() {
         return createdMillis;
     }
@@ -155,6 +165,29 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
         return "2018-05-30";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Area area = (Area) o;
+        return count == area.count &&
+                Objects.equals(areaId, area.areaId) &&
+                type == area.type &&
+                Objects.equals(name, area.name) &&
+                Objects.equals(names, area.names) &&
+                Objects.equals(website, area.website) &&
+                Objects.equals(description, area.description) &&
+                Objects.equals(images, area.images) &&
+                Objects.equals(hours, area.hours) &&
+                Objects.equals(location, area.location) &&
+                Objects.equals(locationCondition, area.locationCondition);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(areaId, type, name, names, website, description, images, hours, location, locationCondition, count);
+    }
+
     /**
      * Location condition to confirm place is actually inside a cluster beyond polygon matching
      */
@@ -180,7 +213,20 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
             this.unitNumbers = unitNumbers;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            LocationCondition that = (LocationCondition) o;
+            return Objects.equals(postcodes, that.postcodes) &&
+                    Objects.equals(unitNumbers, that.unitNumbers);
+        }
 
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(postcodes, unitNumbers);
+        }
     }
 
     public enum Type {

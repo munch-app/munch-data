@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -28,7 +29,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     private String name;
     private Set<String> names;
-    private List<String> tags;
+    private List<Tag> tags;
 
     private String website;
     private String description;
@@ -41,7 +42,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     private List<Hour> hours;
     private List<Image> images;
-    private List<Area> areas;
+    private List<Area> areas; // Area data is Managed
 
     private long createdMillis;
     private long updatedMillis;
@@ -87,11 +88,11 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
-    public List<String> getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
 
@@ -237,6 +238,62 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                 ", updatedMillis=" + updatedMillis +
                 ", ranking=" + ranking +
                 '}';
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Tag {
+        private String tagId;
+        private String name;
+        private munch.data.tag.Tag.Type type;
+
+        public String getTagId() {
+            return tagId;
+        }
+
+        public void setTagId(String tagId) {
+            this.tagId = tagId;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public munch.data.tag.Tag.Type getType() {
+            return type;
+        }
+
+        public void setType(munch.data.tag.Tag.Type type) {
+            this.type = type;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Tag tag = (Tag) o;
+            return Objects.equals(tagId, tag.tagId) &&
+                    Objects.equals(name, tag.name) &&
+                    type == tag.type;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(tagId, name, type);
+        }
+
+        @Override
+        public String toString() {
+            return "Tag{" +
+                    "tagId='" + tagId + '\'' +
+                    ", name='" + name + '\'' +
+                    ", type=" + type +
+                    '}';
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
