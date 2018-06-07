@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
@@ -58,12 +59,13 @@ public final class AreaBridge extends AirtableBridge<Area> {
             // Update if Changed
             Area area = areaClient.get(areaId);
             Long count = areaClient.countPlaces(areaId);
-            updated.setCount(count != null ? count : 0);
+            updated.setCounts(new Area.Counts());
+            updated.getCounts().setTotal(count != null ? count : 0);
             if (updated.equals(area)) return;
 
             AirtableRecord patch = new AirtableRecord();
             patch.setId(record.getId());
-            patch.putField("count", area.getCount());
+            patch.putField("counts.total", updated.getCounts().getTotal());
 
             // Patch to Airtable & Client
             table.patch(patch);
@@ -83,8 +85,9 @@ public final class AreaBridge extends AirtableBridge<Area> {
     @Override
     protected Area parse(AirtableRecord record) {
         Area area = new Area();
-        area.setLocation(parseLocation(record));
-        if (area.getLocation() == null) return null;
+        Location location = parseLocation(record);
+        if (location == null) return null;
+        area.setLocation(location);
 
         String type = record.getField("type").asText();
         if (type == null) return null;
@@ -113,6 +116,7 @@ public final class AreaBridge extends AirtableBridge<Area> {
         return null;
     }
 
+    @Nullable
     protected Location parseLocation(AirtableRecord record) {
         Location location = new Location();
         location.setPolygon(new Location.Polygon());

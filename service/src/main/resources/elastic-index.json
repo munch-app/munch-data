@@ -186,7 +186,17 @@
           "enabled": false
         },
         "counts": {
-          "enabled": false
+          "properties": {
+            "total": {
+              "type": "long"
+            },
+            "article": {
+              "enabled": false
+            },
+            "instagram": {
+              "enabled": false
+            }
+          }
         },
         "price": {
           "properties": {
@@ -250,9 +260,6 @@
         },
         "locationCondition": {
           "enabled": false
-        },
-        "count": {
-          "type": "long"
         },
         "createdMillis": {
           "type": "long"

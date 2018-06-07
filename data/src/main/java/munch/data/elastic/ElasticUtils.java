@@ -10,10 +10,7 @@ import munch.data.place.Place;
 import munch.data.tag.Tag;
 import munch.restful.core.JsonUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -188,5 +185,31 @@ public final class ElasticUtils {
                 .putObject(name)
                 .put(operator, value);
         return filter;
+    }
+
+    public static JsonNode sortDistance(String latLng) {
+        Objects.requireNonNull(latLng);
+
+        ObjectNode geoDistance = JsonUtils.createObjectNode()
+                .put("location.latLng", latLng)
+                .put("order", "asc")
+                .put("unit", "m")
+                .put("mode", "min")
+                .put("distance_type", "plane");
+
+        ObjectNode sort = JsonUtils.createObjectNode();
+        sort.set("_geo_distance", geoDistance);
+        return sort;
+    }
+
+    /**
+     * @param field field
+     * @param by    direction
+     * @return { "field": "by" }
+     */
+    public static JsonNode sortField(String field, String by) {
+        ObjectNode sort = JsonUtils.createObjectNode();
+        sort.put(field, by);
+        return sort;
     }
 }

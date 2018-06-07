@@ -25,7 +25,7 @@ public final class TagClient extends RestfulDynamoHashClient<Tag> {
         this(ConfigFactory.load().getString("services.munch-data.url"));
     }
 
-    TagClient(String url) {
+    public TagClient(String url) {
         super(url, Tag.class, "tagId");
     }
 

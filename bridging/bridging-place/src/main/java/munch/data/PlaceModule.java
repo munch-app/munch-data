@@ -39,7 +39,7 @@ public class PlaceModule extends AbstractModule {
     public static void main(String[] args) throws InterruptedException {
         Injector injector = Guice.createInjector(new PlaceModule());
         EngineGroup.start(
-//                injector.getInstance(LandmarkBridge.class)
+                injector.getInstance(PlaceBridge.class)
         );
     }
 }

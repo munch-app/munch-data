@@ -28,7 +28,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
 
     private Place place;
     private Search search;
-    private Count count;
+    private Counts counts;
 
     private long createdMillis;
     private long updatedMillis;
@@ -88,12 +88,12 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         this.search = search;
     }
 
-    public Count getCount() {
-        return count;
+    public Counts getCounts() {
+        return counts;
     }
 
-    public void setCount(Count count) {
-        this.count = count;
+    public void setCounts(Counts counts) {
+        this.counts = counts;
     }
 
     public long getCreatedMillis() {
@@ -138,12 +138,27 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
                 Objects.equals(names, tag.names) &&
                 Objects.equals(place, tag.place) &&
                 Objects.equals(search, tag.search) &&
-                Objects.equals(count, tag.count);
+                Objects.equals(counts, tag.counts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tagId, type, name, names, place, search, count);
+        return Objects.hash(tagId, type, name, names, place, search, counts);
+    }
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "tagId='" + tagId + '\'' +
+                ", type=" + type +
+                ", name='" + name + '\'' +
+                ", names=" + names +
+                ", place=" + place +
+                ", search=" + search +
+                ", counts=" + counts +
+                ", createdMillis=" + createdMillis +
+                ", updatedMillis=" + updatedMillis +
+                '}';
     }
 
     public static class Place {
@@ -245,36 +260,35 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         }
     }
 
-    public static class Count {
-        private Long total;
+    public static class Counts {
+        private long total;
 
-        public Long getTotal() {
+        public long getTotal() {
             return total;
         }
 
-        public void setTotal(Long total) {
+        public void setTotal(long total) {
             this.total = total;
-        }
-
-        @Override
-        public String toString() {
-            return "Count{" +
-                    "total=" + total +
-                    '}';
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Count count = (Count) o;
-            return Objects.equals(total, count.total);
+            Counts counts = (Counts) o;
+            return total == counts.total;
         }
 
         @Override
         public int hashCode() {
-
             return Objects.hash(total);
+        }
+
+        @Override
+        public String toString() {
+            return "Counts{" +
+                    "total=" + total +
+                    '}';
         }
     }
 
@@ -295,18 +309,4 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         Timing,
     }
 
-    @Override
-    public String toString() {
-        return "Tag{" +
-                "tagId='" + tagId + '\'' +
-                ", type=" + type +
-                ", name='" + name + '\'' +
-                ", names=" + names +
-                ", place=" + place +
-                ", search=" + search +
-                ", count=" + count +
-                ", createdMillis=" + createdMillis +
-                ", updatedMillis=" + updatedMillis +
-                '}';
-    }
 }

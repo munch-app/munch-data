@@ -35,7 +35,7 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
     private Location location;
     private LocationCondition locationCondition;
 
-    private long count;
+    private Counts counts;
     private long createdMillis;
     private long updatedMillis;
 
@@ -126,12 +126,12 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
         this.locationCondition = locationCondition;
     }
 
-    public long getCount() {
-        return count;
+    public Counts getCounts() {
+        return counts;
     }
 
-    public void setCount(long count) {
-        this.count = count;
+    public void setCounts(Counts counts) {
+        this.counts = counts;
     }
 
     public long getCreatedMillis() {
@@ -170,8 +170,7 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Area area = (Area) o;
-        return count == area.count &&
-                Objects.equals(areaId, area.areaId) &&
+        return Objects.equals(areaId, area.areaId) &&
                 type == area.type &&
                 Objects.equals(name, area.name) &&
                 Objects.equals(names, area.names) &&
@@ -180,12 +179,32 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
                 Objects.equals(images, area.images) &&
                 Objects.equals(hours, area.hours) &&
                 Objects.equals(location, area.location) &&
-                Objects.equals(locationCondition, area.locationCondition);
+                Objects.equals(locationCondition, area.locationCondition) &&
+                Objects.equals(counts, area.counts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(areaId, type, name, names, website, description, images, hours, location, locationCondition, count);
+        return Objects.hash(areaId, type, name, names, website, description, images, hours, location, locationCondition, counts);
+    }
+
+    @Override
+    public String toString() {
+        return "Area{" +
+                "areaId='" + areaId + '\'' +
+                ", type=" + type +
+                ", name='" + name + '\'' +
+                ", names=" + names +
+                ", website='" + website + '\'' +
+                ", description='" + description + '\'' +
+                ", images=" + images +
+                ", hours=" + hours +
+                ", location=" + location +
+                ", locationCondition=" + locationCondition +
+                ", counts=" + counts +
+                ", createdMillis=" + createdMillis +
+                ", updatedMillis=" + updatedMillis +
+                '}';
     }
 
     /**
@@ -226,6 +245,38 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
         public int hashCode() {
 
             return Objects.hash(postcodes, unitNumbers);
+        }
+    }
+
+    public static class Counts {
+        private long total;
+
+        public long getTotal() {
+            return total;
+        }
+
+        public void setTotal(long total) {
+            this.total = total;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Counts counts = (Counts) o;
+            return total == counts.total;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(total);
+        }
+
+        @Override
+        public String toString() {
+            return "Counts{" +
+                    "total=" + total +
+                    '}';
         }
     }
 

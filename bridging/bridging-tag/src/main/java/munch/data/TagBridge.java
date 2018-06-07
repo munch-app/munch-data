@@ -61,12 +61,12 @@ public final class TagBridge extends AirtableBridge<Tag> {
         if (StringUtils.isNotBlank(tagId)) {
             // Update if Changed
             Tag tag = client.get(tagId);
-            updated.setCount(getCount(tag));
+            updated.setCounts(getCount(tag));
             if (tag.equals(updated)) return;
 
             AirtableRecord patch = new AirtableRecord();
             patch.setId(record.getId());
-            patch.putField("count.total", tag.getCount().getTotal());
+            patch.putField("counts.total", updated.getCounts().getTotal());
 
             // Patch to Airtable & Client
             table.patch(patch);
@@ -83,7 +83,7 @@ public final class TagBridge extends AirtableBridge<Tag> {
         }
     }
 
-    private Tag.Count getCount(Tag tag) {
+    private Tag.Counts getCount(Tag tag) {
         ObjectNode root = JsonUtils.createObjectNode();
         ObjectNode bool = JsonUtils.createObjectNode();
         bool.set("must", ElasticUtils.mustMatchAll());
@@ -94,7 +94,7 @@ public final class TagBridge extends AirtableBridge<Tag> {
         root.putObject("query").set("bool", bool);
 
         // Count
-        Tag.Count count = new Tag.Count();
+        Tag.Counts count = new Tag.Counts();
         count.setTotal(Optional.ofNullable(elasticClient.count(root)).orElse(0L));
         return count;
     }
@@ -116,7 +116,8 @@ public final class TagBridge extends AirtableBridge<Tag> {
 
         tag.setPlace(new Tag.Place());
         String level = record.getField("place.level").asText();
-        tag.getPlace().setLevel(Integer.parseInt(level));
+
+        tag.getPlace().setLevel(StringUtils.isBlank(level) ? null : Integer.parseInt(level));
         tag.getPlace().setOrder(record.getField("place.order").asDouble());
         tag.getPlace().setRemapping(ImmutableSet.copyOf(record.getFieldList("place.remapping", String.class)));
 

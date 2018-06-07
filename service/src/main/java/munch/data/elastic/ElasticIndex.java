@@ -103,7 +103,7 @@ public final class ElasticIndex {
                     .type(ElasticMapping.TABLE_NAME)
                     .build());
 
-            validateResult(true, result);
+            validateResult(false, result);
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }

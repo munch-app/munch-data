@@ -37,12 +37,12 @@ public abstract class AirtableBridge<T extends ElasticObject> extends AbstractEn
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void process(long cycleNo, Object data, long processed) {
         if (data instanceof AirtableRecord) {
             AirtableRecord record = (AirtableRecord) data;
             processAirtable(record, parse(record));
         } else {
-            //noinspection unchecked
             processServer((T) data);
         }
 

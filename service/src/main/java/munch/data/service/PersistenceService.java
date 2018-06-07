@@ -31,7 +31,6 @@ public abstract class PersistenceService<T extends ElasticObject> extends Restfu
     protected JsonResult put(Object hash, JsonNode json) {
         ((ObjectNode) json).putPOJO(hashName, ParamException.requireNonNull(hashName, hash));
 
-
         // Convert to Object class to validation against Class Type
         T object = JsonUtils.toObject(json, clazz);
         return put(object);
@@ -43,7 +42,7 @@ public abstract class PersistenceService<T extends ElasticObject> extends Restfu
         // Updated & Created Millis is created via PersistenceService
         T old = get(object.getDataId());
         if (old != null) object.setCreatedMillis(old.getCreatedMillis());
-        else object.setCreatedMillis(object.getUpdatedMillis());
+        else if (object.getCreatedMillis() == 0) object.setCreatedMillis(object.getUpdatedMillis());
 
         validate(object);
         elasticIndex.put(object);

@@ -60,7 +60,7 @@ public final class AreaClient extends RestfulDynamoHashClient<Area> {
      * @return count number of places
      */
     public Long countPlaces(String areaId) {
-        return doPost("/areas/:areaId/count/places")
+        return doGet("/areas/:areaId/count/places")
                 .path("areaId", areaId)
                 .asDataObject(Long.class);
     }

@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
  */
 @Singleton
 public final class ElasticMapping {
-    public static final String INDEX_NAME = "munch6";
+    public static final String INDEX_NAME = "munch7";
     public static final String TABLE_NAME = "Data4";
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticMapping.class);
