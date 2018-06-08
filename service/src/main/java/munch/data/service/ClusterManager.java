@@ -29,8 +29,8 @@ import java.util.Objects;
  * Project: munch-data
  */
 @Singleton
-public final class AreaManager {
-    private static final Logger logger = LoggerFactory.getLogger(AreaManager.class);
+public final class ClusterManager {
+    private static final Logger logger = LoggerFactory.getLogger(ClusterManager.class);
     private static final int MAX_SIZE = 500;
 
     private final JestClient client;
@@ -38,7 +38,7 @@ public final class AreaManager {
     private final PersistenceMapping persistenceMapping;
 
     @Inject
-    public AreaManager(JestClient client, ElasticIndex elasticIndex, PersistenceMapping persistenceMapping) {
+    public ClusterManager(JestClient client, ElasticIndex elasticIndex, PersistenceMapping persistenceMapping) {
         this.client = client;
         this.elasticIndex = elasticIndex;
         this.persistenceMapping = persistenceMapping;
@@ -48,6 +48,7 @@ public final class AreaManager {
      * @param area used to search for Place and update all linked Place
      */
     public void update(Area area) {
+        if (area.getType() != Area.Type.Cluster) return;
         Area oldArea = elasticIndex.get("Area", Objects.requireNonNull(area.getAreaId()));
         if (!isPolygonUpdated(oldArea, area)) return;
 
@@ -72,6 +73,7 @@ public final class AreaManager {
      * @param area used to search for Place and delete all linked Place
      */
     public void delete(Area area) {
+        if (area.getType() != Area.Type.Cluster) return;
         Objects.requireNonNull(area.getDataType());
         Objects.requireNonNull(area.getAreaId());
 

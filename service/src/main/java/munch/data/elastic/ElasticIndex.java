@@ -184,10 +184,10 @@ public final class ElasticIndex {
                 throw new ClusterBlockException();
             }
 
-            logger.warn("{}", jsonNode);
             if (jsonNode.path("result").asText("").equals("not_found") || !jsonNode.path("found").asBoolean()) {
                 if (validateNotFound) throw new ElasticException(404, "Failed to put/delete/get object.");
             } else {
+                logger.warn("{}", jsonNode);
                 throw new ElasticException("Failed to put/delete/get object.");
             }
         }

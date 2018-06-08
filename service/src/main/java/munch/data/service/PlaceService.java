@@ -29,13 +29,13 @@ import static munch.data.elastic.ElasticMapping.TABLE_NAME;
 public final class PlaceService extends PersistenceService<Place> {
 
     private final DynamoDB dynamoDB;
-    private final AreaManager areaManager;
+    private final ClusterManager clusterManager;
 
     @Inject
-    public PlaceService(PersistenceMapping persistenceMapping, ElasticIndex elasticIndex, DynamoDB dynamoDB, AreaManager areaManager) {
+    public PlaceService(PersistenceMapping persistenceMapping, ElasticIndex elasticIndex, DynamoDB dynamoDB, ClusterManager clusterManager) {
         super(persistenceMapping, elasticIndex, Place.class);
         this.dynamoDB = dynamoDB;
-        this.areaManager = areaManager;
+        this.clusterManager = clusterManager;
     }
 
 
@@ -53,7 +53,7 @@ public final class PlaceService extends PersistenceService<Place> {
 
     @Override
     protected JsonResult put(Place object) {
-        areaManager.update(object);
+        clusterManager.update(object);
         return super.put(object);
     }
 

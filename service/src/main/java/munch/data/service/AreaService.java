@@ -28,13 +28,13 @@ import java.util.List;
 public final class AreaService extends PersistenceService<Area> {
 
     private final JestClient client;
-    private final AreaManager areaManager;
+    private final ClusterManager clusterManager;
 
     @Inject
-    public AreaService(PersistenceMapping persistenceMapping, ElasticIndex elasticIndex, JestClient client, AreaManager areaManager) {
+    public AreaService(PersistenceMapping persistenceMapping, ElasticIndex elasticIndex, JestClient client, ClusterManager clusterManager) {
         super(persistenceMapping, elasticIndex, Area.class);
         this.client = client;
-        this.areaManager = areaManager;
+        this.clusterManager = clusterManager;
     }
 
     @Override
@@ -58,14 +58,14 @@ public final class AreaService extends PersistenceService<Area> {
 
     @Override
     protected JsonResult put(Area object) {
-        areaManager.update(object);
+        clusterManager.update(object);
         return super.put(object);
     }
 
     @Override
     protected Area delete(Object hashValue) {
         Area area = super.delete(hashValue);
-        if (area != null) areaManager.delete(area);
+        if (area != null) clusterManager.delete(area);
         return area;
     }
 
