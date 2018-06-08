@@ -50,12 +50,15 @@ public final class TagCleaner {
         select(2, 1, collected, parsedList);
         select(3, 2, collected, parsedList);
         collected.forEach(tag -> parsedList.add(parse(tag)));
-        return List.of();
+        return parsedList;
     }
 
     private static void select(int level, int count, Set<Tag> tags, List<Place.Tag> list) {
         List<Tag> collected = tags.stream()
-                .filter(tag -> tag.getPlace().getLevel() == level)
+                .filter(tag -> {
+                    if (tag.getPlace().getLevel() == null) return false;
+                    return tag.getPlace().getLevel() == level;
+                })
                 .sorted((o1, o2) -> Double.compare(o2.getPlace().getOrder(), o1.getPlace().getOrder()))
                 .limit(count)
                 .collect(Collectors.toList());

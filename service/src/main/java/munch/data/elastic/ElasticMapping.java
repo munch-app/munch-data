@@ -29,8 +29,8 @@ import java.nio.charset.Charset;
  */
 @Singleton
 public final class ElasticMapping {
-    public static final String INDEX_NAME = "munch7";
-    public static final String TABLE_NAME = "Data4";
+    public static final String INDEX_NAME = "munch";
+    public static final String TABLE_NAME = "Data";
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticMapping.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;

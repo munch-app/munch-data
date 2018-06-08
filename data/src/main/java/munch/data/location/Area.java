@@ -214,7 +214,6 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
         private Set<String> postcodes;
         private Set<String> unitNumbers;
 
-        @NotNull
         public Set<String> getPostcodes() {
             return postcodes;
         }
@@ -223,7 +222,6 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
             this.postcodes = postcodes;
         }
 
-        @NotNull
         public Set<String> getUnitNumbers() {
             return unitNumbers;
         }

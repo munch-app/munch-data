@@ -51,8 +51,7 @@ public final class LandmarkBridge extends AirtableBridge<Landmark> {
         String landmarkId = record.getField("landmarkId").asText();
         if (StringUtils.isNotBlank(landmarkId)) {
             // Update if Changed
-            Landmark landmark = client.get(landmarkId);
-            if (updated.equals(landmark)) return;
+            if (updated.equals(client.get(landmarkId))) return;
             client.put(updated);
         } else {
             // Create New

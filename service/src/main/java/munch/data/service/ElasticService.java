@@ -91,7 +91,7 @@ public final class ElasticService implements JsonService {
 
         try {
             String json = client.execute(multiSearch).getJsonString();
-            JsonNode rootResponse = JsonUtils.toTree(json);
+            JsonNode rootResponse = JsonUtils.readTree(json);
             parseResponse(rootResponse);
 
             List<JsonNode> responses = new ArrayList<>();

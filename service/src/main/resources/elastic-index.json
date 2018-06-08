@@ -13,7 +13,7 @@
     }
   },
   "mappings": {
-    "Data4": {
+    "Data": {
       "properties": {
         "suggest": {
           "type": "completion",
@@ -52,8 +52,7 @@
           "type": "keyword"
         },
         "type": {
-          "type": "keyword",
-          "normalizer": "normalizer_lower"
+          "type": "keyword"
         },
         "name": {
           "type": "text"

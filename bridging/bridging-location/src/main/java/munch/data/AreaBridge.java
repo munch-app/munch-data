@@ -57,11 +57,10 @@ public final class AreaBridge extends AirtableBridge<Area> {
         String areaId = record.getField("areaId").asText();
         if (StringUtils.isNotBlank(areaId)) {
             // Update if Changed
-            Area area = areaClient.get(areaId);
             Long count = areaClient.countPlaces(areaId);
             updated.setCounts(new Area.Counts());
             updated.getCounts().setTotal(count != null ? count : 0);
-            if (updated.equals(area)) return;
+            if (updated.equals(areaClient.get(areaId))) return;
 
             AirtableRecord patch = new AirtableRecord();
             patch.setId(record.getId());
@@ -69,7 +68,7 @@ public final class AreaBridge extends AirtableBridge<Area> {
 
             // Patch to Airtable & Client
             table.patch(patch);
-            areaClient.put(area);
+            areaClient.put(updated);
         } else {
             // Create New
             Area posted = areaClient.post(updated);
@@ -108,10 +107,14 @@ public final class AreaBridge extends AirtableBridge<Area> {
     protected Area.LocationCondition parseLocationCondition(AirtableRecord record) {
         Set<String> postcodes = JsonUtils.toSet(record.getField("locationCondition.postcodes"), String.class);
         Set<String> unitNumbers = JsonUtils.toSet(record.getField("locationCondition.unitNumbers"), String.class);
-        if ((postcodes != null && !postcodes.isEmpty()) || (unitNumbers != null && !unitNumbers.isEmpty())) {
+        if (postcodes == null) postcodes = Set.of();
+        if (unitNumbers == null) unitNumbers = Set.of();
+
+        if (!postcodes.isEmpty() || !unitNumbers.isEmpty()) {
             Area.LocationCondition condition = new Area.LocationCondition();
             condition.setPostcodes(postcodes);
             condition.setUnitNumbers(unitNumbers);
+            return condition;
         }
         return null;
     }

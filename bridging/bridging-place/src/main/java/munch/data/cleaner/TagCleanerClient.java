@@ -31,6 +31,8 @@ public final class TagCleanerClient extends RestfulClient {
      */
     public List<Place.Tag> clean(List<String> tags) {
         ObjectNode body = JsonUtils.createObjectNode();
+        body.set("tags", JsonUtils.toTree(tags));
+
         JsonNode dataNode = doPost("/clean")
                 .body(body)
                 .asResponse()

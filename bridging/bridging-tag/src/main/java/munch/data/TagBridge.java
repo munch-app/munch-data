@@ -60,9 +60,8 @@ public final class TagBridge extends AirtableBridge<Tag> {
         String tagId = record.getField("tagId").asText();
         if (StringUtils.isNotBlank(tagId)) {
             // Update if Changed
-            Tag tag = client.get(tagId);
-            updated.setCounts(getCount(tag));
-            if (tag.equals(updated)) return;
+            updated.setCounts(getCount(updated));
+            if (updated.equals(client.get(tagId))) return;
 
             AirtableRecord patch = new AirtableRecord();
             patch.setId(record.getId());

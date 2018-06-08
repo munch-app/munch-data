@@ -11,6 +11,7 @@ import corpus.CorpusModule;
 import corpus.airtable.AirtableModule;
 import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
+import munch.data.dynamodb.DynamoModule;
 
 /**
  * Created by: Fuxing
@@ -23,6 +24,8 @@ public class PlaceModule extends AbstractModule {
     protected void configure() {
         install(new CorpusModule());
         install(new DataModule());
+        install(new DynamoModule());
+        install(new munch.data.elastic.ElasticModule());
 
         install(new AirtableModule(getAirtableKey()));
     }

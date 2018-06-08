@@ -7,6 +7,7 @@ import munch.data.client.PlaceClient;
 import munch.data.place.Place;
 import munch.data.resolver.LandmarkResolverClient;
 import munch.file.Image;
+import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,8 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     protected void process(long cycleNo, Object data, long processed) {
         if (data instanceof munch.data.structure.Place) {
             // From OLD
-            newClient.put(convert((munch.data.structure.Place) data));
+            Place converted = convert((munch.data.structure.Place) data);
+            newClient.put(converted);
         } else {
             // From NEW
             Place place = (Place) data;
@@ -143,12 +145,18 @@ public final class PlaceBridge extends AbstractEngine<Object> {
                 .map(sourcedImage -> {
                     List<Image.Size> sizes = new ArrayList<>();
                     sourcedImage.getImages().forEach((wh, url) -> {
-                        String[] widthHeight = wh.split("x");
-
                         Image.Size size = new Image.Size();
                         size.setUrl(url);
-                        size.setWidth(Integer.parseInt(widthHeight[0]));
-                        size.setHeight(Integer.parseInt(widthHeight[1]));
+
+                        if (wh.equals("original")) {
+                            // Temporary Solution
+                            size.setWidth(1000);
+                            size.setHeight(1000);
+                        }else {
+                            String[] widthHeight = wh.split("x");
+                            size.setWidth(Integer.parseInt(widthHeight[0]));
+                            size.setHeight(Integer.parseInt(widthHeight[1]));
+                        }
                         sizes.add(size);
                     });
 

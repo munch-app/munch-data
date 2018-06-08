@@ -13,6 +13,8 @@ import munch.data.exception.ElasticException;
 import munch.data.location.Area;
 import munch.data.place.Place;
 import munch.restful.core.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +30,7 @@ import java.util.Objects;
  */
 @Singleton
 public final class AreaManager {
+    private static final Logger logger = LoggerFactory.getLogger(AreaManager.class);
     private static final int MAX_SIZE = 500;
 
     private final JestClient client;
@@ -152,15 +155,16 @@ public final class AreaManager {
      */
     private boolean validate(Area area, Place place) {
         Area.LocationCondition condition = area.getLocationCondition();
+        if (condition == null) return true;
 
         // Condition no PostCodes = ignore
-        if (!condition.getPostcodes().isEmpty()) {
+        if (condition.getPostcodes() != null && !condition.getPostcodes().isEmpty()) {
             // If Condition fail = false
             if (!condition.getPostcodes().contains(place.getLocation().getPostcode())) return false;
         }
 
         // Condition no UnitNumbers = ignore
-        if (!condition.getUnitNumbers().isEmpty()) {
+        if (condition.getUnitNumbers() != null && !condition.getUnitNumbers().isEmpty()) {
             // If Condition fail = false
             if (!condition.getUnitNumbers().contains(place.getLocation().getUnitNumber())) return false;
         }
@@ -176,7 +180,7 @@ public final class AreaManager {
 
         try {
             String json = client.execute(search).getJsonString();
-            return ElasticUtils.deserializeList(JsonUtils.toTree(json).path("hits").path("hits"));
+            return ElasticUtils.deserializeList(JsonUtils.readTree(json).path("hits").path("hits"));
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
