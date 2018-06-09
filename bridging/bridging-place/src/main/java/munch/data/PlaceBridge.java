@@ -7,7 +7,6 @@ import munch.data.client.PlaceClient;
 import munch.data.place.Place;
 import munch.data.resolver.LandmarkResolverClient;
 import munch.file.Image;
-import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +60,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
             // From OLD
             Place converted = convert((munch.data.structure.Place) data);
             newClient.put(converted);
+            sleep(200);
         } else {
             // From NEW
             Place place = (Place) data;
