@@ -29,15 +29,15 @@ public final class LandmarkClient extends RestfulDynamoHashClient<Landmark> {
     }
 
     public Landmark get(String landmarkId) {
-        return get("/landmarks/{landmarkId}", landmarkId);
+        return doGet("/landmarks/{landmarkId}", landmarkId);
     }
 
     public NextNodeList<Landmark> list(String nextLandmarkId, int size) {
-        return list("/landmarks", nextLandmarkId, size);
+        return doList("/landmarks", nextLandmarkId, size);
     }
 
-    public Iterator<Landmark> list() {
-        return list("/landmarks");
+    public Iterator<Landmark> iterator() {
+        return doIterator("/landmarks", 20);
     }
 
     public Landmark post(Landmark landmark) {
@@ -48,10 +48,10 @@ public final class LandmarkClient extends RestfulDynamoHashClient<Landmark> {
 
     public void put(Landmark landmark) {
         String landmarkId = Objects.requireNonNull(landmark.getLandmarkId());
-        put("/landmarks/{landmarkId}", landmarkId, landmark);
+        doPut("/landmarks/{landmarkId}", landmarkId, landmark);
     }
 
     public Landmark delete(String landmarkId) {
-        return delete("/landmarks/{landmarkId}", landmarkId);
+        return doDelete("/landmarks/{landmarkId}", landmarkId);
     }
 }

@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * Created by: Fuxing
  * Date: 5/6/18
@@ -16,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class AreaBridgeTest {
     @Test
     void name() {
-        Polygon polygon = AreaBridge.createPolygon("1.307336516516135,103.8568539666166", 0.3);
-        List<String> points = AreaBridge.toPoints(polygon);
-        System.out.println(AreaBridge.toWKT(points));
+        Polygon polygon = SpatialUtils.createPolygon("1.307336516516135,103.8568539666166", 0.3);
+        List<String> points = SpatialUtils.toPoints(polygon);
+        System.out.println(SpatialUtils.toWKT(points));
     }
 }

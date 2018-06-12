@@ -28,7 +28,7 @@ public final class TagCleaner {
         this.supplier = Suppliers.memoizeWithExpiration(() -> {
             Map<String, Tag> map = new HashMap<>();
 
-            tagClient.list().forEachRemaining(tag -> {
+            tagClient.iterator().forEachRemaining(tag -> {
                 // Put Names
                 tag.getNames().forEach(s -> map.put(s.toLowerCase(), tag));
                 // Put Remapping

@@ -51,7 +51,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
 
     @Override
     protected Iterator<Object> fetch(long cycleNo) {
-        return Iterators.concat(oldClient.list(), newClient.list());
+        return Iterators.concat(oldClient.list(), newClient.iterator());
     }
 
     @Override

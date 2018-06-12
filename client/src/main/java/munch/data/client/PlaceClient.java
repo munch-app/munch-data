@@ -32,7 +32,7 @@ public final class PlaceClient extends RestfulDynamoHashClient<Place> {
     }
 
     public Place get(String placeId) {
-        return get("/places/:placeId", placeId);
+        return doGet("/places/:placeId", placeId);
     }
 
     public Map<String, Place> batchGet(Collection<String> placeIds) {
@@ -64,19 +64,19 @@ public final class PlaceClient extends RestfulDynamoHashClient<Place> {
     }
 
     public NextNodeList<Place> list(String nextPlaceId, int size) {
-        return list("/places", nextPlaceId, size);
+        return doList("/places", nextPlaceId, size);
     }
 
-    public Iterator<Place> list() {
-        return list("/places");
+    public Iterator<Place> iterator() {
+        return doIterator("/places", 20);
     }
 
     public void put(Place place) {
         String placeId = Objects.requireNonNull(place.getPlaceId());
-        put("/places/:placeId", placeId, place);
+        doPut("/places/:placeId", placeId, place);
     }
 
     public Place delete(String placeId) {
-        return delete("/places/:placeId", placeId);
+        return doDelete("/places/:placeId", placeId);
     }
 }

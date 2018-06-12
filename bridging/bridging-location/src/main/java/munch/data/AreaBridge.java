@@ -32,7 +32,7 @@ public final class AreaBridge extends AirtableBridge<Area> {
 
     @Inject
     public AreaBridge(AirtableApi airtableApi, AreaClient areaClient, ImageClient imageClient) {
-        super(logger, airtableApi.base("appERO4wuQ5oJSTxO").table("Area"), areaClient::list);
+        super(logger, airtableApi.base("appERO4wuQ5oJSTxO").table("Area"), areaClient::iterator);
         this.areaClient = areaClient;
         this.imageClient = imageClient;
     }

@@ -29,15 +29,15 @@ public final class AreaClient extends RestfulDynamoHashClient<Area> {
     }
 
     public Area get(String areaId) {
-        return get("/areas/:areaId", areaId);
+        return doGet("/areas/:areaId", areaId);
     }
 
     public NextNodeList<Area> list(String nextAreaId, int size) {
-        return list("/areas", nextAreaId, size);
+        return doList("/areas", nextAreaId, size);
     }
 
-    public Iterator<Area> list() {
-        return list("/areas");
+    public Iterator<Area> iterator() {
+        return doIterator("/areas", 20);
     }
 
     public Area post(Area area) {
@@ -48,11 +48,11 @@ public final class AreaClient extends RestfulDynamoHashClient<Area> {
 
     public void put(Area area) {
         String areaId = Objects.requireNonNull(area.getAreaId());
-        put("/areas/:areaId", areaId, area);
+        doPut("/areas/:areaId", areaId, area);
     }
 
     public Area delete(String areaId) {
-        return delete("/areas/:areaId", areaId);
+        return doDelete("/areas/:areaId", areaId);
     }
 
     /**

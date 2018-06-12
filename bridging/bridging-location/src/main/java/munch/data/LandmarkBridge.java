@@ -27,7 +27,7 @@ public final class LandmarkBridge extends AirtableBridge<Landmark> {
 
     @Inject
     public LandmarkBridge(AirtableApi airtableApi, LandmarkClient client) {
-        super(logger, airtableApi.base("appERO4wuQ5oJSTxO").table("Landmark"), client::list);
+        super(logger, airtableApi.base("appERO4wuQ5oJSTxO").table("Landmark"), client::iterator);
         this.client = client;
     }
 

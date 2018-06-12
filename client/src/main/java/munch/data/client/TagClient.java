@@ -30,15 +30,15 @@ public final class TagClient extends RestfulDynamoHashClient<Tag> {
     }
 
     public Tag get(String tagId) {
-        return get("/tags/:tagId", tagId);
+        return doGet("/tags/:tagId", tagId);
     }
 
     public NextNodeList<Tag> list(String nextTagId, int size) {
-        return list("/tags", nextTagId, size);
+        return doList("/tags", nextTagId, size);
     }
 
-    public Iterator<Tag> list() {
-        return list("/tags");
+    public Iterator<Tag> iterator() {
+        return doIterator("/tags", 20);
     }
 
     public Tag post(Tag tag) {
@@ -49,11 +49,11 @@ public final class TagClient extends RestfulDynamoHashClient<Tag> {
 
     public void put(Tag tag) {
         String tagId = Objects.requireNonNull(tag.getTagId());
-        put("/tags/:tagId", tagId, tag);
+        doPut("/tags/:tagId", tagId, tag);
     }
 
     public Tag delete(String tagId) {
-        return delete("/tags/:tagId", tagId);
+        return doDelete("/tags/:tagId", tagId);
     }
 
     public void patch(String tagId, JsonNode body) {
