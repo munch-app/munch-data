@@ -38,7 +38,7 @@ public final class TagClient extends RestfulDynamoHashClient<Tag> {
     }
 
     public Iterator<Tag> iterator() {
-        return doIterator("/tags", 20);
+        return doIterator("/tags", 50);
     }
 
     public Tag post(Tag tag) {

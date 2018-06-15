@@ -74,6 +74,9 @@
             }
           }
         },
+        "phone": {
+          "type": "text"
+        },
         "website": {
           "enabled": false
         },

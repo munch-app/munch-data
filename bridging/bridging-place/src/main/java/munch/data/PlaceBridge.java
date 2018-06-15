@@ -75,6 +75,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         Place place = new Place();
         place.setPlaceId(old.getId());
         place.setName(old.getName());
+        place.setPhone(old.getPhone());
         place.setNames(old.getAllNames());
         place.setWebsite(old.getWebsite());
         place.setDescription(old.getDescription());

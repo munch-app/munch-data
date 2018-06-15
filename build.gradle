@@ -4,9 +4,9 @@ allprojects {
     apply plugin: "com.jfrog.artifactory"
     apply plugin: 'maven-publish'
 
-    group 'munch.data'
-    version '4.0'
-    ext.restfulVersion = '2.1.0'
+    group 'munch-data'
+    version '4.2'
+    ext.restfulVersion = '2.1.2'
     ext.fileVersion = '1.2.4'
 
     ext.guiceVersion = '4.2.0'

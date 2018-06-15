@@ -2,6 +2,8 @@ package munch.data.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
+import munch.data.ElasticObject;
+import munch.data.elastic.ElasticUtils;
 import munch.restful.client.RestfulClient;
 
 import javax.annotation.Nullable;
@@ -35,6 +37,15 @@ public final class ElasticClient extends RestfulClient {
         return doPost("/elastic/search")
                 .body(node)
                 .asDataNode();
+    }
+
+    /**
+     * @param node search node
+     * @param <T>  Data Type
+     * @return List of ElasticObject
+     */
+    public <T extends ElasticObject> List<T> searchHitsHits(JsonNode node) {
+        return ElasticUtils.deserializeList(search(node).path("hits").path("hits"));
     }
 
     /**

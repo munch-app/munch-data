@@ -68,7 +68,7 @@ public final class PlaceClient extends RestfulDynamoHashClient<Place> {
     }
 
     public Iterator<Place> iterator() {
-        return doIterator("/places", 20);
+        return doIterator("/places", 30);
     }
 
     public void put(Place place) {
