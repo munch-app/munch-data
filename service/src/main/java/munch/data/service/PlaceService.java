@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static munch.data.elastic.ElasticMapping.TABLE_NAME;
-
 /**
  * Created by: Fuxing
  * Date: 2/6/18
@@ -68,7 +66,7 @@ public final class PlaceService extends PersistenceService<Place> {
         BatchGetItemOutcome outcome = dynamoDB.batchGetItem(spec);
 
         Map<String, Place> placeMap = outcome.getTableItems()
-                .get(TABLE_NAME)
+                .get(table.getTableName())
                 .stream()
                 .filter(Objects::nonNull)
                 .map(s -> JsonUtils.toObject(s.toJSON(), Place.class))
