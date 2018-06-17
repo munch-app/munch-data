@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -51,7 +52,6 @@ public final class ClusterManager {
         if (area.getType() != Area.Type.Cluster) return;
         Area oldArea = elasticIndex.get("Area", Objects.requireNonNull(area.getAreaId()));
         if (!isPolygonUpdated(oldArea, area)) return;
-
 
         // Link up Places in Area
         for (Place place : searchPlaces(area)) {
@@ -110,7 +110,6 @@ public final class ClusterManager {
     }
 
     private List<Place> searchPlaces(Area area) {
-        if (area.getLocation() == null) return List.of();
         if (area.getLocation().getPolygon() == null) return List.of();
         if (area.getLocation().getPolygon().getPoints() == null) return List.of();
 
@@ -127,7 +126,7 @@ public final class ClusterManager {
         root.putObject("query").set("bool", bool);
 
         List<Place> places = search(root);
-        places.removeIf(place -> !validate(area, place));
+        places.removeIf(place -> !isPlaceInArea(place, area));
         return places;
     }
 
@@ -141,12 +140,12 @@ public final class ClusterManager {
         bool.set("filter", JsonUtils.createArrayNode()
                 .add(ElasticUtils.filterTerm("dataType", "Area"))
                 .add(ElasticUtils.filterTerm("type", Area.Type.Cluster.name()))
-                .add(ElasticUtils.filterWithinPoint("location.polygon", place.getLocation().getLatLng()))
+                .add(ElasticUtils.filterIntersectsPoint("location.polygon", place.getLocation().getLatLng()))
         );
         root.putObject("query").set("bool", bool);
 
         List<Area> areaList = search(root);
-        areaList.removeIf(area -> !validate(area, place));
+        areaList.removeIf(area -> !isPlaceInArea(place, area));
         return areaList;
     }
 
@@ -155,20 +154,22 @@ public final class ClusterManager {
      * @param place to match
      * @return whether Area LocationCondition and Place condition match
      */
-    private boolean validate(Area area, Place place) {
+    private boolean isPlaceInArea(Place place, Area area) {
         Area.LocationCondition condition = area.getLocationCondition();
         if (condition == null) return true;
 
         // Condition no PostCodes = ignore
-        if (condition.getPostcodes() != null && !condition.getPostcodes().isEmpty()) {
+        Set<String> postcodes = condition.getPostcodes();
+        if (postcodes != null && !postcodes.isEmpty()) {
             // If Condition fail = false
-            if (!condition.getPostcodes().contains(place.getLocation().getPostcode())) return false;
+            if (!postcodes.contains(place.getLocation().getPostcode())) return false;
         }
 
         // Condition no UnitNumbers = ignore
-        if (condition.getUnitNumbers() != null && !condition.getUnitNumbers().isEmpty()) {
+        Set<String> unitNumbers = condition.getUnitNumbers();
+        if (unitNumbers != null && !unitNumbers.isEmpty()) {
             // If Condition fail = false
-            if (!condition.getUnitNumbers().contains(place.getLocation().getUnitNumber())) return false;
+            if (!unitNumbers.contains(place.getLocation().getUnitNumber())) return false;
         }
 
         // Else Pass
@@ -193,14 +194,11 @@ public final class ClusterManager {
      * @param area    new area
      * @return if polygon is updated
      */
-    public boolean isPolygonUpdated(Area oldArea, Area area) {
+    private boolean isPolygonUpdated(Area oldArea, Area area) {
         Objects.requireNonNull(area);
 
         if (oldArea == null) return true;
-        if (oldArea.getLocation() == null || area.getLocation() == null) return false;
-        if (oldArea.getLocation().getPolygon() == null || area.getLocation().getPolygon() == null) return false;
-        if (oldArea.getLocation().getPolygon().getPoints() == null || area.getLocation().getPolygon().getPoints() == null)
-            return false;
+        // Polygon Points should never be null because it is validated in AreaBridge
         return oldArea.getLocation().getPolygon().getPoints().equals(area.getLocation().getPolygon().getPoints());
     }
 }

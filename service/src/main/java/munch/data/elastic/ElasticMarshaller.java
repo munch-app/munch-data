@@ -26,8 +26,6 @@ public final class ElasticMarshaller {
     private static final Logger logger = LoggerFactory.getLogger(ElasticMarshaller.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
-    // TODO Hour
-
     public ObjectNode serialize(ElasticObject object) {
         ObjectNode node = mapper.valueToTree(object);
         serializeLocation(node.path("location"));
@@ -64,7 +62,7 @@ public final class ElasticMarshaller {
      */
     @SuppressWarnings("unchecked")
     public <T extends ElasticObject> T deserialize(JsonNode node) {
-        deserializeLocation(node.path("location"));
+        deserializeLocation(node.path("_source").path("location"));
         return ElasticUtils.deserialize(node);
     }
 

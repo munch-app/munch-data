@@ -1,6 +1,5 @@
 package munch.data.resolver;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.client.ElasticClient;
 import munch.data.elastic.ElasticUtils;
@@ -37,12 +36,12 @@ public final class LandmarkResolverClient {
         bool.set("filter", JsonUtils.createArrayNode()
                 .add(ElasticUtils.filterTerm("dataType", "Landmark"))
         );
-        bool.set("sort", JsonUtils.createArrayNode()
-                .add(ElasticUtils.sortDistance(latLng))
-        );
         root.putObject("query").set("bool", bool);
 
-        JsonNode results = elasticClient.search(root);
-        return ElasticUtils.deserializeList(results.path("hits").path("hits"));
+        root.set("sort", JsonUtils.createArrayNode()
+                .add(ElasticUtils.sortDistance(latLng))
+        );
+
+        return elasticClient.searchHitsHits(root);
     }
 }

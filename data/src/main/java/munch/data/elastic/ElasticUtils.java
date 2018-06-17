@@ -109,13 +109,13 @@ public final class ElasticUtils {
      * "relation": "within"
      * }}}
      */
-    public static JsonNode filterWithinPoint(String name, String latLng) {
+    public static JsonNode filterIntersectsPoint(String name, String latLng) {
         ObjectNode filter = JsonUtils.createObjectNode();
         String[] split = latLng.split(",");
 
         filter.putObject("geo_shape")
                 .putObject(name)
-                .put("relation", "within")
+                .put("relation", "intersects")
                 .putObject("shape")
                 .put("type", "point")
                 .putArray("coordinates")

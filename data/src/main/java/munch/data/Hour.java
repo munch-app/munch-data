@@ -3,6 +3,7 @@ package munch.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.DayOfWeek;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -49,6 +50,30 @@ public final class Hour {
     public void setClose(String close) {
         this.close = close;
         validate(open, close);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Hour hour = (Hour) o;
+        return day == hour.day &&
+                Objects.equals(open, hour.open) &&
+                Objects.equals(close, hour.close);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, open, close);
+    }
+
+    @Override
+    public String toString() {
+        return "Hour{" +
+                "day=" + day +
+                ", open='" + open + '\'' +
+                ", close='" + close + '\'' +
+                '}';
     }
 
     /**

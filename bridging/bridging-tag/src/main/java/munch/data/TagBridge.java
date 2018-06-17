@@ -88,7 +88,7 @@ public final class TagBridge extends AirtableBridge<Tag> {
         bool.set("must", ElasticUtils.mustMatchAll());
         bool.set("filter", JsonUtils.createArrayNode()
                 .add(ElasticUtils.filterTerm("dataType", "Place"))
-                .add(ElasticUtils.filterTerm("tags", tag.getName()))
+                .add(ElasticUtils.filterTerm("tags.tagId", tag.getTagId()))
         );
         root.putObject("query").set("bool", bool);
 
