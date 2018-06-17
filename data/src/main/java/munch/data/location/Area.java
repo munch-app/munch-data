@@ -20,7 +20,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Area implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
+public final class Area implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject, TimingObject {
     private String areaId;
 
     private Type type;
@@ -279,6 +279,8 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
     }
 
     public enum Type {
+        @JsonProperty("City")
+        City,
         @JsonProperty("Region")
         Region,
         @JsonProperty("Cluster")

@@ -5,7 +5,6 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import corpus.data.CorpusClient;
 import corpus.field.FieldUtils;
-import munch.data.utils.ScheduledThreadUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

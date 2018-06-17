@@ -13,7 +13,6 @@ import munch.data.dynamodb.DynamoModule;
 import munch.data.place.elastic.GraphElasticModule;
 import munch.data.place.graph.matcher.MatcherModule;
 import munch.data.place.parser.ParserModule;
-import munch.data.utils.ScheduledThreadUtils;
 
 /**
  * Created By: Fuxing Loh

@@ -2,6 +2,8 @@ package munch.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.DayOfWeek;
+
 /**
  * Created by: Fuxing
  * Date: 31/5/18
@@ -59,7 +61,34 @@ public final class Hour {
         @JsonProperty("thu") thu,
         @JsonProperty("fri") fri,
         @JsonProperty("sat") sat,
-        @JsonProperty("sun") sun,
+        @JsonProperty("sun") sun,;
+
+        /**
+         * @param dayOfWeek input
+         * @return Day output
+         */
+        public static Day parse(DayOfWeek dayOfWeek) {
+            switch (dayOfWeek) {
+                case MONDAY:
+                    return mon;
+                case TUESDAY:
+                    return tue;
+                case WEDNESDAY:
+                    return wed;
+                case THURSDAY:
+                    return thu;
+                case FRIDAY:
+                    return fri;
+                case SATURDAY:
+                    return sat;
+                case SUNDAY:
+                    return sun;
+
+                default:
+                    // Never happens
+                    throw new IllegalStateException("DayOfWeek not found");
+            }
+        }
     }
 
     /**

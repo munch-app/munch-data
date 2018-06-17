@@ -17,7 +17,6 @@ import corpus.images.ImageCachedClient;
 import corpus.images.ImageClient;
 import munch.data.dynamodb.DynamoModule;
 import munch.data.elastic.ElasticModule;
-import munch.data.utils.ScheduledThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

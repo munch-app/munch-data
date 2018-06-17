@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Singleton;
 import munch.data.ElasticObject;
+import munch.data.Hour;
 import munch.data.SuggestObject;
+import munch.data.TimingObject;
 import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,8 @@ public final class ElasticMarshaller {
     private static final Logger logger = LoggerFactory.getLogger(ElasticMarshaller.class);
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
+    // TODO Hour
+
     public ObjectNode serialize(ElasticObject object) {
         ObjectNode node = mapper.valueToTree(object);
         serializeLocation(node.path("location"));
@@ -34,6 +38,11 @@ public final class ElasticMarshaller {
                     .put("weight", 1)
                     .putArray("input")
                     .add(((SuggestObject) object).getName());
+        }
+
+        if (object instanceof TimingObject) {
+            List<Hour> hours = ((TimingObject) object).getHours();
+            node.set("hour", parseHour(hours));
         }
 
         return node;
@@ -104,5 +113,42 @@ public final class ElasticMarshaller {
             points.add(point.get(1).asDouble() + "," + point.get(0).asDouble());
         }
         return points;
+    }
+
+    private static ObjectNode parseHour(List<Hour> hours) {
+        ObjectNode objectNode = mapper.createObjectNode();
+        if (hours.isEmpty()) return objectNode;
+
+        objectNode.set("mon", collectDay(Hour.Day.mon, hours));
+        objectNode.set("tue", collectDay(Hour.Day.tue, hours));
+        objectNode.set("wed", collectDay(Hour.Day.wed, hours));
+        objectNode.set("thu", collectDay(Hour.Day.thu, hours));
+        objectNode.set("fri", collectDay(Hour.Day.fri, hours));
+        objectNode.set("sat", collectDay(Hour.Day.sat, hours));
+        objectNode.set("sun", collectDay(Hour.Day.sun, hours));
+        return objectNode;
+    }
+
+    private static ArrayNode collectDay(Hour.Day day, List<Hour> hours) {
+        ArrayNode arrayNode = mapper.createArrayNode();
+
+        for (Hour hour : hours) {
+            if (day.equals(hour.getDay())) {
+                try {
+                    arrayNode.addObject()
+                            .putObject("open_close")
+                            .put("gte", serializeTime(hour.getOpen()))
+                            .put("lte", serializeTime(hour.getClose()));
+                } catch (NumberFormatException | NullPointerException | IndexOutOfBoundsException e) {
+                    logger.error("Time parse error", e);
+                }
+            }
+        }
+        return arrayNode;
+    }
+
+    public static int serializeTime(String time) {
+        String[] hourMin = time.split(":");
+        return Integer.parseInt(hourMin[0]) * 60 + Integer.parseInt(hourMin[1]);
     }
 }

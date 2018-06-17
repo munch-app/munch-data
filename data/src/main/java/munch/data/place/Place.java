@@ -23,7 +23,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Place implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
+public final class Place implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject, TimingObject {
     private String placeId;
     private Status status;
 
