@@ -4,6 +4,7 @@ import catalyst.utils.LatLngUtils;
 import corpus.data.CorpusClient;
 import corpus.field.FieldUtils;
 import munch.data.structure.Place;
+import munch.data.utils.ScheduledThreadUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

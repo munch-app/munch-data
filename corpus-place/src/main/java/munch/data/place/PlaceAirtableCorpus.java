@@ -125,7 +125,7 @@ public final class PlaceAirtableCorpus extends CatalystEngine<CorpusData> {
 
     private List<String> getTags(Place place) {
         if (place.getTag() == null) return List.of();
-        return place.getTag().getExplicits().stream()
+        return place.getTag().getImplicits().stream()
                 .filter(s -> {
                     if (possiblePlaceTags.contains(s.toLowerCase())) return true;
                     logger.warn("Place Tag {} Not Found in Possible List", s);

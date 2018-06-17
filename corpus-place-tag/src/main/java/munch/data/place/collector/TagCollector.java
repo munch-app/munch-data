@@ -158,7 +158,7 @@ public final class TagCollector {
         public List<String> collectImplicit() {
             Set<PlaceTagGroup> groups = synonymTagMapping.resolveAll(tags);
 
-            List<String> collected = findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food"), 1000);
+            List<String> collected = findTypes(groups, Set.of("Cuisine", "Establishment", "Amenities", "Occasion", "Food", "Internal"), 1000);
             removeConflict(collected);
             return collected;
         }
