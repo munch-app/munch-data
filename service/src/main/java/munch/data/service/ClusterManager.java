@@ -58,21 +58,19 @@ public final class ClusterManager {
         // Start completable future to persist Place
         CompletableFuture.runAsync(() -> {
             logger.info("Started Background Task for Area Updating, areaId: {}", area.getAreaId());
-
+            int mutated = 0;
             for (Place place : searchPlaces(area)) {
-                for (Area existingArea : place.getAreas()) {
-                    if (existingArea.getAreaId().equals(area.getAreaId())) {
-                        break;
-                    }
-                }
+                if (contains(place, area)) continue;
 
-
+                mutated++;
                 place.getAreas().add(area);
                 elasticIndex.put(place);
                 persistenceMapping.getMapping(place.getDataType())
                         .getTable()
                         .putItem(Item.fromJSON(JsonUtils.toString(place)));
             }
+
+            logger.info("Completed Background Task for Area Updating, mutated: {}, areaId: {}", mutated, area.getAreaId());
         });
     }
 
@@ -87,14 +85,18 @@ public final class ClusterManager {
         // Iterate and remove Area from Place
         CompletableFuture.runAsync(() -> {
             logger.info("Started Background Task for Area Deleting, areaId: {}", area.getAreaId());
-
+            int mutated = 0;
             for (Place place : searchPlaces(area.getAreaId())) {
+
+                mutated++;
                 place.getAreas().removeIf(area1 -> area1.getAreaId().equals(area.getAreaId()));
                 elasticIndex.put(place);
                 persistenceMapping.getMapping(place.getDataType())
                         .getTable()
                         .putItem(Item.fromJSON(JsonUtils.toString(place)));
             }
+
+            logger.info("Completed Background Task for Area Deleting, mutated: {}, areaId: {}", mutated, area.getAreaId());
         });
     }
 
@@ -211,5 +213,13 @@ public final class ClusterManager {
         if (oldArea == null) return true;
         // Polygon Points should never be null because it is validated in AreaBridge
         return oldArea.getLocation().getPolygon().getPoints().equals(area.getLocation().getPolygon().getPoints());
+    }
+
+    private boolean contains(Place place, Area area) {
+        if (place.getAreas().isEmpty()) return false;
+        for (Area placeArea : place.getAreas()) {
+            if (placeArea.getAreaId().equals(area.getAreaId())) return true;
+        }
+        return false;
     }
 }

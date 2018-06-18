@@ -60,7 +60,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
             // From OLD
             Place converted = convert((munch.data.structure.Place) data);
             newClient.put(converted);
-            sleep(200);
+            sleep(300);
         } else {
             // From NEW
             Place place = (Place) data;
