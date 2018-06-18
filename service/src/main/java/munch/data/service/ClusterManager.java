@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by: Fuxing
@@ -54,19 +55,25 @@ public final class ClusterManager {
         if (!isPolygonUpdated(oldArea, area)) return;
 
         // Link up Places in Area
-        for (Place place : searchPlaces(area)) {
-            for (Area existingArea : place.getAreas()) {
-                if (existingArea.getAreaId().equals(area.getAreaId())) {
-                    break;
-                }
-            }
+        // Start completable future to persist Place
+        CompletableFuture.runAsync(() -> {
+            logger.info("Started Background Task for Area Updating, areaId: {}", area.getAreaId());
 
-            place.getAreas().add(area);
-            elasticIndex.put(place);
-            persistenceMapping.getMapping(place.getDataType())
-                    .getTable()
-                    .putItem(Item.fromJSON(JsonUtils.toString(place)));
-        }
+            for (Place place : searchPlaces(area)) {
+                for (Area existingArea : place.getAreas()) {
+                    if (existingArea.getAreaId().equals(area.getAreaId())) {
+                        break;
+                    }
+                }
+
+
+                place.getAreas().add(area);
+                elasticIndex.put(place);
+                persistenceMapping.getMapping(place.getDataType())
+                        .getTable()
+                        .putItem(Item.fromJSON(JsonUtils.toString(place)));
+            }
+        });
     }
 
     /**
@@ -78,13 +85,17 @@ public final class ClusterManager {
         Objects.requireNonNull(area.getAreaId());
 
         // Iterate and remove Area from Place
-        for (Place place : searchPlaces(area.getAreaId())) {
-            place.getAreas().removeIf(area1 -> area1.getAreaId().equals(area.getAreaId()));
-            elasticIndex.put(place);
-            persistenceMapping.getMapping(place.getDataType())
-                    .getTable()
-                    .putItem(Item.fromJSON(JsonUtils.toString(place)));
-        }
+        CompletableFuture.runAsync(() -> {
+            logger.info("Started Background Task for Area Deleting, areaId: {}", area.getAreaId());
+
+            for (Place place : searchPlaces(area.getAreaId())) {
+                place.getAreas().removeIf(area1 -> area1.getAreaId().equals(area.getAreaId()));
+                elasticIndex.put(place);
+                persistenceMapping.getMapping(place.getDataType())
+                        .getTable()
+                        .putItem(Item.fromJSON(JsonUtils.toString(place)));
+            }
+        });
     }
 
     /**
