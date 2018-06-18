@@ -68,6 +68,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
             if (oldClient.get(place.getPlaceId()) == null) {
                 newClient.delete(place.getPlaceId());
             }
+            sleep(50);
         }
     }
 

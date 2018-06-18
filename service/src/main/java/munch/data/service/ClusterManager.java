@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by: Fuxing
@@ -56,22 +55,21 @@ public final class ClusterManager {
 
         // Link up Places in Area
         // Start completable future to persist Place
-        CompletableFuture.runAsync(() -> {
-            logger.info("Started Background Task for Area Updating, areaId: {}", area.getAreaId());
-            int mutated = 0;
-            for (Place place : searchPlaces(area)) {
-                if (contains(place, area)) continue;
-
-                mutated++;
-                place.getAreas().add(area);
-                elasticIndex.put(place);
-                persistenceMapping.getMapping(place.getDataType())
-                        .getTable()
-                        .putItem(Item.fromJSON(JsonUtils.toString(place)));
-            }
-
-            logger.info("Completed Background Task for Area Updating, mutated: {}, areaId: {}", mutated, area.getAreaId());
-        });
+        // TODO: Removed temporary due to the under-provisioned cluster
+//        logger.info("Started Area Updating, areaId: {}", area.getAreaId());
+//        int mutated = 0;
+//        for (Place place : searchPlaces(area)) {
+//            if (contains(place, area)) continue;
+//
+//            mutated++;
+//            place.getAreas().add(area);
+//            elasticIndex.put(place);
+//            persistenceMapping.getMapping(place.getDataType())
+//                    .getTable()
+//                    .putItem(Item.fromJSON(JsonUtils.toString(place)));
+//        }
+//
+//        logger.info("Completed Area Updating, mutated: {}, areaId: {}", mutated, area.getAreaId());
     }
 
     /**
@@ -83,21 +81,19 @@ public final class ClusterManager {
         Objects.requireNonNull(area.getAreaId());
 
         // Iterate and remove Area from Place
-        CompletableFuture.runAsync(() -> {
-            logger.info("Started Background Task for Area Deleting, areaId: {}", area.getAreaId());
-            int mutated = 0;
-            for (Place place : searchPlaces(area.getAreaId())) {
+        logger.info("Started Area Deleting, areaId: {}", area.getAreaId());
+        int mutated = 0;
+        for (Place place : searchPlaces(area.getAreaId())) {
 
-                mutated++;
-                place.getAreas().removeIf(area1 -> area1.getAreaId().equals(area.getAreaId()));
-                elasticIndex.put(place);
-                persistenceMapping.getMapping(place.getDataType())
-                        .getTable()
-                        .putItem(Item.fromJSON(JsonUtils.toString(place)));
-            }
+            mutated++;
+            place.getAreas().removeIf(area1 -> area1.getAreaId().equals(area.getAreaId()));
+            elasticIndex.put(place);
+            persistenceMapping.getMapping(place.getDataType())
+                    .getTable()
+                    .putItem(Item.fromJSON(JsonUtils.toString(place)));
+        }
 
-            logger.info("Completed Background Task for Area Deleting, mutated: {}, areaId: {}", mutated, area.getAreaId());
-        });
+        logger.info("Completed Area Deleting, mutated: {}, areaId: {}", mutated, area.getAreaId());
     }
 
     /**
