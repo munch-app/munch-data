@@ -150,7 +150,7 @@ public final class ElasticUtils {
         ObjectNode filter = JsonUtils.createObjectNode();
         ArrayNode terms = filter.putObject("terms").putArray(name);
         for (String text : texts) {
-            terms.add(text.toLowerCase());
+            terms.add(text);
         }
         return filter;
     }

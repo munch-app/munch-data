@@ -69,7 +69,10 @@ public final class AreaService extends PersistenceService<Area> {
         return area;
     }
 
-    private JsonResult countPlaces(JsonCall call) {
+    @SuppressWarnings("Duplicates")
+    private Long countPlaces(JsonCall call) {
+        String areaId = call.pathString(hashName);
+
         ObjectNode root = JsonUtils.createObjectNode();
         root.put("from", 0);
 
@@ -77,7 +80,7 @@ public final class AreaService extends PersistenceService<Area> {
         bool.set("must", ElasticUtils.mustMatchAll());
         bool.set("filter", JsonUtils.createArrayNode()
                 .add(ElasticUtils.filterTerm("dataType", "Place"))
-                .add(ElasticUtils.filterTerms("areas.areaId", List.of(call.pathString(hashName))))
+                .add(ElasticUtils.filterTerms("areas.areaId", List.of(areaId)))
         );
         root.putObject("query").set("bool", bool);
 
@@ -88,8 +91,8 @@ public final class AreaService extends PersistenceService<Area> {
 
         try {
             Double number = client.execute(count).getCount();
-            if (number == null) return result(200, 0);
-            return result(200, number.longValue());
+            if (number == null) return 0L;
+            return number.longValue();
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }

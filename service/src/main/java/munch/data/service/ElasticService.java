@@ -114,6 +114,7 @@ public final class ElasticService implements JsonService {
      * @param call json call
      * @return {'data': 1}
      */
+    @SuppressWarnings("Duplicates")
     private Long count(JsonCall call) {
         String body = JsonUtils.toString(call.bodyAsJson());
         Count count = new Count.Builder()
