@@ -3,6 +3,7 @@ package munch.data;
 import catalyst.utils.exception.DateCompareUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterators;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
 import corpus.engine.AbstractEngine;
@@ -11,7 +12,6 @@ import munch.data.place.Place;
 import munch.file.Image;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -30,13 +31,15 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class PlaceBridge extends AbstractEngine<Pair<AirtableRecord, Place>> {
+public final class PlaceBridge extends AbstractEngine<Object> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceBridge.class);
 
     private final PlaceClient placeClient;
 
     private final AirtableApi.Table placeTable;
     private final AirtableMapper airtableMapper;
+
+    private String previousPlaceId = null;
 
     @Inject
     public PlaceBridge(AirtableApi api, PlaceClient placeClient, AirtableMapper airtableMapper) {
@@ -52,86 +55,47 @@ public final class PlaceBridge extends AbstractEngine<Pair<AirtableRecord, Place
     }
 
     @Override
-    protected Iterator<Pair<AirtableRecord, Place>> fetch(long cycleNo) {
-        Iterator<AirtableRecord> rIterator = placeTable.select();
-        Iterator<Place> pIterator = placeClient.iterator();
-
-        return new Iterator<>() {
-            AirtableRecord record;
-            Place place;
-
-            @Override
-            public boolean hasNext() {
-                if (record != null) return true;
-                if (place != null) return true;
-                return rIterator.hasNext() || pIterator.hasNext();
-            }
-
-            @Override
-            public Pair<AirtableRecord, Place> next() {
-                if (record == null && rIterator.hasNext()) record = rIterator.next();
-                if (place == null && pIterator.hasNext()) place = pIterator.next();
-
-                if (record == null || place == null) {
-                    try {
-                        return Pair.of(record, place);
-                    } finally {
-                        record = null;
-                        place = null;
-                    }
-                }
-
-                // Same Id
-                String pId = place.getPlaceId();
-                String rId = record.getField("placeId").asText();
-                int compare = pId.compareTo(rId);
-                if (compare < 0) {
-                    // rId is greater
-                    try {
-                        return Pair.of(record, null);
-                    } finally {
-                        record = null;
-                    }
-                } else if (compare > 0) {
-                    // pId is greater
-                    try {
-                        return Pair.of(null, place);
-                    } finally {
-                        record = null;
-                    }
-                } else {
-                    try {
-                        return Pair.of(record, place);
-                    } finally {
-                        record = null;
-                        place = null;
-                    }
-                }
-            }
-        };
+    protected Iterator<Object> fetch(long cycleNo) {
+        ArrayNode sort = JsonUtils.createArrayNode();
+        sort.addObject().put("placeId", "desc");
+        return Iterators.concat(placeTable.select(sort), placeClient.iterator());
     }
 
     @Override
-    protected void process(long cycleNo, Pair<AirtableRecord, Place> pair, long processed) {
-        AirtableRecord record = pair.getLeft();
-        Place place = pair.getRight();
+    protected void process(long cycleNo, Object object, long processed) {
+        if (object instanceof Place) {
+            processServer((Place) object);
+        } else {
+            // From Airtable, check if need to be deleted
+            AirtableRecord record = (AirtableRecord) object;
+            Place place = placeClient.get(record.getField("placeId").asText());
+            if (place == null) placeTable.delete(record.getId());
+        }
+    }
 
-        if (place == null && record == null) throw new RuntimeException("Both cannot be null.");
-        if (place != null && record != null) {
-            // Update Place into Airtable
+    protected void processServer(Place place) {
+        // From Server, Check if Place need to be posted or patched
+        List<AirtableRecord> records = placeTable.find("placeId", place.getPlaceId());
+        sleep(250);
+
+        if (records.size() == 0) {
+            // Posted
+            placeTable.post(parse(place));
+            sleep(250);
+            return;
+        }
+        if (records.size() == 1) {
+            // Patched
+            AirtableRecord record = records.get(0);
             if (equals(place, record)) return;
             AirtableRecord patchRecord = parse(place);
             patchRecord.setId(record.getId());
             placeTable.patch(patchRecord);
-            sleep(400);
-        } else if (place != null) {
-            // Persist New Place Into Airtable
-            placeTable.post(parse(place));
-            sleep(400);
-        } else {
-            // Remove Place from Airtable
-            placeTable.delete(record.getId());
+            sleep(250);
+            return;
         }
+
+        throw new IllegalStateException("More then 1 Place with the same id.");
     }
 
     private AirtableRecord parse(Place place) {
@@ -197,7 +161,8 @@ public final class PlaceBridge extends AbstractEngine<Pair<AirtableRecord, Place
     }
 
     private static boolean equals(Place place, AirtableRecord record) {
-        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(2), place.getUpdatedMillis())) return false;
+        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(2), place.getUpdatedMillis()))
+            return false;
 
         if (!place.getStatus().getType().name().equals(record.getField("status").asText())) return false;
         if (!place.getName().equals(record.getField("name").asText())) return false;
@@ -207,7 +172,8 @@ public final class PlaceBridge extends AbstractEngine<Pair<AirtableRecord, Place
         if (!StringUtils.equals(place.getWebsite(), record.getField("website").asText())) return false;
         if (!StringUtils.equals(place.getDescription(), record.getField("description").asText())) return false;
 
-        if (!StringUtils.equals(place.getLocation().getPostcode(), record.getField("location.postcode").asText())) return false;
+        if (!StringUtils.equals(place.getLocation().getPostcode(), record.getField("location.postcode").asText()))
+            return false;
         return true;
     }
 }
