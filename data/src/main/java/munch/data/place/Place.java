@@ -31,6 +31,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     private Set<String> names;
     private List<Tag> tags;
 
+    private String email;
     private String phone;
     private String website;
     private String description;
@@ -95,6 +96,15 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    @Nullable
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Nullable

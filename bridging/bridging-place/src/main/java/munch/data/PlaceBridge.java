@@ -154,7 +154,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
                             // Temporary Solution
                             size.setWidth(1000);
                             size.setHeight(1000);
-                        }else {
+                        } else {
                             String[] widthHeight = wh.split("x");
                             size.setWidth(Integer.parseInt(widthHeight[0]));
                             size.setHeight(Integer.parseInt(widthHeight[1]));

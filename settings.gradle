@@ -24,5 +24,7 @@ include 'bridging'
 include 'bridging:bridging-location'
 include 'bridging:bridging-tag'
 include 'bridging:bridging-place'
+include 'bridging:bridging-airtable'
+
 include 'bridging:service-cleaner-tag'
 
