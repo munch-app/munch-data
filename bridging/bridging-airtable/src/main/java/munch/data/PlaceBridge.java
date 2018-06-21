@@ -39,8 +39,6 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     private final AirtableApi.Table placeTable;
     private final AirtableMapper airtableMapper;
 
-    private String previousPlaceId = null;
-
     @Inject
     public PlaceBridge(AirtableApi api, PlaceClient placeClient, AirtableMapper airtableMapper) {
         super(logger);
@@ -71,6 +69,8 @@ public final class PlaceBridge extends AbstractEngine<Object> {
             Place place = placeClient.get(record.getField("placeId").asText());
             if (place == null) placeTable.delete(record.getId());
         }
+
+        if (processed % 1000 == 0) logger.info("Processed: {}", processed);
     }
 
     protected void processServer(Place place) {
