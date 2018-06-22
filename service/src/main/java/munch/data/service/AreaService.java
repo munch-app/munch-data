@@ -74,8 +74,6 @@ public final class AreaService extends PersistenceService<Area> {
         String areaId = call.pathString(hashName);
 
         ObjectNode root = JsonUtils.createObjectNode();
-        root.put("from", 0);
-
         ObjectNode bool = JsonUtils.createObjectNode();
         bool.set("must", ElasticUtils.mustMatchAll());
         bool.set("filter", JsonUtils.createArrayNode()
