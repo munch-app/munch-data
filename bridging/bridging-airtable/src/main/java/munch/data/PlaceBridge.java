@@ -161,9 +161,6 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     }
 
     private static boolean equals(Place place, AirtableRecord record) {
-        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(2), place.getUpdatedMillis()))
-            return false;
-
         if (!place.getStatus().getType().name().equals(record.getField("status").asText())) return false;
         if (!place.getName().equals(record.getField("name").asText())) return false;
         if (place.getTags().size() != record.getField("tags").size()) return false;
@@ -173,6 +170,9 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         if (!StringUtils.equals(place.getDescription(), record.getField("description").asText())) return false;
 
         if (!StringUtils.equals(place.getLocation().getPostcode(), record.getField("location.postcode").asText()))
+            return false;
+
+        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(2), place.getUpdatedMillis()))
             return false;
         return true;
     }
