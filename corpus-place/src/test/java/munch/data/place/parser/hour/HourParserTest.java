@@ -36,15 +36,26 @@ class HourParserTest {
         hourParser = injector.getInstance(HourParser.class);
     }
 
-    @Test
-    void kaylee() {
+    private List<CorpusData> collect(String catalystId) {
         List<CorpusData> list = new ArrayList<>();
-        catalystClient.listCorpus("8cf093bd-c1c3-43f1-8a51-615ca624a99d").forEachRemaining(data -> {
+        catalystClient.listCorpus(catalystId).forEachRemaining(data -> {
             if (!"Sg.Munch.Place".equals(data.getCorpusName())) {
                 list.add(data);
             }
         });
+        return list;
+    }
 
+    @Test
+    void kaylee() {
+        List<CorpusData> list = collect("8cf093bd-c1c3-43f1-8a51-615ca624a99d");
+        List<Place.Hour> hourList = hourParser.parse(new Place(), list);
+        System.out.println(hourList);
+    }
+
+    @Test
+    void wheelersyard() {
+        List<CorpusData> list = collect("c948a87d-d05f-4d32-8566-f8e06f9d9dd5");
         List<Place.Hour> hourList = hourParser.parse(new Place(), list);
         System.out.println(hourList);
     }

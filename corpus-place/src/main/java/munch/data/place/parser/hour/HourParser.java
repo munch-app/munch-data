@@ -91,6 +91,7 @@ public final class HourParser extends AbstractParser<List<Place.Hour>> {
             else closedDays++;
         }
 
+        // TODO: Parse to handle more recent opening times
         if (openCloseList.isEmpty()) return List.of();
         if (closedDays > 3) return List.of();
 
