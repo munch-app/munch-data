@@ -8,6 +8,7 @@ import munch.data.location.Area;
 import munch.file.Image;
 
 import javax.annotation.Nullable;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -61,6 +62,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
+    @Valid
     public Status getStatus() {
         return status;
     }
@@ -90,6 +92,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
+    @Valid
     public List<Tag> getTags() {
         return tags;
     }
@@ -144,6 +147,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
+    @Valid
     public Menu getMenu() {
         return menu;
     }
@@ -153,6 +157,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
+    @Valid
     public Price getPrice() {
         return price;
     }
@@ -162,6 +167,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
+    @Valid
     public Counts getCounts() {
         return counts;
     }
@@ -171,6 +177,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
+    @Valid
     public List<Hour> getHours() {
         return hours;
     }
@@ -267,6 +274,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         private String name;
         private munch.data.tag.Tag.Type type;
 
+        @NotBlank
         public String getTagId() {
             return tagId;
         }
@@ -275,6 +283,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             this.tagId = tagId;
         }
 
+        @NotBlank
         public String getName() {
             return name;
         }
@@ -283,6 +292,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             this.name = name;
         }
 
+        @NotNull
         public munch.data.tag.Tag.Type getType() {
             return type;
         }

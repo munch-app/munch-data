@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import munch.data.location.Landmark;
 
+import javax.annotation.Nullable;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,6 +98,8 @@ public final class Location {
         this.latLng = latLng;
     }
 
+    @Valid
+    @Nullable
     public Polygon getPolygon() {
         return polygon;
     }
@@ -115,6 +121,8 @@ public final class Location {
     public static class Polygon {
         private List<String> points;
 
+        @NotEmpty
+        @NotNull
         public List<String> getPoints() {
             return points;
         }
