@@ -38,7 +38,7 @@ public final class ElasticService implements JsonService {
     public void route() {
         PATH("/elastic", () -> {
             POST("/search", this::search);
-            POST("/search/multi", this::search);
+            POST("/search/multi", this::searchMulti);
             POST("/count", this::count);
         });
     }
