@@ -3,8 +3,8 @@ package munch.data.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import munch.data.tag.Tag;
-import munch.restful.client.dynamodb.NextNodeList;
 import munch.restful.client.dynamodb.RestfulDynamoHashClient;
+import munch.restful.core.NextNodeList;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

@@ -122,7 +122,6 @@ public final class Location {
         private List<String> points;
 
         @NotEmpty
-        @NotNull
         public List<String> getPoints() {
             return points;
         }
