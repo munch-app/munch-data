@@ -1,5 +1,9 @@
 package munch.data.service;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -12,8 +16,11 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import munch.data.client.BrandClient;
 import munch.data.elastic.ElasticModule;
+import munch.restful.client.RestfulClient;
 import munch.restful.server.RestfulServer;
+import munch.restful.server.RestfulService;
 
 import javax.inject.Singleton;
 
@@ -46,6 +53,8 @@ public final class TestModule extends AbstractModule {
 
         return AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(endpoint)
+                .withCredentials(new AWSStaticCredentialsProvider(
+                        new BasicAWSCredentials("foo", "bar")))
                 .build();
     }
 
@@ -56,8 +65,10 @@ public final class TestModule extends AbstractModule {
         setupTables(injector.getInstance(AmazonDynamoDB.class));
 
         RestfulServer.start("/v4.0",
-                injector.getInstance(LandmarkService.class)
+                injector.getInstance(BrandService.class)
         ).withHealth();
+
+        BrandTest brandTest = new BrandTest();
     }
 
     private static void setupTables(AmazonDynamoDB amazonDynamoDB) throws InterruptedException {

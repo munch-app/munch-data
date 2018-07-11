@@ -10,6 +10,8 @@ dependencies {
     compile group: 'vc.inreach.aws', name: 'aws-signing-request-interceptor', version: '0.0.16'
 
     compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+
+    testCompile project(':client')
 }
 
 mainClassName = 'munch.data.service.ServiceModule'
