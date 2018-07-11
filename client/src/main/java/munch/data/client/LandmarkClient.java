@@ -2,8 +2,9 @@ package munch.data.client;
 
 import com.typesafe.config.ConfigFactory;
 import munch.data.location.Landmark;
-import munch.restful.client.dynamodb.RestfulDynamoHashClient;
+
 import munch.restful.core.NextNodeList;
+import munch.restful.client.dynamodb.RestfulDynamoHashClient;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

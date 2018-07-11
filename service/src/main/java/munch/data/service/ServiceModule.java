@@ -1,5 +1,8 @@
 package munch.data.service;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.google.inject.AbstractModule;
@@ -37,7 +40,8 @@ public final class ServiceModule extends AbstractModule {
                 injector.getInstance(TagService.class),
                 injector.getInstance(LandmarkService.class),
                 injector.getInstance(AreaService.class),
-                injector.getInstance(ElasticService.class)
+                injector.getInstance(ElasticService.class),
+                injector.getInstance(BrandService.class)
         ).withHealth();
     }
 }
