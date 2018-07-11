@@ -1,18 +1,8 @@
 rootProject.name = 'munch-data'
 
-// DynamoDB + Elasticsearch for Place, Location & Tag
+// TODO: Remove these
 include 'data-client'
 include 'data-utils'
-include 'client-collections'
-
-include 'corpus-location'
-
-include 'corpus-place'
-include 'corpus-place-image'
-include 'corpus-place-tag'
-include 'corpus-place-award'
-
-include 'corpus-ugc'
 
 // Version 4.0 Data + Service + Client
 include 'data'
