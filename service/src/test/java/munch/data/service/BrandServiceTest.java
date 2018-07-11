@@ -135,6 +135,7 @@ public class BrandServiceTest {
         Assertions.assertEquals(left.getName(), right.getName());
         Assertions.assertEquals(left.getNames(), right.getNames());
         Assertions.assertEquals(left.getTags(), right.getTags());
+        Assertions.assertEquals(left.getImages(), right.getImages());
         Assertions.assertEquals(left.getBrandId(), right.getBrandId());
     }
 
