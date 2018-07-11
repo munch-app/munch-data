@@ -1,5 +1,7 @@
 package munch.data.place.matcher;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.regex.Pattern;
@@ -28,6 +30,8 @@ public final class NameCleaner {
         name = name.toLowerCase();
         // Normalize first
         name = nameNormalizer.normalize(name);
+        if (StringUtils.isBlank(name)) return null;
+
         // Remove Country Postfix: Singapore
         name = PATTERN_COUNTRY.matcher(name).replaceAll("");
         // Check if name is allowed to be cleaned

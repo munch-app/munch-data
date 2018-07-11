@@ -2,6 +2,7 @@ package munch.data.client;
 
 import com.typesafe.config.ConfigFactory;
 import munch.data.location.Landmark;
+
 import munch.restful.core.NextNodeList;
 import munch.restful.client.dynamodb.RestfulDynamoHashClient;
 
@@ -24,7 +25,7 @@ public final class LandmarkClient extends RestfulDynamoHashClient<Landmark> {
         this(ConfigFactory.load().getString("services.munch-data.url"));
     }
 
-    LandmarkClient(String url) {
+    public LandmarkClient(String url) {
         super(url, Landmark.class, "landmarkId");
     }
 

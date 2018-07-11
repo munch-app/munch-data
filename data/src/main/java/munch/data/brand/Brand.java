@@ -19,7 +19,7 @@ import java.util.Set;
 
 /**
  * Created by: Bing Hwang
- * Date: 7/10/18
+ * Date: 10/7/18
  * Time: 12:09 PM
  * Project: munch-data
  */
@@ -104,6 +104,10 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         this.price = price;
     }
 
+    @Nullable
+    public Company getCompany() { return company; }
+
+    public void setCompany(Company company) { this.company = company; }
 
     @Nullable
     public String getPhone() {
@@ -211,6 +215,7 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         public String getName() {
             return name;
         }
+
 
         public void setName(String name) {
             this.name = name;

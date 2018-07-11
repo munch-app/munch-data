@@ -32,7 +32,7 @@ public final class BrandClient extends RestfulDynamoHashClient<Brand> {
     }
 
     public NextNodeList<Brand> list(String nextBrandId, int size) {
-        return doList("/v4.0/brands", nextBrandId, size);
+        return doList("/brands", nextBrandId, size);
     }
 
     public Iterator<Brand> iterator() {

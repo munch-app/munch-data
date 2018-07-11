@@ -68,10 +68,9 @@ public final class TestModule extends AbstractModule {
                 injector.getInstance(BrandService.class)
         ).withHealth();
 
-        BrandTest brandTest = new BrandTest();
     }
 
-    private static void setupTables(AmazonDynamoDB amazonDynamoDB) throws InterruptedException {
+    public static void setupTables(AmazonDynamoDB amazonDynamoDB) throws InterruptedException {
         for (Config config : ConfigFactory.load().getConfigList("persistence.mappings")) {
             String tableName = config.getString("tableName");
             String dataKey = config.getString("dataKey");
