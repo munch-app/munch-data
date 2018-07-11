@@ -26,7 +26,6 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Brand implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
-
     private String brandId;
 
     private String name;
@@ -35,13 +34,15 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     private List<Tag> tags;
     private Price price;
     private Menu menu;
-    private Company company; //{ name: String}
+    private Company company;
 
     private String phone;
     private String website;
     private String description;
 
     private List<Image> images;
+
+    // TODO Location?
 
     private long createdMillis;
     private long updatedMillis;
@@ -105,9 +106,14 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
-    public Company getCompany() { return company; }
+    @Valid
+    public Company getCompany() {
+        return company;
+    }
 
-    public void setCompany(Company company) { this.company = company; }
+    public void setCompany(Company company) {
+        this.company = company;
+    }
 
     @Nullable
     public String getPhone() {
@@ -177,13 +183,6 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Override
-    public String toString() {
-        return "Brand{" +
-                "brandId='" + brandId + '\'' +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -192,7 +191,37 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
                 Objects.equals(name, brand.name) &&
                 Objects.equals(names, brand.names) &&
                 Objects.equals(tags, brand.tags) &&
+                Objects.equals(price, brand.price) &&
+                Objects.equals(menu, brand.menu) &&
+                Objects.equals(company, brand.company) &&
+                Objects.equals(phone, brand.phone) &&
+                Objects.equals(website, brand.website) &&
+                Objects.equals(description, brand.description) &&
                 Objects.equals(images, brand.images);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(brandId, name, names, tags, price, menu, company, phone, website, description, images);
+    }
+
+    @Override
+    public String toString() {
+        return "Brand{" +
+                "brandId='" + brandId + '\'' +
+                ", name='" + name + '\'' +
+                ", names=" + names +
+                ", tags=" + tags +
+                ", price=" + price +
+                ", menu=" + menu +
+                ", company=" + company +
+                ", phone='" + phone + '\'' +
+                ", website='" + website + '\'' +
+                ", description='" + description + '\'' +
+                ", images=" + images +
+                ", createdMillis=" + createdMillis +
+                ", updatedMillis=" + updatedMillis +
+                '}';
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -239,6 +268,20 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
                     Objects.equals(name, tag.name) &&
                     type == tag.type;
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(tagId, name, type);
+        }
+
+        @Override
+        public String toString() {
+            return "Tag{" +
+                    "tagId='" + tagId + '\'' +
+                    ", name='" + name + '\'' +
+                    ", type=" + type +
+                    '}';
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -246,12 +289,26 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     public static class Menu {
         private String url;
 
+        @Nullable
         public String getUrl() {
             return url;
         }
 
         public void setUrl(String url) {
             this.url = url;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Menu menu = (Menu) o;
+            return Objects.equals(url, menu.url);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(url);
         }
 
         @Override
@@ -274,6 +331,19 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         }
 
         @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Price price = (Price) o;
+            return Double.compare(price.perPax, perPax) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(perPax);
+        }
+
+        @Override
         public String toString() {
             return "Price{" +
                     "perPax=" + perPax +
@@ -285,9 +355,27 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     public static class Company {
         private String name;
 
-        public String getName() { return name; }
+        @NotBlank
+        public String getName() {
+            return name;
+        }
 
-        public void setName(String name) { this.name = name; }
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Company company = (Company) o;
+            return Objects.equals(name, company.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name);
+        }
 
         @Override
         public String toString() {
