@@ -1,14 +1,15 @@
 <template>
-    <div>
+  <div>
 
-    </div>
+  </div>
 </template>
 
 <script>
-    export default {
-    }
+  export default {
+    layout: 'manage'
+  }
 </script>
 
-<style lang="less">
+<style scoped lang="less">
 
 </style>

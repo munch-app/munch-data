@@ -3,7 +3,7 @@
 
     <div class="TaskBorder d-flex align-items-stretch">
       <div class="d-flex align-items-stretch flex-column">
-        <h4>{{name}}</h4>
+        <h3>{{name}}</h3>
         <p>{{description}}</p>
         <div class="mt-auto right">
           <b-button class="float-right" :href="path" variant="primary">Manage</b-button>
@@ -20,7 +20,7 @@
   }
 </script>
 
-<style lang="less">
+<style scoped lang="less">
   .DataGroupCard {
     margin-top: 10px;
     margin-bottom: 10px;

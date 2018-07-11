@@ -3,7 +3,7 @@
     <div class="container">
 
       <b-navbar-brand href="/">
-        <h5 class="MunchLogo"><b>Munch HIT</b></h5>
+        <div class="MunchLogo">Munch Data</div>
       </b-navbar-brand>
 
       <b-navbar-nav class="ml-auto">
@@ -18,14 +18,12 @@
 
 <script>
   export default {
-    // computed: {
-    //   user() {
-    //     return this.@store.state.user;
-    //   }
-    // }
   }
 </script>
 
-<style lang="less">
-
+<style scoped lang="less">
+  .MunchLogo {
+    font-weight: 900;
+    font-size: 1.3rem;
+  }
 </style>

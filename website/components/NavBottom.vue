@@ -3,6 +3,6 @@
 
   </footer>
 </template>
-<style>
+<style scoped lang="less">
 
 </style>
