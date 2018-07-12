@@ -5,9 +5,9 @@ const service = require('axios').create({
   baseURL: process.env.DATA_SERVICE_URL || 'http://localhost:8052/v4.0'
 });
 
-app.all('/api/brands/:tagId', function(req, res, next){
+app.all('/api/brands/:brandId', function(req, res, next){
   return service.request({
-    url: '/brands/' + req.params.tagId,
+    url: '/brands/' + req.params.brandId,
     params: req.query,
     method: req.method,
     data: req.body
