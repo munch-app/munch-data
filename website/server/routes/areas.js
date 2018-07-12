@@ -2,7 +2,7 @@ const {Router} = require('express');
 const router = Router();
 
 const service = require('axios').create({
-  baseURL: process.env.baseUrl
+  baseURL: process.env.dataServiceUrl
 })
 
 app.all('/api/areas/:areaId', function(req, res, next){

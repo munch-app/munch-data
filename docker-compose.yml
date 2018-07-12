@@ -1,15 +1,6 @@
 version: '2'
 
 services:
-  service:
-    image: munch-data/service:4.0
-    environment:
-      - SERVICE_MUNCH_DATA_ELASTIC_URL=http://elastic:9200
-      - SERVICE_MUNCH_DATA_ELASTIC_IAM_SIGNING=false
-      - SERVICE_MUNCH_DATA_DYNAMODB_URL=http://dynamodb:8000
-    ports:
-      - "8052:8000"
-
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0
     ports:
@@ -19,3 +10,32 @@ services:
     image: cnadiminti/dynamodb-local:latest
     ports:
       - "8051:8000"
+
+  service:
+    image: munch-data/service:4.0
+    environment:
+      - SERVICE_MUNCH_DATA_ELASTIC_IAM_SIGNING=false
+      - SERVICE_MUNCH_DATA_ELASTIC_URL=http://elastic:9200
+      - SERVICE_MUNCH_DATA_DYNAMODB_URL=http://dynamodb:8000
+    ports:
+      - "8101:8000"
+
+
+  fake-s3:
+    image: lphoward/fake-s3
+    ports:
+      - "8052:8000"
+
+  service-resize:
+    image: file-service/service-resize:1.0
+    environment:
+      - SERVICE_TEST_S3_URL=http://fake-s3:4569
+
+  file-service:
+    image: file-service/service:1.0
+    environment:
+      - SERVICE_RESIZE_URL=http://service-resize:8000
+      - SERVICE_TEST_DYNAMODB_URL=http://dynamodb:8000
+      - SERVICE_TEST_S3_URL=http://fake-s3:4569
+    ports:
+      - "8102:8000"
