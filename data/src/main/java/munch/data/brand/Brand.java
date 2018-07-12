@@ -2,10 +2,7 @@ package munch.data.brand;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import munch.data.CorrectableObject;
-import munch.data.ElasticObject;
-import munch.data.SuggestObject;
-import munch.data.VersionedObject;
+import munch.data.*;
 import munch.file.Image;
 
 import javax.annotation.Nullable;
@@ -30,19 +27,20 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
 
     private String name;
     private Set<String> names;
-
     private List<Tag> tags;
-    private Price price;
-    private Menu menu;
-    private Company company;
 
     private String phone;
     private String website;
     private String description;
 
+    private Location location;
+
+    private Price price;
+    private Menu menu;
+
     private List<Image> images;
 
-    // TODO Location?
+    private Company company;
 
     private long createdMillis;
     private long updatedMillis;
@@ -83,6 +81,16 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    @NotNull
+    @Valid
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     @Nullable
