@@ -66,7 +66,7 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Override
-    @NotEmpty
+    @NotNull
     public Set<String> getNames() {
         return names;
     }
