@@ -87,7 +87,6 @@
         <!--</b-form-input>-->
       <!--</b-form-group>-->
 
-
       <b-button class="Button" type="submit" variant="primary">Submit</b-button>
       <b-button class="Button" type="reset" variant="danger">Reset</b-button>
 
@@ -102,13 +101,14 @@
     layout: 'manage',
     asyncData() {
       return {
-
         data: {
           name: "",
           names: "",
           tags: "",
           menu: "",
-          price: "",
+          price: {
+            perPax: 1.0
+          },
           company: "",
           phone: "",
           website: "",

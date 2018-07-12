@@ -18,6 +18,7 @@ RUN npm run build
 ENV HOST 0.0.0.0
 ENV NODE_ENV production
 ENV API_URL_BROWSER https://data.munch.space/
+ENV DATA_SERVICE_URL http://data.munch.api/v4.0
 EXPOSE 3000
 
 # start command

@@ -7,9 +7,6 @@ const sha256 = require('js-sha256').sha256;
 
 const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
-const service = require('axios').create({
-  baseURL: process.env.TASK_SERVICE_URL || 'http://hit.catalyst.munch.api/v1.0'
-});
 
 // Create express instance
 const app = express();
@@ -33,18 +30,10 @@ passport.use(new SamlStrategy({
     path: '/auth/saml/callback', // ACS URL path (Step 4)
 
   }, function (profile, done) {
-    let user = {
+    done(null, {
       userId: sha256(profile.nameID),
       email: profile.email,
       name: profile.name
-    };
-
-    service.request({
-      url: '/users/' + user.userId,
-      method: 'put',
-      data: user
-    }).then(() => {
-      return done(null, user);
     });
   })
 );
@@ -84,7 +73,11 @@ app.all('*', function (req, res, next) {
 });
 
 // Import API Routes
-app.use(require('./routes/tasks'));
+app.use(require('./routes/areas'));
+app.use(require('./routes/brands'));
+app.use(require('./routes/elastic'));
+app.use(require('./routes/landmarks'));
+app.use(require('./routes/tags'));
 
 // Export the server middleware
 module.exports = {
