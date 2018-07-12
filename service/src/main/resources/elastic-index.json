@@ -92,6 +92,13 @@
         "hours": {
           "enabled": false
         },
+        "company": {
+          "properties": {
+            "name": {
+              "type": "text"
+            }
+          }
+        },
         "hour": {
           "properties": {
             "mon": {
