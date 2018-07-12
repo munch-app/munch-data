@@ -1,4 +1,7 @@
 module.exports = {
+  env: {
+    baseUrl: process.env.DATA_SERVICE_URL || 'http://localhost:8052/v4.0'
+  },
   /*
   ** Headers of the page
   */

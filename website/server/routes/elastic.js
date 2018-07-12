@@ -2,8 +2,8 @@ const {Router} = require('express');
 const router = Router();
 
 const service = require('axios').create({
-  baseURL: process.env.DATA_SERVICE_URL || 'http://localhost:8052/v4.0'
-});
+  baseURL: process.env.baseUrl
+})
 
 app.get('/api/elastic/search', function (req, res, next) {
   let data = {
