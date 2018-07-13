@@ -90,7 +90,7 @@ public final class ElasticModule extends AbstractModule {
     JestClient provideClient(JestClientFactory factory) {
         Config config = ConfigFactory.load();
         String url = config.getString("services.elastic.url");
-        WaitFor.host(url, Duration.ofSeconds(180));
+        WaitFor.statusOk(url, Duration.ofSeconds(180));
 
         factory.setHttpClientConfig(new HttpClientConfig.Builder(url)
                 .multiThreaded(true)

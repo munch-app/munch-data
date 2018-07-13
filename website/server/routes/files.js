@@ -1,22 +1,28 @@
 const {Router} = require('express');
 const router = Router();
 
+const multer = require('multer')
+const upload = multer({storage: multer.memoryStorage()})
+const FormData = require('form-data');
+
 const service = require('axios').create({
-  baseURL: process.env.fileServiceUrl
+  baseURL: process.env.FILE_SERVICE_URL
 })
 
-app.post('/api/files/images/upload', function(req, res, next){
-  if (!req.accepts('multipart/form-data')) {
-    next()
-  }
+router.post('/api/files/images/upload', upload.single('file'), function (req, res, next) {
+  const form = new FormData();
+  const file = req.file
+  form.append('file', file.buffer, file.originalname);
+  form.append('profile', '{"type": "munch-data"}')
 
-  return service.request({
+  service.request({
     url: '/images/upload',
+    headers: form.getHeaders(),
     method: 'post',
-    data: req.body
+    data: form
   }).then(({data}) => {
     res.json(data);
-  });
+  }).catch(next)
 });
 
 module.exports = router;

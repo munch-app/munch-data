@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const SamlStrategy = require('passport-saml').Strategy;
 const bodyParser = require('body-parser');
 const express = require('express');
@@ -78,6 +80,7 @@ app.use(require('./routes/brands'));
 app.use(require('./routes/elastic'));
 app.use(require('./routes/landmarks'));
 app.use(require('./routes/tags'));
+app.use(require('./routes/files'));
 
 // Export the server middleware
 module.exports = {

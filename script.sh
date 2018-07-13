@@ -24,12 +24,18 @@ function restart {
     docker-compose up
 }
 
+function start {
+    docker-compose up
+}
+
 [[ "$DIR_NAME" == "." ]] || error_exit "You can only run this from the service project directory"
 
 if [ "$1" == "build" ]; then
     build
 elif [ "$1" == "restart" ]; then
     restart
+elif [ "$1" == "start" ]; then
+    start
 else
     error_exit "No commands found"
 fi

@@ -1,8 +1,4 @@
 module.exports = {
-  env: {
-    dataServiceUrl: process.env.DATA_SERVICE_URL || 'http://localhost:8101/v4.0',
-    fileServiceUrl: process.env.FILE_SERVICE_URL || 'http://localhost:8102/v1.0',
-  },
   /*
   ** Headers of the page
   */

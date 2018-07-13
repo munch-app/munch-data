@@ -2,10 +2,10 @@ const {Router} = require('express');
 const router = Router();
 
 const service = require('axios').create({
-  baseURL: process.env.dataServiceUrl
+  baseURL: process.env.DATA_SERVICE_URL
 })
 
-app.get('/api/elastic/search', function (req, res, next) {
+router.get('/api/elastic/search', function (req, res, next) {
   let data = {
     from: req.query.from || 0,
     size: req.query.size || 20,
@@ -41,7 +41,7 @@ app.get('/api/elastic/search', function (req, res, next) {
     data: data
   }).then(({data}) => {
     res.json(data.hits.hits);
-  });
+  }).catch(next)
 });
 
 module.exports = router;

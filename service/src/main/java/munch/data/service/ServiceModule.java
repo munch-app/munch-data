@@ -34,8 +34,7 @@ public final class ServiceModule extends AbstractModule {
     @Singleton
     DynamoDB provideDynamoDB() {
         Config config = ConfigFactory.load().getConfig("services.dynamodb");
-        AmazonDynamoDB dynamoDB = AmazonDynamoDBClientBuilder.defaultClient();
-
+        AmazonDynamoDB dynamoDB;
         // If has url mean testing environment is enabled
         if (config.hasPath("url")) {
             String url = config.getString("url");
@@ -46,6 +45,8 @@ public final class ServiceModule extends AbstractModule {
                             new AWSStaticCredentialsProvider(
                                     new BasicAWSCredentials("foo", "bar")))
                     .build();
+        } else {
+            dynamoDB = AmazonDynamoDBClientBuilder.defaultClient();
         }
 
         return new DynamoDB(dynamoDB);
