@@ -14,4 +14,37 @@ dependencies {
     testCompile project(':client')
 }
 
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
+
+ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'
+
 mainClassName = 'munch.data.service.ServiceModule'
+
+docker {
+    javaApplication {
+        baseImage = 'openjdk:9-jdk-slim'
+        maintainer = 'Fuxing'
+        ports = [8000]
+        tag = dockerTag + version
+    }
+}
+
+task buildImage {
+    dependsOn 'clean'
+    dependsOn 'dockerBuildImage'
+    tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
+
+    doLast {
+        exec { commandLine "docker", "tag", dockerTag + version, dockerTag + dockerRegistryVersion }
+    }
+}
+
+task publishDocker {
+    dependsOn 'buildImage'
+
+    doLast {
+        exec { commandLine "docker", "push", dockerTag + version }
+        exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
+    }
+}
