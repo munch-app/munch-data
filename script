@@ -29,19 +29,17 @@ for var in "$@"
 do
 echo "Executing: '"${var}"' command."
     if [[ "$var" =~ ^(build)$ ]]; then
+        set -e
         build
     elif [[ "$var" =~ ^(publish)$ ]]; then
+        set -e
         publish
     elif [[ "$var" =~ ^(restart|start)$ ]]; then
+        set -e
         start
-    elif [[ "$var" =~ ^(delete|remove|rm)$ ]]; then
+    elif [[ "$var" =~ ^(clean|delete|remove|rm)$ ]]; then
         remove
     else
         error_exit ${var}" is not a valid command."
     fi
 done
-
-
-
-#
-#echo Successfully Executed
