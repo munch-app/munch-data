@@ -83,6 +83,7 @@ public final class ElasticMapping {
         JestResult result = client.execute(new GetMapping.Builder()
                 .addIndex(ElasticMapping.INDEX_NAME)
                 .build());
+        logger.info(result.getJsonString());
         JsonNode node = mapper.readTree(result.getJsonString());
         String type = node.path("error").path("type").asText(null);
         if (StringUtils.equalsIgnoreCase(type, "index_not_found_exception")) {
