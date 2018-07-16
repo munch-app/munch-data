@@ -28,11 +28,22 @@
                       placeholder="Enter tags eg. fast food, restaurant">
         </b-form-input>
       </b-form-group>
+      <b-form-group label="Description:"
+                    label-for="exampleInput9"
+                    horizontal>
+        <b-form-textarea rows="2"
+                         max-rows="6"
+                         v-model="data.description"
+                         placeholder="Enter a short description eg. https://www.mcdonalds.com/ae/en-ae/full-menu.html">
+        </b-form-textarea>
+      </b-form-group>
+
+      <br>
       <b-form-group label="Menu URL:"
                     label-for="exampleInput4"
                     horizontal>
         <b-form-input type="text"
-                      v-model="data.menu"
+                      v-model="data.menu.url"
                       placeholder="Enter menu URL eg. https://www.mcdonalds.com/ae/en-ae/full-menu.html">
         </b-form-input>
       </b-form-group>
@@ -40,15 +51,15 @@
                     label-for="exampleInput5"
                     horizontal>
         <b-form-input type="text"
-                      v-model="data.price"
+                      v-model="data.price.perPax"
                       placeholder="Enter price per pax eg. SGD 5">
         </b-form-input>
       </b-form-group>
-      <b-form-group label="Company:"
+      <b-form-group label="Company name:"
                     label-for="exampleInput6"
                     horizontal>
         <b-form-input type="text"
-                      v-model="data.company"
+                      v-model="data.company.name"
                       placeholder="Enter company name eg. Amazon">
         </b-form-input>
       </b-form-group>
@@ -68,29 +79,17 @@
                       placeholder="Enter website URL eg. https://www.mcdonalds.com/">
         </b-form-input>
       </b-form-group>
-      <b-form-group label="Description:"
-                    label-for="exampleInput9"
+      <b-form-group label="Images:"
+                    label-for="exampleInput10"
                     horizontal>
-        <b-form-input type="text"
-                      v-model="data.description"
-                      placeholder="Enter a short description eg. https://www.mcdonalds.com/ae/en-ae/full-menu.html">
-        </b-form-input>
+        <image-file-upload v-bind:images="data.images"></image-file-upload>
       </b-form-group>
 
-      <!-- TODO: add image support once ready-->
-      <!--<b-form-group label="Images:"-->
-                    <!--label-for="exampleInput10"-->
-                    <!--horizontal>-->
-        <!--<b-form-input type="text"-->
-                      <!--v-model="data.images"-->
-                      <!--placeholder="Enter menu URL eg. https://www.mcdonalds.com/ae/en-ae/full-menu.html">-->
-        <!--</b-form-input>-->
-      <!--</b-form-group>-->
 
-
-      <b-button class="Button" type="submit" variant="primary">Submit</b-button>
-      <b-button class="Button" type="reset" variant="danger">Reset</b-button>
-
+      <div class="Action">
+        <b-button class="Button" type="submit" variant="primary">Submit</b-button>
+        <b-button class="Button" type="reset" variant="danger">Reset</b-button>
+      </div>
     </b-form>
   </b-container>
 
@@ -98,22 +97,48 @@
 
 <script>
 
+  import ImageFileUpload from "../../components/ImageFileUpload";
+
   export default {
+    components: {ImageFileUpload},
     layout: 'manage',
     asyncData() {
       return {
-
         data: {
           name: "",
-          names: "",
-          tags: "",
-          menu: "",
-          price: "",
-          company: "",
+          names: [""],
+          tags: [],
+          menu: {},
+          price: {
+            perPax: 10.0
+          },
+          company: {name: null},
           phone: "",
           website: "",
           description: "",
-          images: "",
+
+          images: [
+            {
+              imageId: "123",
+              profile: {
+                type: "munch-data",
+                id: "123",
+                name: "Person"
+              },
+              sizes: [
+                {
+                  width: 160,
+                  height: 180,
+                  url: "http://via.placeholder.com/160x180"
+                },
+                {
+                  width: 320,
+                  height: 360,
+                  url: "http://via.placeholder.com/320x360"
+                }
+              ]
+            }
+          ],
         }
       }
     },
@@ -133,5 +158,12 @@
 </script>
 
 <style scoped lang="less">
-
+  .Action {
+    margin-top: 36px;
+    margin-bottom: 64px;
+    float: right;
+    .Button {
+      margin-right: 12px;
+    }
+  }
 </style>
