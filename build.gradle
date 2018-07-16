@@ -8,11 +8,12 @@ allprojects {
     version '4.7'
 
     ext.dockerRegistryUrl = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/'
-    ext.dockerRegistryVersion = '4.0'
+    ext.dockerRegistryVersion = '4'
 
-    ext.restfulVersion = '2.4.0'
+    ext.restfulVersion = '2.4.1'
     ext.fileVersion = '1.2.6'
     ext.guiceVersion = '4.2.0'
+
     ext.awsVersion = '1.11.367'
     ext.ccVersion = '2.5.0-SNAPSHOT'
 
