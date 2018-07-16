@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class TagCleaner {
-
+    private Place.Tag restaurant = new Place.Tag();
     private final Supplier<Map<String, Tag>> supplier;
 
     @Inject
@@ -29,6 +29,10 @@ public final class TagCleaner {
             Map<String, Tag> map = new HashMap<>();
 
             tagClient.iterator().forEachRemaining(tag -> {
+                if (tag.getName().equalsIgnoreCase("restaurant")) {
+                    restaurant = parse(tag);
+                }
+
                 // Put Names
                 tag.getNames().forEach(s -> map.put(s.toLowerCase(), tag));
                 // Put Remapping
@@ -50,6 +54,9 @@ public final class TagCleaner {
         select(2, 1, collected, parsedList);
         select(3, 2, collected, parsedList);
         collected.forEach(tag -> parsedList.add(parse(tag)));
+
+        // if not tag found, restaurant will be returned
+        if (parsedList.isEmpty()) return List.of(restaurant);
         return parsedList;
     }
 
