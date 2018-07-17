@@ -107,7 +107,7 @@
         data: {
           name: "",
           names: [""],
-          tags: [],
+          tags: [""],
           menu: {},
           price: {
             perPax: 10.0
@@ -146,12 +146,27 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
-        alert(JSON.stringify(this.data));
+        complete(this.data);
+        // alert(JSON.stringify(this.data));
       },
 
       onReset(evt) {
         evt.preventDefault();
         this.data = {}
+      },
+
+      complete(data) {
+        const brandId = this.$route.params.brandId
+        if (brandId === '_') {
+          this.$axios.$post('/api/brands', data).then((res) => {
+            window.location.reload(true);
+          });
+        } else {
+          this.$axios.$put('/api/brands/'+brandId, data).then((res) => {
+            window.location.reload(true);
+          });
+        }
+
       }
     }
   }
