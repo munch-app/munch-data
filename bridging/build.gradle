@@ -27,7 +27,7 @@ subprojects {
             baseImage = 'openjdk:9-jdk-slim'
             maintainer = 'Fuxing'
             ports = [8000]
-            tag = dockerTag + version
+            tag = dockerTag + 'latest'
         }
     }
 
@@ -35,18 +35,13 @@ subprojects {
         dependsOn 'clean'
         dependsOn 'dockerBuildImage'
         tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
-
-        doLast {
-            exec { commandLine "docker", "tag", dockerTag + version, dockerTag + dockerRegistryVersion }
-        }
     }
 
     task publishDocker {
         dependsOn 'buildImage'
 
         doLast {
-            exec { commandLine "docker", "push", dockerTag + version }
-            exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
+            exec { commandLine "docker", "push", dockerTag + 'latest' }
         }
     }
 }
