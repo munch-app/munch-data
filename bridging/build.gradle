@@ -20,26 +20,33 @@ subprojects {
     apply plugin: 'application'
     apply plugin: 'com.bmuschko.docker-java-application'
 
-    ext.dockerTag = rootProject.name + '/' + project.name + ':latest'
-    ext.dockerHost = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/' + dockerTag
+    ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'
 
     docker {
         javaApplication {
             baseImage = 'openjdk:9-jdk-slim'
             maintainer = 'Fuxing'
             ports = [8000]
-            tag = dockerTag
+            tag = dockerTag + version
         }
     }
 
-    task publishDocker {
+    task buildImage {
         dependsOn 'clean'
         dependsOn 'dockerBuildImage'
         tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
 
         doLast {
-            exec { commandLine "docker", "tag", dockerTag, dockerHost }
-            exec { commandLine "docker", "push", dockerHost }
+            exec { commandLine "docker", "tag", dockerTag + version, dockerTag + dockerRegistryVersion }
+        }
+    }
+
+    task publishDocker {
+        dependsOn 'buildImage'
+
+        doLast {
+            exec { commandLine "docker", "push", dockerTag + version }
+            exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
         }
     }
 }

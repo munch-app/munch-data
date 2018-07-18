@@ -9,6 +9,9 @@ include 'data'
 include 'client'
 include 'service'
 
+// Node.js Project
+include 'website'
+
 // Version 4.0 Temporary Data Bridging
 include 'bridging'
 include 'bridging:bridging-location'

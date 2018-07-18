@@ -108,7 +108,6 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         record.putField("names", Joiner.on("\n").join(place.getNames()));
         record.putField("tags", airtableMapper.mapTagField(place.getTags()));
 
-        record.putField("email", place.getEmail());
         record.putField("phone", place.getPhone());
         record.putField("website", place.getWebsite());
         record.putField("description", place.getDescription());

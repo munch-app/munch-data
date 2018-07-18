@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+function error_exit {
+    echo "$1" >&2   ## Send message to stderr. Exclude >&2 if you don't want it that way.
+    exit "${2:-1}"  ## Return a code specified by $2 or 1 by default.
+}
+
+[[ "$(dirname "$0")" == "." ]] || error_exit "You can only run this from root project directory"
+
+function build {
+    ./gradlew buildImage
+}
+
+function publish {
+    ./gradlew publishDocker
+}
+
+function start {
+    docker-compose up
+}
+
+function remove {
+    docker stop $(docker ps -q -a)
+    docker rm $(docker ps -q -a)
+    docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+}
+
+for var in "$@"
+do
+echo "Executing: '"${var}"' command."
+    if [[ "$var" =~ ^(build)$ ]]; then
+        set -e
+        build
+    elif [[ "$var" =~ ^(publish)$ ]]; then
+        set -e
+        publish
+    elif [[ "$var" =~ ^(restart|start)$ ]]; then
+        set -e
+        start
+    elif [[ "$var" =~ ^(clean|delete|remove|rm)$ ]]; then
+        remove
+    else
+        error_exit ${var}" is not a valid command."
+    fi
+done

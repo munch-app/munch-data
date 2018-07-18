@@ -7,7 +7,10 @@
 
     <b-row class="Search">
       <b-col>
-        <b-form-input class="Field" type="text" placeholder="Querying name or names"></b-form-input>
+        <b-form-input class="Field"
+                      type="text"
+                      placeholder="Querying name or names"
+                      v-model="query"></b-form-input>
       </b-col>
       <b-col>
         <b-button class="Button" variant="primary">Search</b-button>
@@ -33,6 +36,7 @@
     layout: 'manage',
     data() {
       return {
+        query: "",
         results: [
           {
             tagId: "123",
@@ -46,6 +50,12 @@
           }
         ]
       }
+    },
+
+    methods: {
+      queryName: function(name) {
+
+      },
     }
   }
 </script>
