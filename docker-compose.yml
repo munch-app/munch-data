@@ -11,9 +11,9 @@ services:
   service:
     image: 197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/munch-data/service:4.0
     environment:
-      - SERVICE_MUNCH_DATA_ELASTIC_IAM_SIGNING=false
       - SERVICE_MUNCH_DATA_ELASTIC_URL=http://localstack:4571
       - SERVICE_MUNCH_DATA_DYNAMODB_URL=http://localstack:4569
+      - SERVICE_MUNCH_DATA_ELASTIC_PRODUCTION=false
     ports:
       - "8101:8000"
 

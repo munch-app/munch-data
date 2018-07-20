@@ -56,27 +56,31 @@ public final class ElasticModule extends AbstractModule {
     @Singleton
     JestClientFactory provideJestFactory() {
         Config config = ConfigFactory.load();
-        if (!config.getBoolean("services.elastic.aws.signing")) return new JestClientFactory();
 
-        AWSSigner awsSigner = new AWSSigner(new DefaultAWSCredentialsProviderChain(),
-                config.getString("services.elastic.aws.region"), "es",
-                () -> LocalDateTime.now(ZoneOffset.UTC)
-        );
-        AWSSigningRequestInterceptor requestInterceptor = new AWSSigningRequestInterceptor(awsSigner);
+        if (config.getBoolean("services.elastic.production")) {
+            AWSSigner awsSigner = new AWSSigner(new DefaultAWSCredentialsProviderChain(),
+                    config.getString("services.elastic.aws.region"), "es",
+                    () -> LocalDateTime.now(ZoneOffset.UTC)
+            );
 
-        return new JestClientFactory() {
-            @Override
-            protected HttpClientBuilder configureHttpClient(HttpClientBuilder builder) {
-                builder.addInterceptorLast(requestInterceptor);
-                return builder;
-            }
+            return new JestClientFactory() {
+                AWSSigningRequestInterceptor requestInterceptor = new AWSSigningRequestInterceptor(awsSigner);
 
-            @Override
-            protected HttpAsyncClientBuilder configureHttpClient(HttpAsyncClientBuilder builder) {
-                builder.addInterceptorLast(requestInterceptor);
-                return builder;
-            }
-        };
+                @Override
+                protected HttpClientBuilder configureHttpClient(HttpClientBuilder builder) {
+                    builder.addInterceptorLast(requestInterceptor);
+                    return builder;
+                }
+
+                @Override
+                protected HttpAsyncClientBuilder configureHttpClient(HttpAsyncClientBuilder builder) {
+                    builder.addInterceptorLast(requestInterceptor);
+                    return builder;
+                }
+            };
+        } else {
+            return new JestClientFactory();
+        }
     }
 
 
@@ -90,7 +94,12 @@ public final class ElasticModule extends AbstractModule {
     JestClient provideClient(JestClientFactory factory) {
         Config config = ConfigFactory.load();
         String url = config.getString("services.elastic.url");
-        WaitFor.statusOk(url, Duration.ofSeconds(180));
+
+        if (config.getBoolean("services.elastic.production")) {
+            WaitFor.host(url, Duration.ofSeconds(180));
+        } else {
+            WaitFor.statusOk(url, Duration.ofSeconds(180));
+        }
 
         factory.setHttpClientConfig(new HttpClientConfig.Builder(url)
                 .multiThreaded(true)
