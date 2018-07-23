@@ -49,7 +49,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
 
     @Override
     protected Duration cycleDelay() {
-        return Duration.ofHours(12);
+        return Duration.ofHours(8);
     }
 
     @Override
@@ -76,12 +76,12 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     protected void processServer(Place place) {
         // From Server, Check if Place need to be posted or patched
         List<AirtableRecord> records = placeTable.find("placeId", place.getPlaceId());
-        sleep(250);
+        sleep(125);
 
         if (records.size() == 0) {
             // Posted
             placeTable.post(parse(place));
-            sleep(250);
+            sleep(125);
             return;
         }
         if (records.size() == 1) {
@@ -91,7 +91,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
             AirtableRecord patchRecord = parse(place);
             patchRecord.setId(record.getId());
             placeTable.patch(patchRecord);
-            sleep(250);
+            sleep(125);
             return;
         }
 
@@ -171,7 +171,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         if (!StringUtils.equals(place.getLocation().getPostcode(), record.getField("location.postcode").asText()))
             return false;
 
-        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(2), place.getUpdatedMillis()))
+        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(1), place.getUpdatedMillis()))
             return false;
         return true;
     }
