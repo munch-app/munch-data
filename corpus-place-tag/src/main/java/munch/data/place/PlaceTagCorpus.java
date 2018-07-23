@@ -89,7 +89,7 @@ public final class PlaceTagCorpus extends CatalystEngine<CorpusData> {
         // Predicted, Predicted Unique
         updateCounting(hasImage(dataList), predicts, implicits, alls, trusted);
 
-        sleep(300);
+        sleep(50);
         if (processed % 100 == 0) logger.info("Processed {}", processed);
     }
 

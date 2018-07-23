@@ -60,8 +60,7 @@ public class PlaceModule extends AbstractModule {
         EngineGroup.start(
                 injector.getInstance(PlaceCorpus.class),
                 injector.getInstance(ValidationCorpus.class),
-                injector.getInstance(DecayAirtableCorpus.class),
-                injector.getInstance(PlaceAirtableCorpus.class)
+                injector.getInstance(DecayAirtableCorpus.class)
         );
         ScheduledThreadUtils.shutdown();
         injector.getInstance(JestClient.class).shutdownClient();
