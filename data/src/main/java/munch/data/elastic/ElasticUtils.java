@@ -68,6 +68,17 @@ public final class ElasticUtils {
     }
 
     /**
+     * @param name  to match
+     * @param value to match
+     * @return JsonNode match filter
+     */
+    public static JsonNode match(String name, String value) {
+        ObjectNode root = JsonUtils.createObjectNode();
+        root.putObject("match").put(name, value);
+        return root;
+    }
+
+    /**
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-geo-polygon-query.html
      *
      * @param name      name of term

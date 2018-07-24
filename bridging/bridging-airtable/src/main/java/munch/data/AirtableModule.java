@@ -38,7 +38,8 @@ public class AirtableModule extends AbstractModule {
     public static void main(String[] args) throws InterruptedException {
         Injector injector = Guice.createInjector(new AirtableModule());
         EngineGroup.start(
-                injector.getInstance(PlaceBridge.class)
+                injector.getInstance(PlaceBridge.class),
+                injector.getInstance(GongChaBubbleTeaBridge.class)
         );
     }
 }

@@ -2,14 +2,15 @@ package munch.data;
 
 import catalyst.utils.exception.DateCompareUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.base.Joiner;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
 import corpus.engine.AbstractEngine;
+import munch.data.client.ElasticClient;
 import munch.data.client.PlaceClient;
+import munch.data.elastic.ElasticUtils;
 import munch.data.place.Place;
-import munch.file.Image;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,11 +19,8 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -35,16 +33,18 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceBridge.class);
 
     private final PlaceClient placeClient;
+    private final ElasticClient elasticClient;
 
     private final AirtableApi.Table placeTable;
-    private final AirtableMapper airtableMapper;
+    private final AirtablePlaceMapper placeMapper;
 
     @Inject
-    public PlaceBridge(AirtableApi api, PlaceClient placeClient, AirtableMapper airtableMapper) {
+    public PlaceBridge(AirtableApi api, PlaceClient placeClient, ElasticClient elasticClient, AirtablePlaceMapper placeMapper) {
         super(logger);
         this.placeClient = placeClient;
         this.placeTable = api.base("appDcx5b3vgkhcYB5").table("Place");
-        this.airtableMapper = airtableMapper;
+        this.elasticClient = elasticClient;
+        this.placeMapper = placeMapper;
     }
 
     @Override
@@ -56,7 +56,25 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     protected Iterator<Object> fetch(long cycleNo) {
         ArrayNode sort = JsonUtils.createArrayNode();
         sort.addObject().put("placeId", "desc");
-        return Iterators.concat(placeTable.select(sort), placeClient.iterator());
+        return Iterators.concat(searchBubbleTea().iterator(), placeTable.select(sort), placeClient.iterator());
+    }
+
+    private List<Place> searchBubbleTea() {
+        ObjectNode root = JsonUtils.createObjectNode();
+        root.put("from", 0);
+        root.put("size", 500);
+
+        ObjectNode bool = JsonUtils.createObjectNode();
+        bool.set("must", ElasticUtils.mustMatchAll());
+        bool.set("filter", JsonUtils.createArrayNode()
+                .add(ElasticUtils.filterTerm("dataType", "Place"))
+                .add(ElasticUtils.filterTerm("tags.name", "Bubble Tea".toLowerCase()))
+        );
+        root.putObject("query").set("bool", bool);
+
+        List<Place> places = elasticClient.searchHitsHits(root);
+        logger.info("Searched BubbleTea: {}", places.size());
+        return places;
     }
 
     @Override
@@ -80,7 +98,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
 
         if (records.size() == 0) {
             // Posted
-            placeTable.post(parse(place));
+            placeTable.post(placeMapper.parse(place));
             sleep(125);
             return;
         }
@@ -88,7 +106,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
             // Patched
             AirtableRecord record = records.get(0);
             if (equals(place, record)) return;
-            AirtableRecord patchRecord = parse(place);
+            AirtableRecord patchRecord = placeMapper.parse(place);
             patchRecord.setId(record.getId());
             placeTable.patch(patchRecord);
             sleep(125);
@@ -98,66 +116,6 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         throw new IllegalStateException("More then 1 Place with the same id.");
     }
 
-    private AirtableRecord parse(Place place) {
-        AirtableRecord record = new AirtableRecord();
-        record.setFields(new HashMap<>());
-        record.putField("placeId", place.getPlaceId());
-        record.putField("status", place.getStatus().getType().name());
-
-        record.putField("name", place.getName());
-        record.putField("names", Joiner.on("\n").join(place.getNames()));
-        record.putField("tags", airtableMapper.mapTagField(place.getTags()));
-
-        record.putField("phone", place.getPhone());
-        record.putField("website", place.getWebsite());
-        record.putField("description", place.getDescription());
-
-        record.putField("location.address", place.getLocation().getAddress());
-        record.putField("location.street", place.getLocation().getStreet());
-        record.putField("location.unitNumber", place.getLocation().getUnitNumber());
-        record.putField("location.neighbourhood", place.getLocation().getNeighbourhood());
-
-        record.putField("location.city", place.getLocation().getCity());
-        record.putField("location.country", place.getLocation().getCountry());
-        record.putField("location.postcode", place.getLocation().getPostcode());
-
-        record.putField("location.latLng", place.getLocation().getLatLng());
-
-        record.putField("menu.url", () -> JsonUtils.toTree(place.getMenu().getUrl()));
-        record.putField("price.perPax", () -> JsonUtils.toTree(place.getPrice().getPerPax()));
-
-
-        record.putField("hours", () -> {
-            String hours = place.getHours().stream()
-                    .map(h -> h.getDay().name() + ": " + h.getOpen() + "-" + h.getClose())
-                    .collect(Collectors.joining("\n"));
-            return JsonUtils.toTree(hours);
-        });
-
-        record.putField("images", () -> {
-            if (place.getImages().isEmpty()) return JsonUtils.createArrayNode();
-            ArrayNode array = JsonUtils.createArrayNode();
-            for (Image image : place.getImages()) {
-                String url = image.getSizes()
-                        .stream()
-                        .min(Comparator.comparingInt(Image.Size::getWidth))
-                        .map(Image.Size::getUrl)
-                        .orElse(null);
-                if (url == null) continue;
-                array.addObject().put("url", url);
-            }
-            return array;
-        });
-
-        // Linked Data
-
-        record.putField("areas", airtableMapper.mapAreaField(place.getAreas()));
-
-        record.putFieldDate("createdMillis", place.getCreatedMillis());
-        record.putFieldDate("updatedMillis", place.getUpdatedMillis());
-        record.putField("ranking", place.getRanking());
-        return record;
-    }
 
     private static boolean equals(Place place, AirtableRecord record) {
         if (!place.getStatus().getType().name().equals(record.getField("status").asText())) return false;
@@ -171,7 +129,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         if (!StringUtils.equals(place.getLocation().getPostcode(), record.getField("location.postcode").asText()))
             return false;
 
-        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(1), place.getUpdatedMillis()))
+        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(2), place.getUpdatedMillis()))
             return false;
         return true;
     }
