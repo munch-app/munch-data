@@ -14,3 +14,9 @@ task publishDocker {
     exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
   }
 }
+
+task buildLocal {
+  doLast {
+    exec { commandLine "docker", "build", "-f", "Dockerfile.local", "-t", dockerTag + 'local', '.' }
+  }
+}

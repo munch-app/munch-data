@@ -9,6 +9,21 @@ const service = require('axios').create({
   baseURL: process.env.FILE_SERVICE_URL
 })
 
+service.interceptors.response.use(function (response) {
+  return response;
+}, function (error) {
+  let message = error.response &&
+    error.response.data &&
+    error.response.data.meta &&
+    error.response.data.meta.error &&
+    error.response.data.meta.error.message
+  if (message) {
+    return Promise.reject(new Error(message))
+  }
+  return Promise.reject(error);
+});
+
+
 router.post('/api/files/images/upload', upload.single('file'), function (req, res, next) {
   const form = new FormData();
   const file = req.file

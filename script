@@ -9,6 +9,7 @@ function error_exit {
 
 function build {
     ./gradlew buildImage
+    ./gradlew buildLocal
 }
 
 function publish {
