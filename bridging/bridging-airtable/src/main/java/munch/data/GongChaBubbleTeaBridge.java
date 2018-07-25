@@ -114,7 +114,7 @@ public final class GongChaBubbleTeaBridge extends AbstractEngine<GongChaBubbleTe
     @Override
     protected void process(long cycleNo, ContentData data, long processed) {
         if (data == null) return;
-        List<AirtableRecord> records = placeTable.find("Key", data.getKey());
+        List<AirtableRecord> records = gongChaTable.find("Key", data.getKey());
         if (!records.isEmpty()) return;
 
         AirtableRecord record = new AirtableRecord();
