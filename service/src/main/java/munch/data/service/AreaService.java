@@ -57,7 +57,7 @@ public final class AreaService extends PersistenceService<Area> {
     }
 
     @Override
-    protected JsonResult put(Area object) {
+    public JsonResult put(Area object) {
         clusterManager.update(object);
         return super.put(object);
     }

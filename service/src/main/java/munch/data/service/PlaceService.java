@@ -50,7 +50,7 @@ public final class PlaceService extends PersistenceService<Place> {
     }
 
     @Override
-    protected JsonResult put(Place object) {
+    public JsonResult put(Place object) {
         clusterManager.update(object);
         return super.put(object);
     }

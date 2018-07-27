@@ -1,21 +1,11 @@
 package munch.data.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import munch.data.aws.AWSDynamoModule;
 import munch.data.elastic.ElasticModule;
 import munch.restful.server.RestfulServer;
-
-import javax.inject.Singleton;
 
 /**
  * Created by: Fuxing
@@ -28,28 +18,7 @@ public final class ServiceModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new ElasticModule());
-    }
-
-    @Provides
-    @Singleton
-    DynamoDB provideDynamoDB() {
-        Config config = ConfigFactory.load().getConfig("services.dynamodb");
-        AmazonDynamoDB dynamoDB;
-        // If has url mean testing environment is enabled
-        if (config.hasPath("url")) {
-            String url = config.getString("url");
-            dynamoDB = AmazonDynamoDBClientBuilder.standard()
-                    .withEndpointConfiguration(
-                            new AwsClientBuilder.EndpointConfiguration(url, "us-west-2"))
-                    .withCredentials(
-                            new AWSStaticCredentialsProvider(
-                                    new BasicAWSCredentials("foo", "bar")))
-                    .build();
-        } else {
-            dynamoDB = AmazonDynamoDBClientBuilder.defaultClient();
-        }
-
-        return new DynamoDB(dynamoDB);
+        install(new AWSDynamoModule());
     }
 
     public static void main(String[] args) {

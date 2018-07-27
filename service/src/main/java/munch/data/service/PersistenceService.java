@@ -28,7 +28,7 @@ public abstract class PersistenceService<T extends ElasticObject> extends Restfu
     }
 
     @Override
-    protected JsonResult put(Object hash, JsonNode json) {
+    public JsonResult put(Object hash, JsonNode json) {
         ((ObjectNode) json).putPOJO(hashName, ParamException.requireNonNull(hashName, hash));
 
         // Convert to Object class to validation against Class Type
@@ -36,7 +36,7 @@ public abstract class PersistenceService<T extends ElasticObject> extends Restfu
         return put(object);
     }
 
-    protected JsonResult put(T object) {
+    public JsonResult put(T object) {
         object.setUpdatedMillis(System.currentTimeMillis());
 
         // Updated & Created Millis is created via PersistenceService
