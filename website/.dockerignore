@@ -114,5 +114,3 @@ typings/
 # next.js build output
 .next
 
-publish.sh
-publish.bat
