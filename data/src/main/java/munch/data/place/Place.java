@@ -41,6 +41,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     private Menu menu;
     private Price price;
     private Counts counts;
+    private Brand brand;
 
     private List<Hour> hours;
     private List<Image> images;
@@ -164,6 +165,16 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     public void setCounts(Counts counts) {
         this.counts = counts;
+    }
+
+    @Valid
+    @Nullable
+    public Brand getBrand() {
+        return brand;
+    }
+
+    public void setBrand(Brand brand) {
+        this.brand = brand;
     }
 
     @NotNull
@@ -312,6 +323,53 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                     "tagId='" + tagId + '\'' +
                     ", name='" + name + '\'' +
                     ", type=" + type +
+                    '}';
+        }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Brand {
+        private String brandId;
+        private String name;
+
+        @NotBlank
+        public String getBrandId() {
+            return brandId;
+        }
+
+        public void setBrandId(String brandId) {
+            this.brandId = brandId;
+        }
+
+        @NotBlank
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Brand brand = (Brand) o;
+            return Objects.equals(brandId, brand.brandId) &&
+                    Objects.equals(name, brand.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(brandId, name);
+        }
+
+        @Override
+        public String toString() {
+            return "Brand{" +
+                    "brandId='" + brandId + '\'' +
+                    ", name='" + name + '\'' +
                     '}';
         }
     }
