@@ -56,7 +56,7 @@ public final class LocalDynamoSetup {
             });
         }
 
-        URL tags = Resources.getResource("samples/tags.json");
+        URL tags = Resources.getResource("samples/tags.json.lfs");
         JsonNode json = JsonUtils.objectMapper.readTree(tags);
 
         for (JsonNode node : json) {
