@@ -1,6 +1,9 @@
 <template>
   <b-container>
     <b-form @submit="onSubmit">
+      <div v-for="tag in tagsMap" :key="tag.tagId">
+        {{tag.name}}
+      </div>
       <b-form-group label="Brand name:"
                     label-for="exampleInput1"
                     horizontal>
@@ -15,8 +18,8 @@
                     label-for="exampleInput2"
                     horizontal>
         <!--<b-form-input type="text"-->
-                      <!--v-model="data.names"-->
-                      <!--placeholder="Enter alternative names eg. KFC">-->
+        <!--v-model="data.names"-->
+        <!--placeholder="Enter alternative names eg. KFC">-->
         <!--</b-form-input>-->
         <tags-field :tags.sync="data.names" placeholder="Enter alternative names eg. KFC"></tags-field>
       </b-form-group>
@@ -24,12 +27,12 @@
                     label-for="exampleInput3"
                     horizontal>
         <!--<b-form-input type="text"-->
-                      <!--v-model="data.tags"-->
-                      <!--required-->
-                      <!--placeholder="Enter tags eg. fast food, restaurant">-->
+        <!--v-model="data.tags"-->
+        <!--required-->
+        <!--placeholder="Enter tags eg. fast food, restaurant">-->
         <!--</b-form-input>-->
-        <tags-field :tags.sync="data.tags" v-bind="tagsMap" placeholder="Enter tags eg. Fast Food, American"></tags-field>
-        tags map: {{tagsMap}}
+        <tags-field :tags.sync="data.tags"
+                    placeholder="Enter tags eg. Fast Food, American"></tags-field>
 
       </b-form-group>
       <b-form-group label="Description:"
@@ -147,12 +150,11 @@
         }
       }
     },
-    data(){
+    data() {
       return {
-        tagsMap: this.tagsMap,
+        tagsMap: [],
       }
     },
-
     methods: {
       onSubmit(evt) {
         evt.preventDefault()
@@ -177,25 +179,6 @@
             window.location.reload(true);
           });
         }
-      },
-      getTags(){
-        // var returnTags = [];
-        // if (window.localStorage.getItem('tagsMap') == null || moment(window.localStorage.getItem('tagsTimestamp')).isBefore(moment().subtract(1, 'days').calendar())) {
-          //load in new tags
-          var next = true
-          while(next){
-            this.$axios.$get('/api/tags?size=10', {}).then((data) => {
-              next = false;
-              if(data.next){
-                next = false;
-              }
-              var tags = window.localStorage.getItem('tagsMap') + data.data;
-              window.localStorage.setItem('tagsMap', tags);
-              window.localStorage.removeItem('tagsMap');
-            })
-          }
-        // }
-        this.tagsMap = window.localStorage.getItem('tagsMap');
       }
     },
     watch: {
@@ -207,8 +190,28 @@
         deep: true,
       },
     },
-    mounted() {
-      this.getTags();
+    async mounted() {
+      // var returnTags = [];
+      // if (window.localStorage.getItem('tagsMap') == null || moment(window.localStorage.getItem('tagsTimestamp')).isBefore(moment().subtract(1, 'days').calendar())) {
+      //load in new tags
+
+      const axios = this.$axios
+
+      async function loadTags(tags, nextTagId) {
+        return axios.$get('/api/tags?size=100&next.tagId=' + nextTagId || '')
+          .then(function (res) {
+            tags = tags.concat(res.data)
+
+            if (res.next && res.next.tagId)
+              return loadTags(tags, res.next && res.next.tagId)
+            else
+              return Promise.resolve(tags)
+          })
+      }
+
+      loadTags([]).then(tags => {
+        console.log(tags.length)
+      })
     },
   }
 </script>
@@ -222,6 +225,7 @@
       margin-right: 12px;
     }
   }
+
   .TagInput {
     font-family: inherit;
     font-size: 16px;

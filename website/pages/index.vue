@@ -14,26 +14,26 @@
   import DataGroupBox from "../components/DataTypeBox";
 
   let typeList = [
-    {
-      name: "Tag",
-      description: "Tag is used to tag places with Food, Cuisine, Establishment, Amenities and Timing tags.",
-      path: "tags",
-    },
+    // {
+    //   name: "Tag",
+    //   description: "Tag is used to tag places with Food, Cuisine, Establishment, Amenities and Timing tags.",
+    //   path: "tags",
+    // },
     {
       name: "Brand",
       description: "Brand is a Franchise/Brand entity that usually encompass multiple Place data.",
       path: "brands",
     },
-    {
-      name: "Landmark",
-      description: "Landmark is used for location context purpose to showcase how close a place is to a known Landmark.",
-      path: "landmarks",
-    },
-    {
-      name: "Area",
-      description: "Area is a polygon in a country. Area can be a city, region or a location cluster. Polygon is required for all rea.",
-      path: "areas",
-    }
+    // {
+    //   name: "Landmark",
+    //   description: "Landmark is used for location context purpose to showcase how close a place is to a known Landmark.",
+    //   path: "landmarks",
+    // },
+    // {
+    //   name: "Area",
+    //   description: "Area is a polygon in a country. Area can be a city, region or a location cluster. Polygon is required for all rea.",
+    //   path: "areas",
+    // }
   ];
 
   export default {
