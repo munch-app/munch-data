@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 @Singleton
 public final class LocalDynamoSetup {
     private static final Logger logger = LoggerFactory.getLogger(LocalDynamoSetup.class);
-    private static final ProvisionedThroughput THROUGHPUT = new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(10L);
+    private static final ProvisionedThroughput THROUGHPUT = new ProvisionedThroughput().withReadCapacityUnits(1000L).withWriteCapacityUnits(1000L);
 
     private final AmazonDynamoDB amazonDynamoDB;
     private final TagService tagService;
