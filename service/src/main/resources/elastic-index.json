@@ -74,17 +74,6 @@
             }
           }
         },
-        "brand": {
-          "properties": {
-            "brandId": {
-              "type": "keyword"
-            },
-            "name": {
-              "type": "keyword",
-              "normalizer": "normalizer_lower"
-            }
-          }
-        },
         "phone": {
           "type": "text"
         },

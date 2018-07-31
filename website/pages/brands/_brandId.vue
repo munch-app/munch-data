@@ -14,19 +14,23 @@
       <b-form-group label="Alternative names:"
                     label-for="exampleInput2"
                     horizontal>
-        <b-form-input type="text"
-                      v-model="data.names"
-                      placeholder="Enter alternative names eg. KFC">
-        </b-form-input>
+        <!--<b-form-input type="text"-->
+                      <!--v-model="data.names"-->
+                      <!--placeholder="Enter alternative names eg. KFC">-->
+        <!--</b-form-input>-->
+        <tags-field :tags.sync="data.names" placeholder="Enter alternative names eg. KFC"></tags-field>
       </b-form-group>
       <b-form-group label="Tags:"
                     label-for="exampleInput3"
                     horizontal>
-        <b-form-input type="text"
-                      v-model="data.tags"
-                      required
-                      placeholder="Enter tags eg. fast food, restaurant">
-        </b-form-input>
+        <!--<b-form-input type="text"-->
+                      <!--v-model="data.tags"-->
+                      <!--required-->
+                      <!--placeholder="Enter tags eg. fast food, restaurant">-->
+        <!--</b-form-input>-->
+        <tags-field :tags.sync="data.tags" v-bind="tagsMap" placeholder="Enter tags eg. Fast Food, American"></tags-field>
+        tags map: {{tagsMap}}
+
       </b-form-group>
       <b-form-group label="Description:"
                     label-for="exampleInput9"
@@ -85,10 +89,9 @@
         <image-file-upload v-bind:images="data.images"></image-file-upload>
       </b-form-group>
 
-
       <div class="Action">
-        <b-button class="Button" type="submit" variant="primary">Submit</b-button>
-        <b-button class="Button" type="reset" variant="danger">Reset</b-button>
+        <b-button class="Button" @click="onSubmit" variant="success">Submit</b-button>
+        <b-button class="Button" variant="danger">Reset</b-button>
       </div>
     </b-form>
   </b-container>
@@ -96,18 +99,20 @@
 </template>
 
 <script>
-
   import ImageFileUpload from "../../components/ImageFileUpload";
+  import TagsField from "../../components/TagsField";
+  import moment from "moment";
 
   export default {
-    components: {ImageFileUpload},
+    components: {TagsField, ImageFileUpload},
     layout: 'manage',
+
     asyncData() {
       return {
         data: {
           name: "",
-          names: [""],
-          tags: [""],
+          names: [],
+          tags: [],
           menu: {},
           price: {
             perPax: 10.0
@@ -142,12 +147,17 @@
         }
       }
     },
+    data(){
+      return {
+        tagsMap: this.tagsMap,
+      }
+    },
 
     methods: {
       onSubmit(evt) {
-        evt.preventDefault();
-        complete(this.data);
-        // alert(JSON.stringify(this.data));
+        evt.preventDefault()
+        this.complete(this.data);
+        alert(JSON.stringify(this.data));
       },
 
       onReset(evt) {
@@ -158,17 +168,48 @@
       complete(data) {
         const brandId = this.$route.params.brandId
         if (brandId === '_') {
-          this.$axios.$post('/api/brands', data).then((res) => {
-            window.location.reload(true);
-          });
+          this.$axios.$post('/api/brands', data)
+            .then((res) => {
+              window.location.reload(true);
+            });
         } else {
-          this.$axios.$put('/api/brands/'+brandId, data).then((res) => {
+          this.$axios.$put('/api/brands/' + brandId, data).then((res) => {
             window.location.reload(true);
           });
         }
-
+      },
+      getTags(){
+        // var returnTags = [];
+        // if (window.localStorage.getItem('tagsMap') == null || moment(window.localStorage.getItem('tagsTimestamp')).isBefore(moment().subtract(1, 'days').calendar())) {
+          //load in new tags
+          var next = true
+          while(next){
+            this.$axios.$get('/api/tags?size=10', {}).then((data) => {
+              next = false;
+              if(data.next){
+                next = false;
+              }
+              var tags = window.localStorage.getItem('tagsMap') + data.data;
+              window.localStorage.setItem('tagsMap', tags);
+              window.localStorage.removeItem('tagsMap');
+            })
+          }
+        // }
+        this.tagsMap = window.localStorage.getItem('tagsMap');
       }
-    }
+    },
+    watch: {
+      todos: { //change to map to look out for
+        handler() {
+          console.log('Todos changed!');
+          // localStorage.setItem('todos', JSON.stringify(this.todos));
+        },
+        deep: true,
+      },
+    },
+    mounted() {
+      this.getTags();
+    },
   }
 </script>
 
@@ -180,5 +221,14 @@
     .Button {
       margin-right: 12px;
     }
+  }
+  .TagInput {
+    font-family: inherit;
+    font-size: 16px;
+    width: 100%;
+    padding: 6px 12px;
+    box-sizing: border-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
   }
 </style>
