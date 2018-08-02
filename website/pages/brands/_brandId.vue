@@ -1,9 +1,6 @@
 <template>
   <b-container>
     <b-form @submit="onSubmit">
-      <div v-for="tag in tagsMap" :key="tag.tagId">
-        {{tag.name}}
-      </div>
       <b-form-group label="Brand name:"
                     label-for="exampleInput1"
                     horizontal>
@@ -17,22 +14,12 @@
       <b-form-group label="Alternative names:"
                     label-for="exampleInput2"
                     horizontal>
-        <!--<b-form-input type="text"-->
-        <!--v-model="data.names"-->
-        <!--placeholder="Enter alternative names eg. KFC">-->
-        <!--</b-form-input>-->
-        <tags-field :tags.sync="data.names" placeholder="Enter alternative names eg. KFC"></tags-field>
+        <tags-edit :tags.sync="data.names" placeholder="Enter alternative names eg. KFC"></tags-edit>
       </b-form-group>
       <b-form-group label="Tags:"
                     label-for="exampleInput3"
                     horizontal>
-        <!--<b-form-input type="text"-->
-        <!--v-model="data.tags"-->
-        <!--required-->
-        <!--placeholder="Enter tags eg. fast food, restaurant">-->
-        <!--</b-form-input>-->
-        <tags-field :tags.sync="data.tags"
-                    placeholder="Enter tags eg. Fast Food, American"></tags-field>
+        <tags-field v-if="tagsMapLoaded" :tags.sync="data.tags" :tagsMap="tagsMap" placeholder="Enter tags eg. Fast Food, American"></tags-field>
 
       </b-form-group>
       <b-form-group label="Description:"
@@ -86,6 +73,12 @@
                       placeholder="Enter website URL eg. https://www.mcdonalds.com/">
         </b-form-input>
       </b-form-group>
+      <b-form-group label="Country"
+                    label-for="exampleInput9"
+                    horizontal>
+        <b-form-select v-model="data.location.country" :options="countries" class="mb-3" />
+
+      </b-form-group>
       <b-form-group label="Images:"
                     label-for="exampleInput10"
                     horizontal>
@@ -102,16 +95,18 @@
 </template>
 
 <script>
+  import moment from "moment";
   import ImageFileUpload from "../../components/ImageFileUpload";
   import TagsField from "../../components/TagsField";
-  import moment from "moment";
+  import TagsEdit from "../../components/TagsEdit";
 
   export default {
-    components: {TagsField, ImageFileUpload},
+    components: {TagsEdit, TagsField, ImageFileUpload},
     layout: 'manage',
 
     asyncData() {
       return {
+        countries: ["Singapore"],
         data: {
           name: "",
           names: [],
@@ -120,11 +115,11 @@
           price: {
             perPax: 10.0
           },
+          location: {country: "Singapore"},
           company: {name: null},
           phone: "",
           website: "",
           description: "",
-
           images: [
             {
               imageId: "123",
@@ -153,6 +148,7 @@
     data() {
       return {
         tagsMap: [],
+        tagsMapLoaded: false
       }
     },
     methods: {
@@ -181,21 +177,19 @@
         }
       }
     },
-    watch: {
-      todos: { //change to map to look out for
-        handler() {
-          console.log('Todos changed!');
-          // localStorage.setItem('todos', JSON.stringify(this.todos));
-        },
-        deep: true,
-      },
-    },
-    async mounted() {
-      // var returnTags = [];
-      // if (window.localStorage.getItem('tagsMap') == null || moment(window.localStorage.getItem('tagsTimestamp')).isBefore(moment().subtract(1, 'days').calendar())) {
-      //load in new tags
 
+    async mounted() {
       const axios = this.$axios
+      if (window.localStorage.getItem('tagsMap') == null || (moment().subtract(1, 'days')).isAfter(window.localStorage.getItem('tagsTimestamp'))) {
+        //load in new tags
+        loadTags([]).then(tags => {
+          window.localStorage.setItem("tagsMap", JSON.stringify(tags))
+          window.localStorage.setItem("tagsTimestamp", moment().format())
+        })
+      }
+      const result = window.localStorage.getItem('tagsMap');
+      this.tagsMap = JSON.parse(result);
+      this.tagsMapLoaded = true;
 
       async function loadTags(tags, nextTagId) {
         return axios.$get('/api/tags?size=100&next.tagId=' + nextTagId || '')
@@ -208,10 +202,6 @@
               return Promise.resolve(tags)
           })
       }
-
-      loadTags([]).then(tags => {
-        console.log(tags.length)
-      })
     },
   }
 </script>
