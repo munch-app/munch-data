@@ -25,6 +25,7 @@ public final class ServiceModule extends AbstractModule {
         Injector injector = Guice.createInjector(new ServiceModule());
         RestfulServer.start("/v4.0",
                 injector.getInstance(PlaceService.class),
+                injector.getInstance(PlaceAwardService.class),
                 injector.getInstance(TagService.class),
                 injector.getInstance(LandmarkService.class),
                 injector.getInstance(AreaService.class),

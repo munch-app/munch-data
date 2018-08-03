@@ -2,6 +2,7 @@ package munch.data.brand;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
 import munch.file.Image;
 
@@ -23,6 +24,7 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Brand implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
     private String brandId;
+    private Status status;
 
     private String name;
     private Set<String> names;
@@ -34,12 +36,11 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
 
     private Location location;
 
-    private Price price;
     private Menu menu;
+    private Price price;
+    private Company company;
 
     private List<Image> images;
-
-    private Company company;
 
     private long createdMillis;
     private long updatedMillis;
@@ -50,6 +51,15 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
 
     public void setBrandId(String brandId) {
         this.brandId = brandId;
+    }
+
+    @Nullable
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     @Override
@@ -229,6 +239,33 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
                 ", createdMillis=" + createdMillis +
                 ", updatedMillis=" + updatedMillis +
                 '}';
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Status {
+        private Type type;
+
+        @NotNull
+        public Type getType() {
+            return type;
+        }
+
+        public void setType(Type type) {
+            this.type = type;
+        }
+
+        public enum Type {
+            @JsonProperty("open") open,
+            @JsonProperty("closed") closed,
+        }
+
+        @Override
+        public String toString() {
+            return "Status{" +
+                    "type=" + type +
+                    '}';
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

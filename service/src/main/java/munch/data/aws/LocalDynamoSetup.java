@@ -41,6 +41,12 @@ public final class LocalDynamoSetup {
     }
 
     public void setup() throws InterruptedException, IOException {
+        addMapped();
+        addNonMapped();
+        addTags();
+    }
+
+    private void addMapped() throws InterruptedException {
         for (Config config : ConfigFactory.load().getConfigList("persistence.mappings")) {
             String tableName = config.getString("tableName");
             String dataKey = config.getString("dataKey");
@@ -55,7 +61,34 @@ public final class LocalDynamoSetup {
                 );
             });
         }
+    }
 
+    private void addNonMapped() throws InterruptedException {
+        create("munch-data.PlaceAward", request -> {
+            request.withAttributeDefinitions(
+                    new AttributeDefinition().withAttributeName("placeId").withAttributeType(ScalarAttributeType.S),
+                    new AttributeDefinition().withAttributeName("awardId").withAttributeType(ScalarAttributeType.S),
+                    new AttributeDefinition().withAttributeName("sort").withAttributeType(ScalarAttributeType.N)
+            );
+
+            request.withKeySchema(
+                    new KeySchemaElement().withAttributeName("placeId").withKeyType(KeyType.HASH),
+                    new KeySchemaElement().withAttributeName("awardId").withKeyType(KeyType.RANGE)
+            );
+
+            request.withLocalSecondaryIndexes(new LocalSecondaryIndex()
+                    .withIndexName("sort")
+                    .withKeySchema(
+                            new KeySchemaElement().withAttributeName("placeId").withKeyType(KeyType.HASH),
+                            new KeySchemaElement().withAttributeName("sort").withKeyType(KeyType.RANGE)
+                    ).withProjection(
+                            new Projection().withProjectionType(ProjectionType.ALL)
+                    )
+            );
+        });
+    }
+
+    private void addTags() throws IOException {
         URL tags = Resources.getResource("samples/tags.json.lfs");
         JsonNode json = JsonUtils.objectMapper.readTree(tags);
 
