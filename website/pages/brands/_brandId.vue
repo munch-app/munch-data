@@ -19,7 +19,8 @@
       <b-form-group label="Tags:"
                     label-for="exampleInput3"
                     horizontal>
-        <tags-field v-if="tagsMapLoaded" :tags.sync="data.tags" :tagsMap="tagsMap" placeholder="Enter tags eg. Fast Food, American"></tags-field>
+        <tags-field v-if="tagsMapLoaded" :tags.sync="data.tags" :tagsMap="tagsMap"
+                    placeholder="Enter tags eg. Fast Food, American"></tags-field>
 
       </b-form-group>
       <b-form-group label="Description:"
@@ -76,7 +77,7 @@
       <b-form-group label="Country"
                     label-for="exampleInput9"
                     horizontal>
-        <b-form-select v-model="data.location.country" :options="countries" class="mb-3" />
+        <b-form-select v-model="data.location.country" :options="countries" class="mb-3"/>
 
       </b-form-group>
       <b-form-group label="Images:"
@@ -104,9 +105,20 @@
     components: {TagsEdit, TagsField, ImageFileUpload},
     layout: 'manage',
 
-    asyncData() {
+    asyncData({$axios, params}) {
+      const brandId = params.brandId
+      if (brandId !== '_') {
+        return $axios.get(`/api/brands/${brandId}`)
+          .then(({data}) => {
+            return {data: data.data}
+          })
+      }
+    },
+    data() {
       return {
         countries: ["Singapore"],
+        tagsMap: [],
+        tagsMapLoaded: false,
         data: {
           name: "",
           names: [],
@@ -120,42 +132,14 @@
           phone: "",
           website: "",
           description: "",
-          images: [
-            {
-              imageId: "123",
-              profile: {
-                type: "munch-data",
-                id: "123",
-                name: "Person"
-              },
-              sizes: [
-                {
-                  width: 160,
-                  height: 180,
-                  url: "http://via.placeholder.com/160x180"
-                },
-                {
-                  width: 320,
-                  height: 360,
-                  url: "http://via.placeholder.com/320x360"
-                }
-              ]
-            }
-          ],
+          images: [],
         }
-      }
-    },
-    data() {
-      return {
-        tagsMap: [],
-        tagsMapLoaded: false
       }
     },
     methods: {
       onSubmit(evt) {
         evt.preventDefault()
         this.complete(this.data);
-        alert(JSON.stringify(this.data));
       },
 
       onReset(evt) {

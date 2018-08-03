@@ -7,36 +7,113 @@
 
     <b-row class="Search">
       <b-col>
-        <b-form-input class="Field" type="text" placeholder="Querying name or names"></b-form-input>
+        <b-form-input
+          class="Field"
+          type="text"
+          v-model="searchValue"
+          placeholder="Querying name or names"
+        ></b-form-input>
       </b-col>
       <b-col>
-        <b-button class="Button" variant="primary">Search</b-button>
+        <b-button class="Button" @click="search" variant="primary">Search Name</b-button>
       </b-col>
     </b-row>
 
     <div class="Results">
       <h4>Search Results</h4>
-      <b-row v-for="brand in results" :key="brand.tagId">
-        <b-col>
-          <h5>{{brand.name}}</h5>
-        </b-col>
-        <b-col>
-
-        </b-col>
-      </b-row>
+      <brands-list :results="results"></brands-list>
     </div>
   </b-container>
 </template>
 
 <script>
+  import BrandsList from "../../components/BrandsList";
+
+  const defaultQuery = {
+    from: 0, size: 25,
+    query: {
+      bool: {
+        "filter": [
+          {"term": {"dataType": "Brand"}},
+        ]
+      }
+    }
+  }
+
   export default {
+    components: {BrandsList},
     layout: 'manage',
     data() {
       return {
-        results: [
-
-        ]
+        searchValue: ""
       }
+    },
+    asyncData(context) {
+      return context.$axios.$post('/api/search/brands', defaultQuery)
+        .then(({data}) => {
+          return {
+            results: data,
+          }
+        });
+    },
+    mounted() {
+      window.addEventListener('keyup', this.keyUpListener);
+    },
+    methods: {
+      keyUpListener(evt) {
+        switch (evt.keyCode) {
+          // Enter
+          case 13:
+            this.search();
+            break;
+        }
+      },
+
+      search() {
+        if (this.searchValue.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)) {
+          this.$router.get({path: '/brands/' + this.searchValue})
+        } else if (this.searchValue !== '') {
+          this.onSearchName()
+        } else {
+          this.onDefaultSearch()
+        }
+      },
+
+      onSearchName() {
+        this.$axios.$post('/api/search/brands', {
+          from: 0, size: 25,
+          query: {
+            bool: {
+              "filter": [
+                {
+                  "term": {
+                    "dataType": "Brand"
+                  }
+                }
+              ],
+              "must": [
+                {
+                  "multi_match": {
+                    "type": "phrase_prefix",
+                    "query": this.searchValue,
+                    "fields": ["name", "names"]
+                  }
+                },
+              ]
+            }
+          }
+        }).then(({data}) => {
+          this.results = data
+        });
+      },
+
+      onDefaultSearch() {
+        this.$axios.$post('/api/search/brands', defaultQuery)
+          .then(({data}) => {
+            this.results = data
+          });
+      }
+
     }
   }
 </script>
