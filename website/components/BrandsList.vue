@@ -9,6 +9,7 @@
         <th scope="col">Price</th>
         <th scope="col">Menu</th>
         <th scope="col"></th>
+        <th scope="col"></th>
       </tr>
       </thead>
       <tbody>
@@ -51,7 +52,7 @@
         detailed: false,
         expended: false,
       }
-    },
+    }
   }
 </script>
 

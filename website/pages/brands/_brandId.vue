@@ -87,9 +87,15 @@
       </b-form-group>
 
       <div class="Action">
+        <b-button class="Button" v-b-modal.deleteModal v-if="data.brandId" variant="danger">Delete</b-button>
         <b-button class="Button" @click="onSubmit" variant="success">Submit</b-button>
-        <b-button class="Button" variant="danger">Reset</b-button>
+
+        <!-- Modal Component -->
       </div>
+      <b-modal id="deleteModal" hide-footer title="Dangerous Action">
+        <p class="my-4">Delete {{data.name}} permanently.</p>
+        <b-button class="Button" @click="onDelete" variant="danger">Delete</b-button>
+      </b-modal>
     </b-form>
   </b-container>
 
@@ -142,9 +148,10 @@
         this.complete(this.data);
       },
 
-      onReset(evt) {
-        evt.preventDefault();
-        this.data = {}
+      onDelete() {
+        this.$axios.$delete(`/api/brands/${this.data.brandId}`).then((res) => {
+          this.$router.push({path: '/brands'})
+        });
       },
 
       complete(data) {
