@@ -25,6 +25,7 @@ import java.util.Set;
 public final class Brand implements ElasticObject, VersionedObject, SuggestObject, CorrectableObject {
     private String brandId;
     private Status status;
+    private Place place;
 
     private String name;
     private Set<String> names;
@@ -168,6 +169,14 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         this.images = images;
     }
 
+    public Place getPlace() {
+        return place;
+    }
+
+    public void setPlace(Place place) {
+        this.place = place;
+    }
+
     public long getCreatedMillis() {
         return createdMillis;
     }
@@ -214,27 +223,31 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
                 Objects.equals(phone, brand.phone) &&
                 Objects.equals(website, brand.website) &&
                 Objects.equals(description, brand.description) &&
+                Objects.equals(place, brand.place) &&
                 Objects.equals(images, brand.images);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(brandId, name, names, tags, price, menu, company, phone, website, description, images);
+        return Objects.hash(brandId, name, names, tags, price, menu, company, phone, website, description, place, images);
     }
 
     @Override
     public String toString() {
         return "Brand{" +
                 "brandId='" + brandId + '\'' +
+                ", status=" + status +
+                ", place=" + place +
                 ", name='" + name + '\'' +
                 ", names=" + names +
                 ", tags=" + tags +
-                ", price=" + price +
-                ", menu=" + menu +
-                ", company=" + company +
                 ", phone='" + phone + '\'' +
                 ", website='" + website + '\'' +
                 ", description='" + description + '\'' +
+                ", location=" + location +
+                ", menu=" + menu +
+                ", price=" + price +
+                ", company=" + company +
                 ", images=" + images +
                 ", createdMillis=" + createdMillis +
                 ", updatedMillis=" + updatedMillis +
@@ -265,6 +278,43 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
             return "Status{" +
                     "type=" + type +
                     '}';
+        }
+    }
+
+    /**
+     * Place Linked data
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Place {
+        private boolean autoLink;
+
+        public boolean isAutoLink() {
+            return autoLink;
+        }
+
+        public void setAutoLink(boolean autoLink) {
+            this.autoLink = autoLink;
+        }
+
+        @Override
+        public String toString() {
+            return "Place{" +
+                    "autoLink=" + autoLink +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Place place = (Place) o;
+            return autoLink == place.autoLink;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(autoLink);
         }
     }
 

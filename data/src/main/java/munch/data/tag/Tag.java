@@ -161,6 +161,9 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
                 '}';
     }
 
+    /**
+     * Place Linked data
+     */
     public static class Place {
         private Integer level;
         private Double order;

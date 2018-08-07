@@ -197,6 +197,9 @@
         "menu": {
           "enabled": false
         },
+        "place": {
+          "enabled": false
+        },
         "counts": {
           "properties": {
             "total": {
