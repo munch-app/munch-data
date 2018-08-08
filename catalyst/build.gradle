@@ -1,0 +1,18 @@
+project('catalyst-brand-plugin') {
+    dependencies {
+
+    }
+}
+
+project('catalyst-place-plugin') {
+    dependencies {
+        compile project(':data:data-client')
+        compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+
+        compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
+    }
+
+    apply plugin: 'application'
+    mainClassName = 'munch.data.PlacePluginModule'
+}
+

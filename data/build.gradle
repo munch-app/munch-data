@@ -1,10 +1,81 @@
-dependencies {
-    compile group: 'munch.restful', name: 'restful-core', version: restfulVersion
-    compile group: 'file-service', name: 'data', version: fileVersion
+project('data-core') {
+    dependencies {
+        compile group: 'munch.restful', name: 'restful-core', version: restfulVersion
+        compile group: 'file-service', name: 'data', version: fileVersion
+    }
+
+    task publishLib {
+        dependsOn 'build'
+        dependsOn 'artifactoryPublish'
+        tasks.findByName('artifactoryPublish').mustRunAfter 'build'
+    }
 }
 
-task publishLib {
-    dependsOn 'build'
-    dependsOn 'artifactoryPublish'
-    tasks.findByName('artifactoryPublish').mustRunAfter 'build'
+project('data-client') {
+    dependencies {
+        compile project(':data:data-core')
+        compile group: 'munch.restful', name: 'restful-client', version: restfulVersion
+        compile group: 'munch.restful', name: 'restful-client-dynamodb', version: restfulVersion
+
+        compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+    }
+
+    task publishLib {
+        dependsOn 'build'
+        dependsOn 'artifactoryPublish'
+        tasks.findByName('artifactoryPublish').mustRunAfter 'build'
+    }
 }
+
+
+project('data-service') {
+    dependencies {
+        compile project(':data:data-core')
+        compile group: 'munch.restful', name: 'restful-server', version: restfulVersion
+        compile group: 'munch.restful', name: 'restful-server-dynamodb', version: restfulVersion
+        compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: awsVersion
+
+        // AWS Elasticsearch Service
+        compile group: 'io.searchbox', name: 'jest', version: '5.3.2'
+        compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: awsVersion
+        compile group: 'vc.inreach.aws', name: 'aws-signing-request-interceptor', version: '0.0.16'
+
+        compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+
+        testCompile project(':data:data-client')
+    }
+
+    apply plugin: 'application'
+    mainClassName = 'munch.data.service.ServiceModule'
+}
+
+configure(subprojects.findAll { it.name.matches("^.+-(service|task)") }) {
+    apply plugin: 'com.bmuschko.docker-java-application'
+
+    ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'
+
+    docker {
+        javaApplication {
+            baseImage = 'openjdk:9-jdk-slim'
+            maintainer = 'Fuxing'
+            ports = [8000]
+            tag = dockerTag + dockerRegistryVersion
+        }
+    }
+
+    task buildImage {
+        dependsOn 'clean'
+        dependsOn 'dockerBuildImage'
+        tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
+    }
+
+    task publishDocker {
+        dependsOn 'buildImage'
+
+        doLast {
+            exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
+        }
+    }
+}
+
+

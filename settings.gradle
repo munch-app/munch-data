@@ -1,22 +1,14 @@
 rootProject.name = 'munch-data'
 
-// TODO: Remove these
-include 'data-client'
-include 'data-utils'
+// Munch Data Client & Service
+include 'data:data-core'
+include 'data:data-client'
+include 'data:data-service'
 
-// Version 4.0 Data + Service + Client
-include 'data'
-include 'client'
-include 'service'
+// Munch Data Catalyst Integration
+include 'catalyst:catalyst-place-plugin'
+include 'catalyst:catalyst-brand-plugin'
 
-// Node.js Project
-include 'website'
-
-// Version 4.0 Temporary Data Bridging
-include 'bridging'
-include 'bridging:bridging-location'
-include 'bridging:bridging-tag'
-include 'bridging:bridging-place'
-include 'bridging:bridging-airtable'
-
-include 'bridging:service-cleaner-tag'
+// Munch Data Interfaces
+include 'interface:interface-airtable'
+include 'interface:interface-website'

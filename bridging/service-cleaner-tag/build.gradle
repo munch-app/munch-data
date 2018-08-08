@@ -1,9 +1,0 @@
-dependencies {
-    compile project(':data')
-    compile project(':client')
-    compile group: 'munch.restful', name: 'restful-server', version: restfulVersion
-
-    compile group: 'com.google.inject', name: 'guice', version: guiceVersion
-}
-
-mainClassName = 'munch.data.cleaner.TagCleanerModule'
