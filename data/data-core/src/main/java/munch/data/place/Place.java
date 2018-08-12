@@ -419,7 +419,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     public static class Status {
         private Type type;
         private Moved moved;
-        private Long updatedMillis;
 
         @NotNull
         public Type getType() {
@@ -437,15 +436,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
         public void setMoved(Moved moved) {
             this.moved = moved;
-        }
-
-        @NotNull
-        public Long getUpdatedMillis() {
-            return updatedMillis;
-        }
-
-        public void setUpdatedMillis(Long updatedMillis) {
-            this.updatedMillis = updatedMillis;
         }
 
         public enum Type {
@@ -480,7 +470,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             return "Status{" +
                     "type=" + type +
                     ", moved=" + moved +
-                    ", updatedMillis=" + updatedMillis +
                     '}';
         }
     }

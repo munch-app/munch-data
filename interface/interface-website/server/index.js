@@ -28,7 +28,7 @@ app.use(passport.session());
 passport.use(new SamlStrategy({
     protocol: 'https://',
     entryPoint: 'https://accounts.google.com/o/saml2/idp?idpid=C00nou4nu', // SSO URL (Step 2)
-    issuer: 'https://hit.catalyst.munch.space/sp', // Entity ID (Step 4)
+    issuer: 'https://data.munch.space/sp', // Entity ID (Step 4)
     path: '/auth/saml/callback', // ACS URL path (Step 4)
 
   }, function (profile, done) {

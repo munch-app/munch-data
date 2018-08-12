@@ -5,17 +5,17 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch-data'
-    version '5.0-SNAPSHOT'
+    version '4.10-SNAPSHOT'
 
     ext.dockerRegistryUrl = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/'
-    ext.dockerRegistryVersion = '5'
+    ext.dockerRegistryVersion = '4.10'
 
     ext.restfulVersion = '2.4.8'
     ext.fileVersion = '1.2.9'
     ext.guiceVersion = '4.2.0'
 
     ext.awsVersion = '1.11.367'
-    ext.ccVersion = '2.5.0-SNAPSHOT'
+    ext.ccVersion = '3.0-SNAPSHOT'
 
     sourceCompatibility = 1.9
     targetCompatibility = 1.9
