@@ -1,5 +1,7 @@
 package munch.data.resolver;
 
+import catalyst.mutation.MutationField;
+import catalyst.mutation.PlaceMutation;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import munch.data.client.TagClient;
@@ -8,6 +10,7 @@ import munch.data.tag.Tag;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -40,6 +43,13 @@ public final class TagResolver {
             });
             return map;
         }, 8, TimeUnit.HOURS);
+    }
+
+    public List<Place.Tag> resolve(PlaceMutation mutation) {
+        List<@NotNull String> tags = mutation.getTag().stream()
+                .map(MutationField::getValue)
+                .collect(Collectors.toList());
+        return clean(tags);
     }
 
     public List<Place.Tag> clean(List<String> tags) {

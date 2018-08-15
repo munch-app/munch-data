@@ -1,18 +1,23 @@
 project('catalyst-brand-plugin') {
     dependencies {
+        compile project(':data:data-client')
+        compile group: 'catalyst', name: 'plugin-edit', version: ccVersion
 
     }
+
+    apply plugin: 'application'
+    mainClassName = 'munch.data.BrandPluginModule'
 }
 
 project('catalyst-place-plugin') {
     dependencies {
         compile project(':data:data-client')
-        compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+        compile group: 'catalyst', name: 'plugin-collect', version: ccVersion
 
-        compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
+        compile group: 'location-service', name: 'client', version: '1.0-SNAPSHOT'
+        compile group: 'file-service', name: 'client', version: fileVersion
     }
 
     apply plugin: 'application'
     mainClassName = 'munch.data.PlacePluginModule'
 }
-

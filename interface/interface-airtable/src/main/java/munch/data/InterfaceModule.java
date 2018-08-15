@@ -7,11 +7,8 @@ import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import corpus.CorpusModule;
 import corpus.airtable.AirtableModule;
-import corpus.data.DataModule;
 import corpus.engine.EngineGroup;
-import munch.data.place.GongChaBubbleTeaBridge;
 
 /**
  * Created by: Fuxing
@@ -23,9 +20,7 @@ public final class InterfaceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        install(new CorpusModule());
-        install(new DataModule());
-
+        install(new FakeV2CatalystModule());
         install(new AirtableModule(getAirtableKey()));
     }
 
@@ -43,10 +38,10 @@ public final class InterfaceModule extends AbstractModule {
         EngineGroup.start(
                 injector.getInstance(TagBridge.class),
                 injector.getInstance(LandmarkBridge.class),
-                injector.getInstance(AreaBridge.class),
+                injector.getInstance(AreaBridge.class)//,
 
-                injector.getInstance(PlaceBridge.class),
-                injector.getInstance(GongChaBubbleTeaBridge.class)
+//                injector.getInstance(PlaceBridge.class),
+//                injector.getInstance(GongChaBubbleTeaBridge.class)
         );
     }
 }

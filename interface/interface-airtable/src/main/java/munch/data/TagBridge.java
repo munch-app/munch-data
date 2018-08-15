@@ -36,7 +36,7 @@ public final class TagBridge extends AirtableBridge<Tag> {
 
     @Inject
     public TagBridge(AirtableApi airtableApi, TagClient client, ElasticClient elasticClient) {
-        super(logger, airtableApi.base("appEI4Go4mCNDvAzo").table("Tag"), client::iterator);
+        super(logger, airtableApi.base("appERO4wuQ5oJSTxO").table("Tag"), client::iterator);
         this.client = client;
         this.elasticClient = elasticClient;
     }

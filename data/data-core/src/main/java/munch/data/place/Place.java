@@ -378,6 +378,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Menu {
         private String url;
+        private List<Image> images;
 
         public String getUrl() {
             return url;
@@ -387,10 +388,19 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             this.url = url;
         }
 
+        public List<Image> getImages() {
+            return images;
+        }
+
+        public void setImages(List<Image> images) {
+            this.images = images;
+        }
+
         @Override
         public String toString() {
             return "Menu{" +
                     "url='" + url + '\'' +
+                    ", images=" + images +
                     '}';
         }
     }
