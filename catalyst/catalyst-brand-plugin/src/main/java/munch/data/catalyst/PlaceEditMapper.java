@@ -54,6 +54,7 @@ public final class PlaceEditMapper {
         PlaceEdit root = new PlaceEdit();
         root.setId(brand.getBrandId());
         root.setSource("brand.data.munch.space");
+        root.setSort("0");
         root.setCreatedMillis(0L); // < So that create millis won't be picked up
         root.setUpdatedMillis(brand.getUpdatedMillis());
 
