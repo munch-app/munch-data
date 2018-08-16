@@ -1,0 +1,361 @@
+@Primary050: #F69771;
+@Primary100: #F5885D;
+@Primary200: #F47949;
+@Primary300: #F36B35;
+@Primary400: #F36730;
+@Primary500: #F15213;
+@Primary600: #E34A0D;
+@Primary700: #CF430C;
+@Primary800: #BC3D0B;
+@Primary900: #963008;
+
+@Secondary050: #BEC9D0;
+@Secondary100: #ABB6BF;
+@Secondary200: #96A3B0;
+@Secondary300: #8895A5;
+@Secondary400: #7C8C9C;
+@Secondary500: #718094;
+@Secondary600: #5C697A;
+@Secondary700: #46505D;
+@Secondary800: #353C46;
+@Secondary900: #23262F;
+
+@Tag: #F0F0F7;
+@Nav: #F4F5F7;
+@Open: #20A700;
+@Close: #EC152C;
+
+html {
+  font-family: 'Open Sans', 'Roboto', sans-serif;
+}
+
+a {
+  color: black;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.Heading {
+  font-family: 'Open Sans', 'Roboto', sans-serif;
+  font-weight: 600;
+}
+
+.Heading1:extend(.Heading) {
+  font-size: 48px;
+  line-height: 65px;
+}
+
+h1:extend(.Heading1) {
+}
+
+.Heading2:extend(.Heading) {
+  font-size: 40px;
+  line-height: 55px;
+}
+
+h2:extend(.Heading2) {
+}
+
+.Heading3:extend(.Heading) {
+  font-size: 32px;
+  line-height: 43px;
+}
+
+h3:extend(.Heading3) {
+}
+
+.Heading4:extend(.Heading) {
+  font-size: 24px;
+  line-height: 33px;
+}
+
+h4:extend(.Heading4) {
+}
+
+.Bold {
+  font-weight: bold;
+}
+
+.Bolder {
+  font-weight: bolder;
+}
+
+.Text {
+  font-family: 'Open Sans', 'Roboto', sans-serif;
+  font-weight: normal;
+}
+
+.Large:extend(.Text) {
+  font-size: 19px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.Regular:extend(.Text) {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+p:extend(.Regular) {
+
+}
+
+.Small:extend(.Text) {
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.Border24, .Border3 {
+  border-radius: 3px;
+
+  &.BorderImage {
+    img {
+      border-radius: 3px;
+    }
+  }
+
+  &Top {
+    border-radius: 3px 3px 0 0;
+
+    &.BorderImage {
+      img {
+        border-radius: 3px 3px 0 0;
+      }
+    }
+  }
+  &Bottom {
+    border-radius: 0 0 3px 3px;
+
+    &.BorderImage {
+      img {
+        border-radius: 0 0 3px 3px;
+      }
+    }
+  }
+}
+
+.Border48, .Border4 {
+  border-radius: 4px;
+
+  &.BorderImage {
+    img {
+      border-radius: 4px;
+    }
+  }
+
+  &Top {
+    border-radius: 4px 4px 0 0;
+
+    &.BorderImage {
+      img {
+        border-radius: 4px 4px 0 0;
+      }
+    }
+  }
+  &Bottom {
+    border-radius: 0 0 4px 4px;
+
+    &.BorderImage {
+      img {
+        border-radius: 0 0 4px 4px;
+      }
+    }
+  }
+}
+
+.Elevation1 {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.Elevation2 {
+  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.23), 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+}
+
+.Elevation3 {
+  box-shadow: 0 6px 6px 0 rgba(0, 0, 0, 0.26), 0 10px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+p.Primary050, h1.Primary050, h2.Primary050, h3.Primary050, h4.Primary050, h5.Primary050, h6.Primary050 {
+  color: @Primary050;
+}
+
+.Primary050Bg {
+  background-color: @Primary050;
+}
+
+p.Primary100, h1.Primary100, h2.Primary100, h3.Primary100, h4.Primary100, h5.Primary100, h6.Primary100 {
+  color: @Primary100;
+}
+
+.Primary100Bg {
+  background-color: @Primary100;
+}
+
+p.Primary200, h1.Primary200, h2.Primary200, h3.Primary200, h4.Primary200, h5.Primary200, h6.Primary200 {
+  color: @Primary200;
+}
+
+.Primary200Bg {
+  background-color: @Primary200;
+}
+
+p.Primary300, h1.Primary300, h2.Primary300, h3.Primary300, h4.Primary300, h5.Primary300, h6.Primary300 {
+  color: @Primary300;
+}
+
+.Primary300Bg {
+  background-color: @Primary300;
+}
+
+p.Primary400, h1.Primary400, h2.Primary400, h3.Primary400, h4.Primary400, h5.Primary400, h6.Primary400 {
+  color: @Primary400;
+}
+
+.Primary400Bg {
+  background-color: @Primary400;
+}
+
+p.Primary500, h1.Primary500, h2.Primary500, h3.Primary500, h4.Primary500, h5.Primary500, h6.Primary500 {
+  color: @Primary500;
+}
+
+.Primary500Bg {
+  background-color: @Primary500;
+}
+
+p.Primary600, h1.Primary600, h2.Primary600, h3.Primary600, h4.Primary600, h5.Primary600, h6.Primary600 {
+  color: @Primary600;
+}
+
+.Primary600Bg {
+  background-color: @Primary600;
+}
+
+p.Primary700, h1.Primary700, h2.Primary700, h3.Primary700, h4.Primary700, h5.Primary700, h6.Primary700 {
+  color: @Primary700;
+}
+
+.Primary700Bg {
+  background-color: @Primary700;
+}
+
+p.Primary800, h1.Primary800, h2.Primary800, h3.Primary800, h4.Primary800, h5.Primary800, h6.Primary800 {
+  color: @Primary800;
+}
+
+.Primary800Bg {
+  background-color: @Primary800;
+}
+
+p.Primary900, h1.Primary900, h2.Primary900, h3.Primary900, h4.Primary900, h5.Primary900, h6.Primary900 {
+  color: @Primary900;
+}
+
+.Primary900Bg {
+  background-color: @Primary900;
+}
+
+p.Secondary050, h1.Secondary050, h2.Secondary050, h3.Secondary050, h4.Secondary050, h5.Secondary050, h6.Secondary050 {
+  color: @Secondary050;
+}
+
+.Secondary050Bg {
+  background-color: @Secondary050;
+}
+
+p.Secondary100, h1.Secondary100, h2.Secondary100, h3.Secondary100, h4.Secondary100, h5.Secondary100, h6.Secondary100 {
+  color: @Secondary100;
+}
+
+.Secondary100Bg {
+  background-color: @Secondary100;
+}
+
+p.Secondary200, h1.Secondary200, h2.Secondary200, h3.Secondary200, h4.Secondary200, h5.Secondary200, h6.Secondary200 {
+  color: @Secondary200;
+}
+
+.Secondary200Bg {
+  background-color: @Secondary200;
+}
+
+p.Secondary300, h1.Secondary300, h2.Secondary300, h3.Secondary300, h4.Secondary300, h5.Secondary300, h6.Secondary300 {
+  color: @Secondary300;
+}
+
+.Secondary300Bg {
+  background-color: @Secondary300;
+}
+
+p.Secondary400, h1.Secondary400, h2.Secondary400, h3.Secondary400, h4.Secondary400, h5.Secondary400, h6.Secondary400 {
+  color: @Secondary400;
+}
+
+.Secondary400Bg {
+  background-color: @Secondary400;
+}
+
+p.Secondary500, h1.Secondary500, h2.Secondary500, h3.Secondary500, h4.Secondary500, h5.Secondary500, h6.Secondary500 {
+  color: @Secondary500;
+}
+
+.Secondary500Bg {
+  background-color: @Secondary500;
+}
+
+p.Secondary600, h1.Secondary600, h2.Secondary600, h3.Secondary600, h4.Secondary600, h5.Secondary600, h6.Secondary600 {
+  color: @Secondary600;
+}
+
+.Secondary600Bg {
+  background-color: @Secondary600;
+}
+
+p.Secondary700, h1.Secondary700, h2.Secondary700, h3.Secondary700, h4.Secondary700, h5.Secondary700, h6.Secondary700 {
+  color: @Secondary700;
+}
+
+.Secondary700Bg {
+  background-color: @Secondary700;
+}
+
+p.Secondary800, h1.Secondary800, h2.Secondary800, h3.Secondary800, h4.Secondary800, h5.Secondary800, h6.Secondary800 {
+  color: @Secondary800;
+}
+
+.Secondary800Bg {
+  background-color: @Secondary800;
+}
+
+p.Secondary900, h1.Secondary900, h2.Secondary900, h3.Secondary900, h4.Secondary900, h5.Secondary900, h6.Secondary900 {
+  color: @Secondary900;
+}
+
+.Secondary900Bg {
+  background-color: @Secondary900;
+}
+
+.TagBg {
+  background-color: @Tag;
+}
+
+.NavBg {
+  background-color: @Nav;
+}
+
+span.Open, p.Open, h1.Open, h2.Open, h3.Open, h4.Open, h5.Open, h6.Open, div.Open {
+  color: @Open;
+}
+
+.OpenBg {
+  background-color: @Open;
+}
+
+span.Close, p.Close, h1.Close, h2.Close, h3.Close, h4.Close, h5.Close, h6.Close, div.Close {
+  color: @Close;
+}
+
+.CloseBg {
+  background-color: @Close;
+}

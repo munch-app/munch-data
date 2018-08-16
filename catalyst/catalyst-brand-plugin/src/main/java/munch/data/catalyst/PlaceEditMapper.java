@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 @Singleton
-public final class BrandEditParser {
+public final class PlaceEditMapper {
 
     public PlaceEdit match(Brand brand, PlaceMutation mutation) {
         if (!match(brand, mutation.getName())) return null;
@@ -65,8 +65,16 @@ public final class BrandEditParser {
         edit.setContact(mapContact(brand));
         edit.setMenu(mapMenu(brand));
         edit.setAbout(mapAbout(brand));
+        edit.setPlatforms(mapPlatforms(brand));
         root.setEdit(edit);
         return root;
+    }
+
+    private List<PlatformEdit> mapPlatforms(Brand brand) {
+        PlatformEdit edit = new PlatformEdit();
+        edit.setName("brand.data.munch.space");
+        edit.setId(brand.getBrandId());
+        return List.of(edit);
     }
 
     private List<NameEdit> mapNames(Brand brand) {

@@ -33,10 +33,10 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
     private static final Logger logger = LoggerFactory.getLogger(BrandPlugin.class);
 
     private final BrandClient brandClient;
-    private final BrandEditParser brandEditParser;
+    private final PlaceEditMapper brandEditParser;
 
     @Inject
-    public BrandPlugin(BrandClient brandClient, BrandEditParser brandEditParser) {
+    public BrandPlugin(BrandClient brandClient, PlaceEditMapper brandEditParser) {
         this.brandClient = brandClient;
         this.brandEditParser = brandEditParser;
     }

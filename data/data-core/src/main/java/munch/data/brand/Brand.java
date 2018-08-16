@@ -149,8 +149,8 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         this.phone = phone;
     }
 
-    @Nullable
     @URL
+    @Nullable
     public String getWebsite() {
         return website;
     }
@@ -388,6 +388,7 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     public static class Menu {
         private String url;
 
+        @URL
         @Nullable
         public String getUrl() {
             return url;

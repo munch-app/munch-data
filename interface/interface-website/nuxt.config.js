@@ -14,6 +14,9 @@ module.exports = {
       {rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Open+Sans'}
     ]
   },
+  css: [
+    '~/assets/global.less'
+  ],
   loading: {color: '#3B8070'},
   build: {
     /*
