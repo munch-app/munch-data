@@ -29,7 +29,7 @@
         <b-form-textarea rows="2"
                          max-rows="6"
                          v-model="data.description"
-                         placeholder="Enter a short description eg. https://www.mcdonalds.com/ae/en-ae/full-menu.html">
+                         placeholder="Enter a short description">
         </b-form-textarea>
       </b-form-group>
 
@@ -38,23 +38,23 @@
                     label-for="exampleInput4"
                     horizontal>
         <b-form-input type="text"
-                      v-model="data.menu.url"
-                      placeholder="Enter menu URL eg. https://www.mcdonalds.com/ae/en-ae/full-menu.html">
+                      :value="menuUrl" @input="data.menu.url = $event"
+                      placeholder="Enter menu URL">
         </b-form-input>
       </b-form-group>
       <b-form-group label="Price:"
                     label-for="exampleInput5"
                     horizontal>
-        <b-form-input type="text"
-                      v-model="data.price.perPax"
-                      placeholder="Enter price per pax eg. SGD 5">
+        <b-form-input type="number"
+                      :value="pricePerPax" @input="data.price.perPax = $event"
+                      placeholder="Enter price per pax">
         </b-form-input>
       </b-form-group>
       <b-form-group label="Company name:"
                     label-for="exampleInput6"
                     horizontal>
         <b-form-input type="text"
-                      v-model="data.company.name"
+                      :value="companyName" @input="data.company.name = $event"
                       placeholder="Enter company name eg. Amazon">
         </b-form-input>
       </b-form-group>
@@ -74,24 +74,39 @@
                       placeholder="Enter website URL eg. https://www.mcdonalds.com/">
         </b-form-input>
       </b-form-group>
-      <b-form-group label="Country"
-                    label-for="exampleInput9"
+
+      <b-form-group label="Country & City:"
+                    label-for="location"
                     horizontal>
         <b-form-select v-model="data.location.country" :options="countries" class="mb-3"/>
-
       </b-form-group>
+
+      <b-form-group label="Settings:"
+                    label-for="exampleInput9"
+                    horizontal>
+        <b-row>
+          <b-col>
+            Brand Status
+            <b-form-select v-model="data.status.type" :options="['open', 'close']" class="mb-3"/>
+          </b-col>
+          <b-col>
+            Catalyst Brand Plugin Auto Link?
+            <b-form-select v-model="data.place.autoLink" :options="[true, false]" class="mb-3"/>
+          </b-col>
+        </b-row>
+      </b-form-group>
+
       <b-form-group label="Images:"
-                    label-for="exampleInput10"
+                    label-for="images"
                     horizontal>
         <image-file-upload v-bind:images="data.images"></image-file-upload>
       </b-form-group>
 
       <div class="Action">
         <b-button class="Button" v-b-modal.deleteModal v-if="data.brandId" variant="danger">Delete</b-button>
-        <b-button class="Button" @click="onSubmit" variant="success">Submit</b-button>
-
-        <!-- Modal Component -->
+        <b-button class="Button" @click="complete(data)" variant="success">Submit</b-button>
       </div>
+
       <b-modal id="deleteModal" hide-footer title="Dangerous Action">
         <p class="my-4">Delete {{data.name}} permanently.</p>
         <b-button class="Button" @click="onDelete" variant="danger">Delete</b-button>
@@ -106,6 +121,14 @@
   import ImageFileUpload from "../../components/ImageFileUpload";
   import TagsField from "../../components/TagsField";
   import TagsEdit from "../../components/TagsEdit";
+
+  String.prototype.isBlank = function () {
+    return !(this && this.trim())
+  }
+
+  String.prototype.isNotBlank = function () {
+    return this && this.trim()
+  }
 
   export default {
     components: {TagsEdit, TagsField, ImageFileUpload},
@@ -122,30 +145,46 @@
     },
     data() {
       return {
-        countries: ["Singapore"],
+        countries: ["SGP"],
+        cities: ["singapore"],
+
         tagsMap: [],
         tagsMapLoaded: false,
         data: {
           name: "",
-          names: [],
-          tags: [],
-          menu: {},
-          price: {
-            perPax: 10.0
-          },
-          location: {country: "Singapore"},
-          company: {name: null},
           phone: "",
           website: "",
           description: "",
+
+          names: [],
+          tags: [],
           images: [],
+
+          place: {autoLink: true},
+          status: {type: 'open'},
+
+          location: {country: "SGP"},
+
+          menu: {},
+          price: {},
+          company: {}
         }
+      }
+    },
+    computed: {
+      menuUrl() {
+        return this.data.menu && this.data.menu.url
+      },
+      pricePerPax() {
+        return this.data.price && this.data.price.perPax
+      },
+      companyName() {
+        return this.data.company && this.data.company.name
       }
     },
     methods: {
       onSubmit(evt) {
         evt.preventDefault()
-        this.complete(this.data);
       },
 
       onDelete() {
@@ -154,7 +193,30 @@
         });
       },
 
+      validate(data) {
+        if (data.name.isBlank()) delete data.name
+        if (data.phone.isBlank()) delete data.phone
+        if (data.website.isBlank()) delete data.website
+        if (data.description.isBlank()) delete data.description
+
+        if (data.menu && (!data.menu.url || data.menu.url.isBlank())) {
+          delete data.menu
+        }
+
+        if (data.price && !data.price.perPax) {
+          delete data.price
+        }
+
+        if (data.company && (!data.company.name || data.company.name.isBlank())) {
+          delete data.company
+        }
+
+        return data
+      },
+
       complete(data) {
+        data = this.validate(data)
+
         const brandId = this.$route.params.brandId
         if (brandId === '_') {
           this.$axios.$post('/api/brands', data)

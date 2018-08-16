@@ -69,7 +69,7 @@
         isInputActive: false,
         results: this.tagsMap,
         isOpen: false,
-        arrowCounter: -1,
+        arrowCounter: 0,
         tagCollection: this.tagsMap
       }
     },
@@ -123,7 +123,7 @@
       handleClickOutside(evt) {
         if (!this.$el.contains(evt.target)) {
           this.isOpen = false;
-          this.arrowCounter = -1;
+          this.arrowCounter = 0;
         }
       },
       filterResults() {
@@ -134,7 +134,7 @@
         this.newTag = result;
         this.addNew()
         this.isOpen = false;
-        this.arrowCounter = -1;
+        this.arrowCounter = 0;
       },
     },
     mounted() {

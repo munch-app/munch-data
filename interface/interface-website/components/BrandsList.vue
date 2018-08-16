@@ -24,10 +24,10 @@
           {{brand.description}}
         </td>
         <td>
-          {{brand.price.perPax}}
+          {{brand.price && brand.price.perPax}}
         </td>
         <td>
-          {{brand.menu.url}}
+          {{brand.menu && brand.menu.url}}
         </td>
         <td>
           <b-button class="Button" @click="$router.push({path: `/brands/${brand.brandId}`})" variant="outline-primary">Edit</b-button>

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
 import munch.data.location.Area;
 import munch.file.Image;
+import org.hibernate.validator.constraints.URL;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
@@ -111,6 +112,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
+    @URL
     public String getWebsite() {
         return website;
     }

@@ -35,7 +35,7 @@ echo "Executing: '"${var}"' command."
     elif [[ "$var" =~ ^(publish)$ ]]; then
         set -e
         publish
-    elif [[ "$var" =~ ^(restart|start)$ ]]; then
+    elif [[ "$var" =~ ^(restart|start|run)$ ]]; then
         set -e
         start
     elif [[ "$var" =~ ^(clean|delete|remove|rm)$ ]]; then

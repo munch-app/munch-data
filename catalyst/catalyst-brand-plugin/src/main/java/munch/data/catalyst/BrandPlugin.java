@@ -48,10 +48,13 @@ public final class BrandPlugin extends EditPlugin {
     @Nullable
     @Override
     protected PlaceEdit receive(PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
-        // TODO PD-247
-
-        // TODO Pre linked
-        return null;
+        if (placeEdit != null) {
+            // TODO Validate
+            return placeEdit;
+        } else {
+            // TODO try Link
+            return null;
+        }
     }
 
     @Override
@@ -62,33 +65,35 @@ public final class BrandPlugin extends EditPlugin {
     }
 
     private Iterator<PlaceMutation> search(Brand brand) {
-        // TODO search
-        return Collections.emptyIterator();
-    }
+        if (!brand.getPlace().isAutoLink()) return Collections.emptyIterator();
 
-    private List<PlaceMutation> search(List<String> names, String latLng, int from, int size) {
         ObjectNode root = JsonUtils.createObjectNode();
-        root.put("from", from);
-        root.put("size", size);
+        root.put("from", 0);
+        root.put("size", 300);
 
-        JsonNode bool = createBoolQuery(names, latLng);
-        root.set("query", JsonUtils.createObjectNode().set("bool", bool));
+//        JsonNode bool = createBoolQuery(brand.getNames(), "","");
+//        root.set("query", JsonUtils.createObjectNode().set("bool", bool));
 
         JsonNode results = placeMutationClient.search(root);
         List<PlaceMutation> mutations = new ArrayList<>();
         for (JsonNode node : results.path("hits").path("hits")) {
             mutations.add(JsonUtils.toObject(node.path("_source"), PlaceMutation.class));
         }
-        return mutations;
+
+        // Search on city and country
+        return mutations.iterator();
     }
 
-    private static JsonNode createBoolQuery(List<String> names, String latLng) {
+    private static JsonNode createBoolQuery(List<String> names, String country, String city) {
         ObjectNode bool = JsonUtils.createObjectNode();
+
+        // Match Country & City
         bool.set("filter", JsonUtils.createArrayNode()
-                .add(ElasticQueryUtils.filterDistance(
-                        "latLng.value", latLng, 150))
+                .add(ElasticQueryUtils.match("", ""))
+                .add(ElasticQueryUtils.match("", ""))
         );
 
+        // Match Names
         if (names.isEmpty()) {
             bool.set("must", ElasticQueryUtils.matchAll());
         } else if (names.size() <= 1) {

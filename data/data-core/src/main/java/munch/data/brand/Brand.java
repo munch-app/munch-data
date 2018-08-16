@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
 import munch.file.Image;
+import org.hibernate.validator.constraints.URL;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
@@ -54,7 +55,8 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         this.brandId = brandId;
     }
 
-    @Nullable
+    @NotNull
+    @Valid
     public Status getStatus() {
         return status;
     }
@@ -94,7 +96,6 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
-    @Valid
     public Location getLocation() {
         return location;
     }
@@ -133,6 +134,12 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         this.company = company;
     }
 
+    @NotNull
+    @Valid
+    public Place getPlace() {
+        return place;
+    }
+
     @Nullable
     public String getPhone() {
         return phone;
@@ -143,6 +150,7 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
+    @URL
     public String getWebsite() {
         return website;
     }
@@ -167,10 +175,6 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
 
     public void setImages(List<Image> images) {
         this.images = images;
-    }
-
-    public Place getPlace() {
-        return place;
     }
 
     public void setPlace(Place place) {
@@ -287,13 +291,14 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Place {
-        private boolean autoLink;
+        private Boolean autoLink;
 
-        public boolean isAutoLink() {
+        @NotNull
+        public Boolean isAutoLink() {
             return autoLink;
         }
 
-        public void setAutoLink(boolean autoLink) {
+        public void setAutoLink(Boolean autoLink) {
             this.autoLink = autoLink;
         }
 
@@ -413,14 +418,17 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Price {
-        private double perPax;
+        private Double perPax;
 
-        public double getPerPax() {
+        @NotNull
+        public Double getPerPax() {
             return perPax;
         }
 
-        public void setPerPax(double perPax) {
+        public void setPerPax(Double perPax) {
             this.perPax = perPax;
         }
 
