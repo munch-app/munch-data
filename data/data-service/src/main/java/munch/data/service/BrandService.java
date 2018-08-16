@@ -3,6 +3,7 @@ package munch.data.service;
 import munch.data.brand.Brand;
 import munch.data.elastic.ElasticIndex;
 import munch.restful.core.KeyUtils;
+import munch.restful.core.exception.ValidationException;
 import munch.restful.server.JsonCall;
 import munch.restful.server.JsonResult;
 
@@ -39,5 +40,12 @@ public final class BrandService extends PersistenceService<Brand> {
         Brand brand = call.bodyAsObject(Brand.class);
         brand.setBrandId(KeyUtils.randomUUID());
         return put(brand);
+    }
+
+    @Override
+    public JsonResult put(Brand object) {
+        // Location Country is required not be to be blank because Brand Plugin requires it
+        ValidationException.requireNonBlank("location.country", object.getLocation().getCountry());
+        return super.put(object);
     }
 }
