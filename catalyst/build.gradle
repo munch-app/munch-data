@@ -21,3 +21,38 @@ project('catalyst-place-plugin') {
     apply plugin: 'application'
     mainClassName = 'munch.data.PlacePluginModule'
 }
+
+subprojects {
+    apply plugin: 'com.bmuschko.docker-java-application'
+
+    ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'
+
+    dockerDistTar {
+        instruction {'RUN apt-get update'}
+        instruction {'RUN apt-get -qq -y install curl'}
+        instruction {'RUN rm -rf /var/lib/apt/lists/*'}
+    }
+
+    docker {
+        javaApplication {
+            baseImage = 'openjdk:9-jdk-slim'
+            maintainer = 'Fuxing'
+            ports = [8000, 7755]
+            tag = dockerTag + dockerRegistryVersion
+        }
+    }
+
+    task buildImage {
+        dependsOn 'clean'
+        dependsOn 'dockerBuildImage'
+        tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
+    }
+
+    task publishDocker {
+        dependsOn 'buildImage'
+
+        doLast {
+            exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
+        }
+    }
+}

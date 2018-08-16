@@ -2,6 +2,8 @@ package munch.data.catalyst;
 
 import catalyst.mutation.PlaceMutation;
 import catalyst.mutation.PlaceMutationClient;
+import catalyst.plugin.CorePlugin;
+import catalyst.source.SourceReporter;
 import munch.data.client.PlaceClient;
 import munch.data.place.Place;
 
@@ -15,7 +17,7 @@ import javax.inject.Singleton;
  * Project: munch-data
  */
 @Singleton
-public final class PlaceValidator implements Runnable {
+public final class PlaceValidator implements CorePlugin {
     private final PlaceClient placeClient;
     private final PlaceMutationClient mutationClient;
 
@@ -25,17 +27,21 @@ public final class PlaceValidator implements Runnable {
         this.mutationClient = mutationClient;
     }
 
-
-    @Override
-    public void run() {
-        placeClient.iterator().forEachRemaining(this::validate);
-    }
-
     private void validate(Place place) {
         PlaceMutation mutation = mutationClient.get(place.getPlaceId());
         if (mutation == null) {
             // If mutation don't exist, delete
             placeClient.delete(place.getPlaceId());
         }
+    }
+
+    @Override
+    public String getSource() {
+        return "validate.data.munch.space";
+    }
+
+    @Override
+    public void run(SourceReporter.Session session) {
+        placeClient.iterator().forEachRemaining(this::validate);
     }
 }

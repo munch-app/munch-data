@@ -1,12 +1,13 @@
 package munch.data;
 
 import catalyst.plugin.PluginRunner;
-import catalyst.source.SourceReporter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import munch.data.catalyst.PlacePlugin;
 import munch.data.catalyst.PlaceValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by: Fuxing
@@ -15,16 +16,15 @@ import munch.data.catalyst.PlaceValidator;
  * Project: munch-data
  */
 public final class PlacePluginModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(PlacePluginModule.class);
 
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new PlacePluginModule());
-
-        PluginRunner.run("data.munch.space",
-                injector.getInstance(SourceReporter.class),
-                injector.getInstance(PlacePlugin.class)
+        injector.getInstance(PluginRunner.class).run(
+                injector.getInstance(PlacePlugin.class),
+                injector.getInstance(PlaceValidator.class)
         );
 
-        PlaceValidator validator = injector.getInstance(PlaceValidator.class);
-        validator.run();
+        System.exit(0);
     }
 }

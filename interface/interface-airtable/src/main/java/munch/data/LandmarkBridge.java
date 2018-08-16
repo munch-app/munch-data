@@ -55,6 +55,10 @@ public final class LandmarkBridge extends AirtableBridge<Landmark> {
             if (updated.equals(client.get(landmarkId))) return;
             client.put(updated);
         } else {
+            if (updated == null) {
+                logger.warn("Failed to Parse Landmark, {}", record.getField("name").asText());
+                return;
+            }
             // Create New
             Landmark posted = client.post(updated);
             AirtableRecord patch = new AirtableRecord();

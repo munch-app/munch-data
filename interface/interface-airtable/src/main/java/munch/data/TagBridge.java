@@ -72,6 +72,10 @@ public final class TagBridge extends AirtableBridge<Tag> {
             table.patch(patch);
             client.put(updated);
         } else {
+            if (updated == null) {
+                logger.warn("Failed to Parse Tag, {}", record.getField("name").asText());
+                return;
+            }
             // Create New
             Tag posted = client.post(updated);
             AirtableRecord patch = new AirtableRecord();

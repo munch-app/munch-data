@@ -73,6 +73,10 @@ public final class AreaBridge extends AirtableBridge<Area> {
             table.patch(patch);
             areaClient.put(updated);
         } else {
+            if (updated == null) {
+                logger.warn("Failed to Parse Area, {}", record.getField("name").asText());
+                return;
+            }
             // Create New
             Area posted = areaClient.post(updated);
             AirtableRecord patch = new AirtableRecord();
@@ -125,18 +129,20 @@ public final class AreaBridge extends AirtableBridge<Area> {
     @Nullable
     protected Location parseLocation(AirtableRecord record) {
         Location location = new Location();
-        location.setPolygon(new Location.Polygon());
 
         location.setLatLng(StringUtils.trimToNull(record.getField("location.latLng").asText()));
         location.setCity(StringUtils.trimToNull(record.getField("location.city").asText()));
         location.setCountry(StringUtils.trimToNull(record.getField("location.country").asText()));
-        location.getPolygon().setPoints(SpatialUtils.wktToPoints(record.getField("location.polygon").asText()));
+
+        Location.Polygon polygon = new Location.Polygon();
+        polygon.setPoints(SpatialUtils.wktToPoints(record.getField("location.polygon").asText()));
+        location.setPolygon(polygon);
 
         location.setAddress(StringUtils.trimToNull(record.getField("location.address").asText()));
         location.setPostcode(StringUtils.trimToNull(record.getField("location.postcode").asText()));
 
         if (location.getLatLng() == null) return null;
-        if (location.getPolygon().getPoints() == null) return null;
+        if (location.getPolygon() == null || location.getPolygon().getPoints() == null) return null;
         if (location.getCity() == null) return null;
         if (location.getCountry() == null) return null;
         return location;

@@ -23,7 +23,7 @@ public final class PlaceAwardService extends RestfulDynamoHashRangeService<Place
 
     @Inject
     PlaceAwardService(DynamoDB dynamoDB) {
-        super(dynamoDB.getTable("munch-data.v4.PlaceAward"), PlaceAward.class, "placeId", "awardId");
+        super(dynamoDB.getTable("munch-data.PlaceAward"), PlaceAward.class, "placeId", "awardId");
         this.sortIndex = table.getIndex("sort");
     }
 

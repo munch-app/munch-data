@@ -21,11 +21,17 @@ configure(subprojects.findAll { it.name.matches("^interface-(airtable)") }) {
 
     ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'
 
+    dockerDistTar {
+        instruction {'RUN apt-get update'}
+        instruction {'RUN apt-get -qq -y install curl'}
+        instruction {'RUN rm -rf /var/lib/apt/lists/*'}
+    }
+
     docker {
         javaApplication {
             baseImage = 'openjdk:9-jdk-slim'
             maintainer = 'Fuxing'
-            ports = [8000]
+            ports = [8000, 7755]
             tag = dockerTag + dockerRegistryVersion
         }
     }

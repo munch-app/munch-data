@@ -32,13 +32,20 @@ public final class PlacePlugin extends CollectPlugin {
     }
 
     @Override
-    protected void each(PlaceMutation placeMutation) {
+    public String getSource() {
+        return "data.munch.space";
+    }
+
+    @Override
+    protected void receive(PlaceMutation placeMutation) {
         try {
             Place place = placeParser.parse(placeMutation);
-            ValidationException.validate(place);
             placeClient.put(place);
         } catch (LocationSupportException e) {
             logger.warn("Location not supported for {}", placeMutation.getPlaceId(), e);
+        } catch (ValidationException e) {
+            logger.warn("Validation failed", e);
+            logger.warn("Mutation Id: {}, Data: {}", placeMutation.getPlaceId(), placeMutation);
         }
     }
 }
