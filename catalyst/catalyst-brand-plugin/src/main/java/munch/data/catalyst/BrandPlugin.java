@@ -33,11 +33,13 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
     private static final Logger logger = LoggerFactory.getLogger(BrandPlugin.class);
 
     private final BrandClient brandClient;
+    private final BrandComparator brandComparator;
     private final PlaceEditMapper brandEditParser;
 
     @Inject
-    public BrandPlugin(BrandClient brandClient, PlaceEditMapper brandEditParser) {
+    public BrandPlugin(BrandClient brandClient, BrandComparator brandComparator, PlaceEditMapper brandEditParser) {
         this.brandClient = brandClient;
+        this.brandComparator = brandComparator;
         this.brandEditParser = brandEditParser;
     }
 
@@ -59,7 +61,10 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
     @Nullable
     @Override
     protected PlaceEdit receive(Brand brand, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
-        return brandEditParser.match(brand, placeMutation);
+        if (brandComparator.match(brand, placeMutation)) {
+            return brandEditParser.parse(brand);
+        }
+        return null;
     }
 
     @Override

@@ -1,8 +1,6 @@
 package munch.data.catalyst;
 
 import catalyst.edit.*;
-import catalyst.mutation.MutationField;
-import catalyst.mutation.PlaceMutation;
 import munch.data.brand.Brand;
 import munch.file.Image;
 import org.apache.commons.lang3.StringUtils;
@@ -10,9 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -24,33 +20,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class PlaceEditMapper {
 
-    public PlaceEdit match(Brand brand, PlaceMutation mutation) {
-        if (!match(brand, mutation.getName())) return null;
-        return parse(brand);
-    }
-
-    private boolean match(Brand brand, List<MutationField<String>> nameFields) {
-        Set<String> brandNames = getNames(brand);
-
-        for (MutationField<String> field : nameFields) {
-            if (brandNames.contains(field.getValue().toLowerCase())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private Set<String> getNames(Brand brand) {
-        Set<String> names = new HashSet<>();
-        names.add(brand.getName().toLowerCase());
-        for (String name : brand.getNames()) {
-            names.add(name.toLowerCase());
-        }
-        return names;
-    }
-
-    private PlaceEdit parse(Brand brand) {
+    public PlaceEdit parse(Brand brand) {
         PlaceEdit root = new PlaceEdit();
         root.setId(brand.getBrandId());
         root.setSource("brand.data.munch.space");
