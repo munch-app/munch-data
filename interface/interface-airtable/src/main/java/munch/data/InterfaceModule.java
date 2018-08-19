@@ -9,6 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import corpus.airtable.AirtableModule;
 import corpus.engine.EngineGroup;
+import munch.data.place.GongChaBubbleTeaBridge;
 
 /**
  * Created by: Fuxing
@@ -38,10 +39,10 @@ public final class InterfaceModule extends AbstractModule {
         EngineGroup.start(
                 injector.getInstance(TagBridge.class),
                 injector.getInstance(LandmarkBridge.class),
-                injector.getInstance(AreaBridge.class)//,
+                injector.getInstance(AreaBridge.class),
 
-//                injector.getInstance(PlaceBridge.class),
-//                injector.getInstance(GongChaBubbleTeaBridge.class)
+                injector.getInstance(PlaceBridge.class),
+                injector.getInstance(GongChaBubbleTeaBridge.class)
         );
     }
 }

@@ -21,11 +21,16 @@ import java.util.stream.Collectors;
 @Singleton
 public final class AirtablePlaceMapper {
 
-    private final AirtableMapper airtableMapper;
+
+    private final AirtableAreaMapper airtableAreaMapper;
+    private final AirtableBrandMapper airtableBrandMapper;
+    private final AirtableTagMapper airtableTagMapper;
 
     @Inject
-    public AirtablePlaceMapper(AirtableMapper airtableMapper) {
-        this.airtableMapper = airtableMapper;
+    public AirtablePlaceMapper(AirtableAreaMapper airtableAreaMapper, AirtableBrandMapper airtableBrandMapper, AirtableTagMapper airtableTagMapper) {
+        this.airtableAreaMapper = airtableAreaMapper;
+        this.airtableBrandMapper = airtableBrandMapper;
+        this.airtableTagMapper = airtableTagMapper;
     }
 
     public AirtableRecord parse(Place place) {
@@ -36,7 +41,6 @@ public final class AirtablePlaceMapper {
 
         record.putField("name", place.getName());
         record.putField("names", Joiner.on("\n").join(place.getNames()));
-        record.putField("tags", airtableMapper.mapTagField(place.getTags()));
 
         record.putField("phone", place.getPhone());
         record.putField("website", place.getWebsite());
@@ -53,8 +57,14 @@ public final class AirtablePlaceMapper {
 
         record.putField("location.latLng", place.getLocation().getLatLng());
 
-        record.putField("menu.url", () -> JsonUtils.toTree(place.getMenu().getUrl()));
-        record.putField("price.perPax", () -> JsonUtils.toTree(place.getPrice().getPerPax()));
+        record.putField("menu.url", () -> {
+            if (place.getMenu() == null) return null;
+            return JsonUtils.toTree(place.getMenu().getUrl());
+        });
+        record.putField("price.perPax", () -> {
+            if (place.getPrice() == null) return null;
+            return JsonUtils.toTree(place.getPrice().getPerPax());
+        });
 
 
         record.putField("hours", () -> {
@@ -80,8 +90,9 @@ public final class AirtablePlaceMapper {
         });
 
         // Linked Data
-
-        record.putField("areas", airtableMapper.mapAreaField(place.getAreas()));
+        record.putField("tags", airtableTagMapper.mapField(place.getTags()));
+        record.putField("areas", airtableAreaMapper.mapField(place.getAreas()));
+        record.putField("brands", airtableBrandMapper.mapField(place.getBrand()));
 
         record.putFieldDate("createdMillis", place.getCreatedMillis());
         record.putFieldDate("updatedMillis", place.getUpdatedMillis());

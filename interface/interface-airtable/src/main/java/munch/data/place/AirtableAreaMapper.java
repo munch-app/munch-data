@@ -20,80 +20,29 @@ import java.util.Map;
 
 /**
  * Created by: Fuxing
- * Date: 20/6/18
- * Time: 12:27 AM
+ * Date: 19/8/18
+ * Time: 11:20 PM
  * Project: munch-data
  */
 @Singleton
-public final class AirtableMapper {
-    private static final Logger logger = LoggerFactory.getLogger(AirtableMapper.class);
+public final class AirtableAreaMapper {
+    private static final Logger logger = LoggerFactory.getLogger(AirtableAreaMapper.class);
 
-    private final AirtableApi.Table tagTable;
     private final AirtableApi.Table areaTable;
 
-    private final Map<String, Pair<String, Place.Tag>> tagMap = new HashMap<>();
     private final Map<String, Pair<String, Area>> areaMap = new HashMap<>();
 
     @Inject
-    public AirtableMapper(AirtableApi api) {
-        AirtableApi.Base base = api.base("appDcx5b3vgkhcYB5");
-        this.tagTable = base.table("Tag");
-        this.areaTable = base.table("Area");
+    public AirtableAreaMapper(AirtableApi api) {
+        this.areaTable = api.base("appDcx5b3vgkhcYB5").table("Area");
     }
 
-    public JsonNode mapTagField(List<Place.Tag> tags) {
-        ArrayNode fields = JsonUtils.createArrayNode();
-        for (Place.Tag tag : tags) {
-            fields.add(tagMap.computeIfAbsent(tag.getTagId(), s -> find(tag)).getLeft());
-        }
-        return fields;
-    }
-
-    public JsonNode mapAreaField(List<Area> areas) {
+    public JsonNode mapField(List<Area> areas) {
         ArrayNode fields = JsonUtils.createArrayNode();
         for (Area area: areas) {
             fields.add(areaMap.computeIfAbsent(area.getAreaId(), s -> find(area)).getLeft());
         }
         return fields;
-    }
-
-    private Pair<String, Place.Tag> find(Place.Tag tag) {
-        List<AirtableRecord> records = tagTable.find("tagId", tag.getTagId());
-
-        AirtableRecord record;
-        if (records.size() == 0) record = new AirtableRecord();
-        else record = records.get(0);
-
-        for (int i = 1; i < records.size(); i++) {
-            // Auto Cleanup
-            areaTable.delete(records.get(i).getId());
-            sleep();
-        }
-
-        if (equals(tag, record)) return Pair.of(record.getId(), tag);
-
-        record.setFields(new HashMap<>());
-        record.putField("tagId", tag.getTagId());
-        record.putField("name", tag.getName());
-        record.putField("type", tag.getType().name());
-
-        if (record.getId() == null) {
-            record = tagTable.post(record);
-        } else {
-            record = tagTable.patch(record);
-        }
-
-        logger.info("Updated Tag: {}", tag.getTagId());
-        sleep();
-
-        return Pair.of(record.getId(), tag);
-    }
-
-    private static boolean equals(Place.Tag tag, AirtableRecord record) {
-        if (!record.getField("tagId").asText().equals(tag.getTagId())) return false;
-        if (!record.getField("name").asText().equals(tag.getName())) return false;
-        if (!record.getField("type").asText().equals(tag.getType().name())) return false;
-        return true;
     }
 
     private Pair<String, Area> find(Area area) {
@@ -152,7 +101,7 @@ public final class AirtableMapper {
 
     private static void sleep() {
         try {
-            Thread.sleep(400);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

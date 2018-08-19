@@ -1,6 +1,5 @@
 package munch.data;
 
-import catalyst.utils.exception.DateCompareUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
@@ -22,6 +21,7 @@ import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -130,8 +130,6 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         if (!StringUtils.equals(place.getLocation().getPostcode(), record.getField("location.postcode").asText()))
             return false;
 
-        if (DateCompareUtils.after(record.getFieldDate("updatedMillis").getTime(), Duration.ofDays(2), place.getUpdatedMillis()))
-            return false;
-        return true;
+        return Objects.requireNonNull(record.getFieldDate("updatedMillis")).getTime() == place.getUpdatedMillis();
     }
 }
