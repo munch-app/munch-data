@@ -122,6 +122,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         if (!place.getStatus().getType().name().equals(record.getField("status").asText())) return false;
         if (!place.getName().equals(record.getField("name").asText())) return false;
         if (place.getTags().size() != record.getField("tags").size()) return false;
+        if ((place.getBrand() == null) == (record.getField("tags").size() == 1)) return false;
 
         if (!StringUtils.equals(place.getPhone(), record.getField("phone").asText())) return false;
         if (!StringUtils.equals(place.getWebsite(), record.getField("website").asText())) return false;
