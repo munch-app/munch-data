@@ -10,7 +10,7 @@ allprojects {
     ext.dockerRegistryUrl = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/'
     ext.dockerRegistryVersion = '4.10'
 
-    ext.restfulVersion = '2.4.10'
+    ext.restfulVersion = '2.4.12'
     ext.fileVersion = '1.2.11'
     ext.guiceVersion = '4.2.0'
 
