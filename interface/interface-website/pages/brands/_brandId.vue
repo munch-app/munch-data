@@ -87,7 +87,7 @@
         <b-row>
           <b-col>
             Brand Status
-            <b-form-select v-model="data.status.type" :options="['open', 'close']" class="mb-3"/>
+            <b-form-select v-model="data.status.type" :options="['open', 'closed']" class="mb-3"/>
           </b-col>
           <b-col>
             Catalyst Brand Plugin Auto Link?
@@ -221,12 +221,17 @@
         if (brandId === '_') {
           this.$axios.$post('/api/brands', data)
             .then((res) => {
-              window.location.reload(true);
-            });
+              this.$router.push({path: '/brands'})
+            })
+            .catch((error) => {
+              alert(error)
+            })
         } else {
           this.$axios.$put('/api/brands/' + brandId, data).then((res) => {
-            window.location.reload(true);
-          });
+            this.$router.push({path: '/brands'})
+          }).catch((error) => {
+            alert(error)
+          })
         }
       }
     },
