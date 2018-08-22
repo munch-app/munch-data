@@ -82,21 +82,9 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
             return Collections.emptyIterator();
         }
 
-        ObjectNode root = JsonUtils.createObjectNode();
-        root.put("from", 0);
-        root.put("size", 300);
-
         JsonNode bool = createBoolQuery(names, points);
-        root.set("query", JsonUtils.createObjectNode().set("bool", bool));
-
-        JsonNode results = placeMutationClient.search(root);
-        List<PlaceMutation> mutations = new ArrayList<>();
-        for (JsonNode node : results.path("hits").path("hits")) {
-            mutations.add(JsonUtils.toObject(node.path("_source"), PlaceMutation.class));
-        }
-
-        // Search on city and country
-        return mutations.iterator();
+        JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
+        return placeMutationClient.searchQuery(query);
     }
 
     private static JsonNode createBoolQuery(List<String> names, List<String> points) {

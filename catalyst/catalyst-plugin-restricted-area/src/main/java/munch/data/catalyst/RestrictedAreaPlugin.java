@@ -36,7 +36,7 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
 
     @Inject
     public RestrictedAreaPlugin(AirtableApi airtableApi) {
-        this.table = airtableApi.base("appDcx5b3vgkhcYB5").table("Restricted Area");
+        this.table = airtableApi.base("appERO4wuQ5oJSTxO").table("Restricted Area");
     }
 
     @Override
@@ -68,23 +68,12 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
 
     @Override
     protected Iterator<PlaceMutation> search(RestrictedArea area) {
+        namedCounter.increment("RestrictedArea");
+
         List<String> points = getPoints(area);
-
-        ObjectNode root = JsonUtils.createObjectNode();
-        root.put("from", 0);
-        root.put("size", 300);
-
         JsonNode bool = createBoolQuery(area.getLocationCondition().getPostcodes(), points);
-        root.set("query", JsonUtils.createObjectNode().set("bool", bool));
-
-        JsonNode results = placeMutationClient.search(root);
-        List<PlaceMutation> mutations = new ArrayList<>();
-        for (JsonNode node : results.path("hits").path("hits")) {
-            mutations.add(JsonUtils.toObject(node.path("_source"), PlaceMutation.class));
-        }
-
-        // Search on city and country
-        return mutations.iterator();
+        JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
+        return placeMutationClient.searchQuery(query);
     }
 
     private static JsonNode createBoolQuery(Collection<String> postcodes, List<String> points) {
@@ -92,11 +81,10 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
         bool.set("must", ElasticQueryUtils.matchAll());
 
         ArrayNode filter = bool.putArray("filter");
-
         filter.add(ElasticQueryUtils.filterPolygon("latLng.value", points));
-        if (postcodes.isEmpty()) return bool;
 
-        if (postcodes.size() == 1) {
+        if (postcodes.isEmpty()) return bool;
+        else if (postcodes.size() == 1) {
             filter.add(ElasticQueryUtils.filterTerm("postcode.value", postcodes.iterator().next()));
         } else {
             filter.add(ElasticQueryUtils.filterTerms("postcode.value", postcodes));
@@ -119,7 +107,10 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
     @Nullable
     @Override
     protected PlaceEdit receive(RestrictedArea area, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
+        namedCounter.increment("Linked");
         return new PlaceEditBuilder(getSource(), area.getId())
+                .withSort("0")
+                .withName("Restricted Area")
                 .withStatus(StatusEdit.Type.closedHidden)
                 .build();
     }
