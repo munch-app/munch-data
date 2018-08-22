@@ -1,4 +1,4 @@
-project('catalyst-brand-plugin') {
+project('catalyst-plugin-brand') {
     dependencies {
         compile project(':data:data-client')
         compile group: 'catalyst', name: 'plugin-edit', version: ccVersion
@@ -9,7 +9,7 @@ project('catalyst-brand-plugin') {
     mainClassName = 'munch.data.BrandPluginModule'
 }
 
-project('catalyst-place-plugin') {
+project('catalyst-plugin-place') {
     dependencies {
         compile project(':data:data-client')
         compile group: 'catalyst', name: 'plugin-collect', version: ccVersion

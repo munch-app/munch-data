@@ -54,7 +54,7 @@ public final class PlaceParser {
      * @param mutation to parse into munch.data.Place
      * @return Place
      */
-    public Place parse(PlaceMutation mutation) throws LocationSupportException {
+    public Place parse(PlaceMutation mutation) throws LocationSupportException, ResolverHaltException {
         Place place = new Place();
         place.setPlaceId(mutation.getPlaceId());
         place.setStatus(statusResolver.resolve(mutation));

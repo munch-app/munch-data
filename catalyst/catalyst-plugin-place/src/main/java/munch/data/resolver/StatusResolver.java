@@ -34,6 +34,8 @@ public final class StatusResolver {
 
     private Place.Status.Type parseType(StatusEdit.Type type) {
         switch (type) {
+            case closedHidden:
+                throw new ResolverHaltException("Closed Hidden");
             case closed:
                 return Place.Status.Type.closed;
             case open:

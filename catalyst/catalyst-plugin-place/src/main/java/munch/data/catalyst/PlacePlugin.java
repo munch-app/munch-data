@@ -6,6 +6,7 @@ import catalyst.source.SourceReporter;
 import munch.data.client.PlaceClient;
 import munch.data.place.Place;
 import munch.data.resolver.LocationSupportException;
+import munch.data.resolver.ResolverHaltException;
 import munch.restful.core.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,8 @@ public final class PlacePlugin extends CollectPlugin {
         } catch (ValidationException e) {
             logger.warn("Validation failed", e);
             logger.warn("Mutation Id: {}, Data: {}", placeMutation.getPlaceId(), placeMutation);
+        } catch (ResolverHaltException ignored) {
+            // Place Halted from creation
         }
     }
 
