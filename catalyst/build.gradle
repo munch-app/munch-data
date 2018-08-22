@@ -29,10 +29,11 @@ project('catalyst-plugin-restricted-area') {
         compile group: 'catalyst', name: 'lake-airtable', version: ccVersion
 
         compile group: 'location-service', name: 'client', version: '1.0'
+        compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
     }
 
     apply plugin: 'application'
-    mainClassName = 'munch.data.PlacePluginModule'
+    mainClassName = 'munch.data.catalyst.RestrictedAreaPluginModule'
 }
 
 subprojects {
