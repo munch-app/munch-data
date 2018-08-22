@@ -107,8 +107,10 @@ public final class PlaceEditMapper {
         switch (brand.getStatus().getType()) {
             case closed:
                 edit.setType(StatusEdit.Type.closed);
+                break;
             case open:
                 edit.setType(StatusEdit.Type.open);
+                break;
         }
         return edit;
     }
