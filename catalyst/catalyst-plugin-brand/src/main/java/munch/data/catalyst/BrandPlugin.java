@@ -61,6 +61,10 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
     @Nullable
     @Override
     protected PlaceEdit receive(Brand brand, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
+        if (placeMutation == null) {
+            logger.warn("PlaceMutation is null, PlaceLink: {}", placeLink);
+            return null;
+        }
         if (brandComparator.match(brand, placeMutation)) {
             return brandEditParser.parse(brand);
         }
