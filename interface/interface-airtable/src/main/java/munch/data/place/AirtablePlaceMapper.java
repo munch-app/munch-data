@@ -51,8 +51,8 @@ public final class AirtablePlaceMapper {
         record.putField("location.unitNumber", place.getLocation().getUnitNumber());
         record.putField("location.neighbourhood", place.getLocation().getNeighbourhood());
 
-        record.putField("location.city", place.getLocation().getCity());
-        record.putField("location.country", place.getLocation().getCountry());
+        record.putField("location.city", place.getLocation().getCity().name());
+        record.putField("location.country", place.getLocation().getCountry().name());
         record.putField("location.postcode", place.getLocation().getPostcode());
 
         record.putField("location.latLng", place.getLocation().getLatLng());

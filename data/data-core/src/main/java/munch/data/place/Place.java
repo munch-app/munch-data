@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
 import munch.data.location.Area;
+import munch.data.location.Location;
 import munch.file.Image;
 import org.hibernate.validator.constraints.URL;
 

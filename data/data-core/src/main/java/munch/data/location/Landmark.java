@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.ElasticObject;
-import munch.data.Location;
 import munch.data.VersionedObject;
 
 import javax.validation.constraints.NotBlank;

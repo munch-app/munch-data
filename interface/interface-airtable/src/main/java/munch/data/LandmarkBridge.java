@@ -5,6 +5,7 @@ import corpus.airtable.AirtableRecord;
 import munch.data.airtable.AirtableBridge;
 import munch.data.client.LandmarkClient;
 import munch.data.location.Landmark;
+import munch.data.location.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

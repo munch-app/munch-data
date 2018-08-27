@@ -3,7 +3,7 @@ package munch.data.catalyst;
 import catalyst.airtable.AirtableRecord;
 import com.google.common.collect.ImmutableSet;
 import edit.utils.location.SpatialUtils;
-import munch.data.Location;
+import munch.data.location.Location;
 import munch.data.location.Area;
 
 import java.util.List;

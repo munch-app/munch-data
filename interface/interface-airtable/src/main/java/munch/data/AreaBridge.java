@@ -7,6 +7,7 @@ import munch.data.airtable.AirtableUtils;
 import munch.data.airtable.SpatialUtils;
 import munch.data.client.AreaClient;
 import munch.data.location.Area;
+import munch.data.location.Location;
 import munch.file.ImageClient;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;

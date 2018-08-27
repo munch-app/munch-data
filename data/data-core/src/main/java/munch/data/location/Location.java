@@ -1,13 +1,11 @@
-package munch.data;
+package munch.data.location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import munch.data.location.Landmark;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,8 +23,8 @@ public final class Location {
     private String unitNumber;
     private String neighbourhood;
 
-    private String city;
-    private String country;
+    private City city;
+    private Country country;
     private String postcode;
 
     private String latLng;
@@ -66,20 +64,36 @@ public final class Location {
         this.neighbourhood = neighbourhood;
     }
 
-    public String getCity() {
+    public City getCity() {
         return city;
     }
 
-    public void setCity(String city) {
+    public void setCity(City city) {
         this.city = city;
     }
 
-    public String getCountry() {
+    public void setCity(String city) {
+        try {
+            this.city = City.valueOf(city);
+        } catch (IllegalArgumentException e) {
+            this.city = null;
+        }
+    }
+
+    public Country getCountry() {
         return country;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(Country country) {
         this.country = country;
+    }
+
+    public void setCountry(String country) {
+        try {
+            this.country = Country.valueOf(country);
+        } catch (IllegalArgumentException e) {
+            this.country = null;
+        }
     }
 
     public String getPostcode() {

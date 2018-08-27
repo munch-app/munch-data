@@ -3,7 +3,9 @@ package munch.data.service;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import munch.data.Location;
+import munch.data.location.City;
+import munch.data.location.Country;
+import munch.data.location.Location;
 import munch.data.client.LandmarkClient;
 import munch.data.location.Landmark;
 import munch.restful.core.NextNodeList;
@@ -34,8 +36,8 @@ class LandmarkServiceTest {
         Location location = new Location();
         location.setAddress("Singapore 434434");
         location.setLatLng("1.384334,103.843433");
-        location.setCity("singapore");
-        location.setCountry("SGP");
+        location.setCity(City.singapore);
+        location.setCountry(Country.SGP);
         staticLandmark.setLocation(location);
 
         // Override default port

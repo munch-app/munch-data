@@ -2,7 +2,9 @@ package munch.data.resolver;
 
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
-import munch.data.Location;
+import munch.data.location.City;
+import munch.data.location.Country;
+import munch.data.location.Location;
 import munch.location.CountryCity;
 import munch.location.LocationClient;
 import org.apache.commons.lang3.StringUtils;
@@ -50,8 +52,14 @@ public final class LocationResolver {
 
         CountryCity countryCity = locationClient.getCity(lat, lng);
         if (countryCity == null) throw new LocationSupportException();
-        location.setCity(countryCity.getCity());
-        location.setCountry(countryCity.getCountry());
+        switch (countryCity.getCity().toLowerCase()) {
+            case "singapore":
+                location.setCity(City.singapore);
+                location.setCountry(Country.SGP);
+                break;
+            default:
+                throw new LocationSupportException();
+        }
 
         location.setPostcode(getFirst(mutation.getPostcode()));
         location.setLatLng(latLng);
