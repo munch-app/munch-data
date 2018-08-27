@@ -103,7 +103,7 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
         Location.@Valid Polygon polygon = area.getLocation().getPolygon();
         if (polygon != null) return polygon.getPoints();
 
-        List<String> points = area.getLocation().getCity().getPoints();
+        List<String> points = area.getLocation().getCountry().getPoints();
         if (points != null) return points;
 
         throw new IllegalArgumentException("points not available");

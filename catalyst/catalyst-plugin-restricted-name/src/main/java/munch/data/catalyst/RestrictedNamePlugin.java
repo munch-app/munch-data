@@ -81,7 +81,6 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
         Iterator<RestrictedName> iterator = Iterators.transform(table.select(), RestrictedName::new);
         return Iterators.filter(iterator, name -> {
             if (StringUtils.isAnyBlank(name.getId(), name.getName())) return false;
-            if (name.getLocation().getCity() == null) return false;
             if (name.getLocation().getCountry() == null) return false;
 
             if (name.getEquals().isEmpty() && name.getContains().isEmpty()) return false;
@@ -98,12 +97,13 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
     protected Iterator<PlaceMutation> search(RestrictedName name) {
         namedCounter.increment("Restricted Name");
 
-        List<String> points = name.getLocation().getCity().getPoints();
+        List<String> points = name.getLocation().getCountry().getPoints();
         JsonNode bool = createBoolQuery(name.getEquals(), name.getContains(), points);
         JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
         return placeMutationClient.searchQuery(query);
     }
 
+    @SuppressWarnings("Duplicates")
     private static JsonNode createBoolQuery(Collection<String> equals, Collection<String> contains, List<String> points) {
         ObjectNode bool = JsonUtils.createObjectNode();
 
@@ -115,6 +115,7 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
         return bool;
     }
 
+    @SuppressWarnings("Duplicates")
     private static ObjectNode queryString(Collection<String> equals, Collection<String> contains) {
         List<String> strings = new ArrayList<>();
         for (String equal : equals) {

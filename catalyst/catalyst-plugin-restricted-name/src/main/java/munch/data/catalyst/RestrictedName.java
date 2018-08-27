@@ -29,7 +29,6 @@ public final class RestrictedName {
         this.contains = ImmutableSet.copyOf(record.getFieldList("contains", String.class));
 
         this.location = new Location();
-        this.location.setCity(record.getFieldString("location.city"));
         this.location.setCountry(record.getFieldString("location.country"));
     }
 

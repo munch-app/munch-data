@@ -28,7 +28,7 @@ public final class RestrictedArea {
         this.name = record.getFieldString("name");
 
         this.location = new Location();
-        this.location.setCity(record.getFieldString("location.city"));
+        this.location.setCountry(record.getFieldString("location.country"));
 
         List<String> points = SpatialUtils.wktToPoints(record.getFieldString("location.polygon"));
         if (points != null) {
