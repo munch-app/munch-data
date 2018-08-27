@@ -8,7 +8,9 @@ include 'data:data-service'
 // Munch Data Catalyst Integration
 include 'catalyst:catalyst-plugin-place'
 include 'catalyst:catalyst-plugin-brand'
+include 'catalyst:catalyst-plugin-concept'
 include 'catalyst:catalyst-plugin-restricted-area'
+include 'catalyst:catalyst-plugin-restricted-name'
 
 // Munch Data Interfaces
 include 'interface:interface-airtable'

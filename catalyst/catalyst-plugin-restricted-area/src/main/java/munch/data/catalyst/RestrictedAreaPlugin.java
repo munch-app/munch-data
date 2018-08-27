@@ -6,12 +6,18 @@ import catalyst.edit.PlaceEditBuilder;
 import catalyst.edit.StatusEdit;
 import catalyst.elastic.ElasticQueryUtils;
 import catalyst.link.PlaceLink;
+import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import munch.data.location.Area;
 import munch.data.location.Location;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +38,7 @@ import java.util.List;
  */
 @Singleton
 public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
+    private static GeometryFactory geometryFactory = new GeometryFactory();
 
     private final AirtableApi.Table table;
 
@@ -105,11 +112,52 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
     @Nullable
     @Override
     protected PlaceEdit receive(RestrictedArea area, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
+        if (!validate(area, placeMutation)) return null;
+
         namedCounter.increment("Linked");
         return new PlaceEditBuilder(getSource(), area.getId())
                 .withSort("0")
-                .withName("Restricted Area")
                 .withStatus(StatusEdit.Type.closedHidden)
                 .build();
+    }
+
+    private boolean validate(RestrictedArea area, PlaceMutation placeMutation) {
+        if (!validateLocation(area, placeMutation)) return false;
+        Area.LocationCondition condition = area.getLocationCondition();
+        if (condition.getPostcodes().isEmpty()) return true;
+
+        for (String postcode : condition.getPostcodes()) {
+            for (MutationField<String> field : placeMutation.getPostcode()) {
+                if (postcode.equalsIgnoreCase(field.getValue())) return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean validateLocation(RestrictedArea area, PlaceMutation placeMutation) {
+        Polygon polygon = toPolygon(getPoints(area));
+        for (MutationField<String> field : placeMutation.getLatLng()) {
+            String[] latLng = field.getValue().split(",");
+            Coordinate coordinate = new Coordinate(
+                    Double.parseDouble(latLng[1]),
+                    Double.parseDouble(latLng[0])
+            );
+
+            Point point = geometryFactory.createPoint(coordinate);
+            if (polygon.intersects(point)) return true;
+        }
+        return false;
+    }
+
+    private Polygon toPolygon(List<String> points) {
+        return geometryFactory.createPolygon(points.stream()
+                .map(s -> {
+                    String[] split = s.split(",");
+                    return new Coordinate(
+                            Double.parseDouble(split[1]),
+                            Double.parseDouble(split[0])
+                    );
+                }).toArray(Coordinate[]::new));
     }
 }

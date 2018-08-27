@@ -9,6 +9,17 @@ project('catalyst-plugin-brand') {
     mainClassName = 'munch.data.BrandPluginModule'
 }
 
+project('catalyst-plugin-concept') {
+    dependencies {
+        compile project(':data:data-client')
+        compile group: 'catalyst', name: 'plugin-edit', version: ccVersion
+
+    }
+
+    apply plugin: 'application'
+    mainClassName = 'munch.data.catalyst.ConceptModule'
+}
+
 project('catalyst-plugin-place') {
     dependencies {
         compile project(':data:data-client')
@@ -29,11 +40,25 @@ project('catalyst-plugin-restricted-area') {
         compile group: 'catalyst', name: 'lake-airtable', version: ccVersion
 
         compile group: 'location-service', name: 'client', version: '1.0'
-        compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.273'
+        compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
     }
 
     apply plugin: 'application'
-    mainClassName = 'munch.data.catalyst.RestrictedAreaPluginModule'
+    mainClassName = 'munch.data.catalyst.RestrictedAreaModule'
+}
+
+project('catalyst-plugin-restricted-name') {
+    dependencies {
+        compile project(':data:data-client')
+        compile group: 'catalyst', name: 'plugin-edit', version: ccVersion
+        compile group: 'catalyst', name: 'lake-airtable', version: ccVersion
+
+        compile group: 'location-service', name: 'client', version: '1.0'
+        compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
+    }
+
+    apply plugin: 'application'
+    mainClassName = 'munch.data.catalyst.RestrictedNameModule'
 }
 
 subprojects {

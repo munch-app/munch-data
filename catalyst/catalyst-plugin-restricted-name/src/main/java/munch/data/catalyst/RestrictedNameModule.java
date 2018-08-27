@@ -16,7 +16,7 @@ import com.google.inject.Injector;
  * Time: 4:32 PM
  * Project: munch-data
  */
-public final class RestrictedAreaPluginModule extends AbstractModule {
+public final class RestrictedNameModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new AirtableModule(getAirtableKey()));
@@ -33,9 +33,9 @@ public final class RestrictedAreaPluginModule extends AbstractModule {
 
 
     public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new RestrictedAreaPluginModule());
+        Injector injector = Guice.createInjector(new RestrictedNameModule());
         injector.getInstance(PluginRunner.class).run(
-                injector.getInstance(RestrictedAreaPlugin.class)
+                injector.getInstance(RestrictedNamePlugin.class)
         );
     }
 }
