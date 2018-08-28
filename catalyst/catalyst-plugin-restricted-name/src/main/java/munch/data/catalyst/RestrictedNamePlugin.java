@@ -12,7 +12,7 @@ import catalyst.plugin.LinkPlugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.google.common.escape.Escaper;
 import com.google.common.escape.Escapers;
 import munch.restful.core.JsonUtils;
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -78,14 +79,15 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
 
     @Override
     protected Iterator<RestrictedName> objects() {
-        Iterator<RestrictedName> iterator = Iterators.transform(table.select(), RestrictedName::new);
-        return Iterators.filter(iterator, name -> {
-            if (StringUtils.isAnyBlank(name.getId(), name.getName())) return false;
-            if (name.getLocation().getCountry() == null) return false;
+        return Lists.newArrayList(table.select()).stream()
+                .map(RestrictedName::new)
+                .filter(name -> {
+                    if (StringUtils.isAnyBlank(name.getId(), name.getName())) return false;
+                    if (name.getLocation().getCountry() == null) return false;
 
-            if (name.getEquals().isEmpty() && name.getContains().isEmpty()) return false;
-            return false;
-        });
+                    if (name.getEquals().isEmpty() && name.getContains().isEmpty()) return false;
+                    return true;
+                }).iterator();
     }
 
     @Override
@@ -116,7 +118,7 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
     }
 
     @SuppressWarnings("Duplicates")
-    private static ObjectNode queryString(Collection<String> equals, Collection<String> contains) {
+    static ObjectNode queryString(Collection<String> equals, Collection<String> contains) {
         List<String> strings = new ArrayList<>();
         for (String equal : equals) {
             strings.add(QUERY_STRING_ESCAPE.escape(equal));
@@ -157,8 +159,10 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
         }
 
         for (String contain : name.getContains()) {
+            contain = Pattern.quote(contain);
+            Pattern pattern = Pattern.compile("(^|\\s|[^a-z0-9])" + contain + "($|\\s|[^a-z0-9])",Pattern.CASE_INSENSITIVE);
             for (MutationField<String> field : placeMutation.getName()) {
-                if (StringUtils.containsIgnoreCase(field.getValue(), contain)) return true;
+                if (pattern.matcher(field.getValue()).find()) return true;
             }
         }
 

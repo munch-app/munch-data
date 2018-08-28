@@ -12,7 +12,7 @@ import catalyst.plugin.LinkPlugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -54,17 +54,18 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
 
     @Override
     protected Iterator<RestrictedArea> objects() {
-        Iterator<RestrictedArea> iterator = Iterators.transform(table.select(), RestrictedArea::new);
-        return Iterators.filter(iterator, area -> {
-            if (StringUtils.isAnyBlank(area.getId(), area.getName())) return false;
-            if (area.getLocation().getPolygon() != null) return true;
+        return Lists.newArrayList(table.select()).stream()
+                .map(RestrictedArea::new)
+                .filter(area -> {
+                    if (StringUtils.isAnyBlank(area.getId(), area.getName())) return false;
+                    if (area.getLocation().getPolygon() != null) return true;
 
-            if (!area.getLocationCondition().getPostcodes().isEmpty()) {
-                Location location = area.getLocation();
-                return location.getCity() != null;
-            }
-            return false;
-        });
+                    if (!area.getLocationCondition().getPostcodes().isEmpty()) {
+                        Location location = area.getLocation();
+                        return location.getCity() != null;
+                    }
+                    return false;
+                }).iterator();
     }
 
     @Override

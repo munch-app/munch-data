@@ -11,7 +11,7 @@ import catalyst.plugin.LinkPlugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.google.common.escape.Escaper;
 import com.google.common.escape.Escapers;
 import munch.restful.core.JsonUtils;
@@ -77,14 +77,16 @@ public final class ConceptPlugin extends LinkPlugin<Concept> {
 
     @Override
     protected Iterator<Concept> objects() {
-        Iterator<Concept> iterator = Iterators.transform(table.select(), Concept::new);
-        return Iterators.filter(iterator, name -> {
-            if (name.getLocation().getCountry() == null) return false;
-            if (StringUtils.isAnyBlank(name.getId(), name.getName())) return false;
+        return Lists.newArrayList(table.select()).stream()
+                .map(Concept::new)
+                .filter(concept -> {
+                    if (concept.getLocation().getCountry() == null) return false;
+                    if (StringUtils.isAnyBlank(concept.getId(), concept.getName())) return false;
+                    if (concept.getTags().isEmpty()) return false;
+                    if (concept.getEquals().isEmpty() && concept.getContains().isEmpty()) return false;
 
-            if (name.getEquals().isEmpty() && name.getContains().isEmpty()) return false;
-            return false;
-        });
+                    return true;
+                }).iterator();
     }
 
     @Override
@@ -93,11 +95,11 @@ public final class ConceptPlugin extends LinkPlugin<Concept> {
     }
 
     @Override
-    protected Iterator<PlaceMutation> search(Concept name) {
+    protected Iterator<PlaceMutation> search(Concept concept) {
         namedCounter.increment("Concept");
 
-        List<String> points = name.getLocation().getCountry().getPoints();
-        JsonNode bool = createBoolQuery(name.getEquals(), name.getContains(), points);
+        List<String> points = concept.getLocation().getCountry().getPoints();
+        JsonNode bool = createBoolQuery(concept.getEquals(), concept.getContains(), points);
         JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
         return placeMutationClient.searchQuery(query);
     }
