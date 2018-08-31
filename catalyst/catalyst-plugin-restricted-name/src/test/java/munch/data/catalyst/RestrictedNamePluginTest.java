@@ -1,14 +1,9 @@
 package munch.data.catalyst;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import munch.restful.core.JsonUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.regex.Pattern;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by: Fuxing
@@ -30,13 +25,5 @@ class RestrictedNamePluginTest {
         Assertions.assertTrue(pattern.matcher("cdontain abd contain's").find());
 
         Assertions.assertFalse(pattern.matcher("cdontain abd contains").find());
-    }
-
-    @Test
-    void queryString() throws Exception {
-        ObjectNode queryString = RestrictedNamePlugin.queryString(List.of("equals"), List.of("contains"));
-        String string = JsonUtils.objectMapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(queryString);
-        System.out.println(string);
     }
 }

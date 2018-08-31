@@ -4,14 +4,11 @@ import catalyst.airtable.AirtableApi;
 import catalyst.edit.PlaceEdit;
 import catalyst.edit.PlaceEditBuilder;
 import catalyst.edit.StatusEdit;
-import catalyst.elastic.ElasticQueryUtils;
+import catalyst.elastic.ElasticSearchBuilder;
 import catalyst.link.PlaceLink;
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -19,16 +16,15 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import munch.data.location.Area;
 import munch.data.location.Location;
-import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -78,26 +74,18 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
         namedCounter.increment("RestrictedArea");
 
         List<String> points = getPoints(area);
-        JsonNode bool = createBoolQuery(area.getLocationCondition().getPostcodes(), points);
-        JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
-        return placeMutationClient.searchQuery(query);
-    }
+        Set<String> postcodes = area.getLocationCondition().getPostcodes();
 
-    private static JsonNode createBoolQuery(Collection<String> postcodes, List<String> points) {
-        ObjectNode bool = JsonUtils.createObjectNode();
-        bool.set("must", ElasticQueryUtils.matchAll());
+        ElasticSearchBuilder<PlaceMutation> searchBuilder = placeMutationClient.searchBuilder();
+        searchBuilder.withFilterPolygon("latLng.value", points);
 
-        ArrayNode filter = bool.putArray("filter");
-        filter.add(ElasticQueryUtils.filterPolygon("latLng.value", points));
-
-        if (postcodes.isEmpty()) return bool;
-        else if (postcodes.size() == 1) {
-            filter.add(ElasticQueryUtils.filterTerm("postcode.value", postcodes.iterator().next()));
-        } else {
-            filter.add(ElasticQueryUtils.filterTerms("postcode.value", postcodes));
+        if (postcodes.size() == 1) {
+            searchBuilder.withFilterTerm("postcode.value", postcodes.iterator().next());
+        } else if (postcodes.size() > 1) {
+            searchBuilder.withFilterTerms("postcode.value", postcodes);
         }
 
-        return bool;
+        return searchBuilder.asIterator();
     }
 
     private static List<String> getPoints(RestrictedArea area) {

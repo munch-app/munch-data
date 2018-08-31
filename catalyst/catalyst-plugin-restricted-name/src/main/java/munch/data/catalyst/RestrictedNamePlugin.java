@@ -4,27 +4,19 @@ import catalyst.airtable.AirtableApi;
 import catalyst.edit.PlaceEdit;
 import catalyst.edit.PlaceEditBuilder;
 import catalyst.edit.StatusEdit;
-import catalyst.elastic.ElasticQueryUtils;
+import catalyst.elastic.ElasticQueryStringUtils;
 import catalyst.link.PlaceLink;
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import catalyst.source.SourceMappingCache;
 import com.google.common.collect.Lists;
-import com.google.common.escape.Escaper;
-import com.google.common.escape.Escapers;
-import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -36,39 +28,13 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
-    private static final Escaper QUERY_STRING_ESCAPE;
 
-    static {
-        // + - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /
-        QUERY_STRING_ESCAPE = Escapers.builder()
-                .addEscape('+', "\\+")
-                .addEscape('-', "\\-")
-                .addEscape('&', "\\=")
-                .addEscape('|', "\\|")
-                .addEscape('<', "\\<")
-                .addEscape('>', "\\>")
-                .addEscape('!', "\\~")
-                .addEscape('(', "\\(")
-                .addEscape(')', "\\)")
-                .addEscape('{', "\\{")
-                .addEscape('}', "\\}")
-                .addEscape('[', "\\[")
-                .addEscape(']', "\\]")
-                .addEscape('^', "\\^")
-                .addEscape('\"', "\\\"")
-                .addEscape('~', "\\~")
-                .addEscape('*', "\\*")
-                .addEscape('?', "\\?")
-                .addEscape(':', "\\:")
-                .addEscape('\\', "\\\\")
-                .addEscape('/', "\\/")
-                .build();
-    }
-
+    private final SourceMappingCache mappingCache;
     private final AirtableApi.Table table;
 
     @Inject
-    public RestrictedNamePlugin(AirtableApi airtableApi) {
+    public RestrictedNamePlugin(SourceMappingCache mappingCache, AirtableApi airtableApi) {
+        this.mappingCache = mappingCache;
         this.table = airtableApi.base("appERO4wuQ5oJSTxO").table("Restricted Name");
     }
 
@@ -100,43 +66,15 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
         namedCounter.increment("Restricted Name");
 
         List<String> points = name.getLocation().getCountry().getPoints();
-        JsonNode bool = createBoolQuery(name.getEquals(), name.getContains(), points);
-        JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
-        return placeMutationClient.searchQuery(query);
-    }
+        Set<String> values = new HashSet<>();
+        values.addAll(name.getEquals());
+        values.addAll(name.getContains());
+        values = values.stream().map(StringUtils::lowerCase).collect(Collectors.toSet());
 
-    @SuppressWarnings("Duplicates")
-    private static JsonNode createBoolQuery(Collection<String> equals, Collection<String> contains, List<String> points) {
-        ObjectNode bool = JsonUtils.createObjectNode();
-
-        ArrayNode must = bool.putArray("must");
-        must.add(queryString(equals, contains));
-
-        ArrayNode filter = bool.putArray("filter");
-        filter.add(ElasticQueryUtils.filterPolygon("latLng.value", points));
-        return bool;
-    }
-
-    @SuppressWarnings("Duplicates")
-    static ObjectNode queryString(Collection<String> equals, Collection<String> contains) {
-        List<String> strings = new ArrayList<>();
-        for (String equal : equals) {
-            strings.add(QUERY_STRING_ESCAPE.escape(equal));
-        }
-
-        for (String contain : contains) {
-            strings.add(QUERY_STRING_ESCAPE.escape(contain));
-        }
-
-        String query = strings.stream()
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.joining(") OR (", "(", ")"));
-
-        ObjectNode node = JsonUtils.createObjectNode();
-        ObjectNode queryString = node.putObject("query_string");
-        queryString.put("default_field", "name.value");
-        queryString.put("query", query);
-        return node;
+        return placeMutationClient.searchBuilder()
+                .withFilterPolygon("latLng.value", Objects.requireNonNull(points))
+                .withMatchQueryString("name.value", ElasticQueryStringUtils.Operator.OR, values)
+                .asIterator();
     }
 
     @Nullable
@@ -152,6 +90,12 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
     }
 
     private boolean validate(RestrictedName name, PlaceMutation placeMutation) {
+        for (MutationField<String> nameField : placeMutation.getName()) {
+            for (MutationField.Source source : nameField.getSources()) {
+                if (mappingCache.isForm(source.getSource())) return false;
+            }
+        }
+
         for (String equal : name.getEquals()) {
             for (MutationField<String> field : placeMutation.getName()) {
                 if (field.getValue().equalsIgnoreCase(equal)) return true;
@@ -160,7 +104,7 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
 
         for (String contain : name.getContains()) {
             contain = Pattern.quote(contain);
-            Pattern pattern = Pattern.compile("(^|\\s|[^a-z0-9])" + contain + "($|\\s|[^a-z0-9])",Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile("(^|\\s|[^a-z0-9])" + contain + "($|\\s|[^a-z0-9])", Pattern.CASE_INSENSITIVE);
             for (MutationField<String> field : placeMutation.getName()) {
                 if (pattern.matcher(field.getValue()).find()) return true;
             }

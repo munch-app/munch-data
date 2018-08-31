@@ -3,27 +3,18 @@ package munch.data.catalyst;
 import catalyst.airtable.AirtableApi;
 import catalyst.edit.PlaceEdit;
 import catalyst.edit.PlaceEditBuilder;
-import catalyst.elastic.ElasticQueryUtils;
+import catalyst.elastic.ElasticQueryStringUtils;
 import catalyst.link.PlaceLink;
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
-import com.google.common.escape.Escaper;
-import com.google.common.escape.Escapers;
-import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,34 +25,6 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class ConceptPlugin extends LinkPlugin<Concept> {
-    private static final Escaper QUERY_STRING_ESCAPE;
-
-    static {
-        // + - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /
-        QUERY_STRING_ESCAPE = Escapers.builder()
-                .addEscape('+', "\\+")
-                .addEscape('-', "\\-")
-                .addEscape('&', "\\=")
-                .addEscape('|', "\\|")
-                .addEscape('<', "\\<")
-                .addEscape('>', "\\>")
-                .addEscape('!', "\\~")
-                .addEscape('(', "\\(")
-                .addEscape(')', "\\)")
-                .addEscape('{', "\\{")
-                .addEscape('}', "\\}")
-                .addEscape('[', "\\[")
-                .addEscape(']', "\\]")
-                .addEscape('^', "\\^")
-                .addEscape('\"', "\\\"")
-                .addEscape('~', "\\~")
-                .addEscape('*', "\\*")
-                .addEscape('?', "\\?")
-                .addEscape(':', "\\:")
-                .addEscape('\\', "\\\\")
-                .addEscape('/', "\\/")
-                .build();
-    }
 
     private final AirtableApi.Table table;
 
@@ -99,43 +62,15 @@ public final class ConceptPlugin extends LinkPlugin<Concept> {
         namedCounter.increment("Concept");
 
         List<String> points = concept.getLocation().getCountry().getPoints();
-        JsonNode bool = createBoolQuery(concept.getEquals(), concept.getContains(), points);
-        JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
-        return placeMutationClient.searchQuery(query);
-    }
+        Set<String> values = new HashSet<>();
+        values.addAll(concept.getEquals());
+        values.addAll(concept.getContains());
+        values = values.stream().map(StringUtils::lowerCase).collect(Collectors.toSet());
 
-    @SuppressWarnings("Duplicates")
-    private static JsonNode createBoolQuery(Collection<String> equals, Collection<String> contains, List<String> points) {
-        ObjectNode bool = JsonUtils.createObjectNode();
-
-        ArrayNode must = bool.putArray("must");
-        must.add(queryString(equals, contains));
-
-        ArrayNode filter = bool.putArray("filter");
-        filter.add(ElasticQueryUtils.filterPolygon("latLng.value", points));
-        return bool;
-    }
-
-    @SuppressWarnings("Duplicates")
-    private static ObjectNode queryString(Collection<String> equals, Collection<String> contains) {
-        List<String> strings = new ArrayList<>();
-        for (String equal : equals) {
-            strings.add(QUERY_STRING_ESCAPE.escape(equal));
-        }
-
-        for (String contain : contains) {
-            strings.add(QUERY_STRING_ESCAPE.escape(contain));
-        }
-
-        String query = strings.stream()
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.joining(") OR (", "(", ")"));
-
-        ObjectNode node = JsonUtils.createObjectNode();
-        ObjectNode queryString = node.putObject("query_string");
-        queryString.put("default_field", "name.value");
-        queryString.put("query", query);
-        return node;
+        return placeMutationClient.searchBuilder()
+                .withFilterPolygon("latLng.value", Objects.requireNonNull(points))
+                .withMatchQueryString("name.value", ElasticQueryStringUtils.Operator.OR, values)
+                .asIterator();
     }
 
     @Nullable

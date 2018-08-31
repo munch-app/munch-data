@@ -2,15 +2,12 @@ package munch.data.catalyst;
 
 import catalyst.edit.PlaceEdit;
 import catalyst.elastic.ElasticQueryUtils;
+import catalyst.elastic.ElasticSearchBuilder;
 import catalyst.link.PlaceLink;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.brand.Brand;
 import munch.data.client.BrandClient;
-import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,33 +79,16 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
             return Collections.emptyIterator();
         }
 
-        JsonNode bool = createBoolQuery(names, points);
-        JsonNode query = JsonUtils.createObjectNode().set("bool", bool);
-        return placeMutationClient.searchQuery(query);
-    }
-
-    private static JsonNode createBoolQuery(List<String> names, List<String> points) {
-        ObjectNode bool = JsonUtils.createObjectNode();
-
-        // Match Country & City
-        bool.set("filter", JsonUtils.createArrayNode()
-                .add(ElasticQueryUtils.filterPolygon("latLng.value", points))
-        );
-
-        // Match Names
-        if (names.isEmpty()) {
-            bool.set("must", ElasticQueryUtils.matchAll());
-        } else if (names.size() <= 1) {
-            String name = names.get(0);
-            bool.set("must", ElasticQueryUtils.match("name.value", name));
-        } else {
-            bool.put("minimum_should_match", 1);
-            ArrayNode should = bool.putArray("should");
-            for (String name : names) {
-                should.add(ElasticQueryUtils.match("name.value", name));
-            }
+        ElasticSearchBuilder<PlaceMutation> builder = placeMutationClient.searchBuilder();
+        builder.withFilterPolygon("latLng.value", points);
+        if (names.size() == 1) {
+            builder.withFilterTerm("name.value", names.get(0));
+        }else if (names.size() > 1) {
+            builder.withBoolOption("minimum_should_match", 1);
+            names.forEach(s -> builder.withShould(ElasticQueryUtils.match("name.value", s)));
         }
-        return bool;
+
+        return builder.asIterator();
     }
 
     private static List<String> getPoints(Brand brand) {
