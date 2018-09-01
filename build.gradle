@@ -55,7 +55,7 @@ allprojects {
 buildscript {
     repositories {
         maven {
-            url 'http://artifactory.fxloh.com/artifactory/munch-repos'
+            url 'http://fx.artifactory.munchapp.co/artifactory/munch-repos'
             credentials {
                 username = "${artifactory_user}"
                 password = "${artifactory_password}"
