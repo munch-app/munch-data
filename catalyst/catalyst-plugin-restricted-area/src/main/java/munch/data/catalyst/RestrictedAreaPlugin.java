@@ -2,7 +2,7 @@ package munch.data.catalyst;
 
 import catalyst.airtable.AirtableApi;
 import catalyst.edit.PlaceEdit;
-import catalyst.edit.PlaceEditBuilder;
+import catalyst.edit.PlaceEditBuilderFactory;
 import catalyst.edit.StatusEdit;
 import catalyst.elastic.ElasticSearchBuilder;
 import catalyst.link.PlaceLink;
@@ -37,10 +37,12 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
     private static GeometryFactory geometryFactory = new GeometryFactory();
 
     private final AirtableApi.Table table;
+    private final PlaceEditBuilderFactory builderFactory;
 
     @Inject
-    public RestrictedAreaPlugin(AirtableApi airtableApi) {
+    public RestrictedAreaPlugin(AirtableApi airtableApi, PlaceEditBuilderFactory builderFactory) {
         this.table = airtableApi.base("appERO4wuQ5oJSTxO").table("Restricted Area");
+        this.builderFactory = builderFactory;
     }
 
     @Override
@@ -104,7 +106,7 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
         if (!validate(area, placeMutation)) return null;
 
         namedCounter.increment("Linked");
-        return new PlaceEditBuilder(getSource(), area.getId())
+        return builderFactory.create(getSource(), area.getId())
                 .withSort("0")
                 .withStatus(StatusEdit.Type.closedHidden)
                 .build();

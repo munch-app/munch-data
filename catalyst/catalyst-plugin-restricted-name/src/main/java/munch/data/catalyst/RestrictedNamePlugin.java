@@ -2,7 +2,7 @@ package munch.data.catalyst;
 
 import catalyst.airtable.AirtableApi;
 import catalyst.edit.PlaceEdit;
-import catalyst.edit.PlaceEditBuilder;
+import catalyst.edit.PlaceEditBuilderFactory;
 import catalyst.edit.StatusEdit;
 import catalyst.elastic.ElasticQueryStringUtils;
 import catalyst.link.PlaceLink;
@@ -32,10 +32,13 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
     private final SourceMappingCache mappingCache;
     private final AirtableApi.Table table;
 
+    private final PlaceEditBuilderFactory builderFactory;
+
     @Inject
-    public RestrictedNamePlugin(SourceMappingCache mappingCache, AirtableApi airtableApi) {
+    public RestrictedNamePlugin(SourceMappingCache mappingCache, AirtableApi airtableApi, PlaceEditBuilderFactory builderFactory) {
         this.mappingCache = mappingCache;
         this.table = airtableApi.base("appERO4wuQ5oJSTxO").table("Restricted Name");
+        this.builderFactory = builderFactory;
     }
 
     @Override
@@ -83,7 +86,7 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
         if (!validate(name, placeMutation)) return null;
 
         namedCounter.increment("Linked");
-        return new PlaceEditBuilder(getSource(), name.getId())
+        return builderFactory.create(getSource(), name.getId())
                 .withSort("0")
                 .withStatus(StatusEdit.Type.closedHidden)
                 .build();

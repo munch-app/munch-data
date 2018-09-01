@@ -2,7 +2,7 @@ package munch.data.catalyst;
 
 import catalyst.airtable.AirtableApi;
 import catalyst.edit.PlaceEdit;
-import catalyst.edit.PlaceEditBuilder;
+import catalyst.edit.PlaceEditBuilderFactory;
 import catalyst.elastic.ElasticQueryStringUtils;
 import catalyst.link.PlaceLink;
 import catalyst.mutation.MutationField;
@@ -27,10 +27,12 @@ import java.util.stream.Collectors;
 public final class ConceptPlugin extends LinkPlugin<Concept> {
 
     private final AirtableApi.Table table;
+    private final PlaceEditBuilderFactory builderFactory;
 
     @Inject
-    public ConceptPlugin(AirtableApi airtableApi) {
+    public ConceptPlugin(AirtableApi airtableApi, PlaceEditBuilderFactory builderFactory) {
         this.table = airtableApi.base("appERO4wuQ5oJSTxO").table("Concept");
+        this.builderFactory = builderFactory;
     }
 
     @Override
@@ -79,15 +81,10 @@ public final class ConceptPlugin extends LinkPlugin<Concept> {
         if (!validate(concept, placeMutation)) return null;
 
         namedCounter.increment("Linked");
-        PlaceEditBuilder builder = new PlaceEditBuilder(getSource(), concept.getId())
-                .withSort("0");
-
-        for (String tag : concept.getTags()) {
-            if (StringUtils.isBlank(tag)) continue;
-            builder.withTag(tag.toLowerCase());
-        }
-
-        return builder.build();
+        return builderFactory.create(getSource(), concept.getId())
+                .withTags(concept.getTags())
+                .withSort("0")
+                .build();
     }
 
     private boolean validate(Concept name, PlaceMutation placeMutation) {
