@@ -38,10 +38,23 @@ public final class ImageResolver {
     }
 
     private List<Image> getImages(PlaceMutation mutation, PlaceImageMutation.Type type, int size) {
-        String placeId = mutation.getPlaceId();
-        NextNodeList<PlaceImageMutation> images = imageMutationClient.list(placeId, type, null, size);
+        NextNodeList<PlaceImageMutation> images = imageMutationClient.list(mutation.getPlaceId(), type, null, size * 3);
+        if (hasConflict(images)) images.removeIf(pim -> pim.getSource().equals("v2.catalyst.munch.space"));
+
         return images.stream()
                 .map(im -> imageClient.get(im.getImageId()))
                 .collect(Collectors.toList());
+    }
+
+    private static boolean hasConflict(List<PlaceImageMutation> images) {
+        boolean hasV2 = false, hasOther = false;
+        for (PlaceImageMutation image : images) {
+            if (image.getSource().equals("v2.catalyst.munch.space")) {
+                hasV2 = true;
+            } else {
+                hasOther = true;
+            }
+        }
+        return hasV2 && hasOther;
     }
 }
