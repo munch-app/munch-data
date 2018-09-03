@@ -42,7 +42,6 @@ public final class LocalDynamoSetup {
 
     public void setup() throws InterruptedException, IOException {
         addMapped();
-        addNonMapped();
         addTags();
     }
 
@@ -61,31 +60,6 @@ public final class LocalDynamoSetup {
                 );
             });
         }
-    }
-
-    private void addNonMapped() throws InterruptedException {
-        create("munch-data.PlaceAward", request -> {
-            request.withAttributeDefinitions(
-                    new AttributeDefinition().withAttributeName("placeId").withAttributeType(ScalarAttributeType.S),
-                    new AttributeDefinition().withAttributeName("awardId").withAttributeType(ScalarAttributeType.S),
-                    new AttributeDefinition().withAttributeName("sort").withAttributeType(ScalarAttributeType.N)
-            );
-
-            request.withKeySchema(
-                    new KeySchemaElement().withAttributeName("placeId").withKeyType(KeyType.HASH),
-                    new KeySchemaElement().withAttributeName("awardId").withKeyType(KeyType.RANGE)
-            );
-
-            request.withLocalSecondaryIndexes(new LocalSecondaryIndex()
-                    .withIndexName("sort")
-                    .withKeySchema(
-                            new KeySchemaElement().withAttributeName("placeId").withKeyType(KeyType.HASH),
-                            new KeySchemaElement().withAttributeName("sort").withKeyType(KeyType.RANGE)
-                    ).withProjection(
-                            new Projection().withProjectionType(ProjectionType.ALL)
-                    )
-            );
-        });
     }
 
     private void addTags() throws IOException {

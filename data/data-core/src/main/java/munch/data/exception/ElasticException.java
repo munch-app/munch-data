@@ -23,19 +23,19 @@ public final class ElasticException extends StructuredException {
     }
 
     public ElasticException(Throwable cause) {
-        super(500, "ElasticException", cause.getMessage(), cause);
+        super(500, ElasticException.class, cause.getMessage(), cause);
     }
 
     public ElasticException(String message) {
-        super(500, "ElasticException", message);
+        super(500, ElasticException.class, message);
     }
 
     public ElasticException(int code, Throwable cause) {
-        super(code, "ElasticException", cause.getMessage(), cause);
+        super(code, ElasticException.class, cause.getMessage(), cause);
     }
 
     public ElasticException(int code, String message) {
-        super(code, "ElasticException", message);
+        super(code, ElasticException.class, message);
     }
 
     public static StructuredException parse(Exception e) {
