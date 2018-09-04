@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4569:4569" # DynamoDB
+      - "4571:4571" # Elastic
+      - "4572:4572" # S3
+
+  service:
+    image: 197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/munch-data/data-service:4.10
+    environment:
+      - SERVICE_MUNCH_DATA_ELASTIC_URL=http://localstack:4571
+      - SERVICE_MUNCH_DATA_DYNAMODB_URL=http://localstack:4569
+      - SERVICE_MUNCH_DATA_ELASTIC_PRODUCTION=false
+    ports:
+      - "8101:8000"
+
+  service-resize:
+    image: 197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/file-service/service-resize:1.2
+    environment:
+      - SERVICE_TEST_S3_URL=http://localstack:4572
+
+      - SERVICE_TEST_S3_ENDPOINT=http://localhost:4572
+
+  file-service:
+    image: 197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/file-service/service:1.2
+    environment:
+      - SERVICE_TEST_DYNAMODB_URL=http://localstack:4569
+      - SERVICE_TEST_S3_URL=http://localstack:4572
+
+      - SERVICE_RESIZE_URL=http://service-resize:80
+      - SERVICE_TEST_S3_ENDPOINT=http://localhost:4572
+    ports:
+      - "8102:8000"

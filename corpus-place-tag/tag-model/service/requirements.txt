@@ -1,7 +1,0 @@
-Flask
-numpy
-pandas
-tensorflow==1.5
-keras
-sklearn
-h5py

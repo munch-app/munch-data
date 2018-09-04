@@ -1,0 +1,20 @@
+ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'
+
+task buildImage {
+  doLast {
+    exec { commandLine "docker", "build", "-t", dockerTag + dockerRegistryVersion, '.' }
+  }
+}
+task publishDocker {
+  dependsOn 'buildImage'
+
+  doLast {
+    exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
+  }
+}
+
+task buildLocal {
+  doLast {
+    exec { commandLine "docker", "build", "-f", "Dockerfile.local", "-t", dockerTag + 'local', '.' }
+  }
+}

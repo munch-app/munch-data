@@ -1,19 +1,17 @@
 rootProject.name = 'munch-data'
 
-// DynamoDB + Elasticsearch for Place, Location & Tag
-include 'data-client'
-include 'data-utils'
-include 'client-collections'
+// Munch Data Client & Service
+include 'data:data-core'
+include 'data:data-client'
+include 'data:data-service'
 
-include 'corpus-location'
+// Munch Data Catalyst Integration
+include 'catalyst:catalyst-plugin-place'
+include 'catalyst:catalyst-plugin-brand'
+include 'catalyst:catalyst-plugin-concept'
+include 'catalyst:catalyst-plugin-restricted-area'
+include 'catalyst:catalyst-plugin-restricted-name'
 
-include 'corpus-place'
-include 'corpus-place-image'
-include 'corpus-place-tag'
-include 'corpus-place-award'
-
-include 'corpus-ugc'
-include 'data'
-include 'client'
-include 'service'
-
+// Munch Data Interfaces
+include 'interface:interface-airtable'
+include 'interface:interface-website'
