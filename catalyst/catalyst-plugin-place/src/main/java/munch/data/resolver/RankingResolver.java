@@ -30,8 +30,12 @@ public final class RankingResolver {
             switch (field.getValue().getType()) {
                 case closed:
                 case moved:
+                case error:
+                case spam:
+                case closedHidden:
                 case renovation:
                     return true;
+
             }
         }
         return false;

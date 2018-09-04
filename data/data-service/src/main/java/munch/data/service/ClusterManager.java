@@ -135,7 +135,7 @@ public final class ClusterManager {
         root.putObject("query").set("bool", bool);
 
         List<Place> places = search(root);
-        places.removeIf(place -> !isPlaceInArea(place, area));
+        places.removeIf(place -> placeNotInArea(place, area));
         return places;
     }
 
@@ -154,7 +154,7 @@ public final class ClusterManager {
         root.putObject("query").set("bool", bool);
 
         List<Area> areaList = search(root);
-        areaList.removeIf(area -> !isPlaceInArea(place, area));
+        areaList.removeIf(area -> placeNotInArea(place, area));
         return areaList;
     }
 
@@ -163,26 +163,26 @@ public final class ClusterManager {
      * @param place to match
      * @return whether Area LocationCondition and Place condition match
      */
-    private boolean isPlaceInArea(Place place, Area area) {
+    private boolean placeNotInArea(Place place, Area area) {
         Area.LocationCondition condition = area.getLocationCondition();
-        if (condition == null) return true;
+        if (condition == null) return false;
 
         // Condition no PostCodes = ignore
         Set<String> postcodes = condition.getPostcodes();
         if (postcodes != null && !postcodes.isEmpty()) {
             // If Condition fail = false
-            if (!postcodes.contains(place.getLocation().getPostcode())) return false;
+            if (!postcodes.contains(place.getLocation().getPostcode())) return true;
         }
 
         // Condition no UnitNumbers = ignore
         Set<String> unitNumbers = condition.getUnitNumbers();
         if (unitNumbers != null && !unitNumbers.isEmpty()) {
             // If Condition fail = false
-            if (!unitNumbers.contains(place.getLocation().getUnitNumber())) return false;
+            if (!unitNumbers.contains(place.getLocation().getUnitNumber())) return true;
         }
 
         // Else Pass
-        return true;
+        return false;
     }
 
     private <T extends ElasticObject> List<T> search(JsonNode query) {

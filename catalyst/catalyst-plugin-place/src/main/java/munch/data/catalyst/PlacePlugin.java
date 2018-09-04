@@ -7,6 +7,7 @@ import munch.data.client.PlaceClient;
 import munch.data.place.Place;
 import munch.data.resolver.LocationSupportException;
 import munch.data.resolver.ResolverHaltException;
+import munch.data.resolver.StatusResolver;
 import munch.restful.core.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,13 @@ public final class PlacePlugin extends CollectPlugin {
     private final PlaceParser placeParser;
     private final PlaceClient placeClient;
 
+    private final StatusResolver statusResolver;
+
     @Inject
-    public PlacePlugin(PlaceParser placeParser, PlaceClient placeClient) {
+    public PlacePlugin(PlaceParser placeParser, PlaceClient placeClient, StatusResolver statusResolver) {
         this.placeParser = placeParser;
         this.placeClient = placeClient;
+        this.statusResolver = statusResolver;
     }
 
     @Override
@@ -63,7 +67,9 @@ public final class PlacePlugin extends CollectPlugin {
         Iterator<Place> iterator = placeClient.iterator();
         while (iterator.hasNext()) {
             Place place = iterator.next();
-            validate(place);
+            if (isDelete(place)) {
+                placeClient.delete(place.getPlaceId());
+            }
 
             if (++validated % 10000L == 0L) {
                 logger.info("Validated: {}", validated);
@@ -72,11 +78,18 @@ public final class PlacePlugin extends CollectPlugin {
         logger.info("Completed validating: {}", validated);
     }
 
-    private void validate(Place place) {
+    private boolean isDelete(Place place) {
         PlaceMutation mutation = placeMutationClient.get(place.getPlaceId());
-        if (mutation == null) {
-            // If mutation don't exist, delete
-            placeClient.delete(place.getPlaceId());
+        // If mutation don't exist, delete
+        if (mutation == null) return true;
+
+        try {
+            statusResolver.resolve(mutation);
+        } catch (ResolverHaltException ignored) {
+            return true;
         }
+
+        return false;
     }
+
 }

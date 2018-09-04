@@ -36,6 +36,11 @@ public final class StatusResolver {
         switch (type) {
             case closedHidden:
                 throw new ResolverHaltException("Closed Hidden");
+            case spam:
+                throw new ResolverHaltException("Spam");
+            case error:
+                throw new ResolverHaltException("Error");
+
             case closed:
                 return Place.Status.Type.closed;
             case open:

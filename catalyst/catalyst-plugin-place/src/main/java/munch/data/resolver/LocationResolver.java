@@ -11,6 +11,7 @@ import munch.data.location.Location;
 import munch.location.CountryCity;
 import munch.location.LocationClient;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -42,12 +43,14 @@ public final class LocationResolver {
     private final SourceMappingCache sourceMappingCache;
     private final LandmarkResolver landmarkResolver;
     private final LocationClient locationClient;
+    private final AreaRegionCache areaRegionCache;
 
     @Inject
-    public LocationResolver(SourceMappingCache sourceMappingCache, LandmarkResolver landmarkResolver, LocationClient locationClient) {
+    public LocationResolver(SourceMappingCache sourceMappingCache, LandmarkResolver landmarkResolver, LocationClient locationClient, AreaRegionCache areaRegionCache) {
         this.sourceMappingCache = sourceMappingCache;
         this.landmarkResolver = landmarkResolver;
         this.locationClient = locationClient;
+        this.areaRegionCache = areaRegionCache;
     }
 
     public Location resolve(PlaceMutation mutation) throws LocationSupportException {
@@ -60,7 +63,7 @@ public final class LocationResolver {
 
         Location location = new Location();
         location.setUnitNumber(getFirst(mutation.getUnitNumber()));
-        location.setNeighbourhood(locationClient.getNeighbourhood(lat, lng));
+        location.setNeighbourhood(getNeighbourhood(lat, lng));
 
         location.setStreet(getFirst(mutation.getStreet()));
         if (StringUtils.isBlank(location.getStreet())) location.setStreet(locationClient.getStreet(lat, lng));
@@ -81,6 +84,19 @@ public final class LocationResolver {
         location.setLandmarks(landmarkResolver.resolve(latLng));
         location.setAddress(getAddress(mutation, location));
         return location;
+    }
+
+    /**
+     * @param lat latitude
+     * @param lng longitude
+     * @return nearby Area.Region OR neighbourhood OR Singapore
+     */
+    private String getNeighbourhood(double lat, double lng) {
+        String location = areaRegionCache.getName(lat, lng);
+        if (StringUtils.isNotBlank(location)) return location;
+        String neighbourhood = locationClient.getNeighbourhood(lat, lng);
+        if (StringUtils.isNotBlank(neighbourhood)) return WordUtils.capitalizeFully(neighbourhood);
+        return "Singapore";
     }
 
     @Nullable

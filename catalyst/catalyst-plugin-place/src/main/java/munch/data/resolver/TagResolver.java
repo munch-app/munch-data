@@ -2,8 +2,6 @@ package munch.data.resolver;
 
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import munch.data.client.TagClient;
 import munch.data.place.Place;
 import munch.data.tag.Tag;
@@ -12,7 +10,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -24,25 +21,25 @@ import java.util.stream.Collectors;
 @Singleton
 public final class TagResolver {
     private Place.Tag restaurant = new Place.Tag();
-    private final Supplier<Map<String, Tag>> supplier;
+    private Map<String, Set<Tag>> tagsMap = new HashMap<>();
 
     @Inject
     public TagResolver(TagClient tagClient) {
-        this.supplier = Suppliers.memoizeWithExpiration(() -> {
-            Map<String, Tag> map = new HashMap<>();
+        tagClient.iterator().forEachRemaining(tag -> {
+            if (tag.getName().equalsIgnoreCase("restaurant")) {
+                restaurant = parse(tag);
+            }
 
-            tagClient.iterator().forEachRemaining(tag -> {
-                if (tag.getName().equalsIgnoreCase("restaurant")) {
-                    restaurant = parse(tag);
-                }
-
-                // Put Names
-                tag.getNames().forEach(s -> map.put(s.toLowerCase(), tag));
-                // Put Remapping
-                tag.getPlace().getRemapping().forEach(s -> map.put(s.toLowerCase(), tag));
+            // Put Names
+            tag.getNames().forEach(s -> {
+                tagsMap.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(tag);
             });
-            return map;
-        }, 8, TimeUnit.HOURS);
+
+            // Put Remapping
+            tag.getPlace().getRemapping().forEach(s -> {
+                tagsMap.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(tag);
+            });
+        });
     }
 
     public List<Place.Tag> resolve(PlaceMutation mutation) {
@@ -53,21 +50,21 @@ public final class TagResolver {
     }
 
     public List<Place.Tag> clean(List<String> tags) {
-        Map<String, Tag> map = supplier.get();
         Set<Tag> collected = tags.stream()
-                .map(s -> map.get(s.toLowerCase()))
+                .map(s -> tagsMap.get(s.toLowerCase()))
                 .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        List<Place.Tag> parsedList = new ArrayList<>();
-        select(1, 1, collected, parsedList);
-        select(2, 1, collected, parsedList);
-        select(3, 2, collected, parsedList);
-        collected.forEach(tag -> parsedList.add(parse(tag)));
+        List<Place.Tag> finalList = new ArrayList<>();
+        select(1, 1, collected, finalList);
+        select(2, 1, collected, finalList);
+        select(3, 2, collected, finalList);
+        collected.forEach(tag -> finalList.add(parse(tag)));
 
         // if not tag found, restaurant will be returned
-        if (parsedList.isEmpty()) return List.of(restaurant);
-        return parsedList;
+        if (finalList.isEmpty()) return List.of(restaurant);
+        return finalList;
     }
 
     private static void select(int level, int count, Set<Tag> tags, List<Place.Tag> list) {
@@ -86,6 +83,10 @@ public final class TagResolver {
         }
     }
 
+    /**
+     * @param tag converted to Place.Tag
+     * @return Place.Tag
+     */
     private static Place.Tag parse(Tag tag) {
         Place.Tag placeTag = new Place.Tag();
         placeTag.setTagId(tag.getTagId());
