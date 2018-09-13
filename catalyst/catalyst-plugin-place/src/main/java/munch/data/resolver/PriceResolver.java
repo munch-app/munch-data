@@ -17,12 +17,27 @@ import java.util.List;
 public final class PriceResolver {
 
     public Place.Price resolve(PlaceMutation mutation) {
-        List<MutationField<Double>> perPax = mutation.getMenuPricePerPax();
-        if (perPax.isEmpty()) return null;
-
+        Double perPax = findPerPax(mutation.getMenuPricePerPax());
+        if (perPax == null) return null;
 
         Place.Price price = new Place.Price();
-        price.setPerPax(perPax.get(0).getValue());
+        price.setPerPax(perPax);
         return price;
+    }
+
+    /**
+     * @param list of field to find
+     * @return per pax found
+     */
+    private Double findPerPax(List<MutationField<Double>> list) {
+        if (list.isEmpty()) return null;
+
+        for (MutationField<Double> perPax : list) {
+            if (perPax.getValue() <= 200.0 && perPax.getValue() > 0.0) return perPax.getValue();
+        }
+
+        if (list.get(0).getValue() <= 0) return null;
+        if (list.get(0).getValue() > 200) return 200d;
+        return null;
     }
 }
