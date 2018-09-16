@@ -53,7 +53,7 @@ public final class TagResolver {
                 .map(MutationField::getValue)
                 .collect(Collectors.toList());
 
-        List<Tag> finalTags = clean(tags);
+        List<Tag> finalTags = new ArrayList<>(clean(tags));
 
         // Add hours to Tag list if don't exist
         getTimingTags(mutation).forEach(tag -> {
