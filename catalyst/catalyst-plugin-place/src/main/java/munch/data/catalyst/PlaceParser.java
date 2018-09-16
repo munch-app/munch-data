@@ -2,6 +2,7 @@ package munch.data.catalyst;
 
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
+import edit.utils.website.DomainBlocked;
 import munch.data.place.Place;
 import munch.data.resolver.*;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 @Singleton
 public final class PlaceParser {
 
+    private final DomainBlocked domainBlocked;
+
     private final TagResolver tagResolver;
     private final StatusResolver statusResolver;
     private final LocationResolver locationResolver;
@@ -37,7 +40,8 @@ public final class PlaceParser {
     private final CreatedMillisResolver createdMillisResolver;
 
     @Inject
-    public PlaceParser(StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
+    public PlaceParser(DomainBlocked domainBlocked, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
+        this.domainBlocked = domainBlocked;
         this.statusResolver = statusResolver;
         this.tagResolver = tagResolver;
         this.locationResolver = locationResolver;
@@ -64,7 +68,7 @@ public final class PlaceParser {
         place.setTags(tagResolver.resolve(mutation));
 
         place.setPhone(parseStringFirst(mutation.getPhone()));
-        place.setWebsite(parseStringFirst(mutation.getWebsite()));
+        place.setWebsite(parseWebsite(mutation.getWebsite()));
         place.setDescription(parseStringFirst(mutation.getDescription()));
 
         place.setLocation(locationResolver.resolve(mutation));
@@ -87,6 +91,15 @@ public final class PlaceParser {
     public String parseStringFirst(List<MutationField<String>> fields) {
         if (fields.isEmpty()) return null;
         return StringUtils.trimToNull(fields.get(0).getValue());
+    }
+
+    @Nullable
+    public String parseWebsite(List<MutationField<String>> fields) {
+        for (MutationField<String> field : fields) {
+            if (domainBlocked.isBlockedUrl(field.getValue())) continue;
+            return field.getValue();
+        }
+        return null;
     }
 
     public Set<String> parseStringAll(List<MutationField<String>> fields) {
