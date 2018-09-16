@@ -122,8 +122,8 @@ public final class PlaceEditMapper {
         AboutEdit about = new AboutEdit();
         about.setWebsite(brand.getWebsite());
         String description = StringUtils.trimToNull(brand.getDescription());
-        if (StringUtils.isNotBlank(description) && description.length() >= 3 && description.length() <= 500) {
-            about.setDescription(brand.getDescription());
+        if (StringUtils.isNotBlank(description) && description.length() >= 3) {
+            about.setDescription(StringUtils.substring(brand.getDescription(), 0, 1000));
         }
         return about;
     }
