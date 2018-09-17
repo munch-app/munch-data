@@ -83,7 +83,7 @@ public final class PlaceParser {
         place.setCreatedMillis(createdMillisResolver.resolve(mutation));
         place.setUpdatedMillis(mutation.getMillis());
 
-        place.setRanking(rankingResolver.resolve(mutation));
+        place.setRanking(rankingResolver.resolve(place, mutation));
         return place;
     }
 

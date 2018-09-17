@@ -3,6 +3,7 @@ package munch.data.resolver;
 import catalyst.edit.StatusEdit;
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
+import munch.data.place.Place;
 
 import javax.inject.Singleton;
 import java.util.List;
@@ -16,13 +17,19 @@ import java.util.List;
 @Singleton
 public final class RankingResolver {
 
-    public double resolve(PlaceMutation mutation) {
+    public double resolve(Place place, PlaceMutation mutation) {
         if (isClosed(mutation)) return 0;
 
         List<MutationField<Double>> ranking = mutation.getRanking();
         if (ranking.isEmpty()) return 100;
 
-        return ranking.get(0).getValue();
+        if (!place.getImages().isEmpty()) {
+            return ranking.get(0).getValue();
+        }
+
+        double value = ranking.get(0).getValue();
+        if (value < 800) return value;
+        return value - 800;
     }
 
     private boolean isClosed(PlaceMutation mutation) {

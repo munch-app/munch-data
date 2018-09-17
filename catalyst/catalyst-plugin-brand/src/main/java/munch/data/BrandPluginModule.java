@@ -5,8 +5,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import munch.data.catalyst.BrandPlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by: Fuxing
@@ -22,7 +20,5 @@ public final class BrandPluginModule extends AbstractModule {
         injector.getInstance(PluginRunner.class).run(
                 injector.getInstance(BrandPlugin.class)
         );
-
-        System.exit(0);
     }
 }

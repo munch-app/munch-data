@@ -83,7 +83,7 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
         builder.withFilterPolygon("latLng.value", points);
         if (names.size() == 1) {
             builder.withFilterTerm("name.value", names.get(0));
-        }else if (names.size() > 1) {
+        } else if (names.size() > 1) {
             builder.withBoolOption("minimum_should_match", 1);
             names.forEach(s -> builder.withShould(ElasticQueryUtils.match("name.value", s)));
         }
