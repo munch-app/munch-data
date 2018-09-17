@@ -23,13 +23,11 @@ public final class RankingResolver {
         List<MutationField<Double>> ranking = mutation.getRanking();
         if (ranking.isEmpty()) return 100;
 
-        if (!place.getImages().isEmpty()) {
+        if (place.getImages().isEmpty()) {
             return ranking.get(0).getValue();
         }
 
-        double value = ranking.get(0).getValue();
-        if (value < 800) return value;
-        return value - 800;
+        return ranking.get(0).getValue() + 1500;
     }
 
     private boolean isClosed(PlaceMutation mutation) {
