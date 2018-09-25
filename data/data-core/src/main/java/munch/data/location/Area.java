@@ -2,7 +2,6 @@ package munch.data.location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
 import munch.file.Image;
 
@@ -279,11 +278,15 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
     }
 
     public enum Type {
-        @JsonProperty("City")
         City,
-        @JsonProperty("Region")
         Region,
-        @JsonProperty("Cluster")
-        Cluster
+        Cluster,
+
+        /**
+         * Ad-hoc generated Area that is not persistence
+         * To be used by services that need data to be in Area format without persisting the data
+         * e.g. Search Feature: Eat Between
+         */
+        Generated,
     }
 }
