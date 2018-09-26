@@ -2,6 +2,8 @@ package munch.data.catalyst;
 
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import edit.utils.name.NameSimilarity;
 import munch.data.brand.Brand;
 
@@ -50,5 +52,11 @@ public final class BrandComparator {
             names.add(name.toLowerCase());
         }
         return names;
+    }
+
+    public static void main(String[] args) {
+        Injector injector = Guice.createInjector();
+        NameSimilarity similarity = injector.getInstance(NameSimilarity.class);
+        System.out.println(similarity.compare("Hei Sushi", "Hei Sushi"));
     }
 }
