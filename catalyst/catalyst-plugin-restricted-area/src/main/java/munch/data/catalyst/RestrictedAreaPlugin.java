@@ -73,7 +73,7 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
 
     @Override
     protected Iterator<PlaceMutation> search(RestrictedArea area) {
-        namedCounter.increment("RestrictedArea");
+        namedCounter.increment("Restricted Area");
 
         List<String> points = getPoints(area);
         Set<String> postcodes = area.getLocationCondition().getPostcodes();
