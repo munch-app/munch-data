@@ -5,6 +5,7 @@ import catalyst.mutation.PlaceImageMutation;
 import catalyst.mutation.PlaceMutation;
 import munch.file.Image;
 import munch.file.ImageClient;
+import munch.file.ImageMeta;
 import munch.restful.core.NextNodeList;
 
 import javax.inject.Inject;
@@ -32,18 +33,28 @@ public final class ImageResolver {
 
     public List<Image> resolve(PlaceMutation mutation) {
         List<Image> images = new ArrayList<>();
-        images.addAll(getImages(mutation, PlaceImageMutation.Type.food, 4));
-        images.addAll(getImages(mutation, PlaceImageMutation.Type.place, 1));
+        images.addAll(getImages(mutation, PlaceImageMutation.Type.food, 10));
+        images.addAll(getImages(mutation, PlaceImageMutation.Type.place, 2));
         return images;
     }
 
-    private List<Image> getImages(PlaceMutation mutation, PlaceImageMutation.Type type, int size) {
-        NextNodeList<PlaceImageMutation> images = imageMutationClient.list(mutation.getPlaceId(), type, null, size * 3);
+    private List<? extends Image> getImages(PlaceMutation mutation, PlaceImageMutation.Type type, int size) {
+        NextNodeList<PlaceImageMutation> images = imageMutationClient.list(mutation.getPlaceId(), type, null, size);
         if (hasConflict(images)) images.removeIf(pim -> pim.getSource().equals("v2.catalyst.munch.space"));
 
-        return images.stream()
+        List<ImageMeta> imageMetas = images.stream()
                 .map(im -> imageClient.get(im.getImageId()))
                 .collect(Collectors.toList());
+
+        if (isAnyPNG(imageMetas)) {
+            List<ImageMeta> nonPNGImages = imageMetas.stream()
+                    .filter(image -> !isPNG(image))
+                    .collect(Collectors.toList());
+
+            if (!nonPNGImages.isEmpty()) return nonPNGImages;
+        }
+
+        return imageMetas;
     }
 
     private static boolean hasConflict(List<PlaceImageMutation> images) {
@@ -56,5 +67,19 @@ public final class ImageResolver {
             }
         }
         return hasV2 && hasOther;
+    }
+
+    /**
+     * deprecate this fast
+     */
+    private static boolean isAnyPNG(List<ImageMeta> images) {
+        for (ImageMeta image : images) {
+            if (isPNG(image)) return true;
+        }
+        return false;
+    }
+
+    private static boolean isPNG(ImageMeta image) {
+        return image.getMeta() != null && image.getMeta().getContentType().equals("image/png");
     }
 }

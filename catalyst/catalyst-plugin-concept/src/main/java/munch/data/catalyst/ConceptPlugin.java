@@ -71,7 +71,7 @@ public final class ConceptPlugin extends LinkPlugin<Concept> {
 
         return placeMutationClient.searchBuilder()
                 .withFilterPolygon("latLng.value", Objects.requireNonNull(points))
-                .withMatchQueryString("name.value", ElasticQueryStringUtils.Operator.OR, values)
+                .withMustQueryString("name.value", ElasticQueryStringUtils.Operator.OR, values)
                 .asIterator();
     }
 

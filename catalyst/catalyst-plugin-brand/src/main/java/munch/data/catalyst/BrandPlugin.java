@@ -8,16 +8,15 @@ import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
 import munch.data.brand.Brand;
 import munch.data.client.BrandClient;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -72,7 +71,7 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
     public Iterator<PlaceMutation> search(Brand brand) {
         if (!brand.getPlace().isAutoLink()) return Collections.emptyIterator();
 
-        List<String> names = getNames(brand);
+        Set<String> names = getNames(brand);
         List<String> points = getPoints(brand);
         if (names.isEmpty() || points == null) {
             logger.warn("Names or Points is empty for Brand: {}", brand);
@@ -81,13 +80,9 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
 
         ElasticSearchBuilder<PlaceMutation> builder = placeMutationClient.searchBuilder();
         builder.withFilterPolygon("latLng.value", points);
-        if (names.size() == 1) {
-            builder.withMatch("name.value", names.get(0));
-        } else if (names.size() > 1) {
-            builder.withBoolOption("minimum_should_match", 1);
-            names.forEach(s -> builder.withShould(ElasticQueryUtils.match("name.value", s)));
-        }
 
+        builder.withBoolOption("minimum_should_match", 1);
+        names.forEach(s -> builder.withShould(ElasticQueryUtils.match("name.value", s)));
         return builder.asIterator();
     }
 
@@ -96,15 +91,13 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
         return brand.getLocation().getCountry().getPoints();
     }
 
-    private static List<String> getNames(Brand brand) {
-        List<String> names = new ArrayList<>();
+    private static Set<String> getNames(Brand brand) {
+        Set<String> names = new HashSet<>();
         names.add(brand.getName());
-
-        for (String name : brand.getNames()) {
-            if (!names.contains(name)) {
-                names.add(name);
-            }
-        }
-        return names;
+        names.addAll(brand.getNames());
+        return names.stream()
+                .map(StringUtils::lowerCase)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 }

@@ -10,12 +10,12 @@ allprojects {
     ext.dockerRegistryUrl = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/'
     ext.dockerRegistryVersion = '4.10'
 
-    ext.restfulVersion = '2.4.12'
+    ext.restfulVersion = '2.4.21'
     ext.fileVersion = '1.2.11'
     ext.guiceVersion = '4.2.0'
 
     ext.awsVersion = '1.11.367'
-    ext.ccVersion = '3.0-SNAPSHOT'
+    ext.ccVersion = '3.1-SNAPSHOT'
 
     sourceCompatibility = 1.9
     targetCompatibility = 1.9

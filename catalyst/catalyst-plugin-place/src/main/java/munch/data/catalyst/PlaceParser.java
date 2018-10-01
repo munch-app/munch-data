@@ -5,6 +5,8 @@ import catalyst.mutation.PlaceMutation;
 import edit.utils.website.DomainBlocked;
 import munch.data.place.Place;
 import munch.data.resolver.*;
+import munch.data.resolver.name.NameResolver;
+import munch.data.resolver.tag.TagResolver;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -25,6 +27,7 @@ public final class PlaceParser {
 
     private final DomainBlocked domainBlocked;
 
+    private final NameResolver nameResolver;
     private final TagResolver tagResolver;
     private final StatusResolver statusResolver;
     private final LocationResolver locationResolver;
@@ -40,8 +43,9 @@ public final class PlaceParser {
     private final CreatedMillisResolver createdMillisResolver;
 
     @Inject
-    public PlaceParser(DomainBlocked domainBlocked, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
+    public PlaceParser(DomainBlocked domainBlocked, NameResolver nameResolver, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
         this.domainBlocked = domainBlocked;
+        this.nameResolver = nameResolver;
         this.statusResolver = statusResolver;
         this.tagResolver = tagResolver;
         this.locationResolver = locationResolver;
@@ -63,8 +67,8 @@ public final class PlaceParser {
         place.setPlaceId(mutation.getPlaceId());
         place.setStatus(statusResolver.resolve(mutation));
 
-        place.setName(parseStringFirst(mutation.getName()));
-        place.setNames(parseStringAll(mutation.getName()));
+        place.setName(nameResolver.resolve(mutation));
+        place.setNames(nameResolver.resolveAll(mutation));
         place.setTags(tagResolver.resolve(mutation));
 
         place.setPhone(parseStringFirst(mutation.getPhone()));
