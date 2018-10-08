@@ -1,7 +1,7 @@
 project('interface-airtable') {
     dependencies {
         compile project(':data:data-client')
-        compile group: 'catalyst', name: 'edit-hour-utils', version: ccVersion
+        compile group: 'catalyst', name: 'catalyst-edit-hour-utils', version: ccVersion
         compile group: 'catalyst', name: 'corpus-framework-airtable', version: '2.5.0-SNAPSHOT'
         compile group: 'file-service', name: 'client', version: fileVersion
 

@@ -15,7 +15,7 @@ allprojects {
     ext.guiceVersion = '4.2.1'
 
     ext.awsVersion = '1.11.367'
-    ext.ccVersion = '3.1-SNAPSHOT'
+    ext.ccVersion = '3.1'
 
     sourceCompatibility = 1.9
     targetCompatibility = 1.9
@@ -34,6 +34,7 @@ allprojects {
     publishing {
         publications {
             mavenJava(MavenPublication) {
+                artifactId 'munch-data-' + project.name
                 from components.java
                 artifact(sourcesJar) {
                     classifier = 'sources'

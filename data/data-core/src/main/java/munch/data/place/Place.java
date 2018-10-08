@@ -42,16 +42,16 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     private Menu menu;
     private Price price;
-    private Counts counts;
     private Brand brand;
 
     private List<Hour> hours;
     private List<Image> images;
-    private List<Area> areas; // Area data is Managed
+    private List<Area> areas; // Area data is Managed by Service
 
     private long createdMillis;
     private long updatedMillis;
 
+    private Taste taste;
     // Deprecate this once TasteBud is ready
     private Double ranking;
 
@@ -160,16 +160,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         this.price = price;
     }
 
-    @Nullable
-    @Valid
-    public Counts getCounts() {
-        return counts;
-    }
-
-    public void setCounts(Counts counts) {
-        this.counts = counts;
-    }
-
     @Valid
     @Nullable
     public Brand getBrand() {
@@ -225,12 +215,23 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
+    @Deprecated
     public Double getRanking() {
         return ranking;
     }
 
     public void setRanking(Double ranking) {
         this.ranking = ranking;
+    }
+
+    @NotNull
+    @Valid
+    public Taste getTaste() {
+        return taste;
+    }
+
+    public void setTaste(Taste taste) {
+        this.taste = taste;
     }
 
     @Override
@@ -256,17 +257,19 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                 ", name='" + name + '\'' +
                 ", names=" + names +
                 ", tags=" + tags +
+                ", phone='" + phone + '\'' +
                 ", website='" + website + '\'' +
                 ", description='" + description + '\'' +
                 ", location=" + location +
                 ", menu=" + menu +
                 ", price=" + price +
-                ", counts=" + counts +
+                ", brand=" + brand +
                 ", hours=" + hours +
                 ", images=" + images +
                 ", areas=" + areas +
                 ", createdMillis=" + createdMillis +
                 ", updatedMillis=" + updatedMillis +
+                ", taste=" + taste +
                 ", ranking=" + ranking +
                 '}';
     }
@@ -487,114 +490,37 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         }
     }
 
+    /**
+     * Global taste summary from munch-taste service/system
+     */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Counts {
-        private Article article;
-        private Instagram instagram;
+    public static class Taste {
+        private int group;
+        private double importance;
 
-        @Nullable
-        public Article getArticle() {
-            return article;
+        public int getGroup() {
+            return group;
         }
 
-        public void setArticle(Article article) {
-            this.article = article;
+        public void setGroup(int group) {
+            this.group = group;
         }
 
-        @Nullable
-        public Instagram getInstagram() {
-            return instagram;
+        public double getImportance() {
+            return importance;
         }
 
-        public void setInstagram(Instagram instagram) {
-            this.instagram = instagram;
+        public void setImportance(double importance) {
+            this.importance = importance;
         }
 
         @Override
         public String toString() {
-            return "Counts{" +
-                    "article=" + article +
-                    ", instagram=" + instagram +
+            return "Taste{" +
+                    "group=" + group +
+                    ", importance=" + importance +
                     '}';
-        }
-
-        public static class Article {
-            private long profile;
-            private long single;
-            private long list;
-            private long total;
-
-            public long getProfile() {
-                return profile;
-            }
-
-            public void setProfile(long profile) {
-                this.profile = profile;
-            }
-
-            public long getSingle() {
-                return single;
-            }
-
-            public void setSingle(long single) {
-                this.single = single;
-            }
-
-            public long getList() {
-                return list;
-            }
-
-            public void setList(long list) {
-                this.list = list;
-            }
-
-            public long getTotal() {
-                return total;
-            }
-
-            public void setTotal(long total) {
-                this.total = total;
-            }
-
-            @Override
-            public String toString() {
-                return "Article{" +
-                        "profile=" + profile +
-                        ", single=" + single +
-                        ", list=" + list +
-                        ", total=" + total +
-                        '}';
-            }
-        }
-
-        public static class Instagram {
-            private long profile;
-            private long total;
-
-            public long getProfile() {
-                return profile;
-            }
-
-            public void setProfile(long profile) {
-                this.profile = profile;
-            }
-
-            public long getTotal() {
-                return total;
-            }
-
-            public void setTotal(long total) {
-                this.total = total;
-            }
-
-            @Override
-            public String toString() {
-                return "Instagram{" +
-                        "profile=" + profile +
-                        ", total=" + total +
-                        '}';
-            }
         }
     }
 }

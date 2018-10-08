@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by: Fuxing
@@ -29,12 +30,14 @@ public final class PlacePlugin extends CollectPlugin {
     private final PlaceParser placeParser;
     private final PlaceClient placeClient;
 
+    private final TasteResolver tasteResolver;
     private final StatusResolver statusResolver;
 
     @Inject
-    public PlacePlugin(PlaceParser placeParser, PlaceClient placeClient, StatusResolver statusResolver) {
+    public PlacePlugin(PlaceParser placeParser, PlaceClient placeClient, TasteResolver tasteResolver, StatusResolver statusResolver) {
         this.placeParser = placeParser;
         this.placeClient = placeClient;
+        this.tasteResolver = tasteResolver;
         this.statusResolver = statusResolver;
     }
 
@@ -46,7 +49,7 @@ public final class PlacePlugin extends CollectPlugin {
     @Override
     protected void receive(PlaceMutation placeMutation) {
         try {
-            Place place = placeParser.parse(placeMutation);
+            Place place = parse(placeMutation);
             placeClient.put(place);
         } catch (LocationSupportException e) {
             logger.warn("Location not supported for {}", placeMutation.getPlaceId(), e);
@@ -85,11 +88,19 @@ public final class PlacePlugin extends CollectPlugin {
 
         try {
             statusResolver.resolve(mutation);
-        } catch (ResolverHaltException ignored) {
+            parse(mutation);
+            return false;
+        } catch (ResolverHaltException | LocationSupportException ignored) {
             return true;
         }
-
-        return false;
     }
 
+    private Place parse(PlaceMutation mutation) throws LocationSupportException, ResolverHaltException {
+        Place place = placeParser.parse(mutation);
+        place.setTaste(tasteResolver.resolve(place));
+        place.setAreas(List.of());
+
+        ValidationException.validate(place);
+        return place;
+    }
 }

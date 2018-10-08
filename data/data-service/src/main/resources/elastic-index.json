@@ -195,19 +195,6 @@
         "place": {
           "enabled": false
         },
-        "counts": {
-          "properties": {
-            "total": {
-              "type": "long"
-            },
-            "article": {
-              "enabled": false
-            },
-            "instagram": {
-              "enabled": false
-            }
-          }
-        },
         "price": {
           "properties": {
             "perPax": {
@@ -225,6 +212,16 @@
             },
             "updatedMillis": {
               "type": "long"
+            }
+          }
+        },
+        "taste": {
+          "properties": {
+            "group": {
+              "type": "long"
+            },
+            "importance": {
+              "type": "double"
             }
           }
         },
