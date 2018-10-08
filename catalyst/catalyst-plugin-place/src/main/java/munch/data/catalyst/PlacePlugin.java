@@ -90,12 +90,12 @@ public final class PlacePlugin extends CollectPlugin {
             statusResolver.resolve(mutation);
             parse(mutation);
             return false;
-        } catch (ResolverHaltException | LocationSupportException ignored) {
+        } catch (ResolverHaltException | LocationSupportException | ValidationException ignored) {
             return true;
         }
     }
 
-    private Place parse(PlaceMutation mutation) throws LocationSupportException, ResolverHaltException {
+    private Place parse(PlaceMutation mutation) throws LocationSupportException, ResolverHaltException, ValidationException {
         Place place = placeParser.parse(mutation);
         place.setTaste(tasteResolver.resolve(place));
         place.setAreas(List.of());
