@@ -15,7 +15,7 @@ allprojects {
     ext.guiceVersion = '4.2.1'
 
     ext.awsVersion = '1.11.367'
-    ext.ccVersion = '3.1'
+    ext.ccVersion = '3.2-SNAPSHOT'
 
     sourceCompatibility = 1.9
     targetCompatibility = 1.9

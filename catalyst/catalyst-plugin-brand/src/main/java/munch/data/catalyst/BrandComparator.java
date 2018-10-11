@@ -2,8 +2,6 @@ package munch.data.catalyst;
 
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import edit.utils.name.NameSimilarity;
 import munch.data.brand.Brand;
 
@@ -36,6 +34,8 @@ public final class BrandComparator {
     private boolean match(Brand brand, List<MutationField<String>> nameFields) {
         for (String brandName : getNames(brand)) {
             for (MutationField<String> nameField : nameFields) {
+                if (hasOnlyBrandSource(nameField)) return false;
+
                 if (nameSimilarity.equals(brandName, nameField.getValue())) {
                     return true;
                 }
@@ -45,6 +45,11 @@ public final class BrandComparator {
         return false;
     }
 
+    private boolean hasOnlyBrandSource(MutationField<?> field) {
+        if (field.getSources().size() != 1) return false;
+        return field.getSources().get(0).getSource().equals("brand.data.munch.space");
+    }
+
     private Set<String> getNames(Brand brand) {
         Set<String> names = new HashSet<>();
         names.add(brand.getName().toLowerCase());
@@ -52,11 +57,5 @@ public final class BrandComparator {
             names.add(name.toLowerCase());
         }
         return names;
-    }
-
-    public static void main(String[] args) {
-        Injector injector = Guice.createInjector();
-        NameSimilarity similarity = injector.getInstance(NameSimilarity.class);
-        System.out.println(similarity.compare("Hei Sushi", "Hei Sushi"));
     }
 }
