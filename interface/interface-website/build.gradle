@@ -18,3 +18,18 @@ task buildLocal {
     exec { commandLine "docker", "build", "-f", "Dockerfile.local", "-t", dockerTag + 'local', '.' }
   }
 }
+
+task publishInterfaceWebsite {
+  doLast {
+    exec {
+      commandLine "docker", "build", "-t", 
+        dockerTag + dockerRegistryVersion, '.'
+    }
+    exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
+    exec { commandLine 'aws', 'ecs', 'update-service',
+      '--cluster', 'munch-core',
+      '--service', 'MunchData_InterfaceWebsite',
+      '--force-new-deployment'
+    }
+  }
+}

@@ -194,10 +194,10 @@
       },
 
       validate(data) {
-        if (data.name && data.name.isBlank()) delete data.name
-        if (data.phone && data.phone.isBlank()) delete data.phone
-        if (data.website && data.website.isBlank()) delete data.website
-        if (data.description && data.description.isBlank()) delete data.description
+        if (!data.name && data.name.isBlank()) delete data.name
+        if (!data.phone && data.phone.isBlank()) delete data.phone
+        if (!data.website && data.website.isBlank()) delete data.website
+        if (!data.description && data.description.isBlank()) delete data.description
 
         if (data.menu && (!data.menu.url || data.menu.url.isBlank())) {
           delete data.menu
@@ -216,6 +216,7 @@
 
       complete(data) {
         data = this.validate(data)
+        console.log(data)
 
         const brandId = this.$route.params.brandId
         if (brandId === '_') {
