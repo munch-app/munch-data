@@ -55,7 +55,7 @@ public final class PlaceCachedClient {
 
         // Batch get and persist into loading cache
         Map<String, Place> batch = placeClient.batchGet(collected);
-        batch.forEach((s, place) -> loadingCache.put(s, Optional.of(place)));
+        batch.forEach((s, place) -> loadingCache.put(s, Optional.ofNullable(place)));
 
         // Join and return
         Map<String, Place> mapped = new HashMap<>(batch);
