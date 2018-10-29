@@ -40,8 +40,6 @@ public final class ImageResolver {
 
     private List<? extends Image> getImages(PlaceMutation mutation, PlaceImageMutation.Type type, int size) {
         NextNodeList<PlaceImageMutation> images = imageMutationClient.list(mutation.getPlaceId(), type, null, size);
-        if (hasConflict(images)) images.removeIf(pim -> pim.getSource().equals("v2.catalyst.munch.space"));
-
         List<ImageMeta> imageMetas = images.stream()
                 .map(im -> imageClient.get(im.getImageId()))
                 .collect(Collectors.toList());
@@ -55,18 +53,6 @@ public final class ImageResolver {
         }
 
         return imageMetas;
-    }
-
-    private static boolean hasConflict(List<PlaceImageMutation> images) {
-        boolean hasV2 = false, hasOther = false;
-        for (PlaceImageMutation image : images) {
-            if (image.getSource().equals("v2.catalyst.munch.space")) {
-                hasV2 = true;
-            } else {
-                hasOther = true;
-            }
-        }
-        return hasV2 && hasOther;
     }
 
     /**
