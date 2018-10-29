@@ -33,7 +33,7 @@ public final class ImageResolver {
 
     public List<Image> resolve(PlaceMutation mutation) {
         List<Image> images = new ArrayList<>();
-        images.addAll(getImages(mutation, PlaceImageMutation.Type.food, 10));
+        images.addAll(getImages(mutation, PlaceImageMutation.Type.food, 8));
         images.addAll(getImages(mutation, PlaceImageMutation.Type.place, 2));
         return images;
     }
