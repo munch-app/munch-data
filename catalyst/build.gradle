@@ -5,7 +5,7 @@ project('catalyst-plugin-brand') {
 
     }
 
-    apply plugin: 'application'
+    apply from: (project.rootDir.toString() + '/docker.gradle')
     mainClassName = 'munch.data.BrandPluginModule'
 }
 
@@ -19,7 +19,7 @@ project('catalyst-plugin-concept') {
         compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
     }
 
-    apply plugin: 'application'
+    apply from: (project.rootDir.toString() + '/docker.gradle')
     mainClassName = 'munch.data.catalyst.ConceptModule'
 }
 
@@ -28,12 +28,12 @@ project('catalyst-plugin-place') {
         compile project(':data:data-client')
         compile group: 'catalyst', name: 'catalyst-plugin-collect', version: ccVersion
 
-        compile group: 'file-service', name: 'client', version: fileVersion
+        compile group: 'file-service', name: 'file-service-client', version: fileVersion
         compile group: 'location-service', name: 'client', version: '1.1'
         compile group: 'munch-taste', name: 'client', version: '1.0-SNAPSHOT'
     }
 
-    apply plugin: 'application'
+    apply from: (project.rootDir.toString() + '/docker.gradle')
     mainClassName = 'munch.data.PlacePluginModule'
 }
 
@@ -47,7 +47,7 @@ project('catalyst-plugin-restricted-area') {
         compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
     }
 
-    apply plugin: 'application'
+    apply from: (project.rootDir.toString() + '/docker.gradle')
     mainClassName = 'munch.data.catalyst.RestrictedAreaModule'
 }
 
@@ -61,41 +61,6 @@ project('catalyst-plugin-restricted-name') {
         compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
     }
 
-    apply plugin: 'application'
+    apply from: (project.rootDir.toString() + '/docker.gradle')
     mainClassName = 'munch.data.catalyst.RestrictedNameModule'
-}
-
-subprojects {
-    apply plugin: 'com.bmuschko.docker-java-application'
-
-    ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'
-
-    dockerDistTar {
-        instruction {'RUN apt-get update'}
-        instruction {'RUN apt-get -qq -y install curl'}
-        instruction {'RUN rm -rf /var/lib/apt/lists/*'}
-    }
-
-    docker {
-        javaApplication {
-            baseImage = 'openjdk:9-jdk-slim'
-            maintainer = 'Fuxing'
-            ports = [8000, 7755]
-            tag = dockerTag + dockerRegistryVersion
-        }
-    }
-
-    task buildImage {
-        dependsOn 'clean'
-        dependsOn 'dockerBuildImage'
-        tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
-    }
-
-    task publishDocker {
-        dependsOn 'buildImage'
-
-        doLast {
-            exec { commandLine "docker", "push", dockerTag + dockerRegistryVersion }
-        }
-    }
 }

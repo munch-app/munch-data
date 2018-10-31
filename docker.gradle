@@ -1,0 +1,30 @@
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
+
+ext.dockerTag = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/' +
+        rootProject.name +
+        '/' + project.name + ':3'
+
+docker {
+    javaApplication {
+        baseImage = 'fuxingloh/java:9-slim-curl'
+        maintainer = 'Fuxing'
+        ports = [8000, 7755]
+        tag = dockerTag
+    }
+}
+
+task buildImage {
+    dependsOn 'clean'
+    dependsOn 'dockerBuildImage'
+    tasks.findByName('dockerBuildImage').mustRunAfter 'clean'
+}
+
+task publishDocker {
+    dependsOn 'buildImage'
+
+    doLast {
+        exec { commandLine "docker", "push", dockerTag }
+    }
+}

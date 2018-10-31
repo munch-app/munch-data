@@ -1,7 +1,7 @@
 project('data-core') {
     dependencies {
         compile group: 'munch.restful', name: 'restful-core', version: restfulVersion
-        compile group: 'file-service', name: 'data', version: fileVersion
+        compile group: 'file-service', name: 'file-service-data', version: fileVersion
     }
 
     task publishLib {

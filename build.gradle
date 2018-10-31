@@ -10,8 +10,8 @@ allprojects {
     ext.dockerRegistryUrl = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/'
     ext.dockerRegistryVersion = '4.10'
 
-    ext.restfulVersion = '2.4.21'
-    ext.fileVersion = '1.2.11'
+    ext.restfulVersion = '2.4.22'
+    ext.fileVersion = '1.2.15'
     ext.guiceVersion = '4.2.1'
 
     ext.awsVersion = '1.11.367'
@@ -64,8 +64,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.6+"
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.12'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+        classpath 'com.bmuschko:gradle-docker-plugin:3.6.2'
     }
 }
 
