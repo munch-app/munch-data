@@ -2,9 +2,8 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'com.bmuschko.docker-java-application'
 
-ext.dockerTag = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/' +
-        rootProject.name +
-        '/' + project.name + ':3'
+ext.dockerTag = dockerRegistryUrl + rootProject.name +
+        '/' + project.name + ':' + dockerRegistryVersion
 
 docker {
     javaApplication {
