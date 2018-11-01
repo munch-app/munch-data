@@ -278,8 +278,24 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
     }
 
     public enum Type {
+        /**
+         * Defining the entire City
+         */
         City,
+
+        /**
+         * Contains multi region,
+         */
+        Superset,
+
+        /**
+         * Region defined by administrative level
+         */
         Region,
+
+        /**
+         * Custom created cluster
+         */
         Cluster,
 
         /**
