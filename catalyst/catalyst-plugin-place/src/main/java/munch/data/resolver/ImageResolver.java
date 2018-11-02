@@ -3,16 +3,16 @@ package munch.data.resolver;
 import catalyst.mutation.ImageMutationClient;
 import catalyst.mutation.PlaceImageMutation;
 import catalyst.mutation.PlaceMutation;
+import com.google.common.collect.Iterators;
 import munch.file.Image;
 import munch.file.ImageClient;
 import munch.file.ImageMeta;
-import munch.restful.core.NextNodeList;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -32,37 +32,37 @@ public final class ImageResolver {
     }
 
     public List<Image> resolve(PlaceMutation mutation) {
-        List<Image> images = new ArrayList<>();
-        images.addAll(getImages(mutation, PlaceImageMutation.Type.food, 8));
-        images.addAll(getImages(mutation, PlaceImageMutation.Type.place, 2));
-        return images;
+        Image image = getImage(mutation, PlaceImageMutation.Type.food);
+        if (image != null) return List.of(image);
+
+        image = getImage(mutation, PlaceImageMutation.Type.place);
+        if (image != null) return List.of(image);
+
+        Iterator<ImageMeta> iterator = iterator(mutation.getPlaceId(), PlaceImageMutation.Type.food);
+        Image next = Iterators.getNext(iterator, null);
+
+        if (next != null) return List.of(next);
+        return List.of();
     }
 
-    private List<? extends Image> getImages(PlaceMutation mutation, PlaceImageMutation.Type type, int size) {
-        NextNodeList<PlaceImageMutation> images = imageMutationClient.list(mutation.getPlaceId(), type, null, size);
-        List<ImageMeta> imageMetas = images.stream()
-                .map(im -> imageClient.get(im.getImageId()))
-                .collect(Collectors.toList());
+    private Image getImage(PlaceMutation mutation, PlaceImageMutation.Type type) {
+        Iterator<ImageMeta> iterator = iterator(mutation.getPlaceId(), type);
 
-        if (isAnyPNG(imageMetas)) {
-            List<ImageMeta> nonPNGImages = imageMetas.stream()
-                    .filter(image -> !isPNG(image))
-                    .collect(Collectors.toList());
-
-            if (!nonPNGImages.isEmpty()) return nonPNGImages;
-        }
-
-        return imageMetas;
+        return Iterators.find(iterator, image -> {
+            if (image == null) return false;
+            if (isPNG(image)) return false;
+            return true;
+        }, null);
     }
 
-    /**
-     * deprecate this fast
-     */
-    private static boolean isAnyPNG(List<ImageMeta> images) {
-        for (ImageMeta image : images) {
-            if (isPNG(image)) return true;
-        }
-        return false;
+    private Iterator<ImageMeta> iterator(String placeId, PlaceImageMutation.Type type) {
+        Iterator<PlaceImageMutation> iterator = imageMutationClient.iterator(placeId, type, 10);
+
+        Iterator<ImageMeta> images = Iterators.transform(iterator, im -> {
+            if (im == null) return null;
+            return imageClient.get(im.getImageId());
+        });
+        return Iterators.filter(images, Objects::nonNull);
     }
 
     private static boolean isPNG(ImageMeta image) {
