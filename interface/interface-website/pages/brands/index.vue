@@ -11,11 +11,11 @@
           class="Field"
           type="text"
           v-model="searchValue"
-          placeholder="Querying name or names"
+          placeholder="Query Search"
         ></b-form-input>
       </b-col>
       <b-col>
-        <b-button class="Button" @click="search" variant="primary">Search Name</b-button>
+        <b-button class="Button" @click="search" variant="primary">Search</b-button>
       </b-col>
     </b-row>
 
@@ -91,15 +91,12 @@
                   }
                 }
               ],
-              "must": [
-                {
-                  "multi_match": {
-                    "type": "phrase_prefix",
-                    "query": this.searchValue,
-                    "fields": ["name", "names"]
-                  }
-                },
-              ]
+              must: {
+                query_string: {
+                  default_field: 'names',
+                  query: this.searchValue
+                }
+              },
             }
           }
         }).then(({data}) => {
