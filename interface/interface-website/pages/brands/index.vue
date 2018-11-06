@@ -11,7 +11,7 @@
           class="Field"
           type="text"
           v-model="searchValue"
-          placeholder="Query Search"
+          placeholder="Query String"
         ></b-form-input>
       </b-col>
       <b-col>
@@ -81,20 +81,18 @@
 
       onSearchName() {
         this.$axios.$post('/api/search/brands', {
-          from: 0, size: 25,
+          from: 0, size: 30,
           query: {
             bool: {
-              "filter": [
-                {
-                  "term": {
-                    "dataType": "Brand"
-                  }
-                }
+              filter: [
+                {term: {dataType: "Brand"}}
               ],
               must: {
                 query_string: {
-                  default_field: 'names',
-                  query: this.searchValue
+                  default_field: 'name*',
+                  query: this.searchValue,
+                  fuzziness: 'AUTO',
+                  fuzzy_prefix_length: 2
                 }
               },
             }

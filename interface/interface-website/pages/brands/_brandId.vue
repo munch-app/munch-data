@@ -53,8 +53,7 @@
       <b-form-group label="Company name:"
                     label-for="exampleInput6"
                     horizontal>
-        <b-form-input type="text"
-                      :value="companyName" @input="data.company.name = $event"
+        <b-form-input type="text" :value="companyName" @input="data.company.name = $event"
                       placeholder="Enter company name eg. Amazon">
         </b-form-input>
       </b-form-group>
@@ -69,8 +68,7 @@
       <b-form-group label="Website"
                     label-for="exampleInput8"
                     horizontal>
-        <b-form-input type="text"
-                      v-model="data.website"
+        <b-form-input type="text" v-model="data.website"
                       placeholder="Enter website URL eg. https://www.mcdonalds.com/">
         </b-form-input>
       </b-form-group>
