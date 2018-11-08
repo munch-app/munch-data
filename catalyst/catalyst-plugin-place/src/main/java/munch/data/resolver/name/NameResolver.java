@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,25 +38,33 @@ public final class NameResolver {
      * @return find single name
      */
     public String resolve(PlaceMutation mutation) {
-        if (mutation.getName().isEmpty()) throw new ResolverHaltException("names");
-
-        List<String> fields = stream(mutation).collect(Collectors.toList());
-        if (fields.isEmpty()) {
-            return StringUtils.trimToNull(mutation.getName().get(0).getValue());
-        }
-        return fields.get(0);
+        return collection(mutation).get(0);
     }
 
     /**
      * @return all valid names
      */
     public Set<String> resolveAll(PlaceMutation mutation) {
-        return stream(mutation)
-                .collect(Collectors.toSet());
+        return new HashSet<>(collection(mutation));
+    }
+
+    private List<String> collection(PlaceMutation mutation) {
+        if (mutation.getName().isEmpty()) throw new ResolverHaltException("names");
+
+        List<String> names = stream(mutation).collect(Collectors.toList());
+        if (!names.isEmpty()) return names;
+
+        String name = mutation.getName().get(0).getValue();
+        name = StringUtils.trimToNull(name);
+        name = StringUtils.normalizeSpace(name);
+
+        if (StringUtils.isBlank(name)) throw new ResolverHaltException("name");
+
+        return List.of(name);
     }
 
     /**
-     * @return stream of all valid and normalised
+     * @return stream of all valid and normalised, might return null
      */
     private Stream<String> stream(PlaceMutation mutation) {
         return mutation.getName().stream()

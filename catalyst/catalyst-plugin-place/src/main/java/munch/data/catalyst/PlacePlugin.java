@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -82,6 +83,7 @@ public final class PlacePlugin extends CollectPlugin {
     }
 
     private boolean isDelete(Place place) {
+        Objects.requireNonNull(place.getPlaceId());
         PlaceMutation mutation = placeMutationClient.get(place.getPlaceId());
         // If mutation don't exist, delete
         if (mutation == null) return true;

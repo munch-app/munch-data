@@ -11,9 +11,7 @@ import org.hibernate.validator.constraints.URL;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -55,6 +53,8 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     // Deprecate this once TasteBud is ready
     private Double ranking;
 
+    @Nullable
+    @Pattern(regexp = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
     public String getPlaceId() {
         return placeId;
     }
@@ -75,6 +75,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     @Override
     @NotBlank
+    @Size(min = 1, max = 255, groups = StrictConstraints.class)
     public String getName() {
         return name;
     }
@@ -85,7 +86,9 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     @Override
     @NotEmpty
-    public Set<String> getNames() {
+    @Valid
+    @Size(min = 0, max = 6, groups = StrictConstraints.class)
+    public Set<@Size(min = 1, max = 255, groups = StrictConstraints.class) String> getNames() {
         return names;
     }
 
@@ -95,6 +98,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     @NotNull
     @Valid
+    @Size(min = 0, max = 50, groups = StrictConstraints.class)
     public List<Tag> getTags() {
         return tags;
     }
@@ -104,6 +108,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
+    @Size(min = 3, max = 65, groups = StrictConstraints.class)
     public String getPhone() {
         return phone;
     }
@@ -113,7 +118,8 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
-    @URL
+    @URL(groups = URLConstraints.class)
+    @Size(min = 7, max = 255, groups = Place.StrictConstraints.class)
     public String getWebsite() {
         return website;
     }
@@ -123,6 +129,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
+    @Size(min = 3, max = 1000, groups = StrictConstraints.class)
     public String getDescription() {
         return description;
     }
@@ -132,6 +139,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
+    @Valid
     public Location getLocation() {
         return location;
     }
@@ -220,6 +228,9 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         return ranking;
     }
 
+    /**
+     * Cannot REMOVE THIS Until 0.13.0 is deprecated.
+     */
     public void setRanking(Double ranking) {
         this.ranking = ranking;
     }
@@ -291,6 +302,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         }
 
         @NotBlank
+        @Size(min = 1, max = 255, groups = StrictConstraints.class)
         public String getName() {
             return name;
         }
@@ -386,6 +398,9 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         private String url;
         private List<Image> images;
 
+        @Nullable
+        @URL(groups = URLConstraints.class)
+        @Size(min = 7, max = 255, groups = Place.StrictConstraints.class)
         public String getUrl() {
             return url;
         }
@@ -394,6 +409,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             this.url = url;
         }
 
+        @NotNull
         public List<Image> getImages() {
             return images;
         }
@@ -522,5 +538,17 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                     ", importance=" + importance +
                     '}';
         }
+    }
+
+    /**
+     * Strict Mode, useful for validating user inputs
+     */
+    public interface StrictConstraints {
+    }
+
+    /**
+     * Url Mode
+     */
+    public interface URLConstraints {
     }
 }

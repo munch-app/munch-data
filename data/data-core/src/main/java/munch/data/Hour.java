@@ -2,6 +2,9 @@ package munch.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.DayOfWeek;
 import java.util.Objects;
 
@@ -20,6 +23,8 @@ public final class Hour {
     /**
      * @return day
      */
+    @NotNull
+    @Valid
     public Day getDay() {
         return day;
     }
@@ -31,6 +36,8 @@ public final class Hour {
     /**
      * @return opening
      */
+    @NotNull
+    @Pattern(regexp = "[012][0-9]:[0-6][0-9]")
     public String getOpen() {
         return open;
     }
@@ -43,6 +50,8 @@ public final class Hour {
     /**
      * @return closing
      */
+    @NotNull
+    @Pattern(regexp = "[012][0-9]:[0-6][0-9]")
     public String getClose() {
         return close;
     }
