@@ -2,13 +2,11 @@ package munch.data.location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import munch.data.place.Place;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,7 +33,6 @@ public final class Location {
 
     private List<Landmark> landmarks;
 
-    @Size(min = 3, max = 255, groups = Place.StrictConstraints.class)
     public String getAddress() {
         return address;
     }
@@ -44,7 +41,6 @@ public final class Location {
         this.address = address;
     }
 
-    @Size(min = 3, max = 255, groups = Place.StrictConstraints.class)
     public String getStreet() {
         return street;
     }

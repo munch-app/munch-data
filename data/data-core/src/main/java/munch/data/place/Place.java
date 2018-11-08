@@ -7,7 +7,6 @@ import munch.data.*;
 import munch.data.location.Area;
 import munch.data.location.Location;
 import munch.file.Image;
-import org.hibernate.validator.constraints.URL;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
@@ -75,7 +74,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     @Override
     @NotBlank
-    @Size(min = 1, max = 255, groups = StrictConstraints.class)
+    @Size(min = 1, max = 255)
     public String getName() {
         return name;
     }
@@ -87,8 +86,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     @Override
     @NotEmpty
     @Valid
-    @Size(min = 0, max = 6, groups = StrictConstraints.class)
-    public Set<@Size(min = 1, max = 255, groups = StrictConstraints.class) String> getNames() {
+    public Set<@Size(min = 1, max = 255) String> getNames() {
         return names;
     }
 
@@ -98,7 +96,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     @NotNull
     @Valid
-    @Size(min = 0, max = 50, groups = StrictConstraints.class)
     public List<Tag> getTags() {
         return tags;
     }
@@ -108,7 +105,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
-    @Size(min = 3, max = 65, groups = StrictConstraints.class)
     public String getPhone() {
         return phone;
     }
@@ -118,8 +114,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
-    @URL(groups = URLConstraints.class)
-    @Size(min = 7, max = 255, groups = Place.StrictConstraints.class)
     public String getWebsite() {
         return website;
     }
@@ -129,7 +123,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @Nullable
-    @Size(min = 3, max = 1000, groups = StrictConstraints.class)
     public String getDescription() {
         return description;
     }
@@ -302,7 +295,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         }
 
         @NotBlank
-        @Size(min = 1, max = 255, groups = StrictConstraints.class)
         public String getName() {
             return name;
         }
@@ -399,8 +391,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         private List<Image> images;
 
         @Nullable
-        @URL(groups = URLConstraints.class)
-        @Size(min = 7, max = 255, groups = Place.StrictConstraints.class)
         public String getUrl() {
             return url;
         }
@@ -538,17 +528,5 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                     ", importance=" + importance +
                     '}';
         }
-    }
-
-    /**
-     * Strict Mode, useful for validating user inputs
-     */
-    public interface StrictConstraints {
-    }
-
-    /**
-     * Url Mode
-     */
-    public interface URLConstraints {
     }
 }
