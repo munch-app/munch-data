@@ -192,21 +192,33 @@
       },
 
       validate(data) {
-        if (!data.name && data.name.isBlank()) delete data.name
-        if (!data.phone && data.phone.isBlank()) delete data.phone
-        if (!data.website && data.website.isBlank()) delete data.website
-        if (!data.description && data.description.isBlank()) delete data.description
+        function deleteBlank(value, func) {
+          if (value === undefined) {
+            func()
+          } else if (typeof value === 'string' || value instanceof String) {
+            if (value.isBlank()) {
+              func()
+            }
+          } else {
+            func()
+          }
+        }
 
-        if (data.menu && (!data.menu.url || data.menu.url.isBlank())) {
-          delete data.menu
+        deleteBlank(data.name, () => delete data.name)
+        deleteBlank(data.phone, () => delete data.phone)
+        deleteBlank(data.website, () => delete data.website)
+        deleteBlank(data.description, () => delete data.description)
+
+        if (data.menu) {
+          deleteBlank(data.menu.url, () => delete data.menu)
         }
 
         if (data.price && !data.price.perPax) {
           delete data.price
         }
 
-        if (data.company && (!data.company.name || data.company.name.isBlank())) {
-          delete data.company
+        if (data.company) {
+          deleteBlank(data.company.name, () => delete data.company)
         }
 
         return data

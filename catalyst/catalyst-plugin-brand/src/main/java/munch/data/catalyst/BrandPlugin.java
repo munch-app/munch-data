@@ -6,6 +6,7 @@ import catalyst.elastic.ElasticSearchBuilder;
 import catalyst.link.PlaceLink;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
+import catalyst.utils.NamedCounter;
 import munch.data.brand.Brand;
 import munch.data.client.BrandClient;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Singleton
 public final class BrandPlugin extends LinkPlugin<Brand> {
     private static final Logger logger = LoggerFactory.getLogger(BrandPlugin.class);
+    private static final NamedCounter counter = new NamedCounter(logger);
 
     private final BrandClient brandClient;
     private final BrandComparator brandComparator;
@@ -57,11 +59,14 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
     @Nullable
     @Override
     protected PlaceEdit receive(Brand brand, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
+        counter.increment("Received");
+
         if (placeMutation == null) {
             logger.warn("PlaceMutation is null, PlaceLink: {}", placeLink);
             return null;
         }
         if (brandComparator.match(brand, placeMutation)) {
+            counter.increment("Matched");
             return brandEditParser.parse(brand);
         }
         return null;
@@ -69,6 +74,8 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
 
     @Override
     public Iterator<PlaceMutation> search(Brand brand) {
+        counter.increment("Brand");
+
         if (!brand.getPlace().isAutoLink()) return Collections.emptyIterator();
 
         Set<String> names = getNames(brand);

@@ -34,7 +34,7 @@ public final class BrandComparator {
     private boolean match(Brand brand, List<MutationField<String>> nameFields) {
         for (String brandName : getNames(brand)) {
             for (MutationField<String> nameField : nameFields) {
-                if (hasOnlyBrandSource(nameField)) return false;
+                if (hasOnlyBrandSource(nameField)) continue;
 
                 if (nameSimilarity.equals(brandName, nameField.getValue())) {
                     return true;
@@ -50,7 +50,7 @@ public final class BrandComparator {
         return field.getSources().get(0).getSource().equals("brand.data.munch.space");
     }
 
-    private Set<String> getNames(Brand brand) {
+    private static Set<String> getNames(Brand brand) {
         Set<String> names = new HashSet<>();
         names.add(brand.getName().toLowerCase());
         for (String name : brand.getNames()) {
