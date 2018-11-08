@@ -66,7 +66,7 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
         }
 
         if (placeLink != null) {
-            logger.info("Deleting: {}, {}", placeMutation.getPlaceId(), placeMutation.getName());
+            logger.info("Deleting: {}", placeMutation.getPlaceId());
             counter.increment("Delete Linked");
         }
         return null;
