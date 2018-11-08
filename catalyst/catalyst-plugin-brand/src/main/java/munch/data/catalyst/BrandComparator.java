@@ -4,12 +4,14 @@ import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
 import edit.utils.name.NameSimilarity;
 import munch.data.brand.Brand;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -28,34 +30,40 @@ public final class BrandComparator {
     }
 
     public boolean match(Brand brand, PlaceMutation mutation) {
-        return match(brand, mutation.getName());
-    }
-
-    private boolean match(Brand brand, List<MutationField<String>> nameFields) {
-        for (String brandName : getNames(brand)) {
-            for (MutationField<String> nameField : nameFields) {
-                if (hasOnlyBrandSource(nameField)) continue;
-
-                if (nameSimilarity.equals(brandName, nameField.getValue())) {
+        for (String brandName : getBrandNames(brand)) {
+            for (String mutationName : getMutationNames(mutation)) {
+                if (nameSimilarity.equals(brandName, mutationName)) {
                     return true;
                 }
             }
         }
-
         return false;
     }
 
-    private boolean hasOnlyBrandSource(MutationField<?> field) {
-        if (field.getSources().size() != 1) return false;
+    private static Set<String> getMutationNames(PlaceMutation mutation) {
+        Set<String> names = new HashSet<>();
+        for (MutationField<String> field : mutation.getName()) {
+            if (!hasOnlyBrandSource(field)) {
+                names.add(field.getValue());
+            }
+        }
+        return names;
+    }
+
+    private static boolean hasOnlyBrandSource(MutationField<?> field) {
+        if (field.getSources().size() > 1) return false;
         return field.getSources().get(0).getSource().equals("brand.data.munch.space");
     }
 
-    private static Set<String> getNames(Brand brand) {
+    public static Set<String> getBrandNames(Brand brand) {
         Set<String> names = new HashSet<>();
-        names.add(brand.getName().toLowerCase());
-        for (String name : brand.getNames()) {
-            names.add(name.toLowerCase());
-        }
-        return names;
+        names.add(brand.getName());
+        names.addAll(brand.getNames());
+
+        return names.stream()
+                .map(StringUtils::lowerCase)
+                .map(StringUtils::normalizeSpace)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 }

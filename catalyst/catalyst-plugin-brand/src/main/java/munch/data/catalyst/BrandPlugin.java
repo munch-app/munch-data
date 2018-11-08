@@ -6,18 +6,18 @@ import catalyst.elastic.ElasticSearchBuilder;
 import catalyst.link.PlaceLink;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.LinkPlugin;
-import catalyst.utils.NamedCounter;
 import munch.data.brand.Brand;
 import munch.data.client.BrandClient;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by: Fuxing
@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @Singleton
 public final class BrandPlugin extends LinkPlugin<Brand> {
     private static final Logger logger = LoggerFactory.getLogger(BrandPlugin.class);
-    private static final NamedCounter counter = new NamedCounter(logger);
 
     private final BrandClient brandClient;
     private final BrandComparator brandComparator;
@@ -61,13 +60,14 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
     protected PlaceEdit receive(Brand brand, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
         counter.increment("Received");
 
-        if (placeMutation == null) {
-            logger.warn("PlaceMutation is null, PlaceLink: {}", placeLink);
-            return null;
-        }
         if (brandComparator.match(brand, placeMutation)) {
             counter.increment("Matched");
             return brandEditParser.parse(brand);
+        }
+
+        if (placeLink != null) {
+            logger.info("Deleting: {}, {}", placeMutation.getPlaceId(), placeMutation.getName());
+            counter.increment("Delete Linked");
         }
         return null;
     }
@@ -78,7 +78,7 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
 
         if (!brand.getPlace().isAutoLink()) return Collections.emptyIterator();
 
-        Set<String> names = getNames(brand);
+        Set<String> names = BrandComparator.getBrandNames(brand);
         List<String> points = getPoints(brand);
         if (names.isEmpty() || points == null) {
             logger.warn("Names or Points is empty for Brand: {}", brand);
@@ -95,18 +95,14 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
         return builder.asIterator();
     }
 
+    @Override
+    protected void delete(PlaceEdit before, PlaceLink link) {
+        this.counter.increment("Plugin: Deleted");
+        this.placeLinkClient.delete(link.getPlaceId(), link.getSource(), link.getId());
+    }
+
     private static List<String> getPoints(Brand brand) {
         if (brand.getLocation().getCountry() == null) return null;
         return brand.getLocation().getCountry().getPoints();
-    }
-
-    private static Set<String> getNames(Brand brand) {
-        Set<String> names = new HashSet<>();
-        names.add(brand.getName());
-        names.addAll(brand.getNames());
-        return names.stream()
-                .map(StringUtils::lowerCase)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
     }
 }

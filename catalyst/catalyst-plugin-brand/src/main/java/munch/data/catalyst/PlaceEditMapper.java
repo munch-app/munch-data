@@ -8,6 +8,7 @@ import munch.data.brand.Brand;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by: Fuxing
@@ -26,6 +27,7 @@ public final class PlaceEditMapper {
         this.builderFactory = builderFactory;
     }
 
+    @NotNull
     public PlaceEdit parse(Brand brand) {
         PlaceEditBuilder builder = builderFactory.create(SOURCE, brand.getBrandId());
         builder.withSort("0");
