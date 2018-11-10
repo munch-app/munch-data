@@ -7,7 +7,10 @@ import edit.utils.hour.OpenHour;
 import munch.data.Hour;
 import munch.file.Image;
 import munch.file.ImageClient;
+import munch.restful.core.exception.UnknownException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +25,8 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 public final class AirtableUtils {
+    private static final Logger logger = LoggerFactory.getLogger(AirtableUtils.class);
+
     private static final HourExtractor HOUR_EXTRACTOR = new HourExtractor();
     private static final HourNormaliser HOUR_NORMALISER = new HourNormaliser();
 
@@ -41,14 +46,19 @@ public final class AirtableUtils {
 
 
     public static List<Image> getImages(ImageClient imageClient, JsonNode images) {
-        List<Image> imageList = new ArrayList<>();
-        for (JsonNode image : images) {
-            String url = image.path("url").asText();
-            if (StringUtils.isNotBlank(url)) {
-                imageList.add(imageClient.uploadUrl(url, null, null));
+        try {
+            List<Image> imageList = new ArrayList<>();
+            for (JsonNode image : images) {
+                String url = image.path("url").asText();
+                if (StringUtils.isNotBlank(url)) {
+                    imageList.add(imageClient.uploadUrl(url, null, null));
+                }
             }
+            return imageList;
+        } catch (UnknownException e) {
+            logger.warn("Image failed. {}", images, e);
+            return List.of();
         }
-        return imageList;
     }
 
     /**
