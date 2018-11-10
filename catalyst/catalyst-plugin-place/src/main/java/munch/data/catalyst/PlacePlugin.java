@@ -3,6 +3,7 @@ package munch.data.catalyst;
 import catalyst.mutation.PlaceMutation;
 import catalyst.plugin.CollectPlugin;
 import catalyst.source.SourceReporter;
+import munch.data.PlaceParser;
 import munch.data.client.PlaceClient;
 import munch.data.place.Place;
 import munch.data.resolver.LocationSupportException;
@@ -14,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,14 +30,12 @@ public final class PlacePlugin extends CollectPlugin {
     private final PlaceParser placeParser;
     private final PlaceClient placeClient;
 
-    private final TasteResolver tasteResolver;
     private final StatusResolver statusResolver;
 
     @Inject
-    public PlacePlugin(PlaceParser placeParser, PlaceClient placeClient, TasteResolver tasteResolver, StatusResolver statusResolver) {
+    public PlacePlugin(PlaceParser placeParser, PlaceClient placeClient, StatusResolver statusResolver) {
         this.placeParser = placeParser;
         this.placeClient = placeClient;
-        this.tasteResolver = tasteResolver;
         this.statusResolver = statusResolver;
     }
 
@@ -66,20 +63,15 @@ public final class PlacePlugin extends CollectPlugin {
     public void run(SourceReporter.Session session) {
         super.run(session);
 
-        long validated = 0L;
-        logger.info("Started validating");
-        Iterator<Place> iterator = placeClient.iterator();
-        while (iterator.hasNext()) {
-            Place place = iterator.next();
+        logger.info("Started Validating");
+        placeClient.iterator().forEachRemaining(place -> {
             if (isDelete(place)) {
                 placeClient.delete(place.getPlaceId());
+                counter.increment("Deleted");
             }
 
-            if (++validated % 10000L == 0L) {
-                logger.info("Validated: {}", validated);
-            }
-        }
-        logger.info("Completed validating: {}", validated);
+            counter.increment("Validated");
+        });
     }
 
     private boolean isDelete(Place place) {
@@ -99,9 +91,6 @@ public final class PlacePlugin extends CollectPlugin {
 
     private Place parse(PlaceMutation mutation) throws LocationSupportException, ResolverHaltException, ValidationException {
         Place place = placeParser.parse(mutation);
-        place.setTaste(tasteResolver.resolve(place));
-        place.setAreas(List.of());
-
         ValidationException.validate(place);
         return place;
     }

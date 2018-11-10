@@ -1,10 +1,9 @@
-package munch.data;
+package munch.data.catalyst;
 
 import catalyst.plugin.PluginRunner;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import munch.data.catalyst.PlacePlugin;
 
 /**
  * Created by: Fuxing
@@ -12,13 +11,11 @@ import munch.data.catalyst.PlacePlugin;
  * Time: 4:32 PM
  * Project: munch-data
  */
-public final class PlacePluginModule extends AbstractModule {
+public final class PlaceModule extends AbstractModule {
     public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new PlacePluginModule());
+        Injector injector = Guice.createInjector(new PlaceModule());
         injector.getInstance(PluginRunner.class).run(
                 injector.getInstance(PlacePlugin.class)
         );
-
-        System.exit(0);
     }
 }

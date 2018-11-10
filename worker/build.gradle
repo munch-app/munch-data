@@ -1,0 +1,11 @@
+project('worker-place-queue') {
+    dependencies {
+        compile project(':aws')
+        compile project(':resolver')
+        
+        compile project(':data:data-client')
+    }
+
+    apply from: (project.rootDir.toString() + '/docker.gradle')
+    mainClassName = 'munch.data.PlaceWorkerModule'
+}

@@ -1,0 +1,13 @@
+dependencies {
+    compile project(':data:data-client')
+
+    compile group: 'catalyst', name: 'catalyst-edit-utils', version: ccVersion
+    compile group: 'catalyst', name: 'catalyst-utils', version: ccVersion
+
+    compile group: 'catalyst', name: 'catalyst-source-client', version: ccVersion
+    compile group: 'catalyst', name: 'catalyst-mutation-client', version: ccVersion
+    compile group: 'munch-taste', name: 'munch-taste-client', version: tasteVersion
+
+    compile group: 'file-service', name: 'file-service-client', version: fileVersion
+    compile group: 'location-service', name: 'location-service-client', version: locationVersion
+}

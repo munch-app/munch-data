@@ -13,8 +13,11 @@ import java.util.List;
  * Date: 12/8/18
  * Time: 2:07 PM
  * Project: munch-data
+ *
+ * @deprecated remove once 0.13.0 is decommissioned
  */
 @Singleton
+@Deprecated
 public final class RankingResolver {
 
     public double resolve(Place place, PlaceMutation mutation) {

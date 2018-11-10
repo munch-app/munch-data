@@ -1,0 +1,6 @@
+dependencies {
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: awsVersion
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: awsVersion
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-sqs', version: awsVersion
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-sns', version: awsVersion
+}

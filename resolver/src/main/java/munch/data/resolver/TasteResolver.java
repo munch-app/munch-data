@@ -1,4 +1,4 @@
-package munch.data.catalyst;
+package munch.data.resolver;
 
 import catalyst.utils.retriable.Retriable;
 import catalyst.utils.retriable.TimeoutRetriable;

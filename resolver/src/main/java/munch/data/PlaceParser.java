@@ -1,4 +1,4 @@
-package munch.data.catalyst;
+package munch.data;
 
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
@@ -13,8 +13,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -38,12 +36,13 @@ public final class PlaceParser {
 
     private final HourResolver hourResolver;
     private final ImageResolver imageResolver;
+    private final TasteResolver tasteResolver;
 
     private final RankingResolver rankingResolver;
     private final CreatedMillisResolver createdMillisResolver;
 
     @Inject
-    public PlaceParser(DomainBlocked domainBlocked, NameResolver nameResolver, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
+    public PlaceParser(DomainBlocked domainBlocked, NameResolver nameResolver, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, TasteResolver tasteResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
         this.domainBlocked = domainBlocked;
         this.nameResolver = nameResolver;
         this.statusResolver = statusResolver;
@@ -54,6 +53,7 @@ public final class PlaceParser {
         this.brandResolver = brandResolver;
         this.hourResolver = hourResolver;
         this.imageResolver = imageResolver;
+        this.tasteResolver = tasteResolver;
         this.rankingResolver = rankingResolver;
         this.createdMillisResolver = createdMillisResolver;
     }
@@ -71,9 +71,9 @@ public final class PlaceParser {
         place.setNames(nameResolver.resolveAll(mutation));
         place.setTags(tagResolver.resolve(mutation));
 
-        place.setPhone(parseStringFirst(mutation.getPhone()));
+        place.setPhone(getFirst(mutation.getPhone()));
         place.setWebsite(parseWebsite(mutation.getWebsite()));
-        place.setDescription(parseStringFirst(mutation.getDescription()));
+        place.setDescription(getFirst(mutation.getDescription()));
 
         place.setLocation(locationResolver.resolve(mutation));
 
@@ -88,11 +88,15 @@ public final class PlaceParser {
         place.setUpdatedMillis(mutation.getMillis());
 
         place.setRanking(rankingResolver.resolve(place, mutation));
+        place.setTaste(tasteResolver.resolve(place));
+
+        // Areas, is decided & populated by the data-service itself
+        place.setAreas(List.of());
         return place;
     }
 
     @Nullable
-    public String parseStringFirst(List<MutationField<String>> fields) {
+    public String getFirst(List<MutationField<String>> fields) {
         if (fields.isEmpty()) return null;
         return StringUtils.trimToNull(fields.get(0).getValue());
     }
@@ -104,11 +108,5 @@ public final class PlaceParser {
             return field.getValue();
         }
         return null;
-    }
-
-    public Set<String> parseStringAll(List<MutationField<String>> fields) {
-        return fields.stream()
-                .map(MutationField::getValue)
-                .collect(Collectors.toSet());
     }
 }

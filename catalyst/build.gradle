@@ -2,7 +2,6 @@ project('catalyst-plugin-brand') {
     dependencies {
         compile project(':data:data-client')
         compile group: 'catalyst', name: 'catalyst-plugin-edit', version: ccVersion
-
     }
 
     apply from: (project.rootDir.toString() + '/docker.gradle')
@@ -15,7 +14,7 @@ project('catalyst-plugin-concept') {
         compile group: 'catalyst', name: 'catalyst-plugin-edit', version: ccVersion
         compile group: 'catalyst', name: 'catalyst-lake-airtable', version: ccVersion
 
-        compile group: 'location-service', name: 'client', version: '1.1'
+        compile group: 'location-service', name: 'location-service-client', version: locationVersion
         compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
     }
 
@@ -25,16 +24,14 @@ project('catalyst-plugin-concept') {
 
 project('catalyst-plugin-place') {
     dependencies {
+        compile project(':resolver')
         compile project(':data:data-client')
+        
         compile group: 'catalyst', name: 'catalyst-plugin-collect', version: ccVersion
-
-        compile group: 'file-service', name: 'file-service-client', version: fileVersion
-        compile group: 'location-service', name: 'client', version: '1.1'
-        compile group: 'munch-taste', name: 'client', version: '1.0-SNAPSHOT'
     }
 
     apply from: (project.rootDir.toString() + '/docker.gradle')
-    mainClassName = 'munch.data.PlacePluginModule'
+    mainClassName = 'munch.data.catalyst.PlaceModule'
 }
 
 project('catalyst-plugin-restricted-area') {
@@ -43,7 +40,7 @@ project('catalyst-plugin-restricted-area') {
         compile group: 'catalyst', name: 'catalyst-plugin-edit', version: ccVersion
         compile group: 'catalyst', name: 'catalyst-lake-airtable', version: ccVersion
 
-        compile group: 'location-service', name: 'client', version: '1.1'
+        compile group: 'location-service', name: 'location-service-client', version: locationVersion
         compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
     }
 
@@ -57,7 +54,7 @@ project('catalyst-plugin-restricted-name') {
         compile group: 'catalyst', name: 'catalyst-plugin-edit', version: ccVersion
         compile group: 'catalyst', name: 'catalyst-lake-airtable', version: ccVersion
 
-        compile group: 'location-service', name: 'client', version: '1.1'
+        compile group: 'location-service', name: 'location-service-client', version: locationVersion
         compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: awsVersion
     }
 
