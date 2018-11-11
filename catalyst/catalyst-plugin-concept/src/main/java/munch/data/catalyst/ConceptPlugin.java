@@ -61,7 +61,7 @@ public final class ConceptPlugin extends LinkPlugin<Concept> {
 
     @Override
     protected Iterator<PlaceMutation> search(Concept concept) {
-        namedCounter.increment("Concept");
+        counter.increment("Concept");
 
         List<String> points = concept.getLocation().getCountry().getPoints();
         Set<String> values = new HashSet<>();
@@ -78,23 +78,25 @@ public final class ConceptPlugin extends LinkPlugin<Concept> {
     @Nullable
     @Override
     protected PlaceEdit receive(Concept concept, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
-        if (!validate(concept, placeMutation)) return null;
+        if (!isValid(concept, placeMutation)) return null;
 
-        namedCounter.increment("Linked");
+        counter.increment("Linked");
         return builderFactory.create(getSource(), concept.getId())
                 .withTags(concept.getTags())
                 .withSort("0")
                 .build();
     }
 
-    private boolean validate(Concept name, PlaceMutation placeMutation) {
-        for (String equal : name.getEquals()) {
+    private boolean isValid(Concept concept, PlaceMutation placeMutation) {
+        if (placeMutation == null) return false;
+
+        for (String equal : concept.getEquals()) {
             for (MutationField<String> field : placeMutation.getName()) {
                 if (field.getValue().equalsIgnoreCase(equal)) return true;
             }
         }
 
-        for (String contain : name.getContains()) {
+        for (String contain : concept.getContains()) {
             for (MutationField<String> field : placeMutation.getName()) {
                 if (StringUtils.containsIgnoreCase(field.getValue(), contain)) return true;
             }

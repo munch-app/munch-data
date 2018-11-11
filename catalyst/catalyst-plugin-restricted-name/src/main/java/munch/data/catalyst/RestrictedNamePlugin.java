@@ -66,7 +66,7 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
 
     @Override
     protected Iterator<PlaceMutation> search(RestrictedName name) {
-        namedCounter.increment("Restricted Name");
+        counter.increment("Restricted Name");
 
         List<String> points = name.getLocation().getCountry().getPoints();
         Set<String> values = new HashSet<>();
@@ -85,7 +85,7 @@ public final class RestrictedNamePlugin extends LinkPlugin<RestrictedName> {
     protected PlaceEdit receive(RestrictedName name, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
         if (!validate(name, placeMutation)) return null;
 
-        namedCounter.increment("Linked");
+        counter.increment("Linked");
         return builderFactory.create(getSource(), name.getId())
                 .withSort("0")
                 .withStatus(StatusEdit.Type.closedHidden)

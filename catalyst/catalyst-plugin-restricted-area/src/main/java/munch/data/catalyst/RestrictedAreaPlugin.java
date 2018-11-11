@@ -73,7 +73,7 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
 
     @Override
     protected Iterator<PlaceMutation> search(RestrictedArea area) {
-        namedCounter.increment("Restricted Area");
+        counter.increment("Restricted Area");
 
         List<String> points = getPoints(area);
         Set<String> postcodes = area.getLocationCondition().getPostcodes();
@@ -105,7 +105,7 @@ public final class RestrictedAreaPlugin extends LinkPlugin<RestrictedArea> {
     protected PlaceEdit receive(RestrictedArea area, PlaceMutation placeMutation, @Nullable PlaceLink placeLink, @Nullable PlaceEdit placeEdit) {
         if (!validate(area, placeMutation)) return null;
 
-        namedCounter.increment("Linked");
+        counter.increment("Linked");
         return builderFactory.create(getSource(), area.getId())
                 .withSort("0")
                 .withStatus(StatusEdit.Type.closedHidden)
