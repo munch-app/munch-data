@@ -96,8 +96,6 @@ public final class AirtablePlaceMapper {
 
         record.putFieldDate("createdMillis", place.getCreatedMillis());
         record.putFieldDate("updatedMillis", place.getUpdatedMillis());
-        record.putField("ranking", place.getRanking());
         return record;
     }
-
 }
