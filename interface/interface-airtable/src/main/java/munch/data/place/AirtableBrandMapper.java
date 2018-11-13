@@ -2,8 +2,13 @@ package munch.data.place;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
+import munch.data.brand.Brand;
+import munch.data.client.BrandClient;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -11,9 +16,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by: Fuxing
@@ -26,12 +33,19 @@ public final class AirtableBrandMapper {
     private static final Logger logger = LoggerFactory.getLogger(AirtableBrandMapper.class);
 
     private final AirtableApi.Table brandTable;
+    private final AirtableTagMapper tagMapper;
 
-    private final Map<String, Pair<String, Place.Brand>> brandMap = new HashMap<>();
+    private final LoadingCache<String, Brand> loadingCache;
+
+    private final Map<String, Pair<String, Brand>> brandMap = new HashMap<>();
 
     @Inject
-    public AirtableBrandMapper(AirtableApi api) {
+    public AirtableBrandMapper(AirtableApi api, AirtableTagMapper tagMapper, BrandClient brandClient) {
         this.brandTable = api.base("appDcx5b3vgkhcYB5").table("Brand");
+        this.tagMapper = tagMapper;
+        this.loadingCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(1, TimeUnit.HOURS)
+                .build(CacheLoader.from(brandClient::get));
     }
 
     public JsonNode mapField(Place.Brand brand) {
@@ -41,7 +55,8 @@ public final class AirtableBrandMapper {
         return fields;
     }
 
-    private Pair<String, Place.Brand> find(Place.Brand brand) {
+    private Pair<String, Brand> find(Place.Brand placeBrand) {
+        Brand brand = loadingCache.getUnchecked(placeBrand.getBrandId());
         List<AirtableRecord> records = brandTable.find("brandId", brand.getBrandId());
 
         AirtableRecord record;
@@ -59,6 +74,8 @@ public final class AirtableBrandMapper {
         record.setFields(new HashMap<>());
         record.putField("brandId", brand.getBrandId());
         record.putField("name", brand.getName());
+        record.putField("tags", tagMapper.mapField(brand));
+        record.putFieldDate("updatedMillis", brand.getUpdatedMillis());
 
         if (record.getId() == null) {
             record = brandTable.post(record);
@@ -72,10 +89,10 @@ public final class AirtableBrandMapper {
         return Pair.of(record.getId(), brand);
     }
 
-    private static boolean equals(Place.Brand brand, AirtableRecord record) {
-        if (!record.getField("brandId").asText().equals(brand.getBrandId())) return false;
-        if (!record.getField("name").asText().equals(brand.getName())) return false;
-        return true;
+    private static boolean equals(Brand brand, AirtableRecord record) {
+        Date date = record.getFieldDate("updatedMillis");
+        if (date == null) return false;
+        return date.getTime() == brand.getUpdatedMillis();
     }
 
     private static void sleep() {

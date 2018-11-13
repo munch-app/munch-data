@@ -44,7 +44,7 @@ public final class BrandService extends PersistenceService<Brand> {
 
     @Override
     public JsonResult put(Brand object) {
-        // Location Country is required not be to be blank because Brand Plugin requires it
+        // Location Country is required not to be blank because Brand Plugin requires it
         ValidationException.requireNonNull("location.country", object.getLocation().getCountry());
         return super.put(object);
     }

@@ -12,7 +12,6 @@ import munch.data.elastic.ElasticUtils;
 import munch.data.place.AirtablePlaceMapper;
 import munch.data.place.Place;
 import munch.restful.core.JsonUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,6 @@ import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by: Fuxing
@@ -106,9 +104,10 @@ public final class PlaceBridge extends AbstractEngine<Object> {
         if (records.size() == 1) {
             // Patched
             AirtableRecord record = records.get(0);
-            if (equals(place, record)) return;
             AirtableRecord patchRecord = placeMapper.parse(place);
             patchRecord.setId(record.getId());
+
+            if (equals(place, record)) return;
             placeTable.patch(patchRecord);
             sleep(125);
             return;
@@ -119,18 +118,6 @@ public final class PlaceBridge extends AbstractEngine<Object> {
 
 
     private static boolean equals(Place place, AirtableRecord record) {
-        if (!place.getStatus().getType().name().equals(record.getField("status").asText())) return false;
-        if (!place.getName().equals(record.getField("name").asText())) return false;
-        if (place.getTags().size() != record.getField("tags").size()) return false;
-        if ((place.getBrand() == null) == (record.getField("tags").size() == 1)) return false;
-
-        if (!StringUtils.equals(place.getPhone(), record.getField("phone").asText())) return false;
-        if (!StringUtils.equals(place.getWebsite(), record.getField("website").asText())) return false;
-        if (!StringUtils.equals(place.getDescription(), record.getField("description").asText())) return false;
-
-        if (!StringUtils.equals(place.getLocation().getPostcode(), record.getField("location.postcode").asText()))
-            return false;
-
-        return Objects.requireNonNull(record.getFieldDate("updatedMillis")).getTime() == place.getUpdatedMillis();
+        return record.getFieldDate("updatedMillis").getTime() == place.getUpdatedMillis();
     }
 }

@@ -90,7 +90,7 @@ public final class AirtablePlaceMapper {
         });
 
         // Linked Data
-        record.putField("tags", airtableTagMapper.mapField(place.getTags()));
+        record.putField("tags", airtableTagMapper.mapField(place));
         record.putField("areas", airtableAreaMapper.mapField(place.getAreas()));
         record.putField("brands", airtableBrandMapper.mapField(place.getBrand()));
 
