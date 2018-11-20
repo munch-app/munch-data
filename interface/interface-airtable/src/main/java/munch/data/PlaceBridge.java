@@ -1,17 +1,13 @@
 package munch.data;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
 import corpus.engine.AbstractEngine;
 import munch.data.client.ElasticClient;
 import munch.data.client.PlaceClient;
-import munch.data.elastic.ElasticUtils;
 import munch.data.place.AirtablePlaceMapper;
 import munch.data.place.Place;
-import munch.restful.core.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,27 +49,7 @@ public final class PlaceBridge extends AbstractEngine<Object> {
 
     @Override
     protected Iterator<Object> fetch(long cycleNo) {
-        ArrayNode sort = JsonUtils.createArrayNode();
-        sort.addObject().put("placeId", "desc");
-        return Iterators.concat(searchBubbleTea().iterator(), placeTable.select(sort), placeClient.iterator());
-    }
-
-    private List<Place> searchBubbleTea() {
-        ObjectNode root = JsonUtils.createObjectNode();
-        root.put("from", 0);
-        root.put("size", 500);
-
-        ObjectNode bool = JsonUtils.createObjectNode();
-        bool.set("must", ElasticUtils.mustMatchAll());
-        bool.set("filter", JsonUtils.createArrayNode()
-                .add(ElasticUtils.filterTerm("dataType", "Place"))
-                .add(ElasticUtils.filterTerm("tags.name", "Bubble Tea".toLowerCase()))
-        );
-        root.putObject("query").set("bool", bool);
-
-        List<Place> places = elasticClient.searchHitsHits(root);
-        logger.info("Searched BubbleTea: {}", places.size());
-        return places;
+        return Iterators.concat(placeTable.select(), placeClient.iterator());
     }
 
     @Override
@@ -84,7 +60,9 @@ public final class PlaceBridge extends AbstractEngine<Object> {
             // From Airtable, check if need to be deleted
             AirtableRecord record = (AirtableRecord) object;
             Place place = placeClient.get(record.getField("placeId").asText());
-            if (place == null) placeTable.delete(record.getId());
+            if (place == null) {
+                placeTable.delete(record.getId());
+            }
         }
 
         if (processed % 1000 == 0) logger.info("Processed: {}", processed);
