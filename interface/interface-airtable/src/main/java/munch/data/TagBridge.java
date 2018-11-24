@@ -58,6 +58,11 @@ public final class TagBridge extends AirtableBridge<Tag> {
 
     @Override
     protected void processAirtable(AirtableRecord record, Tag updated) {
+        if (updated == null) {
+            client.delete(record.getId());
+            return;
+        }
+
         String tagId = record.getField("tagId").asText();
         if (StringUtils.isNotBlank(tagId)) {
             // Update if Changed
@@ -72,10 +77,6 @@ public final class TagBridge extends AirtableBridge<Tag> {
             table.patch(patch);
             client.put(updated);
         } else {
-            if (updated == null) {
-                logger.warn("Failed to Parse Tag, {}", record.getField("name").asText());
-                return;
-            }
             // Create New
             Tag posted = client.post(updated);
             AirtableRecord patch = new AirtableRecord();
@@ -88,8 +89,6 @@ public final class TagBridge extends AirtableBridge<Tag> {
     }
 
     private Tag.Counts getCount(Tag tag) {
-        if (tag == null) return new Tag.Counts();
-
         ObjectNode root = JsonUtils.createObjectNode();
         ObjectNode bool = JsonUtils.createObjectNode();
         bool.set("must", ElasticUtils.mustMatchAll());
