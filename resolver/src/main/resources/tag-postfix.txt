@@ -1,0 +1,9 @@
+cuisine
+cuisines
+restaurant
+restaurants
+food
+foods
+meal
+places
+place

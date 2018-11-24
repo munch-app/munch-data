@@ -16,30 +16,16 @@ import java.util.stream.Collectors;
 @Singleton
 public final class TagLevelResolver {
 
-    private final TagMapper tagMapper;
-
-    @Inject
-    public TagLevelResolver(TagMapper tagMapper) {
-        this.tagMapper = tagMapper;
-    }
-
-    public List<Tag> resolve(List<String> tags) {
-        Set<Tag> provider = tags.stream()
-                .map(s -> tagMapper.get(s.toLowerCase()))
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
+    public List<Tag> resolve(Set<Tag> tags) {
         List<Tag> collector = new ArrayList<>();
-        select(1, 1, provider, collector);
-        select(2, 1, provider, collector);
-        select(3, 2, provider, collector);
+        select(1, 1, tags, collector);
+        select(2, 1, tags, collector);
+        select(3, 2, tags, collector);
 
         // Add remaining provider to collector
-        collector.addAll(provider);
+        collector.addAll(tags);
 
         // if no tag found, restaurant will be returned
-        if (collector.isEmpty()) return tagMapper.getDefaults();
         return collector;
     }
 

@@ -8,6 +8,7 @@ import munch.data.ElasticObject;
 import munch.data.SuggestObject;
 import munch.data.VersionedObject;
 
+import javax.validation.constraints.Pattern;
 import java.util.Objects;
 import java.util.Set;
 
@@ -50,6 +51,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     }
 
     @Override
+    @Pattern(regexp = "[a-z0-9-]{1,64}", flags = Pattern.Flag.CASE_INSENSITIVE)
     public String getName() {
         return name;
     }

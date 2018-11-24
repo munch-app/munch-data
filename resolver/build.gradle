@@ -3,6 +3,7 @@ dependencies {
 
     compile group: 'catalyst', name: 'catalyst-edit-utils', version: ccVersion
     compile group: 'catalyst', name: 'catalyst-utils', version: ccVersion
+    compile group: 'catalyst', name: 'catalyst-license', version: ccVersion
 
     compile group: 'catalyst', name: 'catalyst-source-client', version: ccVersion
     compile group: 'catalyst', name: 'catalyst-mutation-client', version: ccVersion

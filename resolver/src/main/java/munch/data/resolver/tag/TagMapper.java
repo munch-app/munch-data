@@ -1,11 +1,13 @@
 package munch.data.resolver.tag;
 
+import com.google.common.io.Resources;
 import munch.data.client.TagClient;
 import munch.data.place.Place;
 import munch.data.tag.Tag;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,17 +17,21 @@ import java.util.stream.Collectors;
  * Time: 3:26 PM
  * Project: munch-data
  */
-@Singleton
-public final class TagMapper {
-
-    private List<Tag> defaults = new ArrayList<>();
+@SuppressWarnings("UnstableApiUsage")
+public class TagMapper {
     private Map<String, Set<Tag>> tagsMap = new HashMap<>();
 
     @Inject
     public TagMapper(TagClient tagClient) {
-        tagClient.iterator().forEachRemaining(tag -> {
-            if (tag.getName().equalsIgnoreCase("restaurant")) defaults.add(tag);
+        List<String> postfixes;
+        try {
+            URL url = Resources.getResource("tag-postfix.txt");
+            postfixes = Resources.readLines(url, Charset.defaultCharset());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
+        tagClient.iterator().forEachRemaining(tag -> {
             // Put Names
             tag.getNames().forEach(s -> {
                 tagsMap.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(tag);
@@ -35,15 +41,16 @@ public final class TagMapper {
             tag.getPlace().getRemapping().forEach(s -> {
                 tagsMap.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(tag);
             });
+
+            // Put with Postfix
+            tag.getNames().forEach(s -> postfixes.forEach(postfix -> {
+                tagsMap.computeIfAbsent(s.toLowerCase() + " " + postfix.toLowerCase(), s1 -> new HashSet<>()).add(tag);
+            }));
         });
     }
 
     public Set<Tag> get(String name) {
         return tagsMap.getOrDefault(name, Set.of());
-    }
-
-    public List<Tag> getDefaults() {
-        return defaults;
     }
 
     public List<Place.Tag> mapDistinct(Collection<Tag> tags) {

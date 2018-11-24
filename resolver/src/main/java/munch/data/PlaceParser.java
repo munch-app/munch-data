@@ -23,6 +23,8 @@ import java.util.List;
 @Singleton
 public final class PlaceParser {
 
+    private final PlaceDataLicensing licensing;
+
     private final DomainBlocked domainBlocked;
 
     private final NameResolver nameResolver;
@@ -42,7 +44,8 @@ public final class PlaceParser {
     private final CreatedMillisResolver createdMillisResolver;
 
     @Inject
-    public PlaceParser(DomainBlocked domainBlocked, NameResolver nameResolver, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, TasteResolver tasteResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
+    public PlaceParser(PlaceDataLicensing licensing, DomainBlocked domainBlocked, NameResolver nameResolver, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, TasteResolver tasteResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
+        this.licensing = licensing;
         this.domainBlocked = domainBlocked;
         this.nameResolver = nameResolver;
         this.statusResolver = statusResolver;
@@ -63,6 +66,9 @@ public final class PlaceParser {
      * @return Place
      */
     public Place parse(PlaceMutation mutation) throws LocationSupportException, ResolverHaltException {
+        // Sanitize data without license
+        licensing.sanitize(mutation);
+
         Place place = new Place();
         place.setPlaceId(mutation.getPlaceId());
         place.setStatus(statusResolver.resolve(mutation));

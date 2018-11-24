@@ -88,6 +88,8 @@ public final class TagBridge extends AirtableBridge<Tag> {
     }
 
     private Tag.Counts getCount(Tag tag) {
+        if (tag == null) return new Tag.Counts();
+
         ObjectNode root = JsonUtils.createObjectNode();
         ObjectNode bool = JsonUtils.createObjectNode();
         bool.set("must", ElasticUtils.mustMatchAll());

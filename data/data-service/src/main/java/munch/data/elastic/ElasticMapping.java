@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
  * Time: 11:22 PM
  * Project: munch-core
  */
+@SuppressWarnings("UnstableApiUsage")
 @Singleton
 public final class ElasticMapping {
     public static final String INDEX_NAME = "munch-v4";

@@ -1,7 +1,11 @@
 package munch.data.resolver.tag;
 
+import catalyst.license.LicenseValueSanitizer;
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import munch.data.client.TagClient;
 import munch.data.place.Place;
 import munch.data.tag.Tag;
 import org.slf4j.Logger;
@@ -9,8 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.constraints.NotNull;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -23,20 +28,22 @@ import java.util.stream.Collectors;
 public final class TagResolver {
     private static final Logger logger = LoggerFactory.getLogger(TagResolver.class);
 
-    private final TagMapper tagMapper;
+    private final Supplier<TagMapper> tagMapper;
     private final TagLevelResolver levelResolver;
     private final TagTimeResolver timeResolver;
 
-    @Inject
-    public TagResolver(TagMapper tagMapper, TagLevelResolver levelResolver, TagTimeResolver timeResolver) {
+    private final LicenseValueSanitizer sanitizer;
 
-        this.tagMapper = tagMapper;
+    @Inject
+    public TagResolver(TagClient tagClient, TagLevelResolver levelResolver, TagTimeResolver timeResolver, LicenseValueSanitizer sanitizer) {
+        this.tagMapper = Suppliers.memoizeWithExpiration(() -> new TagMapper(tagClient), 1, TimeUnit.DAYS);
         this.levelResolver = levelResolver;
         this.timeResolver = timeResolver;
+        this.sanitizer = sanitizer;
     }
 
     public List<Place.Tag> resolve(PlaceMutation mutation) {
-        List<String> tags = reduce(mutation.getTag());
+        Set<@NotNull Tag> tags = reduce(mutation.getTag());
 
         List<Tag> accumulator = new ArrayList<>();
         // Level 1-4 Resolver, Look at Airtable
@@ -45,36 +52,30 @@ public final class TagResolver {
         // Timing tag Resolver
         accumulator.addAll(timeResolver.resolve(mutation));
 
-        return tagMapper.mapDistinct(accumulator);
+        return tagMapper.get().mapDistinct(accumulator);
     }
 
-    /**
-     * @return reduced tags
-     */
-    private List<String> reduce(List<MutationField<String>> tags) {
-        // Temporary method to reduce to remove v2 tags if other sources of tag exist
-        List<String> nonV2Tags = tags.stream()
-                .filter(this::hasNonV2)
-                .map(MutationField::getValue)
-                .collect(Collectors.toList());
+    private Set<@NotNull Tag> reduce(List<MutationField<String>> tags) {
+        Map<Tag, Set<MutationField.Source>> tagSources = new HashMap<>();
 
-        if (!nonV2Tags.isEmpty()) return nonV2Tags;
+        tags.forEach(field -> tagMapper.get().get(field.getValue()).forEach(tag -> {
+            Set<MutationField.Source> sources = tagSources.computeIfAbsent(tag, t -> new HashSet<>());
+            sources.addAll(field.getSources());
+        }));
 
-        // Return all
-        return tags.stream()
+        List<MutationField<Tag>> fields = tagSources.entrySet().stream().map(this::toField).collect(Collectors.toList());
+
+        sanitizer.sanitize(fields);
+
+        return fields.stream()
                 .map(MutationField::getValue)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
-    /**
-     * deprecate this fast
-     */
-    private boolean hasNonV2(MutationField<String> field) {
-        for (MutationField.Source source : field.getSources()) {
-            if (!source.getSource().equals("v2.catalyst.munch.space")) {
-                return true;
-            }
-        }
-        return false;
+    private MutationField<Tag> toField(Map.Entry<Tag, Set<MutationField.Source>> entry) {
+        MutationField<Tag> field = new MutationField<>();
+        field.setValue(entry.getKey());
+        field.setSources(new ArrayList<>(entry.getValue()));
+        return field;
     }
 }
