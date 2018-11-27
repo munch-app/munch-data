@@ -35,8 +35,8 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
     private LocationCondition locationCondition;
 
     private Counts counts;
-    private long createdMillis;
-    private long updatedMillis;
+    private Long createdMillis;
+    private Long updatedMillis;
 
     public String getAreaId() {
         return areaId;
@@ -133,19 +133,23 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
         this.counts = counts;
     }
 
-    public long getCreatedMillis() {
+    @NotNull
+    @Override
+    public Long getCreatedMillis() {
         return createdMillis;
     }
 
-    public void setCreatedMillis(long createdMillis) {
+    public void setCreatedMillis(Long createdMillis) {
         this.createdMillis = createdMillis;
     }
 
-    public long getUpdatedMillis() {
+    @NotNull
+    @Override
+    public Long getUpdatedMillis() {
         return updatedMillis;
     }
 
-    public void setUpdatedMillis(long updatedMillis) {
+    public void setUpdatedMillis(Long updatedMillis) {
         this.updatedMillis = updatedMillis;
     }
 

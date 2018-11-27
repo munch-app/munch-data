@@ -45,8 +45,8 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
 
     private List<Image> images;
 
-    private long createdMillis;
-    private long updatedMillis;
+    private Long createdMillis;
+    private Long updatedMillis;
 
     public String getBrandId() {
         return brandId;
@@ -182,19 +182,23 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         this.place = place;
     }
 
-    public long getCreatedMillis() {
+    @NotNull
+    @Override
+    public Long getCreatedMillis() {
         return createdMillis;
     }
 
-    public void setCreatedMillis(long createdMillis) {
+    public void setCreatedMillis(Long createdMillis) {
         this.createdMillis = createdMillis;
     }
 
-    public long getUpdatedMillis() {
+    @NotNull
+    @Override
+    public Long getUpdatedMillis() {
         return updatedMillis;
     }
 
-    public void setUpdatedMillis(long updatedMillis) {
+    public void setUpdatedMillis(Long updatedMillis) {
         this.updatedMillis = updatedMillis;
     }
 

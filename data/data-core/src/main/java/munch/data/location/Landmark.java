@@ -25,8 +25,8 @@ public final class Landmark implements ElasticObject, VersionedObject {
     private String name;
     private Location location;
 
-    private long updatedMillis;
-    private long createdMillis;
+    private Long updatedMillis;
+    private Long createdMillis;
 
     public String getLandmarkId() {
         return landmarkId;
@@ -63,19 +63,23 @@ public final class Landmark implements ElasticObject, VersionedObject {
         this.location = location;
     }
 
-    public long getUpdatedMillis() {
+    @NotNull
+    @Override
+    public Long getUpdatedMillis() {
         return updatedMillis;
     }
 
-    public void setUpdatedMillis(long updatedMillis) {
+    public void setUpdatedMillis(Long updatedMillis) {
         this.updatedMillis = updatedMillis;
     }
 
-    public long getCreatedMillis() {
+    @NotNull
+    @Override
+    public Long getCreatedMillis() {
         return createdMillis;
     }
 
-    public void setCreatedMillis(long createdMillis) {
+    public void setCreatedMillis(Long createdMillis) {
         this.createdMillis = createdMillis;
     }
 

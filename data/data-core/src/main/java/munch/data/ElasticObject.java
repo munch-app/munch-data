@@ -3,6 +3,8 @@ package munch.data;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Created by: Fuxing
  * Date: 30/5/18
@@ -23,13 +25,15 @@ public interface ElasticObject {
     @JsonIgnore
     String getDataId();
 
+    @NotNull
     @JsonProperty("updatedMillis")
-    long getUpdatedMillis();
+    Long getUpdatedMillis();
 
-    void setUpdatedMillis(long updatedMillis);
+    void setUpdatedMillis(Long updatedMillis);
 
+    @NotNull
     @JsonProperty("createdMillis")
-    long getCreatedMillis();
+    Long getCreatedMillis();
 
-    void setCreatedMillis(long createdMillis);
+    void setCreatedMillis(Long createdMillis);
 }

@@ -4,7 +4,6 @@ import com.google.common.collect.Iterators;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
 import corpus.engine.AbstractEngine;
-import munch.data.client.ElasticClient;
 import munch.data.client.PlaceClient;
 import munch.data.place.AirtablePlaceMapper;
 import munch.data.place.Place;
@@ -28,17 +27,15 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     private static final Logger logger = LoggerFactory.getLogger(PlaceBridge.class);
 
     private final PlaceClient placeClient;
-    private final ElasticClient elasticClient;
 
     private final AirtableApi.Table placeTable;
     private final AirtablePlaceMapper placeMapper;
 
     @Inject
-    public PlaceBridge(AirtableApi api, PlaceClient placeClient, ElasticClient elasticClient, AirtablePlaceMapper placeMapper) {
+    public PlaceBridge(AirtableApi api, PlaceClient placeClient, AirtablePlaceMapper placeMapper) {
         super(logger);
         this.placeClient = placeClient;
         this.placeTable = api.base("appDcx5b3vgkhcYB5").table("Place");
-        this.elasticClient = elasticClient;
         this.placeMapper = placeMapper;
     }
 
@@ -71,27 +68,27 @@ public final class PlaceBridge extends AbstractEngine<Object> {
     protected void processServer(Place place) {
         // From Server, Check if Place need to be posted or patched
         List<AirtableRecord> records = placeTable.find("placeId", place.getPlaceId());
-        sleep(125);
+        sleep(100);
 
         if (records.size() == 0) {
             // Posted
             placeTable.post(placeMapper.parse(place));
-            sleep(125);
-            return;
-        }
-        if (records.size() == 1) {
-            // Patched
-            AirtableRecord record = records.get(0);
-            AirtableRecord patchRecord = placeMapper.parse(place);
-            patchRecord.setId(record.getId());
-
-            if (equals(place, record)) return;
-            placeTable.patch(patchRecord);
-            sleep(125);
+            sleep(100);
             return;
         }
 
-        throw new IllegalStateException("More then 1 Place with the same id.");
+        // Patched
+        AirtableRecord record = records.get(0);
+        AirtableRecord patchRecord = placeMapper.parse(place);
+        patchRecord.setId(record.getId());
+
+        if (equals(place, record)) return;
+        placeTable.patch(patchRecord);
+        sleep(100);
+
+        for (int i = 1; i < records.size(); i++) {
+            placeTable.delete(records.get(i).getId());
+        }
     }
 
 

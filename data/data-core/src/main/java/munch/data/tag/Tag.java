@@ -3,11 +3,12 @@ package munch.data.tag;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import munch.data.MultipleNameObject;
 import munch.data.ElasticObject;
+import munch.data.MultipleNameObject;
 import munch.data.SuggestObject;
 import munch.data.VersionedObject;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.Objects;
 import java.util.Set;
@@ -31,8 +32,8 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     private Search search;
     private Counts counts;
 
-    private long createdMillis;
-    private long updatedMillis;
+    private Long createdMillis;
+    private Long updatedMillis;
 
     public String getTagId() {
         return tagId;
@@ -98,19 +99,23 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         this.counts = counts;
     }
 
-    public long getCreatedMillis() {
+    @NotNull
+    @Override
+    public Long getCreatedMillis() {
         return createdMillis;
     }
 
-    public void setCreatedMillis(long createdMillis) {
+    public void setCreatedMillis(Long createdMillis) {
         this.createdMillis = createdMillis;
     }
 
-    public long getUpdatedMillis() {
+    @NotNull
+    @Override
+    public Long getUpdatedMillis() {
         return updatedMillis;
     }
 
-    public void setUpdatedMillis(long updatedMillis) {
+    public void setUpdatedMillis(Long updatedMillis) {
         this.updatedMillis = updatedMillis;
     }
 

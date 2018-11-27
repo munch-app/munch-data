@@ -10,6 +10,7 @@ import munch.restful.core.exception.StructuredException;
  * Project: munch-data
  */
 public final class ClusterBlockException extends StructuredException {
+    private static final String MESSAGE = "http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-handling-errors.html#aes-handling-errors-watermark";
 
     static {
         ExceptionParser.register(ClusterBlockException.class, ClusterBlockException::new);
@@ -20,6 +21,6 @@ public final class ClusterBlockException extends StructuredException {
     }
 
     public ClusterBlockException() {
-        super(503, ClusterBlockException.class, "http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-handling-errors.html#aes-handling-errors-watermark");
+        super(503, ClusterBlockException.class, MESSAGE);
     }
 }
