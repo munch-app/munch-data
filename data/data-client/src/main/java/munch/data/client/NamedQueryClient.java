@@ -22,14 +22,14 @@ public final class NamedQueryClient extends RestfulClient {
     }
 
     public NamedQuery get(String slug, String version) {
-        return doGet("/named/query/:country/:slug/:version")
+        return doGet("/named/query/:slug/:version")
                 .path("slug", slug)
                 .path("version", version)
                 .asDataObject(NamedQuery.class);
     }
 
     public void put(NamedQuery namedQuery) {
-        doPut("/named/query/:country/:slug/:version")
+        doPut("/named/query/:slug/:version")
                 .path("slug", namedQuery.getSlug())
                 .path("version", namedQuery.getVersion())
                 .body(namedQuery)
