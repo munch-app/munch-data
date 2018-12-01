@@ -52,7 +52,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     }
 
     @Override
-    @Pattern(regexp = "[a-z0-9-]{1,64}", flags = Pattern.Flag.CASE_INSENSITIVE)
+    @Pattern(regexp = "[a-zA-Z0-9 -]{1,64}")
     public String getName() {
         return name;
     }

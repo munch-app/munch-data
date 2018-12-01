@@ -4,6 +4,7 @@ import com.google.common.io.Resources;
 import munch.data.client.TagClient;
 import munch.data.place.Place;
 import munch.data.tag.Tag;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -46,10 +47,30 @@ public class TagMapper {
             tag.getNames().forEach(s -> postfixes.forEach(postfix -> {
                 tagsMap.computeIfAbsent(s.toLowerCase() + " " + postfix.toLowerCase(), s1 -> new HashSet<>()).add(tag);
             }));
+
+            // TODO: Known Prefix? #
+
+            // Put with -
+            tag.getNames().forEach(s -> {
+                s = s.toLowerCase().replaceAll(" ", "-");
+                tagsMap.computeIfAbsent(s, s1 -> new HashSet<>()).add(tag);
+            });
+
+            // Put with _
+            tag.getNames().forEach(s -> {
+                s = s.toLowerCase().replaceAll(" ", "_");
+                tagsMap.computeIfAbsent(s, s1 -> new HashSet<>()).add(tag);
+            });
         });
     }
 
     public Set<Tag> get(String name) {
+        name = StringUtils.stripAccents(name);
+        name = StringUtils.lowerCase(name);
+        name = StringUtils.normalizeSpace(name);
+
+        if (StringUtils.isBlank(name)) return Set.of();
+
         return tagsMap.getOrDefault(name, Set.of());
     }
 
