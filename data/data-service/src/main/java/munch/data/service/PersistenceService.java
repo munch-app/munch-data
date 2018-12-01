@@ -42,7 +42,7 @@ public abstract class PersistenceService<T extends ElasticObject> extends Restfu
         // Updated & Created Millis is created via PersistenceService
         T old = get(object.getDataId());
         if (old != null) object.setCreatedMillis(old.getCreatedMillis());
-        else if (object.getCreatedMillis() == 0) object.setCreatedMillis(object.getUpdatedMillis());
+        else object.setCreatedMillis(object.getUpdatedMillis());
 
         validate(object);
         elasticIndex.put(object);
