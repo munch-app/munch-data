@@ -35,9 +35,6 @@ public final class ImageResolver {
         Image image = getImage(mutation, PlaceImageMutation.Type.food);
         if (image != null) return List.of(image);
 
-        image = getImage(mutation, PlaceImageMutation.Type.place);
-        if (image != null) return List.of(image);
-
         Iterator<ImageMeta> iterator = iterator(mutation.getPlaceId(), PlaceImageMutation.Type.food);
         Image next = Iterators.getNext(iterator, null);
 

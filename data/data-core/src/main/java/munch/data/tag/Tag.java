@@ -52,7 +52,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     }
 
     @Override
-    @Pattern(regexp = "[a-zA-Z0-9 -]{1,64}")
+    @Pattern(regexp = "[a-zA-Z0-9& -]{1,64}")
     public String getName() {
         return name;
     }

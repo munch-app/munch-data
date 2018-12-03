@@ -10,6 +10,7 @@ import munch.data.client.TagClient;
 import munch.data.elastic.ElasticUtils;
 import munch.data.tag.Tag;
 import munch.restful.core.JsonUtils;
+import munch.restful.core.exception.StructuredException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,16 @@ public final class TagBridge extends AirtableBridge<Tag> {
     @Override
     protected Duration cycleDelay() {
         return Duration.ofHours(8);
+    }
+
+    @Override
+    protected void process(long cycleNo, Object data, long processed) {
+        try {
+            super.process(cycleNo, data, processed);
+        } catch (StructuredException e) {
+            logger.error("Error: {}", JsonUtils.toString(data), e);
+            throw e;
+        }
     }
 
     @Override
