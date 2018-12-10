@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by: Fuxing
@@ -45,7 +47,15 @@ public final class PlaceCachedClient {
 
     /**
      * @param placeIds to batch get
-     * @return Map of Place
+     * @return Map of PlaceId -> Place
+     */
+    public Map<String, Place> get(Stream<String> placeIds) {
+        return get(placeIds.collect(Collectors.toSet()));
+    }
+
+    /**
+     * @param placeIds to batch get
+     * @return Map of PlaceId -> Place
      */
     public Map<String, Place> get(Collection<String> placeIds) {
         // Fetch from loading cache first
