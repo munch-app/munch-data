@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -89,42 +90,32 @@ public class TagMapper {
         versions.add(text);
 
         // Replace all Dividers
-        divider.forEach(s -> {
-            versions.forEach(tag -> {
-                tag = text.replace(s, " ");
-                tag = tag.trim();
-                if (StringUtils.isBlank(tag)) return;
-
-                versions.add(StringUtils.normalizeSpace(tag));
-            });
-        });
+        mapReduce(divider, versions, (s, tag) -> tag.replace(s, " "));
 
         // Trim Prefix
-        prefixes.forEach(s -> {
-            versions.forEach(tag -> {
-                tag = StringUtils.removeStart(tag, s);
-                tag = tag.trim();
-                if (StringUtils.isBlank(tag)) return;
-
-                versions.add(StringUtils.normalizeSpace(tag));
-            });
-        });
+        mapReduce(prefixes, versions, (s, tag) -> StringUtils.removeStart(tag, s));
 
         // Trim Postfix
-        postfixes.forEach(s -> {
-            versions.forEach(tag -> {
-                tag = StringUtils.removeEnd(tag, s);
-                tag = tag.trim();
-                if (StringUtils.isBlank(tag)) return;
-
-                versions.add(StringUtils.normalizeSpace(tag));
-            });
-        });
+        mapReduce(postfixes, versions, (s, tag) -> StringUtils.removeEnd(tag, s));
 
         // Remove all blacklisted
         versions.removeAll(blacklist);
 
         return versions;
+    }
+
+    private Set<String> mapReduce(Set<String> set, Set<String> versions, BiFunction<String, String, String> map) {
+        Set<String> reduced = new HashSet<>();
+        set.forEach(s -> {
+            versions.forEach(tag -> {
+                tag = map.apply(s, tag);
+                tag = tag.trim();
+                if (StringUtils.isBlank(tag)) return;
+
+                reduced.add(StringUtils.normalizeSpace(tag));
+            });
+        });
+        return reduced;
     }
 
     /**
