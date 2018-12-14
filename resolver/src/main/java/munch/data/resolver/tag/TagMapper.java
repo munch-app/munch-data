@@ -30,7 +30,7 @@ public class TagMapper {
     private Set<String> divider;
 
     @Inject
-    public TagMapper(TagClient tagClient) throws IOException {
+    public TagMapper(TagClient tagClient) {
         postfixes = openResource("tag-postfix.txt");
         prefixes = openResource("tag-prefix.txt");
         blacklist = openResource("tag-blacklist.txt");
@@ -150,13 +150,17 @@ public class TagMapper {
         return placeTag;
     }
 
-    private static Set<String> openResource(String resource) throws IOException {
+    private static Set<String> openResource(String resource) {
         URL url = Resources.getResource(resource);
         Set<String> tags = new HashSet<>();
-        Resources.readLines(url, Charset.defaultCharset()).forEach(s -> {
-            if (StringUtils.isBlank(s)) return;
-            tags.add(s.toLowerCase());
-        });
+        try {
+            Resources.readLines(url, Charset.defaultCharset()).forEach(s -> {
+                if (StringUtils.isBlank(s)) return;
+                tags.add(s.toLowerCase());
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return ImmutableSet.copyOf(tags);
     }
 }

@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -29,25 +28,25 @@ public final class TagResolver {
     private static final Logger logger = LoggerFactory.getLogger(TagResolver.class);
 
     private final Supplier<TagMapper> tagMapper;
-    private final TagLevelResolver levelResolver;
+    private final TagTypeResolver typeResolver;
     private final TagTimeResolver timeResolver;
 
     private final LicenseValueSanitizer sanitizer;
 
     @Inject
-    public TagResolver(TagClient tagClient, TagLevelResolver levelResolver, TagTimeResolver timeResolver, LicenseValueSanitizer sanitizer) {
+    public TagResolver(TagClient tagClient, TagTypeResolver typeResolver, TagTimeResolver timeResolver, LicenseValueSanitizer sanitizer) {
         this.tagMapper = Suppliers.memoizeWithExpiration(() -> new TagMapper(tagClient), 1, TimeUnit.DAYS);
-        this.levelResolver = levelResolver;
+        this.typeResolver = typeResolver;
         this.timeResolver = timeResolver;
         this.sanitizer = sanitizer;
     }
 
     public List<Place.Tag> resolve(PlaceMutation mutation) {
-        Set<@NotNull Tag> tags = reduce(mutation);
-
         List<Tag> accumulator = new ArrayList<>();
-        // Level 1-4 Resolver, Look at Airtable
-        accumulator.addAll(levelResolver.resolve(tags));
+
+        // Level Type Resolver
+        List<MutationField<Tag>> tags = reduce(mutation);
+        accumulator.addAll(typeResolver.resolve(tags));
 
         // Timing tag Resolver
         accumulator.addAll(timeResolver.resolve(mutation));
@@ -59,15 +58,13 @@ public final class TagResolver {
      * Reduces into Set of Tag with licensing validated
      *
      * @param mutation to reduce into tags
-     * @return Set of Tag sanitized without duplication
+     * @return List of Mutation Tag sanitized without duplication
      */
-    private Set<@NotNull Tag> reduce(PlaceMutation mutation) {
+    private List<MutationField<Tag>> reduce(PlaceMutation mutation) {
         List<MutationField<Tag>> fields = reduceFields(mutation);
         sanitizer.sanitize(fields);
 
-        return fields.stream()
-                .map(MutationField::getValue)
-                .collect(Collectors.toSet());
+        return fields;
     }
 
     /**

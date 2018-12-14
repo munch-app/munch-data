@@ -29,6 +29,8 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     private Set<String> names;
 
     private Place place;
+
+    // To Deprecate
     private Search search;
     private Counts counts;
 
@@ -171,6 +173,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     /**
      * Place Linked data
      */
+    @Deprecated
     public static class Place {
         private Integer level;
         private Double order;
@@ -270,6 +273,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         }
     }
 
+    @Deprecated
     public static class Counts {
         private long total;
 
@@ -317,6 +321,9 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
 
         @JsonProperty("Timing")
         Timing,
+
+        @JsonProperty("Requirement")
+        Requirement,
     }
 
 }
