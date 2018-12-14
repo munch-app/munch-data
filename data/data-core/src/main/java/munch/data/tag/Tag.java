@@ -2,7 +2,6 @@ package munch.data.tag;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.ElasticObject;
 import munch.data.MultipleNameObject;
 import munch.data.SuggestObject;
@@ -307,22 +306,16 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
     }
 
     public enum Type {
-        @JsonProperty("Food")
         Food,
 
-        @JsonProperty("Cuisine")
         Cuisine,
 
-        @JsonProperty("Establishment")
         Establishment,
 
-        @JsonProperty("Amenities")
         Amenities,
 
-        @JsonProperty("Timing")
         Timing,
 
-        @JsonProperty("Requirement")
         Requirement,
     }
 
