@@ -31,6 +31,10 @@ public final class TagTimeResolver {
         this.mapper = mapper;
     }
 
+    /**
+     * @param mutation with opening hours
+     * @return Set of Timing tag if hours is available
+     */
     public Set<Tag> resolve(PlaceMutation mutation) {
         List<MutationField<List<HourEdit>>> hours = mutation.getHour();
         if (hours.isEmpty()) return Set.of();

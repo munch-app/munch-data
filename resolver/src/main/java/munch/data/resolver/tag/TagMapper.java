@@ -1,5 +1,6 @@
 package munch.data.resolver.tag;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import munch.data.client.TagClient;
 import munch.data.place.Place;
@@ -7,6 +8,7 @@ import munch.data.tag.Tag;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -22,15 +24,18 @@ import java.util.stream.Collectors;
 public class TagMapper {
     private Map<String, Set<Tag>> tagsMap = new HashMap<>();
 
+    private Set<String> postfixes;
+    private Set<String> prefixes;
+    private Set<String> blacklist;
+    private Set<String> divider;
+
     @Inject
-    public TagMapper(TagClient tagClient) {
-        List<String> postfixes;
-        try {
-            URL url = Resources.getResource("tag-postfix.txt");
-            postfixes = Resources.readLines(url, Charset.defaultCharset());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public TagMapper(TagClient tagClient) throws IOException {
+        postfixes = openResource("tag-postfix.txt");
+        prefixes = openResource("tag-prefix.txt");
+        blacklist = openResource("tag-blacklist.txt");
+        divider = openResource("tag-divider.txt");
+
 
         tagClient.iterator().forEachRemaining(tag -> {
             // Put Names
@@ -42,25 +47,6 @@ public class TagMapper {
             tag.getPlace().getRemapping().forEach(s -> {
                 tagsMap.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(tag);
             });
-
-            // Put with Postfix
-            tag.getNames().forEach(s -> postfixes.forEach(postfix -> {
-                tagsMap.computeIfAbsent(s.toLowerCase() + " " + postfix.toLowerCase(), s1 -> new HashSet<>()).add(tag);
-            }));
-
-            // TODO: Known Prefix? #
-
-            // Put with -
-            tag.getNames().forEach(s -> {
-                s = s.toLowerCase().replaceAll(" ", "-");
-                tagsMap.computeIfAbsent(s, s1 -> new HashSet<>()).add(tag);
-            });
-
-            // Put with _
-            tag.getNames().forEach(s -> {
-                s = s.toLowerCase().replaceAll(" ", "_");
-                tagsMap.computeIfAbsent(s, s1 -> new HashSet<>()).add(tag);
-            });
         });
     }
 
@@ -71,9 +57,80 @@ public class TagMapper {
 
         if (StringUtils.isBlank(name)) return Set.of();
 
-        return tagsMap.getOrDefault(name, Set.of());
+        Set<Tag> tags = tagsMap.get(name);
+        if (tags != null) return tags;
+
+        // Keep track all the versions
+        Set<String> versions = getVersions(name);
+        Map<String, Set<Tag>> mapped = new HashMap<>();
+
+        versions.forEach(s -> {
+            Set<Tag> set = tagsMap.get(s);
+            if (set == null) return;
+
+            mapped.put(s, set);
+        });
+
+        if (mapped.isEmpty()) return Set.of();
+
+        // Get the longest version reduced Tag, to ensure reliability of tag
+        return mapped.entrySet().stream()
+                .min((o1, o2) -> Integer.compare(o2.getKey().length(), o1.getKey().length()))
+                .map(Map.Entry::getValue)
+                .orElse(Set.of());
     }
 
+    /**
+     * @param text to reduce into
+     * @return multiple versions of the tag
+     */
+    private Set<String> getVersions(String text) {
+        Set<String> versions = new HashSet<>();
+        versions.add(text);
+
+        // Replace all Dividers
+        divider.forEach(s -> {
+            versions.forEach(tag -> {
+                tag = text.replace(s, " ");
+                tag = tag.trim();
+                if (StringUtils.isBlank(tag)) return;
+
+                versions.add(StringUtils.normalizeSpace(tag));
+            });
+        });
+
+        // Trim Prefix
+        prefixes.forEach(s -> {
+            versions.forEach(tag -> {
+                tag = StringUtils.removeStart(tag, s);
+                tag = tag.trim();
+                if (StringUtils.isBlank(tag)) return;
+
+                versions.add(StringUtils.normalizeSpace(tag));
+            });
+        });
+
+        // Trim Postfix
+        postfixes.forEach(s -> {
+            versions.forEach(tag -> {
+                tag = StringUtils.removeEnd(tag, s);
+                tag = tag.trim();
+                if (StringUtils.isBlank(tag)) return;
+
+                versions.add(StringUtils.normalizeSpace(tag));
+            });
+        });
+
+        // Remove all blacklisted
+        versions.removeAll(blacklist);
+
+        return versions;
+    }
+
+    /**
+     * Convert Collections of Tag into list of Place.Tag
+     * - Distinct & Ordered as input
+     */
     public List<Place.Tag> mapDistinct(Collection<Tag> tags) {
         return tags.stream()
                 .map(TagMapper::parse)
@@ -91,5 +148,15 @@ public class TagMapper {
         placeTag.setName(tag.getName());
         placeTag.setType(tag.getType());
         return placeTag;
+    }
+
+    private static Set<String> openResource(String resource) throws IOException {
+        URL url = Resources.getResource(resource);
+        Set<String> tags = new HashSet<>();
+        Resources.readLines(url, Charset.defaultCharset()).forEach(s -> {
+            if (StringUtils.isBlank(s)) return;
+            tags.add(s.toLowerCase());
+        });
+        return ImmutableSet.copyOf(tags);
     }
 }

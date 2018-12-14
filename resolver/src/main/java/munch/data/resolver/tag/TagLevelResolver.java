@@ -2,9 +2,10 @@ package munch.data.resolver.tag;
 
 import munch.data.tag.Tag;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public final class TagLevelResolver {
+    // TODO Change to Popularity & Reliability Tag Resolver
 
     public List<Tag> resolve(Set<Tag> tags) {
         List<Tag> collector = new ArrayList<>();

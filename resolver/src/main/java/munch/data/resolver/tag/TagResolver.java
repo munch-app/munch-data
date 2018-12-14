@@ -43,7 +43,7 @@ public final class TagResolver {
     }
 
     public List<Place.Tag> resolve(PlaceMutation mutation) {
-        Set<@NotNull Tag> tags = reduce(mutation.getTag());
+        Set<@NotNull Tag> tags = reduce(mutation);
 
         List<Tag> accumulator = new ArrayList<>();
         // Level 1-4 Resolver, Look at Airtable
@@ -55,16 +55,14 @@ public final class TagResolver {
         return tagMapper.get().mapDistinct(accumulator);
     }
 
-    private Set<@NotNull Tag> reduce(List<MutationField<String>> tags) {
-        Map<Tag, Set<MutationField.Source>> tagSources = new HashMap<>();
-
-        tags.forEach(field -> tagMapper.get().get(field.getValue()).forEach(tag -> {
-            Set<MutationField.Source> sources = tagSources.computeIfAbsent(tag, t -> new HashSet<>());
-            sources.addAll(field.getSources());
-        }));
-
-        List<MutationField<Tag>> fields = tagSources.entrySet().stream().map(this::toField).collect(Collectors.toList());
-
+    /**
+     * Reduces into Set of Tag with licensing validated
+     *
+     * @param mutation to reduce into tags
+     * @return Set of Tag sanitized without duplication
+     */
+    private Set<@NotNull Tag> reduce(PlaceMutation mutation) {
+        List<MutationField<Tag>> fields = reduceFields(mutation);
         sanitizer.sanitize(fields);
 
         return fields.stream()
@@ -72,7 +70,32 @@ public final class TagResolver {
                 .collect(Collectors.toSet());
     }
 
-    private MutationField<Tag> toField(Map.Entry<Tag, Set<MutationField.Source>> entry) {
+    /**
+     * Reduce Tag into a List with it's sources
+     * Reduced tag will join similar tag and combine it's sources
+     */
+    private List<MutationField<Tag>> reduceFields(PlaceMutation mutation) {
+        Map<Tag, Set<MutationField.Source>> tagSources = new HashMap<>();
+        TagMapper mapper = this.tagMapper.get();
+
+        // Collect Tag into Tag and it's Sources
+        mutation.getTag().forEach(field -> mapper.get(field.getValue()).forEach(tag -> {
+            Set<MutationField.Source> sources = tagSources.computeIfAbsent(tag, t -> new HashSet<>());
+            sources.addAll(field.getSources());
+        }));
+
+        // Reduce into List of MutationField with Tag as its Value
+        return tagSources.entrySet().stream()
+                .map(TagResolver::toField)
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * @param entry to convert
+     * @return to MutationField with Tag to use License Value Sanitizer
+     */
+    private static MutationField<Tag> toField(Map.Entry<Tag, Set<MutationField.Source>> entry) {
         MutationField<Tag> field = new MutationField<>();
         field.setValue(entry.getKey());
         field.setSources(new ArrayList<>(entry.getValue()));

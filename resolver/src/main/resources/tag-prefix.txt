@@ -1,0 +1,12 @@
+#
+*
+-
++
+food
+food:
+tag
+tag:
+cuisine
+cuisine:
+cuisines
+cuisines:
