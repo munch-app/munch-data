@@ -1,10 +1,13 @@
 package munch.data.resolver;
 
+import catalyst.mutation.MenuItemCollection;
 import catalyst.mutation.MutationField;
 import catalyst.mutation.PlaceMutation;
 import munch.data.place.Place;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,27 +20,55 @@ import java.util.List;
 public final class PriceResolver {
 
     public Place.Price resolve(PlaceMutation mutation) {
-        Double perPax = findPerPax(mutation.getMenuPricePerPax());
+        Double perPax = findMenuPricePerPax(mutation);
         if (perPax == null) return null;
 
-        Place.Price price = new Place.Price();
-        price.setPerPax(perPax);
-        return price;
+        perPax = findMenuItemPrice(mutation);
+        if (perPax == null) return null;
+
+        return parse(perPax);
     }
 
     /**
-     * @param list of field to find
+     * @param mutation to find from
      * @return per pax found
      */
-    private Double findPerPax(List<MutationField<Double>> list) {
+    @Nullable
+    private Double findMenuPricePerPax(PlaceMutation mutation) {
+        List<MutationField<Double>> list = mutation.getMenuPricePerPax();
         if (list.isEmpty()) return null;
 
         for (MutationField<Double> perPax : list) {
             if (perPax.getValue() <= 200.0 && perPax.getValue() > 0.0) return perPax.getValue();
         }
 
-        if (list.get(0).getValue() <= 0) return null;
-        if (list.get(0).getValue() > 200) return 200d;
-        return null;
+        return list.get(0).getValue();
+    }
+
+    private Double findMenuItemPrice(PlaceMutation mutation) {
+        List<MutationField<MenuItemCollection>> items = mutation.getMenuItem();
+        //noinspection ConstantConditions
+        if (items == null) return null;
+        if (items.isEmpty()) return null;
+
+        List<Double> graph = new ArrayList<>();
+        items.forEach(field -> graph.addAll(field.getValue().getPrices()));
+
+        if (graph.size() < 8) return null;
+        graph.sort(Double::compareTo);
+
+        int index = (int) (((double) graph.size()) * 0.75);
+        return graph.get(index) * 1.25;
+    }
+
+    private static Place.Price parse(Double value) {
+        if (value == null) return null;
+
+        if (value <= 0) return null;
+        if (value > 200) value = 200d;
+
+        Place.Price price = new Place.Price();
+        price.setPerPax(value);
+        return price;
     }
 }

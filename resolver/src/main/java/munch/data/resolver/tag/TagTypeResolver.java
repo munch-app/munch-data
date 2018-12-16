@@ -86,7 +86,7 @@ public final class TagTypeResolver {
         collector.addAll(collect(Tag.Type.Amenities, 2, tags));
         collector.addAll(collect(Tag.Type.Requirement, 100, tags));
 
-        // Remaining: Up to 5
+        // Remaining: Up to 7
         tags.stream()
                 .filter(tag -> {
                     if (tag.getType() == Tag.Type.Cuisine) return false;
@@ -95,7 +95,7 @@ public final class TagTypeResolver {
                     if (tag.getType() == Tag.Type.Requirement) return false;
                     return true;
                 })
-                .limit(5)
+                .limit(7)
                 .forEach(collector::add);
 
         return collector;
