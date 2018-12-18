@@ -32,7 +32,10 @@ public final class ImageResolver {
     }
 
     public List<Image> resolve(PlaceMutation mutation) {
-        Image image = getImage(mutation, PlaceImageMutation.Type.food);
+        Image image = getImage(mutation, PlaceImageMutation.Type.forceFood);
+        if (image != null) return List.of(image);
+
+        image = getImage(mutation, PlaceImageMutation.Type.food);
         if (image != null) return List.of(image);
 
         Iterator<ImageMeta> iterator = iterator(mutation.getPlaceId(), PlaceImageMutation.Type.food);
