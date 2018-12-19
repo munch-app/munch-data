@@ -21,12 +21,12 @@ public final class PriceResolver {
 
     public Place.Price resolve(PlaceMutation mutation) {
         Double perPax = findMenuPricePerPax(mutation);
-        if (perPax == null) return null;
+        if (perPax != null) return parse(perPax);
 
         perPax = findMenuItemPrice(mutation);
-        if (perPax == null) return null;
+        if (perPax != null) return parse(perPax);
 
-        return parse(perPax);
+        return null;
     }
 
     /**
