@@ -74,7 +74,6 @@ public final class PlaceParser {
         place.setStatus(statusResolver.resolve(mutation));
 
         place.setName(nameResolver.resolve(mutation));
-        place.setNames(nameResolver.resolveAll(mutation));
         place.setTags(tagResolver.resolve(mutation));
 
         place.setPhone(getFirst(mutation.getPhone()));
@@ -94,6 +93,7 @@ public final class PlaceParser {
         place.setUpdatedMillis(mutation.getMillis());
 
         place.setRanking(rankingResolver.resolve(place, mutation));
+        place.setNames(nameResolver.resolveNames(place, mutation));
         place.setTaste(tasteResolver.resolve(place));
 
         // Areas, is decided & populated by the data-service itself

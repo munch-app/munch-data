@@ -5,6 +5,7 @@ import catalyst.mutation.PlaceMutation;
 import catalyst.source.SourceMappingCache;
 import catalyst.source.SourceType;
 import edit.utils.name.NameBlocked;
+import munch.data.place.Place;
 import munch.data.resolver.ResolverHaltException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,8 +45,17 @@ public final class NameResolver {
     /**
      * @return all valid names
      */
-    public Set<String> resolveAll(PlaceMutation mutation) {
-        return new HashSet<>(collection(mutation));
+    public Set<String> resolveNames(Place place, PlaceMutation mutation) {
+        Set<String> names = new HashSet<>();
+        String name = resolve(mutation);
+
+        names.add(name);
+        names.add(name + " " + place.getLocation().getNeighbourhood());
+
+        String street = place.getLocation().getStreet();
+        if (StringUtils.isNotBlank(street)) names.add(name + " " + street);
+
+        return names;
     }
 
     private List<String> collection(PlaceMutation mutation) {

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -101,6 +102,14 @@ public final class ClusterManager {
      */
     public void update(Place place) {
         place.setAreas(searchAreas(place));
+        if (place.getAreas().isEmpty()) return;
+
+        Set<String> names = new HashSet<>(place.getNames());
+        place.getAreas().forEach(area -> {
+            // Add Place + Area names
+            names.add(place.getName() + " " + area.getName());
+        });
+        place.setNames(names);
     }
 
     private List<Place> searchPlaces(String areaId) {
