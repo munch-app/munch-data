@@ -11,10 +11,10 @@ allprojects {
     ext.dockerRegistryVersion = '4.10'
 
     ext.jUnitVersion = '5.2.0'
-    ext.guiceVersion = '4.2.1'
-    ext.awsVersion = '1.11.367'
+    ext.guiceVersion = '4.2.2'
+    ext.awsVersion = '1.11.486'
 
-    ext.restfulVersion = '2.4.26'
+    ext.restfulVersion = '2.4.29'
     
     ext.ccVersion = '3.2-SNAPSHOT'
     ext.fileVersion = '1.2.15'
