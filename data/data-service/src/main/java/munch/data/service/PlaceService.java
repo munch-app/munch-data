@@ -8,7 +8,6 @@ import munch.data.elastic.ElasticIndex;
 import munch.data.place.Place;
 import munch.restful.core.JsonUtils;
 import munch.restful.server.JsonCall;
-import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,7 +49,7 @@ public final class PlaceService extends PersistenceService<Place> {
     }
 
     @Override
-    public JsonResult put(Place object) {
+    public Place put(Place object) {
         clusterManager.update(object);
         return super.put(object);
     }

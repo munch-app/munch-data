@@ -5,7 +5,6 @@ import munch.data.elastic.ElasticIndex;
 import munch.restful.core.KeyUtils;
 import munch.restful.core.exception.ValidationException;
 import munch.restful.server.JsonCall;
-import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,14 +35,14 @@ public final class BrandService extends PersistenceService<Brand> {
         });
     }
 
-    private JsonResult post(JsonCall call) {
+    private Brand post(JsonCall call) {
         Brand brand = call.bodyAsObject(Brand.class);
         brand.setBrandId(KeyUtils.randomUUID());
         return put(brand);
     }
 
     @Override
-    public JsonResult put(Brand object) {
+    public Brand put(Brand object) {
         // Location Country is required not to be blank because Brand Plugin requires it
         ValidationException.requireNonNull("location.country", object.getLocation().getCountry());
         return super.put(object);

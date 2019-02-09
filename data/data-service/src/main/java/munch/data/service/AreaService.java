@@ -11,7 +11,6 @@ import munch.data.location.Area;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
-import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,14 +49,14 @@ public final class AreaService extends PersistenceService<Area> {
         });
     }
 
-    private JsonResult post(JsonCall call) {
+    private Area post(JsonCall call) {
         Area area = call.bodyAsObject(Area.class);
         area.setAreaId(KeyUtils.randomUUID());
         return put(area);
     }
 
     @Override
-    public JsonResult put(Area object) {
+    public Area put(Area object) {
         clusterManager.update(object);
         return super.put(object);
     }

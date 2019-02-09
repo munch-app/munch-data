@@ -4,7 +4,6 @@ import munch.data.elastic.ElasticIndex;
 import munch.data.tag.Tag;
 import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
-import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,7 +35,7 @@ public final class TagService extends PersistenceService<Tag> {
         });
     }
 
-    private JsonResult post(JsonCall call) {
+    private Tag post(JsonCall call) {
         Tag tag = call.bodyAsObject(Tag.class);
         tag.setTagId(KeyUtils.randomUUID());
         return put(tag);

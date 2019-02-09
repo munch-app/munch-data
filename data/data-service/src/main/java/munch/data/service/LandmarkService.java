@@ -4,7 +4,6 @@ import munch.data.elastic.ElasticIndex;
 import munch.data.location.Landmark;
 import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
-import munch.restful.server.JsonResult;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,7 +34,7 @@ public final class LandmarkService extends PersistenceService<Landmark> {
         });
     }
 
-    private JsonResult post(JsonCall call) {
+    private Landmark post(JsonCall call) {
         Landmark landmark = call.bodyAsObject(Landmark.class);
         landmark.setLandmarkId(KeyUtils.randomUUID());
         return put(landmark);

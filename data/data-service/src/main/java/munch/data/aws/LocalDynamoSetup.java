@@ -10,7 +10,6 @@ import com.typesafe.config.ConfigFactory;
 import munch.data.service.TagService;
 import munch.data.tag.Tag;
 import munch.restful.core.JsonUtils;
-import munch.restful.server.JsonResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +25,7 @@ import java.util.function.Consumer;
  * Time: 1:02 AM
  * Project: catalyst
  */
+@SuppressWarnings("UnstableApiUsage")
 @Singleton
 public final class LocalDynamoSetup {
     private static final Logger logger = LoggerFactory.getLogger(LocalDynamoSetup.class);
@@ -67,11 +67,12 @@ public final class LocalDynamoSetup {
         JsonNode json = JsonUtils.objectMapper.readTree(tags);
 
         for (JsonNode node : json) {
-            JsonResult result = tagService.put(JsonUtils.toObject(node, Tag.class));
+            Tag result = tagService.put(JsonUtils.toObject(node, Tag.class));
             logger.info("LocalTagSetup: {}", result);
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void create(String tableName, Consumer<CreateTableRequest> consumer) throws InterruptedException {
         CreateTableRequest request = new CreateTableRequest()
                 .withTableName(tableName)

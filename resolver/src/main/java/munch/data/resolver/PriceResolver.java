@@ -47,7 +47,6 @@ public final class PriceResolver {
 
     private Double findMenuItemPrice(PlaceMutation mutation) {
         List<MutationField<MenuItemCollection>> items = mutation.getMenuItem();
-        //noinspection ConstantConditions
         if (items == null) return null;
         if (items.isEmpty()) return null;
 
@@ -58,7 +57,7 @@ public final class PriceResolver {
         graph.sort(Double::compareTo);
 
         int index = (int) (((double) graph.size()) * 0.75);
-        return graph.get(index) * 1.25;
+        return graph.get(index) * 1.05;
     }
 
     private static Place.Price parse(Double value) {
@@ -68,7 +67,7 @@ public final class PriceResolver {
         if (value > 200) value = 200d;
 
         Place.Price price = new Place.Price();
-        price.setPerPax(value);
+        price.setPerPax(Math.ceil(value));
         return price;
     }
 }
