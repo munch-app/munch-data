@@ -16,7 +16,7 @@ allprojects {
 
     ext.restfulVersion = '2.5.12'
     
-    ext.ccVersion = '3.2-SNAPSHOT'
+    ext.ccVersion = '3.3-SNAPSHOT'
     ext.fileVersion = '1.2.17'
     ext.locationVersion = '1.1.3'
 
