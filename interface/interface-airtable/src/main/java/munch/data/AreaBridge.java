@@ -69,7 +69,6 @@ public final class AreaBridge extends AirtableBridge<Area> {
             AirtableRecord patch = new AirtableRecord();
             patch.setId(record.getId());
             patch.putField("counts.total", updated.getCounts().getTotal());
-
             // Patch to Airtable & Client
             table.patch(patch);
             areaClient.put(updated);

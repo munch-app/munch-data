@@ -11,11 +11,12 @@ import munch.data.location.Area;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.KeyUtils;
 import munch.restful.server.JsonCall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by: Fuxing
@@ -25,6 +26,7 @@ import java.util.List;
  */
 @Singleton
 public final class AreaService extends PersistenceService<Area> {
+    private static final Logger logger = LoggerFactory.getLogger(AreaService.class);
 
     private final JestClient client;
     private final ClusterManager clusterManager;
@@ -41,7 +43,7 @@ public final class AreaService extends PersistenceService<Area> {
         PATH("/areas", () -> {
             GET("", this::list);
             GET("/:areaId", this::get);
-            GET("/:areaId/count/places", this::countPlaces);
+            GET("/:areaId/count/places", this::getCountPlaces);
 
             POST("", this::post);
             PUT("/:areaId", this::put);
@@ -69,7 +71,7 @@ public final class AreaService extends PersistenceService<Area> {
     }
 
     @SuppressWarnings("Duplicates")
-    private Long countPlaces(JsonCall call) {
+    private Long getCountPlaces(JsonCall call) {
         String areaId = call.pathString(hashName);
 
         ObjectNode root = JsonUtils.createObjectNode();
@@ -77,7 +79,7 @@ public final class AreaService extends PersistenceService<Area> {
         bool.set("must", ElasticUtils.mustMatchAll());
         bool.set("filter", JsonUtils.createArrayNode()
                 .add(ElasticUtils.filterTerm("dataType", "Place"))
-                .add(ElasticUtils.filterTerms("areas.areaId", List.of(areaId)))
+                .add(ElasticUtils.filterTerm("areas.areaId", areaId))
         );
         root.putObject("query").set("bool", bool);
 
@@ -91,6 +93,7 @@ public final class AreaService extends PersistenceService<Area> {
             if (number == null) return 0L;
             return number.longValue();
         } catch (IOException e) {
+            logger.info("Count timeout for: {}", areaId);
             throw ElasticException.parse(e);
         }
     }

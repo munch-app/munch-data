@@ -38,9 +38,9 @@ public final class InterfaceModule extends AbstractModule {
         EngineGroup.start(
                 injector.getInstance(TagBridge.class),
                 injector.getInstance(LandmarkBridge.class),
-                injector.getInstance(AreaBridge.class),
+                injector.getInstance(AreaBridge.class)
 
-                injector.getInstance(PlaceBridge.class)
+//                injector.getInstance(PlaceBridge.class)
         );
     }
 }
