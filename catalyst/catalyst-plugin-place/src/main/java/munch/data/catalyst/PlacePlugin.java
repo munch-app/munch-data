@@ -66,7 +66,7 @@ public final class PlacePlugin extends CollectPlugin {
         logger.info("Started Validating");
         placeClient.iterator().forEachRemaining(place -> {
             if (isDelete(place)) {
-                placeClient.delete(place.getPlaceId());
+                deleted(place.getPlaceId());
                 counter.increment("Deleted");
             }
 
@@ -87,6 +87,21 @@ public final class PlacePlugin extends CollectPlugin {
         } catch (ResolverHaltException | LocationSupportException | ValidationException ignored) {
             return true;
         }
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void deleted(String placeId) {
+        Place place = placeClient.get(placeId);
+        if (place == null) {
+            logger.warn("Deleted Not Found: {}", placeId);
+            return;
+        }
+
+        Place.Status status = new Place.Status();
+        status.setType(Place.Status.Type.deleted);
+        place.setStatus(status);
+
+        logger.info("Deleted: {}", place);
     }
 
     private Place parse(PlaceMutation mutation) throws LocationSupportException, ResolverHaltException, ValidationException {

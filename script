@@ -7,9 +7,12 @@ function error_exit {
 
 [[ "$(dirname "$0")" == "." ]] || error_exit "You can only run this from root project directory"
 
+function login {
+    `aws ecr get-login --no-include-email`
+}
+
 function build {
     ./gradlew buildImage
-    ./gradlew buildLocal
 }
 
 function publish {
@@ -38,7 +41,10 @@ echo "Executing: '"${var}"' command."
     elif [[ "$var" =~ ^(restart|start|run)$ ]]; then
         set -e
         start
-    elif [[ "$var" =~ ^(clean|delete|remove|rm)$ ]]; then
+    elif [[ "$var" =~ ^(login)$ ]]; then
+        set -e
+        login
+    elif  [[ "$var" =~ ^(clean|delete|remove|rm)$ ]]; then
         remove
     else
         error_exit ${var}" is not a valid command."

@@ -10,7 +10,7 @@ allprojects {
     ext.dockerRegistryUrl = '197547471367.dkr.ecr.ap-southeast-1.amazonaws.com/'
     ext.dockerRegistryVersion = '4.10'
 
-    ext.jUnitVersion = '5.2.0'
+    ext.jUnitVersion = '5.3.2'
     ext.guiceVersion = '4.2.2'
     ext.awsVersion = '1.11.486'
 

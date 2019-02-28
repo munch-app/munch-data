@@ -81,13 +81,19 @@ public class PlaceWorker implements Runnable {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     public void delete(String placeId) {
-        Place place = placeClient.delete(placeId);
-        if (place != null) {
-            logger.info("Deleted: {}", place);
-        } else {
+        Place place = placeClient.get(placeId);
+        if (place == null) {
             logger.warn("Deleted Not Found: {}", placeId);
+            return;
         }
+
+        Place.Status status = new Place.Status();
+        status.setType(Place.Status.Type.deleted);
+        place.setStatus(status);
+
+        logger.info("Deleted: {}", place);
     }
 
     /**

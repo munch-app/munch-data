@@ -2,7 +2,6 @@ package munch.data.place;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import munch.data.*;
 import munch.data.location.Area;
 import munch.data.location.Location;
@@ -445,6 +444,8 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     public static class Status {
         private Type type;
         private Moved moved;
+        private Renamed renamed;
+        private Redirected redirected;
 
         @NotNull
         public Type getType() {
@@ -456,6 +457,7 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         }
 
         @Nullable
+        @Valid
         public Moved getMoved() {
             return moved;
         }
@@ -464,11 +466,35 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             this.moved = moved;
         }
 
+        @Nullable
+        @Valid
+        public Renamed getRenamed() {
+            return renamed;
+        }
+
+        public void setRenamed(Renamed renamed) {
+            this.renamed = renamed;
+        }
+
+        @Nullable
+        @Valid
+        public Redirected getRedirected() {
+            return redirected;
+        }
+
+        public void setRedirected(Redirected redirected) {
+            this.redirected = redirected;
+        }
+
         public enum Type {
-            @JsonProperty("open") open,
-            @JsonProperty("renovation") renovation,
-            @JsonProperty("closed") closed,
-            @JsonProperty("moved") moved
+            open,
+            renovation,
+            closed,
+
+            moved,
+            deleted,
+            renamed,
+            redirected,
         }
 
         public static class Moved {
@@ -491,11 +517,64 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             }
         }
 
+        public static class Renamed {
+            private String placeId;
+            private String name;
+
+            @NotBlank
+            public String getPlaceId() {
+                return placeId;
+            }
+
+            public void setPlaceId(String placeId) {
+                this.placeId = placeId;
+            }
+
+            @NotBlank
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            @Override
+            public String toString() {
+                return "Renamed{" +
+                        "placeId='" + placeId + '\'' +
+                        ", name='" + name + '\'' +
+                        '}';
+            }
+        }
+
+        public static class Redirected {
+            private String placeId;
+
+            @NotBlank
+            public String getPlaceId() {
+                return placeId;
+            }
+
+            public void setPlaceId(String placeId) {
+                this.placeId = placeId;
+            }
+
+            @Override
+            public String toString() {
+                return "Redirected{" +
+                        "placeId='" + placeId + '\'' +
+                        '}';
+            }
+        }
+
         @Override
         public String toString() {
             return "Status{" +
                     "type=" + type +
                     ", moved=" + moved +
+                    ", renamed=" + renamed +
+                    ", redirected=" + redirected +
                     '}';
         }
     }
