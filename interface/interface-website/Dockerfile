@@ -15,7 +15,7 @@ ENV NODE_ENV production
 EXPOSE 3000
 
 ENV API_URL_BROWSER https://data.munch.space/
-ENV DATA_SERVICE_URL http://data.munch.api/v4.0
+ENV DATA_SERVICE_URL http://data.munch.api/v5.0
 ENV FILE_SERVICE_URL http://file.service.munch.api/v1.0
 
 RUN yarn run build

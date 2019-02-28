@@ -59,7 +59,7 @@ public final class TestModule extends AbstractModule {
         // Setup required table if not found.
         setupTables(injector.getInstance(AmazonDynamoDB.class));
 
-        RestfulServer.start("/v4.0",
+        RestfulServer.start("/v5.0",
                 injector.getInstance(BrandService.class)
         ).withHealth();
 

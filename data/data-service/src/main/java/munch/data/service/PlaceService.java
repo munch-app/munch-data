@@ -70,34 +70,11 @@ public final class PlaceService extends PersistenceService<Place> {
                 .stream()
                 .filter(Objects::nonNull)
                 .map(s -> JsonUtils.toObject(s.toJSON(), Place.class))
-                .filter(this::isValid)
                 .collect(Collectors.toMap(Place::getPlaceId, o -> o));
 
         for (String placeId : placeIds) {
             placeMap.putIfAbsent(placeId, null);
         }
         return placeMap;
-    }
-
-    @Nullable
-    @Override
-    protected Place get(Object hash) {
-        Place place = super.get(hash);
-        if (isValid(place)) return place;
-        return null;
-    }
-
-    // For migration from 4.10 only
-    protected boolean isValid(Place place) {
-        if (place == null) return true;
-
-        switch (place.getStatus().getType()) {
-            case open:
-            case moved:
-            case closed:
-            case renovation:
-                return true;
-        }
-        return false;
     }
 }
