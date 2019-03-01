@@ -100,7 +100,7 @@ public final class PlacePlugin extends CollectPlugin {
         Place.Status status = new Place.Status();
         status.setType(Place.Status.Type.deleted);
         place.setStatus(status);
-
+        placeClient.put(place);
         logger.info("Deleted: {}", place);
     }
 
