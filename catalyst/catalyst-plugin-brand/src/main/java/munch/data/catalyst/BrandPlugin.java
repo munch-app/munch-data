@@ -65,10 +65,6 @@ public final class BrandPlugin extends LinkPlugin<Brand> {
             return brandEditParser.parse(brand);
         }
 
-        if (placeLink != null) {
-            logger.info("Deleting: {}", placeMutation.getPlaceId());
-            counter.increment("Delete Linked");
-        }
         return null;
     }
 

@@ -93,6 +93,7 @@ public class PlaceWorker implements Runnable {
         status.setType(Place.Status.Type.deleted);
         place.setStatus(status);
         placeClient.put(place);
+
         logger.info("Deleted: {}", place);
     }
 

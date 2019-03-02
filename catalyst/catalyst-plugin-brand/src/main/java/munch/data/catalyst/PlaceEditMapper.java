@@ -41,8 +41,13 @@ public final class PlaceEditMapper {
         builder.withDescription(brand.getDescription());
         builder.withPhone(brand.getPhone());
 
-        if (brand.getMenu() != null) builder.withMenuUrl(brand.getMenu().getUrl());
-        if (brand.getPrice() != null) builder.withPricePerPax(brand.getPrice().getPerPax());
+        if (brand.getMenu() != null) {
+            builder.withMenuUrl(brand.getMenu().getUrl());
+        }
+        if (brand.getPrice() != null) {
+            builder.withPricePerPax(brand.getPrice().getPerPax());
+        }
+
         brand.getTags().forEach(tag -> builder.withTag(tag.getName()));
 
         builder.withName(brand.getName(), 100);
