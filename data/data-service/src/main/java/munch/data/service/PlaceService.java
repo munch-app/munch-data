@@ -88,7 +88,7 @@ public final class PlaceService extends PersistenceService<Place> {
     }
 
     // For migration from 4.10 only
-    protected boolean isValid(Place place) {
+    public boolean isValid(Place place) {
         if (place == null) return true;
 
         switch (place.getStatus().getType()) {

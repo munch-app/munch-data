@@ -1,6 +1,8 @@
 package munch.data.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Count;
 import io.searchbox.core.MultiSearch;
@@ -58,7 +60,10 @@ public final class ElasticService implements JsonService {
                 .build();
         try {
             String json = client.execute(search).getJsonString();
-            return result(200, objectMapper.readTree(json));
+            JsonNode result = objectMapper.readTree(json);
+            parse(result);
+
+            return result(200,  result);
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
@@ -152,5 +157,33 @@ public final class ElasticService implements JsonService {
             String reason = error.path("reason").asText();
             throw new ElasticException(status, type + ": " + reason);
         }
+    }
+
+    private static void parse(JsonNode node) {
+        JsonNode hits = node.path("hits").path("hits");
+        if (!hits.isArray()) return;
+
+        ArrayNode cleaned = JsonUtils.createArrayNode();
+        for (JsonNode hit : hits) {
+            JsonNode source = hit.path("_source");
+            if (!source.path("dataType").asText().equals("Place")) {
+                continue;
+            }
+
+
+            switch (source.path("status").path("type").asText()) {
+                case "open":
+                case "moved":
+                case "closed":
+                case "renovation":
+                    cleaned.add(hit);
+
+                default:
+                    break;
+            }
+        }
+
+
+        ((ObjectNode) node.path("hits")).set("hits", cleaned);
     }
 }
