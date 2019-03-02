@@ -167,6 +167,7 @@ public final class ElasticService implements JsonService {
         for (JsonNode hit : hits) {
             JsonNode source = hit.path("_source");
             if (!source.path("dataType").asText().equals("Place")) {
+                cleaned.add(hit);
                 continue;
             }
 
