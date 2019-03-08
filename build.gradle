@@ -12,10 +12,10 @@ allprojects {
 
     ext.jUnitVersion = '5.3.2'
     ext.guiceVersion = '4.2.2'
-    ext.awsVersion = '1.11.486'
+    ext.awsVersion = '1.11.508'
 
-    ext.restfulVersion = '2.5.12'
-    
+    ext.restfulVersion = '3.0'
+
     ext.ccVersion = '3.3-SNAPSHOT'
     ext.fileVersion = '1.2.17'
     ext.locationVersion = '1.1.3'
