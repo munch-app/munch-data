@@ -9,6 +9,23 @@
             "lowercase"
           ]
         }
+      },
+      "filter": {
+        "ngram_filter": {
+          "type": "ngram",
+          "min_gram": "2",
+          "max_gram": "20"
+        }
+      },
+      "analyzer": {
+        "ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "ngram_filter"
+          ]
+        }
       }
     }
   },
@@ -54,6 +71,11 @@
         },
         "names": {
           "type": "text"
+        },
+        "names_ngram": {
+          "type": "text",
+          "analyzer": "ngram_analyzer",
+          "store": false
         },
         "tags": {
           "properties": {

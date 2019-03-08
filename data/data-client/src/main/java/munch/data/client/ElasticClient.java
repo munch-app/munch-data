@@ -1,14 +1,20 @@
 package munch.data.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import munch.data.ElasticObject;
 import munch.data.elastic.ElasticUtils;
 import munch.restful.client.RestfulClient;
+import munch.restful.core.JsonUtils;
+import munch.restful.core.NextNodeList;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -67,5 +73,31 @@ public final class ElasticClient extends RestfulClient {
         return doPost("/elastic/count")
                 .body(node)
                 .asDataObject(Long.class);
+    }
+
+    /**
+     * @param dataType to filter to
+     * @param text     to search the ngram with
+     * @param latLng   latLng for distance decaying
+     * @param scale    scale of decay, depending on use cases
+     * @param size     total number of objects to return
+     * @param <T>      DataType
+     * @return List of ElasticObject
+     */
+    public <T extends ElasticObject> List<T> searchNgrams(String dataType, @NotBlank String text, @Nullable String latLng, String scale, int size) {
+        if (StringUtils.isBlank(text)) return new NextNodeList<>(List.of());
+
+        ObjectNode root = JsonUtils.createObjectNode();
+        root.put("from", 0);
+        root.put("size", size);
+        ObjectNode queryNode = root.putObject("query");
+        ObjectNode boolNode = queryNode.putObject("bool");
+
+        JsonNode must = ElasticUtils.match(text, "names_ngram");
+        boolNode.set("must", ElasticUtils.withFunctionScoreMust(must, latLng, scale));
+
+        ArrayNode filter = boolNode.putArray("filter");
+        filter.add(ElasticUtils.filterTerm("dataType", dataType));
+        return searchHitsHits(root);
     }
 }

@@ -10,6 +10,7 @@ import munch.data.place.Place;
 import munch.data.tag.Tag;
 import munch.restful.core.JsonUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -73,14 +74,13 @@ public final class ElasticUtils {
 
         match.put("query", query);
         match.put("type", "phrase_prefix");
+
         ArrayNode fieldsNode = match.putArray("fields");
         fieldsNode.add(field);
-        for (String each : fields) {
-            fieldsNode.add(each);
-        }
+        for (String each : fields) fieldsNode.add(each);
+
         return root;
     }
-
 
     /**
      * @param name  to match
@@ -237,5 +237,43 @@ public final class ElasticUtils {
         ObjectNode sort = JsonUtils.createObjectNode();
         sort.put(field, by);
         return sort;
+    }
+
+    /**
+     * @param must   function base score
+     * @param latLng optional distance decaying with default decay 2.5km scale
+     * @return function_score in JsonNode
+     */
+    public static JsonNode withFunctionScoreMust(JsonNode must, @Nullable String latLng) {
+        return withFunctionScoreMust(must, latLng, "2.5km");
+    }
+
+    /**
+     * @param must   function base score
+     * @param latLng latLng for distance decaying
+     * @param scale  scale of decay, depending on use cases
+     * @return function_score in JsonNode
+     */
+    public static JsonNode withFunctionScoreMust(JsonNode must, @Nullable String latLng, String scale) {
+        ObjectNode root = JsonUtils.createObjectNode();
+        ObjectNode function = root.putObject("function_score");
+        function.put("score_mode", "multiply");
+        function.set("query", must);
+
+        ArrayNode functions = function.putArray("functions");
+        functions.addObject()
+                .putObject("gauss")
+                .putObject("taste.importance")
+                .put("scale", "0.1")
+                .put("origin", "1");
+
+        if (latLng != null) {
+            functions.addObject()
+                    .putObject("gauss")
+                    .putObject("location.latLng")
+                    .put("scale", scale)
+                    .put("origin", latLng);
+        }
+        return root;
     }
 }

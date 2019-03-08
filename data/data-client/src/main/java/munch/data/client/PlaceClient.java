@@ -5,6 +5,7 @@ import munch.data.place.Place;
 import munch.restful.client.dynamodb.RestfulDynamoHashClient;
 import munch.restful.core.NextNodeList;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
@@ -24,13 +25,14 @@ public final class PlaceClient extends RestfulDynamoHashClient<Place> {
 
     @Inject
     public PlaceClient() {
-        this(ConfigFactory.load().getString("services.munch-data.url"));
+        super(ConfigFactory.load().getString("services.munch-data.url"), Place.class, "placeId");
     }
 
-    PlaceClient(String url) {
-        super(url, Place.class, "placeId");
-    }
-
+    /**
+     * @param placeId id of Place
+     * @return Place or null if not found
+     */
+    @Nullable
     public Place get(String placeId) {
         return doGet("/places/:placeId", placeId);
     }
@@ -67,15 +69,28 @@ public final class PlaceClient extends RestfulDynamoHashClient<Place> {
         return doList("/places", nextPlaceId, size);
     }
 
+    /**
+     * @return Iterator to iterate through all places in the database
+     */
     public Iterator<Place> iterator() {
         return doIterator("/places", 30);
     }
 
+    /**
+     * @param place to put/replace into the database
+     */
     public void put(Place place) {
         String placeId = Objects.requireNonNull(place.getPlaceId());
         doPut("/places/:placeId", placeId, place);
     }
 
+    /**
+     * Don't use this method to delete a place, instead, user put method to change it to deleted.
+     *
+     * @param placeId id of place to delete in database
+     * @return deleted Place if found
+     */
+    @Nullable
     public Place delete(String placeId) {
         return doDelete("/places/:placeId", placeId);
     }
