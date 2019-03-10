@@ -1,12 +1,9 @@
 package munch.data.service;
 
-import com.amazonaws.services.dynamodbv2.document.Item;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.ElasticObject;
 import munch.data.elastic.ElasticIndex;
-import munch.restful.core.JsonUtils;
-import munch.restful.core.exception.ParamException;
+import munch.restful.core.exception.CodeException;
 import munch.restful.server.JsonResult;
 import munch.restful.server.dynamodb.RestfulDynamoHashService;
 
@@ -29,29 +26,13 @@ public abstract class PersistenceService<T extends ElasticObject> extends Restfu
 
     @Override
     public JsonResult put(Object hash, JsonNode json) {
-        ParamException.requireNonNull(hashName, hash);
-        ((ObjectNode) json).putPOJO(hashName, hash);
-
-        // Convert to Object class to validation against Class Type
-        T object = JsonUtils.toObject(json, clazz);
-        put(object);
-        return result(200);
+        // Use v5 endpoint
+        throw new CodeException(409);
     }
 
     public T put(T object) {
-        object.setUpdatedMillis(System.currentTimeMillis());
-
-        // Updated & Created Millis is created via PersistenceService
-        T old = get(object.getDataId());
-        if (old != null) object.setCreatedMillis(old.getCreatedMillis());
-        else object.setCreatedMillis(object.getUpdatedMillis());
-
-        validate(object);
-        elasticIndex.put(object);
-
-        // Convert validated object back to json to remove unwanted fields
-        table.putItem(Item.fromJSON(JsonUtils.toString(object)));
-        return object;
+        // Use v5 endpoint
+        throw new CodeException(409);
     }
 
     @Override
