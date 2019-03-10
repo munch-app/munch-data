@@ -6,6 +6,9 @@ import com.typesafe.config.ConfigFactory;
 import munch.data.elastic.ElasticObject;
 import munch.data.elastic.DataType;
 import munch.data.elastic.ElasticUtils;
+import munch.data.location.City;
+import munch.data.location.Country;
+import munch.data.place.Place;
 import munch.restful.client.RestfulClient;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,20 +77,59 @@ public final class ElasticClient extends RestfulClient {
     }
 
     /**
-     * @param dataType to filter to
-     * @param text     to search
-     * @param size     of ElasticObject to return
-     * @param <T>      ObjectType
-     * @return List of ElasticObject
+     * This suggest will return results from
+     * - DataType.Brand
+     * - DataType.Place
+     * - DataType.Area
+     * - DataType.Tag
+     * <p>
+     * if LatLng is provided:
+     * Data inside the provided latLng will be boosted by 3 with precision 6 (1.2km x 609.4m)
+     *
+     * @param country to search, within
+     * @param text    to search
+     * @param size    of ElasticObject to return
+     * @return List of ElasticObject, contains all 4 types stated above
      */
-    public <T extends ElasticObject> List<T> suggest(DataType dataType, String text, @Nullable String latLng, int size) {
+    public List<ElasticObject> suggest(Country country, String text, @Nullable String latLng, int size) {
         if (StringUtils.isBlank(text)) return List.of();
 
+        ObjectNode contexts = JsonUtils.createObjectNode();
+        contexts.set("dataType", ElasticUtils.Suggest.makeDataType(DataType.Brand, DataType.Place, DataType.Area, DataType.Tag));
+
+        // Boost inside, (1.2km x 609.4m)
+        if (latLng != null) {
+            contexts.set("latLng", ElasticUtils.Suggest.makeLatLng(latLng, 6, 3));
+        }
+
+        JsonNode completion = ElasticUtils.Suggest.makeCompletion(country.getSuggestField(), contexts, size);
+        return suggestPrefix(text, completion);
+    }
+
+    /**
+     * @param city optional city to search within
+     * @param text text for searching, non-blank, else returns empty list
+     * @param size of Place to return
+     * @return List of Place that fit the prefix
+     */
+    public List<Place> suggestPlaces(@Nullable City city, String text, int size) {
+        if (StringUtils.isBlank(text)) return List.of();
+
+        if (city == null) {
+            return suggestPrefix(text, ElasticUtils.Suggest.makeCompletion("suggest_places", null, size));
+        }
+
+        ObjectNode contexts = JsonUtils.createObjectNode();
+        contexts.set("city", ElasticUtils.Suggest.makeCity(city));
+        return suggestPrefix(text, ElasticUtils.Suggest.makeCompletion("suggest_places", contexts, size));
+    }
+
+    public <T extends ElasticObject> List<T> suggestPrefix(String text, JsonNode completion) {
         ObjectNode root = JsonUtils.createObjectNode((object) -> {
             object.putObject("suggest")
                     .putObject("suggestions")
                     .put("prefix", StringUtils.lowerCase(text))
-                    .set("completion", ElasticUtils.Suggest.makeCompletion(dataType, latLng, size));
+                    .set("completion", completion);
         });
 
         JsonNode results = search(root).path("suggest")

@@ -40,11 +40,10 @@ public final class PlaceParser {
     private final ImageResolver imageResolver;
     private final TasteResolver tasteResolver;
 
-    private final RankingResolver rankingResolver;
     private final CreatedMillisResolver createdMillisResolver;
 
     @Inject
-    public PlaceParser(PlaceDataLicensing licensing, DomainBlocked domainBlocked, NameResolver nameResolver, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, TasteResolver tasteResolver, RankingResolver rankingResolver, CreatedMillisResolver createdMillisResolver) {
+    public PlaceParser(PlaceDataLicensing licensing, DomainBlocked domainBlocked, NameResolver nameResolver, StatusResolver statusResolver, TagResolver tagResolver, LocationResolver locationResolver, MenuResolver menuResolver, PriceResolver priceResolver, BrandResolver brandResolver, HourResolver hourResolver, ImageResolver imageResolver, TasteResolver tasteResolver, CreatedMillisResolver createdMillisResolver) {
         this.licensing = licensing;
         this.domainBlocked = domainBlocked;
         this.nameResolver = nameResolver;
@@ -57,7 +56,6 @@ public final class PlaceParser {
         this.hourResolver = hourResolver;
         this.imageResolver = imageResolver;
         this.tasteResolver = tasteResolver;
-        this.rankingResolver = rankingResolver;
         this.createdMillisResolver = createdMillisResolver;
     }
 
@@ -92,7 +90,6 @@ public final class PlaceParser {
         place.setCreatedMillis(createdMillisResolver.resolve(mutation));
         place.setUpdatedMillis(mutation.getMillis());
 
-        place.setRanking(rankingResolver.resolve(place, mutation));
         place.setNames(nameResolver.resolveNames(place, mutation));
         place.setTaste(tasteResolver.resolve(place));
 

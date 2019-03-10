@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.data.brand.Brand;
 import munch.data.location.Area;
+import munch.data.location.City;
 import munch.data.location.Landmark;
 import munch.data.place.Place;
 import munch.data.tag.Tag;
@@ -255,49 +256,44 @@ public final class ElasticUtils {
     }
 
     public static final class Suggest {
-        public static JsonNode makeCompletion(DataType dataType, @Nullable String latLng, int size) {
+        public static JsonNode makeCompletion(String field, @Nullable ObjectNode contexts, int size) {
             ObjectNode completion = JsonUtils.createObjectNode();
-            completion.put("field", "suggest");
+            completion.put("field", field);
             completion.put("fuzzy", true);
             completion.put("size", size);
 
-            ObjectNode contexts = completion.putObject("contexts");
-            contexts.set("dataType", makeDataType(dataType));
-
-            if (latLng != null) {
-                contexts.set("latLng", makeLatLng(latLng));
+            if (contexts != null) {
+                completion.set("contexts", contexts);
             }
 
             return completion;
         }
 
-        private static JsonNode makeDataType(DataType dataType) {
+
+        public static JsonNode makeCity(City city) {
             ArrayNode arrayNode = JsonUtils.createArrayNode();
-            arrayNode.add(dataType.name());
+            arrayNode.add(city.name());
             return arrayNode;
         }
 
-        private static JsonNode makeLatLng(String latLng) {
-            String[] lls = latLng.split(",");
-            final double lat = Double.parseDouble(lls[0].trim());
-            final double lng = Double.parseDouble(lls[1].trim());
+        public static JsonNode makeDataType(DataType... dataTypes) {
+            ArrayNode arrayNode = JsonUtils.createArrayNode();
+            for (DataType dataType : dataTypes) {
+                arrayNode.add(dataType.name());
+            }
+            return arrayNode;
+        }
+
+        public static JsonNode makeLatLng(String latLng, int precision, double boost) {
+            double[] ll = Spatial.parse(latLng);
 
             ArrayNode latLngArray = JsonUtils.createArrayNode();
-
-            // +/- 78km
             latLngArray.addObject()
-                    .put("precision", 3)
+                    .put("precision", precision)
+                    .put("boost", boost)
                     .putObject("context")
-                    .put("lat", lat)
-                    .put("lon", lng);
-
-            // +/- 2.4km
-            latLngArray.addObject()
-                    .put("precision", 5)
-                    .put("boost", 2.0)
-                    .putObject("context")
-                    .put("lat", lat)
-                    .put("lon", lng);
+                    .put("lat", ll[0])
+                    .put("lon", ll[1]);
             return latLngArray;
         }
     }
