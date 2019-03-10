@@ -2,9 +2,9 @@ package munch.data.location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import munch.data.ElasticObject;
-import munch.data.VersionedObject;
+import munch.data.elastic.DataType;
+import munch.data.elastic.ElasticObject;
+import munch.data.elastic.VersionedObject;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -108,18 +108,17 @@ public final class Landmark implements ElasticObject, VersionedObject {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(landmarkId, type, name, location);
     }
 
     @Override
     public String getVersion() {
-        return "2018-05-30";
+        return "2019-03-10";
     }
 
     @Override
-    public String getDataType() {
-        return "Landmark";
+    public DataType getDataType() {
+        return DataType.Landmark;
     }
 
     @Override
@@ -128,7 +127,6 @@ public final class Landmark implements ElasticObject, VersionedObject {
     }
 
     public enum Type {
-        @JsonProperty("train")
         train
     }
 }

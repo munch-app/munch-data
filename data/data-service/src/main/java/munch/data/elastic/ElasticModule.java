@@ -8,17 +8,15 @@ import com.typesafe.config.ConfigFactory;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
+import munch.data.elastic.plugins.ElasticPlugin;
 import munch.restful.WaitFor;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import vc.inreach.aws.request.AWSSigner;
 import vc.inreach.aws.request.AWSSigningRequestInterceptor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -30,21 +28,10 @@ import java.time.ZoneOffset;
  * Project: munch-core
  */
 public final class ElasticModule extends AbstractModule {
-    private static final Logger logger = LoggerFactory.getLogger(ElasticModule.class);
 
     @Override
     protected void configure() {
-        requestInjection(this);
-    }
-
-    @Inject
-    void configureMapping(ElasticMapping mapping) throws IOException {
-        try {
-            mapping.tryCreate();
-        } catch (Exception e) {
-            logger.error("ElasticMapping Error: {}", e.getMessage(), e);
-            throw e;
-        }
+        install(new ElasticPlugin.Module());
     }
 
     @Inject
@@ -82,7 +69,6 @@ public final class ElasticModule extends AbstractModule {
             return new JestClientFactory();
         }
     }
-
 
     /**
      * Wait for elastic to be started

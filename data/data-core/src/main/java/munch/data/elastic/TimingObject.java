@@ -1,4 +1,6 @@
-package munch.data;
+package munch.data.elastic;
+
+import munch.data.Hour;
 
 import java.util.List;
 
@@ -10,5 +12,8 @@ import java.util.List;
  */
 public interface TimingObject {
 
+    /**
+     * @return hours object, providing it makes hours searchable
+     */
     List<Hour> getHours();
 }

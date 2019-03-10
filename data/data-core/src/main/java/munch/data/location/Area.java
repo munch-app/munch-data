@@ -1,8 +1,10 @@
 package munch.data.location;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import munch.data.*;
+import munch.data.elastic.*;
 import munch.file.Image;
 
 import javax.validation.constraints.NotBlank;
@@ -19,7 +21,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Area implements ElasticObject, VersionedObject, SuggestObject, MultipleNameObject, TimingObject {
+public final class Area implements ElasticObject, VersionedObject, SuggestObject, SuggestObject.Names, TimingObject {
     private String areaId;
 
     private Type type;
@@ -151,21 +153,6 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
 
     public void setUpdatedMillis(Long updatedMillis) {
         this.updatedMillis = updatedMillis;
-    }
-
-    @Override
-    public String getDataType() {
-        return "Area";
-    }
-
-    @Override
-    public String getDataId() {
-        return areaId;
-    }
-
-    @Override
-    public String getVersion() {
-        return "2018-05-30";
     }
 
     @Override
@@ -308,5 +295,37 @@ public final class Area implements ElasticObject, VersionedObject, SuggestObject
          * e.g. Search Feature: Eat Between
          */
         Generated,
+    }
+
+    @Override
+    @JsonIgnore
+    public Context getSuggestContext() {
+        return new Context() {
+            @Override
+            public Set<Country> getCountries() {
+                return Set.of(getLocation().getCountry());
+            }
+
+            @Override
+            public String getLatLng() {
+                return getLocation().getLatLng();
+            }
+        };
+    }
+
+    @Override
+    public DataType getDataType() {
+        return DataType.Area;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getDataId() {
+        return areaId;
+    }
+
+    @Override
+    public String getVersion() {
+        return "2019-03-10";
     }
 }

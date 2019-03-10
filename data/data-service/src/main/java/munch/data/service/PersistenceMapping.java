@@ -4,6 +4,8 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import munch.data.elastic.DataType;
+import org.apache.commons.lang3.EnumUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,7 +20,7 @@ import java.util.Map;
  */
 @Singleton
 public final class PersistenceMapping {
-    private final Map<String, Mapping> mappings;
+    private final Map<DataType, Mapping> mappings;
 
     @Inject
     public PersistenceMapping(DynamoDB dynamoDB) {
@@ -26,7 +28,7 @@ public final class PersistenceMapping {
 
         for (Config config : ConfigFactory.load().getConfigList("persistence.mappings")) {
             Mapping mapping = new Mapping();
-            mapping.setDataType(config.getString("dataType"));
+            mapping.setDataType(config.getEnum(DataType.class, "dataType"));
             mapping.setDataKey(config.getString("dataKey"));
             mapping.setTableName(config.getString("tableName"));
             mapping.setTable(dynamoDB.getTable(mapping.getTableName()));
@@ -41,10 +43,11 @@ public final class PersistenceMapping {
      * @throws IllegalArgumentException if table not found
      */
     public Mapping getMapping(Class clazz) throws IllegalArgumentException {
-        return getMapping(clazz.getSimpleName());
+        String name = clazz.getSimpleName();
+        return getMapping(EnumUtils.getEnum(DataType.class, name));
     }
 
-    public Mapping getMapping(String dataType) throws IllegalArgumentException {
+    public Mapping getMapping(DataType dataType) throws IllegalArgumentException {
         Mapping mapping = mappings.get(dataType);
         if (mapping != null) return mapping;
         throw new IllegalArgumentException(dataType + " table do not exist.");
@@ -54,17 +57,17 @@ public final class PersistenceMapping {
      * Persistence Mapping
      */
     public static class Mapping {
-        private String dataType;
+        private DataType dataType;
         private String dataKey;
         private String tableName;
 
         private Table table;
 
-        public String getDataType() {
+        public DataType getDataType() {
             return dataType;
         }
 
-        public void setDataType(String dataType) {
+        public void setDataType(DataType dataType) {
             this.dataType = dataType;
         }
 

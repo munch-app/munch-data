@@ -32,19 +32,26 @@
   "mappings": {
     "Data": {
       "properties": {
-        "suggest": {
+        "suggest_country_sgp": {
           "type": "completion",
           "contexts": [
             {
-              "name": "dataType",
-              "type": "category",
-              "path": "dataType"
-            },
-            {
               "name": "latLng",
               "type": "geo",
-              "precision": 7,
-              "path": "location.latLng"
+              "precision": 6
+            },
+            {
+              "name": "dataType",
+              "type": "category"
+            }
+          ]
+        },
+        "suggest_places": {
+          "type": "completion",
+          "contexts": [
+            {
+              "name": "city",
+              "type": "category"
             }
           ]
         },
@@ -63,6 +70,9 @@
         "landmarkId": {
           "type": "keyword"
         },
+        "brandId": {
+          "type": "keyword"
+        },
         "type": {
           "type": "keyword"
         },
@@ -70,12 +80,8 @@
           "type": "text"
         },
         "names": {
-          "type": "text"
-        },
-        "names_ngram": {
           "type": "text",
-          "analyzer": "ngram_analyzer",
-          "store": false
+          "analyzer": "ngram_analyzer"
         },
         "tags": {
           "properties": {
@@ -86,13 +92,12 @@
               "type": "keyword"
             },
             "name": {
-              "type": "keyword",
-              "normalizer": "normalizer_lower"
+              "type": "keyword"
             }
           }
         },
         "phone": {
-          "type": "text"
+          "enabled": false
         },
         "website": {
           "enabled": false
@@ -110,11 +115,7 @@
           "enabled": false
         },
         "company": {
-          "properties": {
-            "name": {
-              "type": "text"
-            }
-          }
+          "enabled": false
         },
         "hour": {
           "properties": {
@@ -202,9 +203,11 @@
             "latLng": {
               "type": "geo_point"
             },
+            "geometry": {
+              "type": "geo_shape"
+            },
             "polygon": {
-              "type": "geo_shape",
-              "precision": "5m"
+              "enabled": false
             },
             "landmarks": {
               "enabled": false
@@ -232,8 +235,11 @@
             "moved": {
               "enabled": false
             },
-            "updatedMillis": {
-              "type": "long"
+            "renamed": {
+              "enabled": false
+            },
+            "redirected": {
+              "enabled": false
             }
           }
         },
@@ -297,7 +303,7 @@
           "type": "long"
         },
         "ranking": {
-          "type": "double"
+          "enabled": false
         },
         "search": {
           "properties": {

@@ -1,11 +1,13 @@
 package munch.data.tag;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import munch.data.ElasticObject;
-import munch.data.MultipleNameObject;
-import munch.data.SuggestObject;
-import munch.data.VersionedObject;
+import munch.data.elastic.DataType;
+import munch.data.elastic.ElasticObject;
+import munch.data.elastic.SuggestObject;
+import munch.data.elastic.VersionedObject;
+import munch.data.location.Country;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -20,7 +22,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Tag implements ElasticObject, VersionedObject, SuggestObject, MultipleNameObject {
+public final class Tag implements ElasticObject, VersionedObject, SuggestObject, SuggestObject.Names {
     private String tagId;
 
     private Type type;
@@ -68,6 +70,7 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
      *
      * @return similar names
      */
+    @Override
     public Set<String> getNames() {
         return names;
     }
@@ -118,21 +121,6 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
 
     public void setUpdatedMillis(Long updatedMillis) {
         this.updatedMillis = updatedMillis;
-    }
-
-    @Override
-    public String getDataType() {
-        return "Tag";
-    }
-
-    @Override
-    public String getDataId() {
-        return tagId;
-    }
-
-    @Override
-    public String getVersion() {
-        return "2018-05-30";
     }
 
     @Override
@@ -228,6 +216,8 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Search {
         private boolean enabled;
         private boolean listed;
@@ -319,4 +309,39 @@ public final class Tag implements ElasticObject, VersionedObject, SuggestObject,
         Requirement,
     }
 
+
+    @Override
+    public DataType getDataType() {
+        return DataType.Tag;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getDataId() {
+        return tagId;
+    }
+
+    @Override
+    public String getVersion() {
+        return "2019-03-10";
+    }
+
+    @Override
+    @JsonIgnore
+    public Context getSuggestContext() {
+        return new Context() {
+            // TODO in the future: Extract from new Localization Object
+            @Override
+            public Set<Country> getCountries() {
+                return Set.of(Country.SGP);
+            }
+        };
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Localization {
+        private Country country;
+        // Display: Search, List
+    }
 }

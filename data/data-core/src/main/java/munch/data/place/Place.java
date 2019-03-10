@@ -1,9 +1,12 @@
 package munch.data.place;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import munch.data.*;
+import munch.data.elastic.*;
 import munch.data.location.Area;
+import munch.data.location.Country;
 import munch.data.location.Location;
 import munch.file.Image;
 
@@ -22,7 +25,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Place implements ElasticObject, VersionedObject, SuggestObject, MultipleNameObject, TimingObject {
+public final class Place implements ElasticObject, VersionedObject, SuggestObject, SuggestObject.Names, TimingObject {
     private String placeId;
     private Status status;
 
@@ -48,8 +51,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     private Long updatedMillis;
 
     private Taste taste;
-    // Deprecate this once TasteBud is ready
-    private Double ranking;
 
     @Nullable
     @Pattern(regexp = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
@@ -219,19 +220,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
     }
 
     @NotNull
-    @Deprecated
-    public Double getRanking() {
-        return ranking;
-    }
-
-    /**
-     * Cannot REMOVE THIS Until 0.13.0 is deprecated.
-     */
-    public void setRanking(Double ranking) {
-        this.ranking = ranking;
-    }
-
-    @NotNull
     @Valid
     public Taste getTaste() {
         return taste;
@@ -239,21 +227,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
     public void setTaste(Taste taste) {
         this.taste = taste;
-    }
-
-    @Override
-    public String getDataType() {
-        return "Place";
-    }
-
-    @Override
-    public String getVersion() {
-        return "2018-05-30";
-    }
-
-    @Override
-    public String getDataId() {
-        return placeId;
     }
 
     @Override
@@ -277,7 +250,6 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                 ", createdMillis=" + createdMillis +
                 ", updatedMillis=" + updatedMillis +
                 ", taste=" + taste +
-                ", ranking=" + ranking +
                 '}';
     }
 
@@ -420,6 +392,8 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Price {
         private double perPax;
 
@@ -588,6 +562,13 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
         private int group;
         private double importance;
 
+        /**
+         * Group 0 is fallthrough, all place data should avoid getting into group 0
+         * Group 1 is high computability data, meaning frequently user might go
+         * Group 2 is high discoverability data, meaning occasionally user might go
+         *
+         * @return from 0 - 2, higher = better
+         */
         public int getGroup() {
             return group;
         }
@@ -596,6 +577,9 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
             this.group = group;
         }
 
+        /**
+         * @return from 0.0 - 1.0, higher = better
+         */
         public double getImportance() {
             return importance;
         }
@@ -611,5 +595,58 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
                     ", importance=" + importance +
                     '}';
         }
+    }
+
+    @Override
+    @Nullable
+    @JsonIgnore
+    public Context getSuggestContext() {
+        switch (getStatus().getType()) {
+            case renovation:
+            case moved:
+            case deleted:
+            case renamed:
+            case redirected:
+            default:
+                return null;
+
+            case open:
+            case closed:
+        }
+
+        return new Context() {
+            @Override
+            public Set<Country> getCountries() {
+                return Set.of(getLocation().getCountry());
+            }
+
+            @Override
+            public String getLatLng() {
+                return getLocation().getLatLng();
+            }
+
+            @Override
+            public int getWeight() {
+                // Group starts: 0 - 2, 0 is lowest hence always + 1
+                return getTaste().getGroup() + 1;
+            }
+        };
+    }
+
+    @Override
+    @JsonIgnore
+    public String getDataId() {
+        return placeId;
+    }
+
+    @Override
+    public DataType getDataType() {
+        return DataType.Place;
+    }
+
+
+    @Override
+    public String getVersion() {
+        return "2019-03-10";
     }
 }

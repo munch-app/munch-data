@@ -10,6 +10,7 @@ import io.searchbox.client.JestResult;
 import io.searchbox.indices.CreateIndex;
 import io.searchbox.indices.mapping.GetMapping;
 import io.searchbox.indices.mapping.PutMapping;
+import io.searchbox.indices.settings.UpdateSettings;
 import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ import java.nio.charset.Charset;
 @SuppressWarnings("UnstableApiUsage")
 @Singleton
 public final class ElasticMapping {
-    public static final String INDEX_NAME = "munch-v4";
+    public static final String INDEX_NAME = "munch-data-v5";
     public static final String TABLE_NAME = "Data";
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticMapping.class);
@@ -51,27 +52,29 @@ public final class ElasticMapping {
      * @throws RuntimeException if failed to create or validate
      */
     public void tryCreate() throws RuntimeException, IOException {
-        sleep(1000);
-        logger.info("Validating Index for endpoint /munch");
-        JsonNode index = getIndex();
+        logger.info("Getting Index for endpoint /munch");
+        logger.info("Index: {}", getIndex());
+    }
 
-        // Index don't exist; hence create and revalidate
-        // Note: index updating is complex
-        if (index == null) {
-            createIndex();
-            sleep(5000);
-            index = getIndex();
-        } else {
-            JsonNode data = getExpectedMapping().path("mappings").path(TABLE_NAME);
-            JestResult execute = client.execute(new PutMapping.Builder(ElasticMapping.INDEX_NAME, TABLE_NAME, mapper.writeValueAsString(data)).build());
-            logger.info(execute.getJsonString());
+    private void updateSetting() throws IOException {
+        JsonNode settings = getExpectedMapping().path("settings");
+        String json = mapper.writeValueAsString(settings);
+        JestResult result = client.execute(new UpdateSettings.Builder(json).addIndex(INDEX_NAME).build());
+        logger.info(result.getJsonString());
 
-            if (execute.getResponseCode() != 200) {
-                throw new RuntimeException("elastic-index.json is different from server");
-            }
+        if (result.getResponseCode() != 200) {
+            throw new RuntimeException("Local index is different from server");
         }
+    }
 
-        logger.info("Index: {}", index);
+    private void updateMapping() throws IOException {
+        JsonNode data = getExpectedMapping().path("mappings").path(TABLE_NAME);
+        JestResult execute = client.execute(new PutMapping.Builder(ElasticMapping.INDEX_NAME, TABLE_NAME, mapper.writeValueAsString(data)).build());
+        logger.info(execute.getJsonString());
+
+        if (execute.getResponseCode() != 200) {
+            throw new RuntimeException("Local index is different from server");
+        }
     }
 
     /**
@@ -84,9 +87,11 @@ public final class ElasticMapping {
         JestResult result = client.execute(new GetMapping.Builder()
                 .addIndex(ElasticMapping.INDEX_NAME)
                 .build());
+
         logger.info(result.getJsonString());
         JsonNode node = mapper.readTree(result.getJsonString());
         String type = node.path("error").path("type").asText(null);
+
         if (StringUtils.equalsIgnoreCase(type, "index_not_found_exception")) {
             logger.info("Index not found");
             return null;
@@ -101,16 +106,15 @@ public final class ElasticMapping {
      */
     public void createIndex() throws IOException {
         logger.info("Creating index");
-        URL url = Resources.getResource("elastic-index.json");
-        String json = Resources.toString(url, Charset.forName("UTF-8"));
+        String json = JsonUtils.toString(getExpectedMapping());
         JestResult result = client.execute(new CreateIndex.Builder(ElasticMapping.INDEX_NAME).settings(json).build());
         logger.info("Created index result: {}", result.getJsonString());
     }
 
-    public JsonNode getExpectedMapping() throws IOException {
-        URL url = Resources.getResource("elastic-index.json");
+    public static JsonNode getExpectedMapping() throws IOException {
+        URL url = Resources.getResource("elastic/" + ElasticMapping.INDEX_NAME + ".json");
         String json = Resources.toString(url, Charset.forName("UTF-8"));
-        return mapper.readTree(json);
+        return JsonUtils.readTree(json);
     }
 
     /**

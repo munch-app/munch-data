@@ -1,20 +1,18 @@
 package munch.data.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
-import munch.data.ElasticObject;
+import munch.data.elastic.ElasticObject;
+import munch.data.elastic.DataType;
 import munch.data.elastic.ElasticUtils;
 import munch.restful.client.RestfulClient;
 import munch.restful.core.JsonUtils;
-import munch.restful.core.NextNodeList;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -77,27 +75,27 @@ public final class ElasticClient extends RestfulClient {
 
     /**
      * @param dataType to filter to
-     * @param text     to search the ngram with
-     * @param latLng   latLng for distance decaying
-     * @param scale    scale of decay, depending on use cases
-     * @param size     total number of objects to return
-     * @param <T>      DataType
+     * @param text     to search
+     * @param size     of ElasticObject to return
+     * @param <T>      ObjectType
      * @return List of ElasticObject
      */
-    public <T extends ElasticObject> List<T> searchNgrams(String dataType, @NotBlank String text, @Nullable String latLng, String scale, int size) {
-        if (StringUtils.isBlank(text)) return new NextNodeList<>(List.of());
+    public <T extends ElasticObject> List<T> suggest(DataType dataType, String text, @Nullable String latLng, int size) {
+        if (StringUtils.isBlank(text)) return List.of();
 
-        ObjectNode root = JsonUtils.createObjectNode();
-        root.put("from", 0);
-        root.put("size", size);
-        ObjectNode queryNode = root.putObject("query");
-        ObjectNode boolNode = queryNode.putObject("bool");
+        ObjectNode root = JsonUtils.createObjectNode((object) -> {
+            object.putObject("suggest")
+                    .putObject("suggestions")
+                    .put("prefix", StringUtils.lowerCase(text))
+                    .set("completion", ElasticUtils.Suggest.makeCompletion(dataType, latLng, size));
+        });
 
-        JsonNode must = ElasticUtils.match(text, "names_ngram");
-        boolNode.set("must", ElasticUtils.withFunctionScoreMust(must, latLng, scale));
+        JsonNode results = search(root).path("suggest")
+                .path("suggestions")
+                .path(0)
+                .path("options");
+        if (results.isMissingNode()) return List.of();
 
-        ArrayNode filter = boolNode.putArray("filter");
-        filter.add(ElasticUtils.filterTerm("dataType", dataType));
-        return searchHitsHits(root);
+        return ElasticUtils.deserializeList(results);
     }
 }

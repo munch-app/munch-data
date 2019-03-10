@@ -4,7 +4,7 @@ import com.google.common.collect.Iterators;
 import corpus.airtable.AirtableApi;
 import corpus.airtable.AirtableRecord;
 import corpus.engine.AbstractEngine;
-import munch.data.ElasticObject;
+import munch.data.elastic.ElasticObject;
 import org.slf4j.Logger;
 
 import java.util.Iterator;

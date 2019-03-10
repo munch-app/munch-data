@@ -3,7 +3,11 @@ package munch.data.brand;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import munch.data.*;
+import munch.data.elastic.DataType;
+import munch.data.elastic.ElasticObject;
+import munch.data.elastic.SuggestObject;
+import munch.data.elastic.VersionedObject;
+import munch.data.location.Country;
 import munch.data.location.Location;
 import munch.file.Image;
 import org.hibernate.validator.constraints.URL;
@@ -24,7 +28,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Brand implements ElasticObject, VersionedObject, SuggestObject, MultipleNameObject {
+public final class Brand implements ElasticObject, VersionedObject, SuggestObject, SuggestObject.Names {
     private String brandId;
     private Status status;
     private Place place;
@@ -202,20 +206,6 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         this.updatedMillis = updatedMillis;
     }
 
-    @Override
-    public String getDataType() {
-        return "Brand";
-    }
-
-    @Override
-    public String getVersion() {
-        return "2018-05-30";
-    }
-
-    @Override
-    public String getDataId() {
-        return brandId;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -495,4 +485,31 @@ public final class Brand implements ElasticObject, VersionedObject, SuggestObjec
         }
     }
 
+    @Override
+    public Context getSuggestContext() {
+        return new Context() {
+            @Override
+            public Set<Country> getCountries() {
+                if (getLocation().getCountry() == null) {
+                    return Set.of(Country.SGP);
+                }
+                return Set.of(getLocation().getCountry());
+            }
+        };
+    }
+
+    @Override
+    public DataType getDataType() {
+        return DataType.Brand;
+    }
+
+    @Override
+    public String getVersion() {
+        return "2019-03-10";
+    }
+
+    @Override
+    public String getDataId() {
+        return brandId;
+    }
 }

@@ -1,4 +1,4 @@
-package munch.data;
+package munch.data.elastic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +17,7 @@ public interface ElasticObject {
      * @return data type to identify the type of data
      */
     @JsonProperty("dataType")
-    String getDataType();
+    DataType getDataType();
 
     /**
      * @return id to identify the data
@@ -36,4 +36,13 @@ public interface ElasticObject {
     Long getCreatedMillis();
 
     void setCreatedMillis(Long createdMillis);
+
+    @JsonIgnore
+    default String getElasticId() {
+        return getDataType().name() + "|" + getDataId();
+    }
+
+    static String createElasticId(DataType dataType, String dataId) {
+        return dataType + "|" + dataId;
+    }
 }

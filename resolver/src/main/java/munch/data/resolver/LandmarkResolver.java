@@ -39,7 +39,7 @@ public final class LandmarkResolver {
         root.putObject("query").set("bool", bool);
 
         root.set("sort", JsonUtils.createArrayNode()
-                .add(ElasticUtils.sortDistance(latLng))
+                .add(ElasticUtils.Sort.sortDistance(latLng))
         );
 
         return elasticClient.searchHitsHits(root);

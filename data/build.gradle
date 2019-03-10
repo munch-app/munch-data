@@ -41,7 +41,7 @@ project('data-service') {
         compile group: 'vc.inreach.aws', name: 'aws-signing-request-interceptor', version: '0.0.20'
 
         compile group: 'com.google.inject', name: 'guice', version: guiceVersion
-
+        compile group: 'catalyst', name: 'catalyst-utils', version: ccVersion
         testCompile project(':data:data-client')
     }
 
@@ -49,7 +49,7 @@ project('data-service') {
     mainClassName = 'munch.data.service.ServiceModule'
 }
 
-configure(subprojects.findAll { it.name.matches("^.+-(service|task)") }) {
+configure(subprojects.findAll { it.name.matches("^.+-service") }) {
     apply plugin: 'com.bmuschko.docker-java-application'
 
     ext.dockerTag = dockerRegistryUrl + rootProject.name + '/' + project.name + ':'

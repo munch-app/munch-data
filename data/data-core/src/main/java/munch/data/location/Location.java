@@ -197,14 +197,12 @@ public final class Location {
                 ", street='" + street + '\'' +
                 ", unitNumber='" + unitNumber + '\'' +
                 ", neighbourhood='" + neighbourhood + '\'' +
-                ", city='" + city + '\'' +
-                ", country='" + country + '\'' +
+                ", city=" + city +
+                ", country=" + country +
                 ", postcode='" + postcode + '\'' +
                 ", latLng='" + latLng + '\'' +
                 ", polygon=" + polygon +
                 ", landmarks=" + landmarks +
                 '}';
     }
-
-
 }

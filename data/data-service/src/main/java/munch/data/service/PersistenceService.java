@@ -3,7 +3,8 @@ package munch.data.service;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import munch.data.ElasticObject;
+import munch.data.elastic.DataType;
+import munch.data.elastic.ElasticObject;
 import munch.data.elastic.ElasticIndex;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.ParamException;
@@ -18,7 +19,7 @@ import munch.restful.server.dynamodb.RestfulDynamoHashService;
  */
 public abstract class PersistenceService<T extends ElasticObject> extends RestfulDynamoHashService<T> {
 
-    protected final String dataType;
+    protected final DataType dataType;
     protected final ElasticIndex elasticIndex;
 
     public PersistenceService(PersistenceMapping persistenceMapping, ElasticIndex elasticIndex, Class<T> clazz) {

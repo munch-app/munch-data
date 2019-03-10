@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
-import munch.data.ElasticObject;
-import munch.data.elastic.ElasticIndex;
-import munch.data.elastic.ElasticMapping;
-import munch.data.elastic.ElasticUtils;
+import munch.data.elastic.*;
 import munch.data.exception.ElasticException;
 import munch.data.location.Area;
 import munch.data.place.Place;
@@ -50,8 +47,10 @@ public final class ClusterManager {
      * @param area used to search for Place and update all linked Place
      */
     public void update(Area area) {
+        Objects.requireNonNull(area.getAreaId());
         if (area.getType() != Area.Type.Cluster) return;
-        Area oldArea = elasticIndex.get("Area", Objects.requireNonNull(area.getAreaId()));
+
+        Area oldArea = elasticIndex.get(DataType.Area, area.getAreaId());
         if (!isPolygonUpdated(oldArea, area)) return;
 
         // Link up Places in Area
@@ -158,7 +157,7 @@ public final class ClusterManager {
         bool.set("filter", JsonUtils.createArrayNode()
                 .add(ElasticUtils.filterTerm("dataType", "Area"))
                 .add(ElasticUtils.filterTerm("type", Area.Type.Cluster.name()))
-                .add(ElasticUtils.filterIntersectsPoint("location.polygon", place.getLocation().getLatLng()))
+                .add(ElasticUtils.filterIntersectsPoint("location.geometry", place.getLocation().getLatLng()))
         );
         root.putObject("query").set("bool", bool);
 

@@ -9,7 +9,6 @@ import com.google.inject.Singleton;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.*;
 import io.searchbox.params.Parameters;
-import munch.data.ElasticObject;
 import munch.data.exception.ClusterBlockException;
 import munch.data.exception.ElasticException;
 import munch.restful.core.JsonUtils;
@@ -34,7 +33,7 @@ public final class ElasticIndex {
     private static final ObjectMapper mapper = JsonUtils.objectMapper;
 
     private final JestClient client;
-    private final ElasticMarshaller marshaller;
+    private final ElasticSerializer marshaller;
 
     /**
      * https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/java-docs-index.html
@@ -44,7 +43,7 @@ public final class ElasticIndex {
      * @throws RuntimeException if ElasticSearchMapping validation failed
      */
     @Inject
-    public ElasticIndex(JestClient client, ElasticMarshaller marshaller) {
+    public ElasticIndex(JestClient client, ElasticSerializer marshaller) {
         this.client = client;
         this.marshaller = marshaller;
     }
@@ -61,7 +60,7 @@ public final class ElasticIndex {
             DocumentResult result = client.execute(new Index.Builder(json)
                     .index(ElasticMapping.INDEX_NAME)
                     .type(ElasticMapping.TABLE_NAME)
-                    .id(createKey(object.getDataType(), object.getDataId()))
+                    .id(object.getElasticId())
                     .build());
 
             validateResult(true, result);
@@ -77,15 +76,15 @@ public final class ElasticIndex {
      * @return data if exists
      */
     @Nullable
-    public <T extends ElasticObject> T get(String dataType, String dataId) {
+    public <T extends ElasticObject> T get(DataType dataType, String dataId) {
         try {
-            Get get = new Get.Builder(ElasticMapping.INDEX_NAME, createKey(dataType, dataId))
+            Get get = new Get.Builder(ElasticMapping.INDEX_NAME, ElasticObject.createElasticId(dataType, dataId))
                     .type(ElasticMapping.TABLE_NAME)
                     .build();
             DocumentResult result = client.execute(get);
             validateResult(false, result);
 
-            return marshaller.deserialize(mapper.readTree(result.getJsonString()));
+            return ElasticUtils.deserialize(mapper.readTree(result.getJsonString()));
         } catch (IOException e) {
             throw ElasticException.parse(e);
         }
@@ -96,9 +95,9 @@ public final class ElasticIndex {
      * @param dataId   key of data type
      * @throws ElasticException wrapped exception
      */
-    public void delete(String dataType, String dataId) {
+    public void delete(DataType dataType, String dataId) {
         try {
-            DocumentResult result = client.execute(new Delete.Builder(createKey(dataType, dataId))
+            DocumentResult result = client.execute(new Delete.Builder(ElasticObject.createElasticId(dataType, dataId))
                     .index(ElasticMapping.INDEX_NAME)
                     .type(ElasticMapping.TABLE_NAME)
                     .build());
@@ -110,26 +109,27 @@ public final class ElasticIndex {
     }
 
     /**
-     * @param type    data type to scroll
-     * @param timeout timeout in elastic time unit e.g. 1m
-     * @param size    size per batch
-     * @param <T>     data type
+     * @param dataType data type to scroll
+     * @param timeout  timeout in elastic time unit e.g. 1m
+     * @param size     size per batch
+     * @param <T>      data type
      * @return Iterator of batch Data
      */
-    public <T extends ElasticObject> Iterator<List<T>> scroll(String type, String timeout, int size) {
+    public <T extends ElasticObject> Iterator<List<T>> scroll(String indexName, DataType dataType, String timeout, int size) {
         ObjectNode node = JsonUtils.createObjectNode();
         node.put("size", size);
-        node.putObject("query").putObject("term").put("dataType", type);
+        node.putObject("query").putObject("term").put("dataType", dataType.name());
+
 
         Search search = new Search.Builder(JsonUtils.toString(node))
-                .addIndex(ElasticMapping.INDEX_NAME)
+                .addIndex(indexName)
                 .setParameter(Parameters.SCROLL, timeout)
                 .build();
 
         try {
             return new Iterator<>() {
                 JsonNode result = mapper.readTree(client.execute(search).getJsonString());
-                List<T> nextList = marshaller.deserializeList(result.path("hits").path("hits"));
+                List<T> nextList = ElasticUtils.deserializeList(result.path("hits").path("hits"));
 
                 @Override
                 public boolean hasNext() {
@@ -137,7 +137,7 @@ public final class ElasticIndex {
                         try {
                             SearchScroll scroll = new SearchScroll.Builder(result.path("_scroll_id").asText(), timeout).build();
                             result = mapper.readTree(client.execute(scroll).getJsonString());
-                            nextList = marshaller.deserializeList(result.path("hits").path("hits"));
+                            nextList = ElasticUtils.deserializeList(result.path("hits").path("hits"));
 
                             if (!nextList.isEmpty()) return true;
 
@@ -166,13 +166,17 @@ public final class ElasticIndex {
     }
 
     /**
-     * @param type    type: Place, Container, Location, Tag
-     * @param timeout timeout different each batched request
-     * @param <T>     T data type
+     * @param dataType type: Place, Container, Location, Tag
+     * @param timeout  timeout different each batched request
+     * @param <T>      T data type
      * @return Iterator of that Data
      */
-    public <T extends ElasticObject> Iterator<T> scroll(String type, String timeout) {
-        Iterator<List<T>> listIterator = scroll(type, timeout, 20);
+    public <T extends ElasticObject> Iterator<T> scroll(DataType dataType, String timeout) {
+        return scroll(dataType, timeout, 20);
+    }
+
+    public <T extends ElasticObject> Iterator<T> scroll(DataType dataType, String timeout, int size) {
+        Iterator<List<T>> listIterator = scroll(ElasticMapping.INDEX_NAME, dataType, timeout, size);
         return Iterators.concat(Iterators.transform(listIterator, List::iterator));
     }
 
@@ -185,15 +189,14 @@ public final class ElasticIndex {
             }
 
             if (jsonNode.path("result").asText("").equals("not_found") || !jsonNode.path("found").asBoolean()) {
-                if (validateNotFound) throw new ElasticException(404, "Failed to put/delete/get object.");
+                if (validateNotFound) {
+                    logger.warn("{}", jsonNode);
+                    throw new ElasticException(404, "Failed to put/delete/get object.");
+                }
             } else {
                 logger.warn("{}", jsonNode);
                 throw new ElasticException("Failed to put/delete/get object.");
             }
         }
-    }
-
-    private static String createKey(String type, String key) {
-        return type + "|" + key;
     }
 }

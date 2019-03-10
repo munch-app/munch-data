@@ -1,4 +1,4 @@
-package munch.data;
+package munch.data.elastic;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,6 +11,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public interface VersionedObject {
 
     /**
+     * 2018-05-05
+     * Started versioned object
+     * <p>
+     * 2019-03-10
+     * Update elastic index for scale and fixes low level problem
+     *
      * @return version of object: e.g: 2018-05-05
      */
     @JsonProperty("version")

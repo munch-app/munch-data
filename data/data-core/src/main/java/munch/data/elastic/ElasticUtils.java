@@ -3,7 +3,7 @@ package munch.data.elastic;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import munch.data.ElasticObject;
+import munch.data.brand.Brand;
 import munch.data.location.Area;
 import munch.data.location.Landmark;
 import munch.data.place.Place;
@@ -12,6 +12,8 @@ import munch.restful.core.JsonUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -20,7 +22,6 @@ import java.util.*;
  * Project: munch-data
  */
 public final class ElasticUtils {
-
 
     /**
      * @param results from es
@@ -52,6 +53,8 @@ public final class ElasticUtils {
                 return (T) JsonUtils.toObject(source, Area.class);
             case "Place":
                 return (T) JsonUtils.toObject(source, Place.class);
+            case "Brand":
+                return (T) JsonUtils.toObject(source, Brand.class);
             default:
                 return null;
         }
@@ -213,32 +216,6 @@ public final class ElasticUtils {
         return filter;
     }
 
-    public static JsonNode sortDistance(String latLng) {
-        Objects.requireNonNull(latLng);
-
-        ObjectNode geoDistance = JsonUtils.createObjectNode()
-                .put("location.latLng", latLng)
-                .put("order", "asc")
-                .put("unit", "m")
-                .put("mode", "min")
-                .put("distance_type", "plane");
-
-        ObjectNode sort = JsonUtils.createObjectNode();
-        sort.set("_geo_distance", geoDistance);
-        return sort;
-    }
-
-    /**
-     * @param field field
-     * @param by    direction
-     * @return { "field": "by" }
-     */
-    public static JsonNode sortField(String field, String by) {
-        ObjectNode sort = JsonUtils.createObjectNode();
-        sort.put(field, by);
-        return sort;
-    }
-
     /**
      * @param must   function base score
      * @param latLng optional distance decaying with default decay 2.5km scale
@@ -275,5 +252,155 @@ public final class ElasticUtils {
                     .put("origin", latLng);
         }
         return root;
+    }
+
+    public static final class Suggest {
+        public static JsonNode makeCompletion(DataType dataType, @Nullable String latLng, int size) {
+            ObjectNode completion = JsonUtils.createObjectNode();
+            completion.put("field", "suggest");
+            completion.put("fuzzy", true);
+            completion.put("size", size);
+
+            ObjectNode contexts = completion.putObject("contexts");
+            contexts.set("dataType", makeDataType(dataType));
+
+            if (latLng != null) {
+                contexts.set("latLng", makeLatLng(latLng));
+            }
+
+            return completion;
+        }
+
+        private static JsonNode makeDataType(DataType dataType) {
+            ArrayNode arrayNode = JsonUtils.createArrayNode();
+            arrayNode.add(dataType.name());
+            return arrayNode;
+        }
+
+        private static JsonNode makeLatLng(String latLng) {
+            String[] lls = latLng.split(",");
+            final double lat = Double.parseDouble(lls[0].trim());
+            final double lng = Double.parseDouble(lls[1].trim());
+
+            ArrayNode latLngArray = JsonUtils.createArrayNode();
+
+            // +/- 78km
+            latLngArray.addObject()
+                    .put("precision", 3)
+                    .putObject("context")
+                    .put("lat", lat)
+                    .put("lon", lng);
+
+            // +/- 2.4km
+            latLngArray.addObject()
+                    .put("precision", 5)
+                    .put("boost", 2.0)
+                    .putObject("context")
+                    .put("lat", lat)
+                    .put("lon", lng);
+            return latLngArray;
+        }
+    }
+
+    public static final class Sort {
+        /**
+         * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+         *
+         * @param latLng center
+         * @return { "location.latLng" : "lat,lng", "order" : "asc", "unit" : "m", "mode" : "min", "distance_type" : "plane" }
+         */
+        public static JsonNode sortDistance(String latLng) {
+            Objects.requireNonNull(latLng);
+
+            ObjectNode geoDistance = JsonUtils.createObjectNode()
+                    .put("location.latLng", latLng)
+                    .put("order", "asc")
+                    .put("unit", "m")
+                    .put("mode", "min")
+                    .put("distance_type", "plane");
+
+            ObjectNode sort = JsonUtils.createObjectNode();
+            sort.set("_geo_distance", geoDistance);
+            return sort;
+        }
+
+        /**
+         * @param field field
+         * @param by    direction
+         * @return { "field": "by" }
+         */
+        public static JsonNode sortField(String field, String by) {
+            ObjectNode sort = JsonUtils.createObjectNode();
+            sort.put(field, by);
+            return sort;
+        }
+    }
+
+    /**
+     * Geohash Precision
+     * 1:  5,009.4km x 4,992.6km
+     * 2:  1,252.3km x 624.1km
+     * 3:  156.5km x 156km
+     * 4:  39.1km x 19.5km
+     * 5:  4.9km x 4.9km
+     * 6:  1.2km x 609.4m
+     * 7:  152.9m x 152.4m
+     * 8:  38.2m x 19m
+     * 9:  4.8m x 4.8m
+     * 10: 1.2m x 59.5cm
+     * 11: 14.9cm x 14.9cm
+     * 12: 3.7cm x 1.9cm
+     */
+    public static final class Spatial {
+        public static String[] getBoundingBox(double lat, double lng, double latOffsetKm, double lngOffsetKm) {
+            final double latOffset = toRad(latOffsetKm);
+            final double lngOffset = toRad(lngOffsetKm);
+            return new String[]{
+                    (lat + latOffset) + "," + (lng - lngOffset), // Top Lat, Lng
+                    (lat - latOffset) + "," + (lng + lngOffset), // Bot Lat, Lng
+            };
+        }
+
+        public static <T> double[] getCentroid(List<T> list, Function<T, String> mapper) {
+            List<String> points = list.stream()
+                    .map(mapper)
+                    .collect(Collectors.toList());
+            return getCentroid(points);
+        }
+
+        /**
+         * @return centroid of points
+         */
+        public static double[] getCentroid(List<String> points) {
+            double centroidLat = 0, centroidLng = 0;
+
+            for (String point : points) {
+                double[] latLng = parse(point);
+                centroidLat += latLng[0];
+                centroidLng += latLng[1];
+            }
+
+            return new double[]{
+                    centroidLat / points.size(),
+                    centroidLng / points.size()
+            };
+        }
+
+        public static double toRad(double radiusInKm) {
+            return (1 / 110.54) * radiusInKm;
+        }
+
+        public static double[] parse(String latLng) {
+            Objects.requireNonNull(latLng);
+
+            try {
+                String[] split = latLng.split(",");
+                double lat = Double.parseDouble(split[0].trim());
+                double lng = Double.parseDouble(split[1].trim());
+                return new double[]{lat, lng};
+            } catch (NullPointerException | IndexOutOfBoundsException | NumberFormatException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
