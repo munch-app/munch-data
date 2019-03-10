@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
  * Project: munch-data
  */
 public final class SuggestCountryPlugin implements ElasticPlugin {
-    private static final Pattern pattern = Pattern.compile("[^a-z0-9]");
+    private static final Pattern PATTERN_NON_ALPHANUMERIC = Pattern.compile("[^a-z0-9 ]");
+    private static final Pattern PATTERN_APOSTROPHE = Pattern.compile("[^a-z0-9 ]s");
 
     @Override
     public void serialize(ElasticObject elasticObject, ObjectNode node) {
@@ -80,7 +81,9 @@ public final class SuggestCountryPlugin implements ElasticPlugin {
         names.add(StringUtils.lowerCase(name));
 
         // Strip All Symbols
-        names.add(pattern.matcher(name).replaceAll(""));
+        names.add(PATTERN_NON_ALPHANUMERIC.matcher(name).replaceAll(""));
+        // Strip all 's
+        names.add(PATTERN_APOSTROPHE.matcher(name).replaceAll(""));
 
         // Add all other names
         if (objectNames != null) {
