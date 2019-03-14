@@ -47,15 +47,15 @@ public final class ClusterManager {
      * @param area used to search for Place and update all linked Place
      */
     public void update(Area area) {
-        Objects.requireNonNull(area.getAreaId());
-        if (area.getType() != Area.Type.Cluster) return;
-
-        Area oldArea = elasticIndex.get(DataType.Area, area.getAreaId());
-        if (!isPolygonUpdated(oldArea, area)) return;
+        // TODO: Removed temporary due to the under-provisioned cluster
+//        Objects.requireNonNull(area.getAreaId());
+//        if (area.getType() != Area.Type.Cluster) return;
+//
+//        Area oldArea = elasticIndex.get(DataType.Area, area.getAreaId());
+//        if (!isPolygonUpdated(oldArea, area)) return;
 
         // Link up Places in Area
         // Start completable future to persist Place
-        // TODO: Removed temporary due to the under-provisioned cluster
 //        logger.info("Started Area Updating, areaId: {}", area.getAreaId());
 //        int mutated = 0;
 //        for (Place place : searchPlaces(area)) {

@@ -9,6 +9,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import corpus.airtable.AirtableModule;
 import corpus.engine.EngineGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by: Fuxing
@@ -17,6 +19,7 @@ import corpus.engine.EngineGroup;
  * Project: munch-data
  */
 public final class InterfaceModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(InterfaceModule.class);
 
     @Override
     protected void configure() {
@@ -39,7 +42,6 @@ public final class InterfaceModule extends AbstractModule {
                 injector.getInstance(TagBridge.class),
                 injector.getInstance(LandmarkBridge.class),
                 injector.getInstance(AreaBridge.class)
-
 //                injector.getInstance(PlaceBridge.class)
         );
     }
