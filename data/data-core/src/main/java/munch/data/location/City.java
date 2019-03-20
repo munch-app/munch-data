@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Official supported city in munch-data
+ * TODO(fuxing): might want to deprecate this and follow location-service
  * <p>
  * Created by: Fuxing
  * Date: 27/8/2018
