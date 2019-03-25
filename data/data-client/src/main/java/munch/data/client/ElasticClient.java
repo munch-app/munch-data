@@ -1,10 +1,11 @@
 package munch.data.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
-import munch.data.elastic.ElasticObject;
 import munch.data.elastic.DataType;
+import munch.data.elastic.ElasticObject;
 import munch.data.elastic.ElasticUtils;
 import munch.data.location.City;
 import munch.data.location.Country;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -122,6 +124,46 @@ public final class ElasticClient extends RestfulClient {
         ObjectNode contexts = JsonUtils.createObjectNode();
         contexts.set("city", ElasticUtils.Suggest.makeCity(city));
         return suggestPrefix(text, ElasticUtils.Suggest.makeCompletion("suggest_places", contexts, size));
+    }
+
+    /**
+     * @param city optional city to search within
+     * @param text for searching, non-blank
+     * @param size number of place to return
+     * @return List of Place, matching the params
+     */
+    public List<Place> searchPlaces(@Nullable City city, @NotBlank String text, int size) {
+        return searchPlaces(city, text, 0, size);
+    }
+
+    /**
+     * @param city optional city to search within
+     * @param text for searching, non-blank
+     * @param from to start query from
+     * @param size number of place to return
+     * @return List of Place, matching the params
+     */
+    public List<Place> searchPlaces(@Nullable City city, @NotBlank String text, int from, int size) {
+        if (StringUtils.isBlank(text)) return List.of();
+
+        ObjectNode root = JsonUtils.createObjectNode();
+        root.put("from", from);
+        root.put("size", size);
+
+        ObjectNode bool = root.putObject("query")
+                .putObject("bool");
+
+        ArrayNode must = bool.putArray("must");
+        must.add(ElasticUtils.match("names", text));
+
+        ArrayNode filter = bool.putArray("filter");
+        filter.add(ElasticUtils.filterTerm("dataType", DataType.Place.name()));
+
+        if (city != null) {
+            filter.add(ElasticUtils.filterTerm("location.city", city.name()));
+        }
+
+        return searchHitsHits(root);
     }
 
     public <T extends ElasticObject> List<T> suggestPrefix(String text, JsonNode completion) {

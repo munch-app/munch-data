@@ -45,6 +45,7 @@ public final class PriceResolver {
         return list.get(0).getValue();
     }
 
+    @Nullable
     private Double findMenuItemPrice(PlaceMutation mutation) {
         List<MutationField<MenuItemCollection>> items = mutation.getMenuItem();
         if (items == null) return null;
@@ -60,6 +61,7 @@ public final class PriceResolver {
         return graph.get(index) * 1.05;
     }
 
+    @Nullable
     private static Place.Price parse(Double value) {
         if (value == null) return null;
 
