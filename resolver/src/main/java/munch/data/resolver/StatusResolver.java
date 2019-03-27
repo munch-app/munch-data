@@ -27,30 +27,66 @@ public final class StatusResolver {
         }
 
         StatusEdit statusEdit = fields.get(0).getValue();
+
         Place.Status status = new Place.Status();
         status.setType(parseType(statusEdit.getType()));
+        status.setMoved(getMoved(statusEdit));
+        status.setRenamed(getRenamed(statusEdit));
+        status.setRedirected(getRedirected(statusEdit));
         return status;
     }
 
     private Place.Status.Type parseType(StatusEdit.Type type) {
         switch (type) {
-            case closedHidden:
-                throw new ResolverHaltException("Closed Hidden");
-            case spam:
-                throw new ResolverHaltException("Spam");
-            case error:
-                throw new ResolverHaltException("Error");
+            case open:
+                return Place.Status.Type.open;
 
             case closed:
                 return Place.Status.Type.closed;
-            case open:
-                return Place.Status.Type.open;
+
             case renovation:
                 return Place.Status.Type.renovation;
+
+            case closedHidden:
+            case spam:
+            case error:
+            case deleted:
+                return Place.Status.Type.deleted;
+
             case moved:
                 return Place.Status.Type.moved;
+
+            case renamed:
+                return Place.Status.Type.renamed;
+
+            case merged:
+                return Place.Status.Type.redirected;
             default:
                 throw new IllegalArgumentException(type.name() + " type not found.");
         }
+    }
+
+    private Place.Status.Redirected getRedirected(StatusEdit statusEdit) {
+        if (statusEdit.getType() != StatusEdit.Type.merged) return null;
+
+        Place.Status.Redirected redirected = new Place.Status.Redirected();
+        redirected.setPlaceId(statusEdit.getPlaceId());
+        return redirected;
+    }
+
+    private Place.Status.Moved getMoved(StatusEdit statusEdit) {
+        if (statusEdit.getType() != StatusEdit.Type.moved) return null;
+
+        Place.Status.Moved moved = new Place.Status.Moved();
+        moved.setPlaceId(statusEdit.getPlaceId());
+        return moved;
+    }
+
+    private Place.Status.Renamed getRenamed(StatusEdit statusEdit) {
+        if (statusEdit.getType() != StatusEdit.Type.renamed) return null;
+
+        Place.Status.Renamed renamed = new Place.Status.Renamed();
+        renamed.setPlaceId(statusEdit.getPlaceId());
+        return renamed;
     }
 }

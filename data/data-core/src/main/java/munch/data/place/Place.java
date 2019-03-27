@@ -462,11 +462,11 @@ public final class Place implements ElasticObject, VersionedObject, SuggestObjec
 
         public enum Type {
             open,
-            renovation,
             closed,
+            renovation,
+            deleted,
 
             moved,
-            deleted,
             renamed,
             redirected,
         }
