@@ -14,7 +14,7 @@ allprojects {
     ext.guiceVersion = '4.2.2'
     ext.awsVersion = '1.11.508'
 
-    ext.restfulVersion = '3.0.5'
+    ext.restfulVersion = '3.0.9'
 
     ext.ccVersion = '3.4-SNAPSHOT'
     ext.fileVersion = '1.2.17'
